@@ -1,0 +1,23 @@
+body{
+  background: transparent !important;
+}
+.wpdb-header{
+  background-color: #dff0d8;
+}
+.panel {
+  margin-bottom: 0 !important;
+}
+#collapseDocumentation ul{
+    margin-left: 25px !important;
+}
+#collapseDocumentation ul li{
+    list-style-type: circle  !important;
+}
+.wpdb_log .arrow {
+    margin-left: 0px !important;
+}
+.popover{
+    max-width: 500Px !important;
+    background: #f6f7f7 !important;
+    padding: 10px !important;
+}

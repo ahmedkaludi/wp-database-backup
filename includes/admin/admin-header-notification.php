@@ -100,16 +100,6 @@ $changelog_msg .= "<li class='list-group-item'>" . $coupon . '<li>';
 	<img id="backup_process" style="display:none" width="50" height="50" src="<?php echo esc_url( WPDB_PLUGIN_URL ); ?>/assets/images/icon_loading.gif">
 </div>
 	<div class="col-xs-4 col-sm-4 col-md-4 text-right">
-
-		<!-- Single button -->
-		<div class="btn-group">
-			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				<span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> <span class="caret"></span>
-			</button>
-			<ul class="dropdown-menu pull-right">
-				<?php echo wp_kses_post( $changelog_msg ); ?>
-			</ul>
-		</div>
 		<!-- Single button -->
 		<div class="btn-group">
 			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -119,121 +109,8 @@ $changelog_msg .= "<li class='list-group-item'>" . $coupon . '<li>';
 				<li  class="list-group-item "><?php echo wp_kses_post( $alert ); ?></li>
 				<?php if ( ! empty( $changelog ) ) { ?>
 					<li  class="list-group-item "><?php echo wp_kses_post( $changelog ); ?></li>
-<?php } ?>
+				<?php } ?>
 			</ul>
 		</div>
-
-		<!-- Single button Setting-->
-		<div class="btn-group">
-			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> <span class="caret"></span>
-			</button>
-			<ul class="dropdown-menu pull-right">
-
-				<li role="separator" class="divider"></li>
-				<li>
-					<a href="#" >
-						<p><?php esc_attr_e( 'Schedule :', 'wpdbbkp' ); ?>
-							<?php
-							$settings = get_option( 'wp_db_backup_options' );
-							if ( isset( $settings['enable_autobackups'] ) && '1' === $settings['enable_autobackups'] ) {
-								esc_attr_e( 'Enabled -', 'wpdbbkp' );
-								$autobackup_frequency = ucfirst( $settings['autobackup_frequency'] );
-								echo esc_attr( $autobackup_frequency );
-							} else {
-								esc_attr_e( 'Disabled', 'wpdbbkp' );
-							}
-							?>
-							</p>
-					</a>
-				</li>
-				<li role="separator" class="divider"></li>
-				<li >
-					<a href="#" >
-						<p><?php esc_attr_e( 'Exclude Tables :', 'wpdbbkp' ); ?></p>
-						<?php
-						$wp_db_exclude_table = array();
-						$wp_db_exclude_table = (array) get_option( 'wp_db_exclude_table' );
-						if ( false === empty( $wp_db_exclude_table ) ) {
-							echo wp_kses_post( implode( ',<br> ', $wp_db_exclude_table ) );
-						}
-						?>
-			</p>
-
-					</a>
-				</li>
-				<li role="separator" class="divider"></li>
-				<li><a href="#">
-						<a href="#" >
-							<p><?php esc_attr_e( 'Keep No of backup :', 'wpdbbkp' ); ?>
-								<?php
-								if ( 0 === (int) get_option( 'wp_local_db_backup_count' ) ) {
-									esc_attr_e( 'Unlimited', 'wpdbbkp' );
-								} else {
-									echo esc_attr( get_option( 'wp_local_db_backup_count' ) );
-								}
-								?>
-								</p>
-						</a>
-					</a>
-				</li>
-				<li role="separator" class="divider"></li>
-				<li>
-					<a href="#" >
-						<p><?php esc_attr_e( 'Backup Log :', 'wpdbbkp' ); ?>
-							<?php
-							if ( 1 === (int) get_option( 'wp_db_log' ) ) {
-								esc_attr_e( 'Enabled', 'wpdbbkp' );
-							} else {
-								esc_attr_e( 'Disabled', 'wpdbbkp' );
-							}
-							?>
-							</p>
-					</a>
-				</li>
-				<li role="separator" class="divider"></li>
-				<li>
-					<a href="#db_setting" data-toggle="tab" title="<?php esc_attr_e( 'Change Setting', 'wpdbbkp' ); ?>"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> <?php esc_attr_e( 'Change Setting', 'wpdbbkp' ); ?></a>
-				</li>
-			</ul>
-		</div>
-
-		<!-- Single button Author-->
-		<div class="btn-group">
-			<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				<span class="glyphicon glyphicon-user" aria-hidden="true"></span> <span class="caret"></span>
-			</button>
-			<ul class="dropdown-menu pull-right">
-				<li>
-					<a href="http://walkeprashant.in" target="_blank" >
-						<h5 ><?php esc_attr_e( 'Plugin Author', 'wpdbbkp' ); ?></h5>
-						<p><?php esc_attr_e( 'Prashant Walke', 'wpdbbkp' ); ?></p>
-						<p><?php esc_attr_e( '(Sr. PHP Developer)', 'wpdbbkp' ); ?></p>
-					</a>
-				</li>
-				<li role="separator" class="divider"></li>
-				<li >
-					<a href="http://www.wpseeds.com/wp-database-backup/" target="_blank" >
-						<h5 ><?php esc_attr_e( 'Plugin URL', 'wpdbbkp' ); ?></h5>
-					</a>
-				</li>
-				<li >
-					<a href="http://www.wpseeds.com/blog/category/update/wp-database-backup/" target="_blank" >
-						<h5 ><?php esc_attr_e( 'Change Log', 'wpdbbkp' ); ?> </h5>
-					</a>
-				</li>
-				<li >
-					<a href="https://www.wpseeds.com/documentation/docs/wp-database-backup/" target="_blank" >
-						<h5 ><?php esc_attr_e( 'Documentation', 'wpdbbkp' ); ?></h5>
-					</a>
-				</li>
-				<li >
-					<a href="https://www.wpseeds.com/support/" target="_blank" >
-						<h5 ><?php esc_attr_e( 'Support', 'wpdbbkp' ); ?></h5>
-					</a>
-				</li>
-			</ul>
-		</div>
-
 	</div>
 </div>

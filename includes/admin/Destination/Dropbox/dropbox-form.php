@@ -14,7 +14,7 @@
 			</a>
 		</h4>
 	</div>
-	<div id="collapseIII" class="panel-collapse collapse in">
+	<div id="collapseIII" class="panel-collapse collapse">
 		<div class="panel-body">
 			<?php
 				require plugin_dir_path( __FILE__ ) . 'dropboxupload.php';

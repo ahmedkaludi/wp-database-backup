@@ -81,7 +81,7 @@ if ( isset( $_GET['code'] ) ) {
 			</a>
 		</h4>
 	</div>
-	<div id="collapsegoogle" class="panel-collapse collapse in">
+	<div id="collapsegoogle" class="panel-collapse collapse">
 		<div class="panel-body">
 			<?php echo esc_html( $update_msg ); ?>
 			<form  class="form-group" name="googledrive" method="post" action="">

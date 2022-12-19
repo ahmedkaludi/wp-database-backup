@@ -15,7 +15,7 @@
 							</a>
 						</h4>
 					</div>
-					<div id="collapseII" class="panel-collapse collapse in">
+					<div id="collapseII" class="panel-collapse collapse">
 						<div class="panel-body">
 
 							<?php

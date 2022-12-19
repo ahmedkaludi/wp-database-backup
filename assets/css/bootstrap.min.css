@@ -686,7 +686,7 @@
 .bootstrap-wrapper select[multiple], .bootstrap-wrapper select[size]{height:auto}
 .bootstrap-wrapper input[type="file"]:focus, .bootstrap-wrapper input[type="radio"]:focus, .bootstrap-wrapper input[type="checkbox"]:focus{outline:thin dotted;outline:5px auto -webkit-focus-ring-color;outline-offset:-2px}
 .bootstrap-wrapper output{display:block;padding-top:7px;font-size:14px;line-height:1.42857143;color:#555}
-.bootstrap-wrapper .form-control{display:block;width:100%;height:34px;padding:6px 12px;font-size:14px;line-height:1.42857143;color:#555;background-color:#fff;background-image:none;border:1px solid #ccc;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0, .bootstrap-wrapper 0, .bootstrap-wrapper 0, .bootstrap-wrapper 0.075);box-shadow:inset 0 1px 1px rgba(0, .bootstrap-wrapper 0, .bootstrap-wrapper 0, .bootstrap-wrapper 0.075);-webkit-transition:border-color ease-in-out .15s, .bootstrap-wrapper  -webkit-box-shadow ease-in-out .15s;-o-transition:border-color ease-in-out .15s, .bootstrap-wrapper  box-shadow ease-in-out .15s;transition:border-color ease-in-out .15s, .bootstrap-wrapper  box-shadow ease-in-out .15s}
+.bootstrap-wrapper .form-control{display:block;width:100%;height:34px;padding:6px 12px;font-size:14px;line-height:1.42857143;color:#555;background-color:#fff;border:1px solid #ccc;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0, .bootstrap-wrapper 0, .bootstrap-wrapper 0, .bootstrap-wrapper 0.075);box-shadow:inset 0 1px 1px rgba(0, .bootstrap-wrapper 0, .bootstrap-wrapper 0, .bootstrap-wrapper 0.075);-webkit-transition:border-color ease-in-out .15s, .bootstrap-wrapper  -webkit-box-shadow ease-in-out .15s;-o-transition:border-color ease-in-out .15s, .bootstrap-wrapper  box-shadow ease-in-out .15s;transition:border-color ease-in-out .15s, .bootstrap-wrapper  box-shadow ease-in-out .15s}
 .bootstrap-wrapper .form-control:focus{border-color:#66afe9;outline:0;-webkit-box-shadow:inset 0 1px 1px rgba(0, .bootstrap-wrapper 0, .bootstrap-wrapper 0, .bootstrap-wrapper .075), .bootstrap-wrapper  0 0 8px rgba(102, .bootstrap-wrapper  175, .bootstrap-wrapper  233, .bootstrap-wrapper  0.6);box-shadow:inset 0 1px 1px rgba(0, .bootstrap-wrapper 0, .bootstrap-wrapper 0, .bootstrap-wrapper .075), .bootstrap-wrapper  0 0 8px rgba(102, .bootstrap-wrapper  175, .bootstrap-wrapper  233, .bootstrap-wrapper  0.6)}
 .bootstrap-wrapper .form-control::-moz-placeholder{color:#999;opacity:1}
 .bootstrap-wrapper .form-control:-ms-input-placeholder{color:#999}
@@ -1168,7 +1168,7 @@
 .bootstrap-wrapper .thumbnail>img, .bootstrap-wrapper .thumbnail a>img{margin-left:auto;margin-right:auto}
 .bootstrap-wrapper a.thumbnail:hover, .bootstrap-wrapper a.thumbnail:focus, .bootstrap-wrapper a.thumbnail.active{border-color:#337ab7}
 .bootstrap-wrapper .thumbnail .caption{padding:9px;color:#333}
-.bootstrap-wrapper .alert{padding:15px;margin-bottom:20px;border:1px solid transparent;border-radius:4px}
+.bootstrap-wrapper .alert{padding:10px 0;margin-bottom:20px;border:1px solid transparent;border-radius:4px}
 .bootstrap-wrapper .alert h4{margin-top:0;color:inherit}
 .bootstrap-wrapper .alert .alert-link{font-weight:bold}
 .bootstrap-wrapper .alert>p, .bootstrap-wrapper .alert>ul{margin-bottom:0}
@@ -1289,9 +1289,9 @@
 .bootstrap-wrapper .panel>.table-bordered>thead>tr:first-child>td, .bootstrap-wrapper .panel>.table-responsive>.table-bordered>thead>tr:first-child>td, .bootstrap-wrapper .panel>.table-bordered>tbody>tr:first-child>td, .bootstrap-wrapper .panel>.table-responsive>.table-bordered>tbody>tr:first-child>td, .bootstrap-wrapper .panel>.table-bordered>thead>tr:first-child>th, .bootstrap-wrapper .panel>.table-responsive>.table-bordered>thead>tr:first-child>th, .bootstrap-wrapper .panel>.table-bordered>tbody>tr:first-child>th, .bootstrap-wrapper .panel>.table-responsive>.table-bordered>tbody>tr:first-child>th{border-bottom:0}
 .bootstrap-wrapper .panel>.table-bordered>tbody>tr:last-child>td, .bootstrap-wrapper .panel>.table-responsive>.table-bordered>tbody>tr:last-child>td, .bootstrap-wrapper .panel>.table-bordered>tfoot>tr:last-child>td, .bootstrap-wrapper .panel>.table-responsive>.table-bordered>tfoot>tr:last-child>td, .bootstrap-wrapper .panel>.table-bordered>tbody>tr:last-child>th, .bootstrap-wrapper .panel>.table-responsive>.table-bordered>tbody>tr:last-child>th, .bootstrap-wrapper .panel>.table-bordered>tfoot>tr:last-child>th, .bootstrap-wrapper .panel>.table-responsive>.table-bordered>tfoot>tr:last-child>th{border-bottom:0}
 .bootstrap-wrapper .panel>.table-responsive{border:0;margin-bottom:0}
-.bootstrap-wrapper .panel-group{margin-bottom:20px}
+.bootstrap-wrapper .panel-group{margin-bottom:20px;}
 .bootstrap-wrapper .panel-group .panel{margin-bottom:0;border-radius:4px}
-.bootstrap-wrapper .panel-group .panel+.panel{margin-top:5px}
+/*.bootstrap-wrapper .panel-group .panel+.panel{margin-top:5px}*/
 .bootstrap-wrapper .panel-group .panel-heading{border-bottom:0}
 .bootstrap-wrapper .panel-group .panel-heading+.panel-collapse>.panel-body, .bootstrap-wrapper .panel-group .panel-heading+.panel-collapse>.list-group{border-top:1px solid #ddd}
 .bootstrap-wrapper .panel-group .panel-footer{border-top:0}

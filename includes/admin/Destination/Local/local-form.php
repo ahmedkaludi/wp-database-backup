@@ -7,7 +7,7 @@
 							</a>
 						</h4>
 					</div>
-					<div id="collapseLocal" class="panel-collapse collapse in">
+					<div id="collapseLocal" class="panel-collapse collapse">
 						<div class="panel-body">
 							<?php
 							/**

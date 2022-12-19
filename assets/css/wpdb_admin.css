@@ -72,3 +72,17 @@ body{
   opacity: 1 !important;
   transform: rotate( 0deg ) scale(1) !important;
 }
+#db_home .submit{
+  padding-top:20px;
+}
+
+#db_schedul form{
+  margin-top:20px;
+}
+
+#db_setting input[type=checkbox]{
+  vertical-align: sub;
+}
+#db_info_link{
+  float:right;
+}

@@ -449,9 +449,10 @@ class Wpdb_Admin {
 						<li><a href="#db_setting" data-toggle="tab"><?php echo esc_html__('Settings', 'wpdbbkp') ?></a></li>
 						<li><a href="#searchreplace" data-toggle="tab"><?php echo esc_html__('Search and Replace', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_destination" data-toggle="tab"><?php echo esc_html__('Destination', 'wpdbbkp') ?></a></li>
-						<li><a href="#db_info" data-toggle="tab"><?php echo esc_html__('System Information', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_help" data-toggle="tab"><?php echo esc_html__('Help &amp; Support', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_advanced" data-toggle="tab"><?php echo esc_html__('Pro Feature', 'wpdbbkp') ?></a></li>
+						<li><a id="db_info_link" href="#db_info" data-toggle="tab"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a></li>
+						
 					</ul>
 
 					<?php
@@ -546,6 +547,7 @@ class Wpdb_Admin {
 					echo '</div>';
 
 					echo '<div class="tab-pane" id="db_schedul">';
+					echo '<div class="panel-group">';
 					echo '<form method="post" action="options.php" name="wp_auto_commenter_form">';
 					wp_nonce_field( 'wp-database-backup' );
 					settings_fields( 'wp_db_backup_options' );
@@ -578,6 +580,7 @@ class Wpdb_Admin {
 					echo '<input type="submit" name="Submit" class="btn btn-primary" value="Save Settings" />';
 					echo '</p>';
 					echo '</form>';
+					echo '</div>';
 					echo '</div>';
 
 					echo '<div class="tab-pane" id="db_help">';
@@ -629,7 +632,7 @@ class Wpdb_Admin {
 
 				<div class="tab-pane" id="db_info">
 
-					<div class="panel panel-default">
+					<div class="panel panel-group panel-default">
 						<div class="panel-heading">
 							<h4 class="panel-title">
 								<a data-toggle="collapse" data-parent="#accordion" href="#collapsedb">
@@ -1176,7 +1179,7 @@ class Wpdb_Admin {
 
 				</div>
 				<div class="tab-pane" id="db_setting">
-					<div class="panel panel-default">
+					<div class="panel panel-group panel-default">
 						<div class="panel-body">
 							<?php
 							$wp_local_db_backup_count         = get_option( 'wp_local_db_backup_count' );
@@ -1215,11 +1218,11 @@ class Wpdb_Admin {
 								</div>
 								<hr>
 								<div class="input-group">
-									<input type="checkbox" <?php echo esc_attr( $checked ); ?> name="wp_db_log"> Enable Log.
+									<label><input type="checkbox" <?php echo esc_attr( $checked ); ?> name="wp_db_log"> Enable Log.</label>
 								</div>
 								<hr>
 								<div class="input-group">
-									<input type="checkbox" <?php echo esc_attr( $wp_db_backup_enable_auto_upgrade_checked ); ?> name="wp_db_backup_enable_auto_upgrade"> Enable Auto Backups Before Upgrade.
+								<label><input type="checkbox" <?php echo esc_attr( $wp_db_backup_enable_auto_upgrade_checked ); ?> name="wp_db_backup_enable_auto_upgrade"> Enable Auto Backups Before Upgrade.</label>
 									<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
 										If checked then it will create database backup on(before) upgrade/update plugin, theme, WordPress.
 										<br>Leave blank/un-checked for disable this feature.
@@ -1227,7 +1230,7 @@ class Wpdb_Admin {
 								</div>
 								<hr>
 								<div class="input-group">
-									<input type="checkbox" <?php echo esc_attr( $remove_local_backup ); ?> name="wp_db_remove_local_backup"> Remove local backup.
+								<label><input type="checkbox" <?php echo esc_attr( $remove_local_backup ); ?> name="wp_db_remove_local_backup"> Remove local backup.</label>
 									<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
 										If Checked then it will remove local backup.
 										<br>Use this option only when you have set any destination.
@@ -1236,7 +1239,7 @@ class Wpdb_Admin {
 								</div>
 								<hr>
 								<div class="input-group">
-									<input type="checkbox" <?php checked( get_option( 'wp_db_backup_enable_htaccess' ), '1' ); ?>  name="wp_db_backup_enable_htaccess"> Enable .htaccess File In Storage Directory
+								<label>	<input type="checkbox" <?php checked( get_option( 'wp_db_backup_enable_htaccess' ), '1' ); ?>  name="wp_db_backup_enable_htaccess"> Enable .htaccess File In Storage Directory</label>
 									<p>Disable if issues occur when downloading backup/archive files.</p>
 								</div>
 								<hr>
@@ -1305,7 +1308,12 @@ class Wpdb_Admin {
 
 				</div>
 				<div class="tab-pane" id="searchreplace">
-					<div class="panel panel-default">
+					<div class="panel panel-group panel-default">
+					<div class="panel-heading">
+										<h4 class="panel-title">
+											Search & Replace
+										</h4>
+									</div>
 						<div class="panel-body">
 							<?php
 							$wp_db_backup_search_text  = get_option( 'wp_db_backup_search_text' );
@@ -1339,7 +1347,7 @@ class Wpdb_Admin {
 
 									<br><br>
 									Note - This is Search & Replace data in your WordPress Database Backup File not in current Database installation.
-									<p> <a href="https://www.wpseeds.com/documentation/docs/wp-database-backup/search-and-replace/" target="_blank">Documentation</a></p>
+									
 								</div>
 
 								<input class="btn btn-primary" type="submit" name="wpsetting_search" value="Save">
@@ -1349,7 +1357,7 @@ class Wpdb_Admin {
 
 
 				</div>
-				<div class="tab-pane" id="db_destination">
+				<div class="tab-pane panel-group" id="db_destination">
 					<?php
 					include plugin_dir_path( __FILE__ ) . 'Destination/wp-backup-destination.php';
 					?>

@@ -47,7 +47,7 @@ $wp_db_backup_destination_s3 = get_option( 'wp_db_backup_destination_s3' );
 			</a>
 		</h4>
 	</div>
-	<div id="collapseAmazon" class="panel-collapse collapse in">
+	<div id="collapseAmazon" class="panel-collapse collapse">
 		<div class="panel-body">
 			<?php
 			echo esc_html( $update_msg );

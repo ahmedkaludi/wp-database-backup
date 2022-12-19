@@ -14,7 +14,7 @@
 			</a>
 		</h4>
 	</div>
-	<div id="collapseI" class="panel-collapse collapse in">
+	<div id="collapseI" class="panel-collapse collapse">
 		<div class="panel-body">
 			<p>FTP/sFTP Destination Define an FTP destination connection. You can define destination which use FTP.</p>
 			<?php

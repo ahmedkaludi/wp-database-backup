@@ -451,7 +451,7 @@ class Wpdb_Admin {
 						<li><a href="#db_destination" data-toggle="tab"><?php echo esc_html__('Destination', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_help" data-toggle="tab"><?php echo esc_html__('Help &amp; Support', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_advanced" data-toggle="tab"><?php echo esc_html__('Pro Feature', 'wpdbbkp') ?></a></li>
-						<li><a id="db_info_link" href="#db_info" data-toggle="tab"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a></li>
+						<li id="db_info_link" ><a href="#db_info" data-toggle="tab"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a></li>
 						
 					</ul>
 
@@ -1069,7 +1069,7 @@ class Wpdb_Admin {
 				<div class="tab-pane" id="db_advanced">
 					<h4>A 'WP ALL Backup' Plugin will backup and restore your entire site at will,
 						complete with Dropbox,FTP,Email,Google drive, Amazon S3 integration.</h4>
-					<h2>Pro Features </h2><h4><?php echo wp_kses_post( $coupon ); ?></h4>
+					<h2>Pro Features </h2>
 					<div class="row">
 						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
 							Complete

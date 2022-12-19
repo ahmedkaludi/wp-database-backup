@@ -81,7 +81,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			// Define constants.
 			$this->define_constants();
 			register_activation_hook( __FILE__, array( $this, 'installation' ) );
-			$this->installation(false);
+			$this->installation(2);
 			// Include required files.
 			$this->includes();
 		}
@@ -116,14 +116,14 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		/**
 		 * Installation setting at time of activation.
 		 */
-		public function installation($activation=true) {
+		public function installation($flag=1) {
 			add_option( 'wp_db_backup_destination_FTP', 1 );
 			add_option( 'wp_db_backup_destination_Email', 1 );
 			add_option( 'wp_db_backup_destination_s3', 1 );
 			add_option( 'wp_db_remove_local_backup', 0 );
-			if($activation)
+			if($flag!=2)
 			{
-			add_option( 'wpdbbkp_activation_redirect', true);
+			 add_option( 'wpdbbkp_activation_redirect', true);
 		    }
 		}
 

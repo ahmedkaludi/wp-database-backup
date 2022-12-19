@@ -30,7 +30,10 @@ class Wpdb_Admin {
 		add_action( 'wp_logout', array( $this, 'wp_db_cookie_expiration' ) ); // Fixed Vulnerability 22-06-2016 for prevent direct download.
 		add_action( 'wp_db_backup_completed', array( $this, 'wp_db_backup_completed_local' ), 12 );
 		add_action('admin_enqueue_scripts', array( $this, 'wpdbbkp_admin_style'));
+		add_action('admin_enqueue_scripts', array( $this, 'wpdbbkp_admin_newsletter_script'));
 		add_action('wp_ajax_wpdbbkp_send_query_message', array( $this, 'wpdbbkp_send_query_message'));
+		
+		
 	}
 
 	/**
@@ -77,6 +80,15 @@ class Wpdb_Admin {
 	 * Admin init.
 	 */
 	public function wp_db_backup_admin_init() {
+		//redirect to plugin page on activation
+		if (get_option('wpdbbkp_activation_redirect', false)) {
+			delete_option('wpdbbkp_activation_redirect');
+			if(!isset($_GET['activate-multi']))
+			{
+				wp_redirect("admin.php?page=wp-database-backup");
+			}
+		}
+
 		// Start Fixed Vulnerability 04-08-2016 for data save in options.
 		if ( isset( $_GET['page'] ) && 'wp-database-backup' === $_GET['page'] ) {
 			if ( ! empty( $_POST ) && ! ( isset( $_POST['option_page'] ) && 'wp_db_backup_options' === $_POST['option_page'] ) ) {
@@ -2040,22 +2052,51 @@ class Wpdb_Admin {
 
 	public function wpdbbkp_admin_style($hook_suffix)
 	{
-		if($hook_suffix=="tools_page_wp-database-backup" || $hook_suffix="toplevel_page_wp-database-backup")
+		if($hook_suffix=="tools_page_wp-database-backup" || $hook_suffix=="toplevel_page_wp-database-backup")
 		{
-			//wp_enqueue_style('wpdbbkp-admin-styles', WPDB_PLUGIN_URL .'/assets/css/wpdbbkp-admin.css', array(),WPDB_VERSION);
-			//wp_enqueue_script('thickbox');
-			//wp_enqueue_style('thickbox');
-			//wp_enqueue_style('wpdbbkp-admin-promo-style', WPDB_PLUGIN_URL .'/assets/css/promotional-popup.css', array(),WPDB_VERSION);
-			
 			wp_enqueue_script('wpdbbkp-admin-script', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin.js', array('jquery'), WPDB_VERSION, 'true' );
-			
 			wp_localize_script('wpdbbkp-admin-script', 'wpdbbkp_script_vars', array(
 				'nonce' => wp_create_nonce( 'wpdbbkp-admin-nonce' ),
 			)
 			);
-			//wp_enqueue_script('wpdbbkp-admin-promo-script', WPDB_PLUGIN_URL . '/assets/js/promotional-popup.js', array(), WPDB_VERSION);
 		}
 	}
+
+	public function wpdbbkp_admin_newsletter_script($hook_suffix ) {
+		if($hook_suffix=="tools_page_wp-database-backup" || $hook_suffix=="toplevel_page_wp-database-backup")
+		{
+			wp_enqueue_script('wpdbbkp-admin-newsletter-script', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin-newsletter.js', array('jquery'), WPDB_VERSION, 'true' );
+			
+			$current_screen = get_current_screen(); 
+		   
+			if(isset($current_screen->post_type)){                  
+				$post_type = $current_screen->post_type;                
+			}
+	
+			$post_id = get_the_ID();
+			if(isset($_GET['tag_ID'])){
+					$post_id = intval($_GET['tag_ID']);
+			}
+	
+			
+	
+			$data = array(     
+				'current_url'                  => wpdbbkp_get_current_url(), 
+				'post_id'                      => $post_id,
+				'ajax_url'                     => admin_url( 'admin-ajax.php' ),            
+				'post_type'                    => $post_type,   
+				'page_now'                     => $hook_suffix,
+				'wpdbbkp_security_nonce'         => wp_create_nonce('wpdbbkp_ajax_check_nonce'),
+			);
+							
+			$data = apply_filters('wpdbbkp_localize_filter',$data,'wpdbbkp_localize_data');		
+		
+			wp_localize_script( 'wpdbbkp-admin-newsletter-script', 'wpdbbkp_localize_data', $data );
+			
+		}	
+	
+	}
+
 	}
 
 new Wpdb_Admin();

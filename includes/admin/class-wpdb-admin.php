@@ -425,11 +425,9 @@ class Wpdb_Admin {
 		?>
 			<div class="panel panel-default">
 				<div class="panel-heading">
-					<h3><a href="http://www.wpseeds.com/documentation/docs/wp-database-backup/" target="blank"><img
+					<h3><a href="#" target="blank"><img
 								src="<?php echo esc_attr( WPDB_PLUGIN_URL ); ?>/assets/images/wp-database-backup.png"></a>Database
-						Backup Settings <a href="https://www.wpseeds.com/product/wp-all-backup/" target="_blank"><span
-								style='float:right'
-								class="label label-success">Get Pro 'WP All Backup' Plugin</span></a>
+						Backup Settings 
 					</h3>
 				</div>
 				<div class="panel-body">
@@ -531,15 +529,8 @@ class Wpdb_Admin {
 					} else {
 						echo '<p>No Database Backups Created!</p>';
 					}
-					echo "<div class='alert alert-success' role='alert'><h4>" . wp_kses_post( $coupon ) . '</h4></div>';
-					echo "<div class=''><p><a target='_blank' href='https://www.wpseeds.com/product/wp-all-backup/'>WP All Backup</a> - Creates a Backup of your entire website: that's your Database, current WP Core, all your Themes, Plugins and Uploads.</p></div>";
-					echo "<div class=''><p>Use <b>WPDBSPECIAL40</b> Coupon and get Pro version in just <a target='_blank' href='https://www.wpseeds.com/product/wp-all-backup/'><b>$13.20</b></a> - Lifetime License, 1 Year Support, 1 Year Updates.</p></div>";
-					echo '<p>If you like <b>WP Database Backup</b> please leave us a <a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/wp-database-backup" title="Rating" sl-processed="1"> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> rating </a>. Many thanks in advance!
-                                        <a target="_blank" class="text-right" href="https://www.wpseeds.com/support/"><button style="float:right" type="button" class="btn btn-default">Support</button></a>
-                                        <a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/"><button style="float:right" type="button" class="btn btn-default">Documentation</button></a>
-                                        <a target="_blank" href="https://www.wpseeds.com/product/wp-all-backup/"><button style="float:right" type="button" class="btn btn-default">Premium</button></a>
-                                        <a target="_blank" href="http://www.wpseeds.com"><button style="float:right" type="button" class="btn btn-default">More plugins</button></a></p>
-	                                      ';
+		
+						echo '<p>If you like <b>WP Database Backup</b> please leave us a <a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/wp-database-backup" title="Rating" sl-processed="1"> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> rating </a>. Many thanks in advance!</p>';
 					echo '</div>';
 
 					echo '<div class="tab-pane" id="db_schedul">';
@@ -1171,8 +1162,6 @@ class Wpdb_Admin {
 					</div>
 
 
-					<a href="https://www.wpseeds.com/product/wp-all-backup/" target="_blank"><h4><span
-								class="label label-success">Get Pro 'WP All Backup' Plugin</span></h4></a>
 				</div>
 				<div class="tab-pane" id="db_setting">
 					<div class="panel panel-default">

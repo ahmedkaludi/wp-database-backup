@@ -21,3 +21,6 @@ body{
     background: #f6f7f7 !important;
     padding: 10px !important;
 }
+.wpdbbkp-hide{
+  display:none;
+}

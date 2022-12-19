@@ -29,6 +29,8 @@ class Wpdb_Admin {
 		add_action( 'wp', array( $this, 'wp_db_backup_scheduler_activation' ) );
 		add_action( 'wp_logout', array( $this, 'wp_db_cookie_expiration' ) ); // Fixed Vulnerability 22-06-2016 for prevent direct download.
 		add_action( 'wp_db_backup_completed', array( $this, 'wp_db_backup_completed_local' ), 12 );
+		add_action('admin_enqueue_scripts', array( $this, 'wpdbbkp_admin_style'));
+		add_action('wp_ajax_wpdbbkp_send_query_message', array( $this, 'wpdbbkp_send_query_message'));
 	}
 
 	/**
@@ -423,14 +425,14 @@ class Wpdb_Admin {
 				</div>
 				<div class="panel-body">
 					<ul class="nav nav-tabs">
-						<li class=""><a href="#db_home" data-toggle="tab">Database Backups</a></li>
-						<li><a href="#db_schedul" data-toggle="tab">Scheduler</a></li>
-						<li><a href="#db_setting" data-toggle="tab">Settings</a></li>
-						<li><a href="#searchreplace" data-toggle="tab">Search and Replace</a></li>
-						<li><a href="#db_destination" data-toggle="tab">Destination</a></li>
-						<li><a href="#db_info" data-toggle="tab">System Information</a></li>
-						<li><a href="#db_help" data-toggle="tab">Help</a></li>
-						<li><a href="#db_advanced" data-toggle="tab">Pro Feature</a></li>
+						<li class=""><a href="#db_home" data-toggle="tab"><?php echo esc_html__('Database Backups', 'wpdbbkp') ?></a></li>
+						<li><a href="#db_schedul" data-toggle="tab"><?php echo esc_html__('Scheduler', 'wpdbbkp') ?></a></li>
+						<li><a href="#db_setting" data-toggle="tab"><?php echo esc_html__('Settings', 'wpdbbkp') ?></a></li>
+						<li><a href="#searchreplace" data-toggle="tab"><?php echo esc_html__('Search and Replace', 'wpdbbkp') ?></a></li>
+						<li><a href="#db_destination" data-toggle="tab"><?php echo esc_html__('Destination', 'wpdbbkp') ?></a></li>
+						<li><a href="#db_info" data-toggle="tab"><?php echo esc_html__('System Information', 'wpdbbkp') ?></a></li>
+						<li><a href="#db_help" data-toggle="tab"><?php echo esc_html__('Help &amp; Support', 'wpdbbkp') ?></a></li>
+						<li><a href="#db_advanced" data-toggle="tab"><?php echo esc_html__('Pro Feature', 'wpdbbkp') ?></a></li>
 					</ul>
 
 					<?php
@@ -567,186 +569,51 @@ class Wpdb_Admin {
 					echo '</div>';
 
 					echo '<div class="tab-pane" id="db_help">';
-					echo '<p>';
+				
 					?>
-
-					<script>
-						var $j = jQuery.noConflict();
-						$j(document).ready(function () {
-							$j('.popoverid').popover();
-							var table = $j('#example').DataTable();
-							$j("#create_backup").click(function() {
-								$j("#backup_process").show();
-								$j("#create_backup").attr("disabled", true);
-							});
-						});
-
-						function excludetableall(){
-							var checkboxes = document.getElementsByClassName('wp_db_exclude_table');
-							var checked = '';
-							if($j('#wp_db_exclude_table_all').prop("checked") == true){
-								checked = 'checked';
-							}
-							$j('.wp_db_exclude_table').each(function() {
-								this.checked = checked;
-							});
-						}
-
-					</script>
-					<div class="panel-group" id="accordion">
-
-						<div class="panel panel-default">
-							<div class="panel-heading">
-								<h4 class="panel-title">
-									<a data-toggle="collapse" data-parent="#accordion" href="#collapseDocumentation">
-										Documentation links
-									</a>
-								</h4>
-							</div>
-							<div id="collapseDocumentation" class="panel-collapse collapse in">
-								<div class="panel-body">
-									<p>
-									<ul>
-										<li class="page_item page-item-257 page_item_has_children"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/setup/">Setup</a>
-											<ul class="children">
-												<li class="page_item page-item-258"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/setup/installation/">Installation</a>
-												</li>
-											</ul>
-										</li>
-										<li class="page_item page-item-295 page_item_has_children"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/how-to/">How
-												To</a>
-											<ul class="children">
-												<li class="page_item page-item-299"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/how-to/restore-database-backup/">Restore
-														Database Backup</a></li>
-												<li class="page_item page-item-301"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/how-to/backup-your-wordpress-site-database/">Backup
-														Your WordPress Site Database</a></li>
-											</ul>
-										</li>
-										<li class="page_item page-item-340 page_item_has_children"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/setting/">Setting</a>
-											<ul class="children">
-												<li class="page_item page-item-342"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/setting/number-of-backups/">Number
-														of backups</a></li>
-												<li class="page_item page-item-349"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/setting/exclude-tables/">Exclude
-														Tables</a></li>
-												<li class="page_item page-item-358"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/setting/log-setting/">Log
-														Setting</a></li>
-												<li class="page_item page-item-363"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/setting/schedule-settings/">Schedule
-														Settings</a></li>
-											</ul>
-										</li>
-										<li class="page_item page-item-306 page_item_has_children"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/destination/">Destination</a>
-											<ul class="children">
-												<li class="page_item page-item-310"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/destination/email-notification/">Email Notification</a></li>
-												<li class="page_item page-item-319"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/destination/store-database-backup-on-ftp/">Storedatabase backup on FTP</a></li>
-												<li class="page_item page-item-326"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/destination/store-database-backup-on-google-drive/">Store database backup on Google drive</a></li>
-												<li class="page_item page-item-334"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/destination/store-database-backup-on-dropbox/">Store database backup on Dropbox</a></li>
-												<li class="page_item page-item-336"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/destination/store-database-backup-on-amazon-s3/">Store database backup on Amazon S3</a></li>
-											</ul>
-										</li>
-										<li class="page_item page-item-264 page_item_has_children"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/faq/">FAQ</a>
-											<ul class="children">
-												<li class="page_item page-item-265"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/faq/on-click-create-new-database-backup-it-goes-to-blank-page/">On Click Create New Database Backup it goes to blank page</a></li>
-												<li class="page_item page-item-267"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/faq/always-get-an-empty-0-bits-backup-file/">Always get an empty (0 bits) backup file?</a></li>
-												<li class="page_item page-item-269"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/faq/how-to-restore-database-backup/">How to restore database backup?</a></li>
-												<li class="page_item page-item-271"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/faq/how-to-create-database-backup/">How to create database Backup?</a></li>
-											</ul>
-										</li>
-										<li class="page_item page-item-273"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/features/">Features</a></li>
-										<li class="page_item page-item-277"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/changelog/">Changelog</a></li>
-										<li class="page_item page-item-279"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/reviews/">Reviews</a></li>
-										<li class="page_item page-item-373"><a target="_blank" href="http://www.wpseeds.com/documentation/docs/wp-database-backup/pricing/">Pricing</a></li>
-									</ul>
-
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<div class="panel panel-default">
-							<div class="panel-heading">
-								<h4 class="panel-title">
-									<a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-										Create Backup
-									</a>
-								</h4>
-							</div>
-							<div id="collapseOne" class="panel-collapse collapse in">
-								<div class="panel-body">
-									<p>Step 1) Click on Create New Database Backup</p>
-									<p>Step 2) Download Database Backup file.</p>
-								</div>
-							</div>
-						</div>
-
 						<div class="panel-group" id="accordion">
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-											Restore Backup
-										</a>
-									</h4>
-								</div>
-								<div id="collapseTwo" class="panel-collapse collapse in">
-									<div class="panel-body">
-										<p>Click on Restore Database Backup </p>
-										<p>OR</p>
-
-										<p>Step 1) Login to phpMyAdmin.</p>
-										<p>Step 2) Click Databases and select the database that you will be importing
-											your
-											data into.</p>
-										<p>Step 3) Across the top of the screen will be a row of tabs. Click the Import
-											tab.</p>
-										<p>Step 4) On the next screen will be a location of text file box, and next to
-											that
-											a button named Browse.</p>
-										<p>Step 5) Click Browse. Locate the backup file stored on your computer.</p>
-										<p>Step 6) Click the Go button.</p>
-									</div>
-								</div>
-							</div>
-
-							<div class="panel-group" id="accordion">
-								<div class="panel panel-default">
-									<div class="panel-heading">
-										<h4 class="panel-title">
-											<a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
-												Support
-											</a>
-										</h4>
-									</div>
-									<div id="collapseThree" class="panel-collapse collapse in">
-										<div class="panel-body">
-											<button type="button" class="btn btn-default"><a
-													href='https://wpallbackup.com/support/'>Support</a></button>
-											<button type="button" class="btn btn-default"><a
-													href='http://www.wpseeds.com/documentation/docs/wp-database-backup'>Documentation</a>
-											</button>
-											<p>If you want more feature or any suggestion then drop me mail we are try
-												to
-												implement in our wp-database-backup plugin and also try to make it more
-												user
-												friendly</p>
-											<p><span class="glyphicon glyphicon-envelope"></span> Drop Mail
-												:walke.prashant28@gmail.com</p>
-											If you like this plugin then Give <a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/wp-database-backup" title="Rating" sl-processed="1">rating </a>on
-											<a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/wp-database-backup" title="Rating" sl-processed="1">WordPress.org</a></p>
-											<p></br><a title="WP-DB-Backup" href="http://www.wpseeds.com/documentation/docs/wp-database-backup" target="_blank">More Information</a></p>
-											<p>Support us to improve plugin. your idea and support are always welcome.
-											</p>
-
-
-										</div>
-									</div>
-								</div>
-
-							</div>
+						  <div class="panel panel-default">
+						    <div class="panel-heading">
+						      <h4 class="panel-title">
+						        <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree"> Help &amp; Support </a>
+						      </h4>
+						    </div>
+						    <div id="collapseThree" class="panel-collapse collapse in">
+						      <div class="panel-body">
+						        <div class="gn-flex-container">
+						          <div class="wpdbbkp-left-side">
+						            <p> <?php echo esc_html__('We are dedicated to provide Technical support &amp; Help to our users. Use the below form for sending your questions. ', 'wpdbbkp') ?> </p>
+						            <div class="wpdbbkp_support_div_form" id="technical-form">
+						              <ul>
+						                <li>
+						                  <label class="wpdbbkp-support-label"> <?php echo esc_html__('Email', 'wpdbbkp') ?> <span class="wpdbbkp-star-mark">*</span>
+						                  </label>
+						                  <div class="support-input">
+						                    <input type="text" id="wpdbbkp_query_email" name="wpdbbkp_query_email" size="47" placeholder="Enter your Email" required="">
+						                  </div>
+						                </li>
+						                <li>
+						                  <label class="wpdbbkp-support-label"> <?php echo esc_html__('Query', 'wpdbbkp') ?> <span class="wpdbbkp-star-mark">*</span>
+						                  </label>
+						                  <div class="support-input">
+						                    <textarea rows="5" cols="50" id="wpdbbkp_query_message" name="wpdbbkp_query_message" placeholder="Write your query"></textarea>
+						                  </div>
+						                </li>
+						                <li>
+						                  <button class="button button-primary wpdbbkp-send-query"> <?php echo esc_html__('Send Support Request', 'wpdbbkp') ?> </button>
+						                </li>
+						              </ul>
+						              <div class="clear"></div>
+						              <span class="wpdbbkp-query-success wpdbbkp-result wpdbbkp-hide"> <?php echo esc_html__('Message sent successfully, Please wait we will get back to you shortly', 'wpdbbkp') ?> </span>
+						              <span class="wpdbbkp-query-error wpdbbkp-result wpdbbkp-hide"> <?php echo esc_html__('Message not sent. please check your network connection', 'wpdbbkp') ?> </span>
+						            </div>
+						          </div>
+						        </div>
+						      </div>
+						    </div>
+						  </div>
 						</div>
 					</div>
-
-
-				</div>
 
 				<div class="tab-pane" id="db_info">
 
@@ -2165,6 +2032,27 @@ class Wpdb_Admin {
 			return true;
 		}
 	}
-}
+
+	// loading admin scripts/styles on admin page only
+
+	public function wpdbbkp_admin_style($hook_suffix)
+	{
+		if($hook_suffix=="tools_page_wp-database-backup")
+		{
+			//wp_enqueue_style('wpdbbkp-admin-styles', WPDB_PLUGIN_URL .'/assets/css/wpdbbkp-admin.css', array(),WPDB_VERSION);
+			//wp_enqueue_script('thickbox');
+			//wp_enqueue_style('thickbox');
+			//wp_enqueue_style('wpdbbkp-admin-promo-style', WPDB_PLUGIN_URL .'/assets/css/promotional-popup.css', array(),WPDB_VERSION);
+			
+			wp_enqueue_script('wpdbbkp-admin-script', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin.js', array('jquery'), WPDB_VERSION, 'true' );
+			
+			wp_localize_script('wpdbbkp-admin-script', 'wpdbbkp_script_vars', array(
+				'nonce' => wp_create_nonce( 'wpdbbkp-admin-nonce' ),
+			)
+			);
+			//wp_enqueue_script('wpdbbkp-admin-promo-script', WPDB_PLUGIN_URL . '/assets/js/promotional-popup.js', array(), WPDB_VERSION);
+		}
+	}
+	}
 
 new Wpdb_Admin();

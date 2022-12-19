@@ -37,7 +37,16 @@ class Wpdb_Admin {
 	 * Backup Menu.
 	 */
 	public function admin_menu() {
-		$page = add_management_page( 'WP-DB Backup', 'WP-DB Backup ', 'manage_options', 'wp-database-backup', array( $this, 'wp_db_backup_settings_page' ) );
+		//$page = add_management_page( 'WP-DB Backup', 'WP-DB Backup ', 'manage_options', 'wp-database-backup', array( $this, 'wp_db_backup_settings_page' ));
+		add_menu_page(
+			'Backups',
+			'Backups', 
+			'manage_options', 
+			'wp-database-backup', 
+			array( $this, 'wp_db_backup_settings_page' ), 
+			'dashicons-database-view', 
+			99 
+		);
 	}
 
 	/**
@@ -2042,7 +2051,7 @@ class Wpdb_Admin {
 
 	public function wpdbbkp_admin_style($hook_suffix)
 	{
-		if($hook_suffix=="tools_page_wp-database-backup")
+		if($hook_suffix=="tools_page_wp-database-backup" || $hook_suffix="toplevel_page_wp-database-backup")
 		{
 			//wp_enqueue_style('wpdbbkp-admin-styles', WPDB_PLUGIN_URL .'/assets/css/wpdbbkp-admin.css', array(),WPDB_VERSION);
 			//wp_enqueue_script('thickbox');

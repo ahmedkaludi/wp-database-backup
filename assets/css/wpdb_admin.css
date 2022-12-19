@@ -24,3 +24,51 @@ body{
 .wpdbbkp-hide{
   display:none;
 }
+
+.wpdbbkp-support-button {
+  appearance: none;
+  -webkit-box-align: center;
+  border-radius: 200px;
+  bottom: 2%;
+  display: block;
+  height: 60px;
+  max-width: 60px;
+  left: 95%;
+  -webkit-box-pack: center;
+  justify-content: center;
+  margin: 0;
+  line-height: 60px;
+  outline: none;
+  padding: 0;
+  position: fixed;
+  user-select: none;
+  z-index: 909999999999;
+  background-color: #337ab7 !important;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  min-width: 60px;
+  transition: background-color .2s linear 0s,transform .2s linear 0s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wpdbbkp-support-icon {
+  -webkit-box-align: center;
+  align-items: center;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  height: 100%;
+  -webkit-box-pack: center;
+  justify-content: center;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  text-indent: -99999px;
+  top: 0;
+  transition: opacity 80ms linear 0s,transform .16s linear 0s;
+  width: 60px;
+  will-change: opacity,transform;
+  opacity: 1 !important;
+  transform: rotate( 0deg ) scale(1) !important;
+}

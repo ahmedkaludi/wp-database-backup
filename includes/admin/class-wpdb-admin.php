@@ -444,7 +444,7 @@ class Wpdb_Admin {
 				</div>
 				<div class="panel-body">
 					<ul class="nav nav-tabs">
-						<li class=""><a href="#db_home" data-toggle="tab"><?php echo esc_html__('Database Backups', 'wpdbbkp') ?></a></li>
+						<li class="active"><a href="#db_home" data-toggle="tab"><?php echo esc_html__('Database Backups', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_schedul" data-toggle="tab"><?php echo esc_html__('Scheduler', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_setting" data-toggle="tab"><?php echo esc_html__('Settings', 'wpdbbkp') ?></a></li>
 						<li><a href="#searchreplace" data-toggle="tab"><?php echo esc_html__('Search and Replace', 'wpdbbkp') ?></a></li>
@@ -478,8 +478,8 @@ class Wpdb_Admin {
                                 <table class="table table-striped table-bordered table-hover display" id="example">
                                     <thead>';
 						echo '<tr class="wpdb-header">';
-						echo '<th class="manage-column" scope="col" width="10%" style="text-align: center;">SL No</th>';
-						echo '<th class="manage-column" scope="col" width="30%">Date</th>';
+						echo '<th class="manage-column" scope="col" width="5%" style="text-align: center;">#</th>';
+						echo '<th class="manage-column" scope="col" width="35%">Date</th>';
 						echo '<th class="manage-column" scope="col" width="5%"></th>';
 						echo '<th class="manage-column" scope="col" width="15%">Destination</th>';
 						echo '<th class="manage-column" scope="col" width="10%">Backup File</th>';

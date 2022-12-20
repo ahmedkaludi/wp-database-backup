@@ -59,8 +59,8 @@
 }
 @font-face {
   font-family: 'Glyphicons Halflings';
-  src: url(')https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/fonts/glyphicons-halflings-regular.eot');
-  src: url('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/fonts/glyphicons-halflings-regular.woff2') format('woff2'), url('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/fonts/glyphicons-halflings-regular.woff') format('woff'), url('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/fonts/glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+  src: url('../fonts/glyphicons-halflings-regular.eot');
+  src: url('../fonts/glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'), url('../fonts/glyphicons-halflings-regular.woff2') format('woff2'), url('../fonts/glyphicons-halflings-regular.woff') format('woff'), url('../fonts/glyphicons-halflings-regular.ttf') format('truetype'), url('../fonts/glyphicons-halflings-regular.svg') format('svg');
 }.bootstrap-wrapper .glyphicon{position:relative;top:1px;display:inline-block;font-family:'Glyphicons Halflings';font-style:normal;font-weight:normal;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 .bootstrap-wrapper .glyphicon-asterisk:before{content:"\002a"}
 .bootstrap-wrapper .glyphicon-plus:before{content:"\002b"}
@@ -427,7 +427,7 @@
 @media (min-width:1200px){.container{width:1170px}
 }
 .bootstrap-wrapper .container-fluid{margin-right:auto;margin-left:auto;padding-left:15px;padding-right:15px}
-.bootstrap-wrapper .row{margin-left:-15px;margin-right:-15px}
+/* .bootstrap-wrapper .row{margin-left:-15px;margin-right:-15px} */
 .bootstrap-wrapper .col-xs-1, .bootstrap-wrapper  .col-sm-1, .bootstrap-wrapper  .col-md-1, .bootstrap-wrapper  .col-lg-1, .bootstrap-wrapper  .col-xs-2, .bootstrap-wrapper  .col-sm-2, .bootstrap-wrapper  .col-md-2, .bootstrap-wrapper  .col-lg-2, .bootstrap-wrapper  .col-xs-3, .bootstrap-wrapper  .col-sm-3, .bootstrap-wrapper  .col-md-3, .bootstrap-wrapper  .col-lg-3, .bootstrap-wrapper  .col-xs-4, .bootstrap-wrapper  .col-sm-4, .bootstrap-wrapper  .col-md-4, .bootstrap-wrapper  .col-lg-4, .bootstrap-wrapper  .col-xs-5, .bootstrap-wrapper  .col-sm-5, .bootstrap-wrapper  .col-md-5, .bootstrap-wrapper  .col-lg-5, .bootstrap-wrapper  .col-xs-6, .bootstrap-wrapper  .col-sm-6, .bootstrap-wrapper  .col-md-6, .bootstrap-wrapper  .col-lg-6, .bootstrap-wrapper  .col-xs-7, .bootstrap-wrapper  .col-sm-7, .bootstrap-wrapper  .col-md-7, .bootstrap-wrapper  .col-lg-7, .bootstrap-wrapper  .col-xs-8, .bootstrap-wrapper  .col-sm-8, .bootstrap-wrapper  .col-md-8, .bootstrap-wrapper  .col-lg-8, .bootstrap-wrapper  .col-xs-9, .bootstrap-wrapper  .col-sm-9, .bootstrap-wrapper  .col-md-9, .bootstrap-wrapper  .col-lg-9, .bootstrap-wrapper  .col-xs-10, .bootstrap-wrapper  .col-sm-10, .bootstrap-wrapper  .col-md-10, .bootstrap-wrapper  .col-lg-10, .bootstrap-wrapper  .col-xs-11, .bootstrap-wrapper  .col-sm-11, .bootstrap-wrapper  .col-md-11, .bootstrap-wrapper  .col-lg-11, .bootstrap-wrapper  .col-xs-12, .bootstrap-wrapper  .col-sm-12, .bootstrap-wrapper  .col-md-12, .bootstrap-wrapper  .col-lg-12{position:relative;min-height:1px;padding-left:15px;padding-right:15px}
 .bootstrap-wrapper .col-xs-1, .bootstrap-wrapper  .col-xs-2, .bootstrap-wrapper  .col-xs-3, .bootstrap-wrapper  .col-xs-4, .bootstrap-wrapper  .col-xs-5, .bootstrap-wrapper  .col-xs-6, .bootstrap-wrapper  .col-xs-7, .bootstrap-wrapper  .col-xs-8, .bootstrap-wrapper  .col-xs-9, .bootstrap-wrapper  .col-xs-10, .bootstrap-wrapper  .col-xs-11, .bootstrap-wrapper  .col-xs-12{float:left}
 .bootstrap-wrapper .col-xs-12{width:100%}
@@ -943,7 +943,7 @@
 .bootstrap-wrapper .nav-tabs>li{float:left;margin-bottom:-1px}
 .bootstrap-wrapper .nav-tabs>li>a{margin-right:2px;line-height:1.42857143;border:1px solid transparent;border-radius:4px 4px 0 0}
 .bootstrap-wrapper .nav-tabs>li>a:hover{border-color:#eee #eee #ddd}
-.bootstrap-wrapper .nav-tabs>li.active>a, .bootstrap-wrapper .nav-tabs>li.active>a:hover, .bootstrap-wrapper .nav-tabs>li.active>a:focus{color:#555;background-color:#fff;border:1px solid #ddd;border-bottom-color:transparent;cursor:default}
+.bootstrap-wrapper .nav-tabs>li.active>a, .bootstrap-wrapper .nav-tabs>li.active>a:hover, .bootstrap-wrapper .nav-tabs>li.active>a:focus{color:#555;background-color:#ddd;border:1px solid #ddd;border-bottom-color:transparent;cursor:default;text-decoration: none !important;}
 .bootstrap-wrapper .nav-tabs.nav-justified{width:100%;border-bottom:0}
 .bootstrap-wrapper .nav-tabs.nav-justified>li{float:none}
 .bootstrap-wrapper .nav-tabs.nav-justified>li>a{text-align:center;margin-bottom:5px}

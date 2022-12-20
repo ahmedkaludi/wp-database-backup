@@ -86,3 +86,10 @@ body{
 #db_info_link{
   float:right;
 }
+
+#db_help .panel-group{
+  margin-top:20px;
+}
+.toggle_anchor{
+  text-decoration: none !important;
+}

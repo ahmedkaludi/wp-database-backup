@@ -450,7 +450,6 @@ class Wpdb_Admin {
 						<li><a href="#searchreplace" data-toggle="tab"><?php echo esc_html__('Search and Replace', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_destination" data-toggle="tab"><?php echo esc_html__('Destination', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_help" data-toggle="tab"><?php echo esc_html__('Help &amp; Support', 'wpdbbkp') ?></a></li>
-						<li><a href="#db_advanced" data-toggle="tab"><?php echo esc_html__('Pro Feature', 'wpdbbkp') ?></a></li>
 						<li id="db_info_link" ><a href="#db_info" data-toggle="tab"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a></li>
 						
 					</ul>
@@ -586,15 +585,7 @@ class Wpdb_Admin {
 					echo '<div class="tab-pane" id="db_help">';
 				
 					?>
-						<div class="panel-group" id="accordion">
-						  <div class="panel panel-default">
-						    <div class="panel-heading">
-						      <h4 class="panel-title">
-						        <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree"> Help &amp; Support </a>
-						      </h4>
-						    </div>
-						    <div id="collapseThree" class="panel-collapse collapse in">
-						      <div class="panel-body">
+						<div class="panel-group ">
 						        <div class="gn-flex-container">
 						          <div class="wpdbbkp-left-side">
 						            <p> <?php echo esc_html__('We are dedicated to provide Technical support &amp; Help to our users. Use the below form for sending your questions. ', 'wpdbbkp') ?> </p>
@@ -624,9 +615,6 @@ class Wpdb_Admin {
 						            </div>
 						          </div>
 						        </div>
-						      </div>
-						    </div>
-						  </div>
 						</div>
 					</div>
 
@@ -634,14 +622,13 @@ class Wpdb_Admin {
 
 					<div class="panel panel-group panel-default">
 						<div class="panel-heading">
-							<h4 class="panel-title">
-								<a data-toggle="collapse" data-parent="#accordion" href="#collapsedb">
+								<a class="toggle_anchor" data-toggle="collapse" data-parent="#accordion" href="#collapsedb">
+								<h4 class="panel-title">
 									<?php esc_attr_e( 'System Check', 'wpdbbk' ); ?>
-
+									</h4>
 								</a>
-							</h4>
 						</div>
-						<div id="collapsedb" class="panel-collapse collapse in">
+						<div id="collapsedb" class="panel-collapse collapse">
 							<div class="panel-body list-group">
 
 								<div class="row list-group-item">
@@ -835,15 +822,12 @@ class Wpdb_Admin {
 
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<h4 class="panel-title">
-								<a data-toggle="collapse" data-parent="#accordion" href="#collapsedb">
-									Database Information
-
-								</a>
-							</h4>
+						<a class="toggle_anchor" data-toggle="collapse" data-parent="#accordion" href="#collapsedbinfo">
+							<h4 class="panel-title">Database Information</h4>
+							</a>
 						</div>
 
-						<div id="collapsedb" class="panel-collapse collapse in">
+						<div id="collapsedbinfo" class="panel-collapse collapse">
 							<div class="panel-body">
 								<table class="table table-condensed">
 									<tr class="success">
@@ -888,12 +872,13 @@ class Wpdb_Admin {
 
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<h4 class="panel-title">
-								<a data-toggle="collapse" data-parent="#accordion" href="#collapsedbtable">
+							
+								<a class="toggle_anchor"  data-toggle="collapse" data-parent="#accordion" href="#collapsedbtable">
+								<h4 class="panel-title">
 									Tables Information
-
+									</h4>
 								</a>
-							</h4>
+							
 						</div>
 						<div id="collapsedbtable" class="panel-collapse collapse">
 							<div class="panel-body">
@@ -940,12 +925,13 @@ class Wpdb_Admin {
 					</div>
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<h4 class="panel-title">
-								<a data-toggle="collapse" data-parent="#accordion" href="#collapsewp">
+							
+								<a class="toggle_anchor"  data-toggle="collapse" data-parent="#accordion" href="#collapsewp">
+								<h4 class="panel-title">
 									WordPress Information
-
+									</h4>
 								</a>
-							</h4>
+							
 						</div>
 						<div id="collapsewp" class="panel-collapse collapse">
 							<div class="panel-body">
@@ -980,12 +966,13 @@ class Wpdb_Admin {
 
 					<div class="panel panel-default">
 						<div class="panel-heading">
-							<h4 class="panel-title">
-								<a data-toggle="collapse" data-parent="#accordion" href="#collapsewpsetting">
+							
+								<a class="toggle_anchor"  data-toggle="collapse" data-parent="#accordion" href="#collapsewpsetting">
+								<h4 class="panel-title">
 									WordPress Settings
-
+									</h4>
 								</a>
-							</h4>
+							
 						</div>
 						<div id="collapsewpsetting" class="panel-collapse collapse">
 							<div class="panel-body">
@@ -1066,118 +1053,7 @@ class Wpdb_Admin {
 
 
 				</div>
-				<div class="tab-pane" id="db_advanced">
-					<h4>A 'WP ALL Backup' Plugin will backup and restore your entire site at will,
-						complete with Dropbox,FTP,Email,Google drive, Amazon S3 integration.</h4>
-					<h2>Pro Features </h2>
-					<div class="row">
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-							Complete
-							Backup
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span> Only
-							Selected file Backup
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-							ZipArchive
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-							PclZip
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-							Scheduled
-							backups
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span> Set
-							backup interval
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-							Manual
-							backup
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-							Multisite
-							compatible
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-							Backup
-							entire site
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-							Include
-							media files
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-							Exclude
-							specific files
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-							Downloadable log files
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-							Simple
-							one-click restore
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span> Set
-							number of backups to store
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-							Automatically remove oldest backup
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-							Dropbox
-							integration
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span> FTP
-							and
-							SFTP integration
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-							Server
-							info quick view
-						</div>
-						<div class="col-md-3"><span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span>
-							Support
-						</div>
-					</div>
-					<h3>Key Features</h3>
-					<div class="row">
-
-						<div class="col-md-3">
-							<h4>Fast</h4>
-							<p class="bg-success">
-								This plugin can help you to rapidly create site backup.
-								Capture your entire site, including media files, or pick and choose specific files and
-								tables.
-							</p>
-						</div>
-						<div class="col-md-3">
-							<h4>Scheduled Backups</h4>
-							<p class="bg-info">
-								Create manual backups, as needed, or schedule automated backups.
-								Trigger monthly, daily or hourly backups that are there when you need them most.
-							</p>
-						</div>
-						<div class="col-md-3">
-							<h4>Essay to use</h4>
-							<p class="bg-info">
-								Create and store as many backups of your site as you want.
-								Get added protection and convenience with one-click restoration.
-								Delete old backups options.
-							</p>
-						</div>
-						<div class="col-md-3">
-							<h4>Integration</h4>
-							<p class="bg-success">
-								Tie directly into other destination.
-								Save directly to your favorite cloud services including Dropbox,
-								by FTP/SFTP for added security.
-							</p>
-						</div>
-					</div>
-
-
-				</div>
+				
 				<div class="tab-pane" id="db_setting">
 					<div class="panel panel-group panel-default">
 						<div class="panel-body">
@@ -1369,7 +1245,7 @@ class Wpdb_Admin {
 			
 	
 		</div>
-		<a aria-label="Open Support" aria-expanded="false" aria-controls="HSBeaconContainerFrame" class="wpdbbkp-support-button" href="https://magazine3.company/contact/" target="_blank">
+		<a aria-label="Open Support" aria-expanded="false" class="wpdbbkp-support-button" href="https://backupforwp.com/support/" target="_blank">
 				<span class="wpdbbkp-support-icon">
 					<svg width="24" height="22" xmlns="http://www.w3.org/2000/svg"><path d="M20.347 20.871l-.003-.05c0 .017.001.034.003.05zm-.243-4.278a2 2 0 0 1 .513-1.455c1.11-1.226 1.383-2.212 1.383-4.74C22 5.782 18.046 2 13.125 2h-2.25C5.954 2 2 5.78 2 10.399c0 4.675 4.01 8.626 8.875 8.626h2.25c.834 0 1.606-.207 3.212-.798a2 2 0 0 1 1.575.083l2.355 1.161-.163-2.878zM10.875 0h2.25C19.13 0 24 4.656 24 10.399c0 2.6-.25 4.257-1.9 6.08l.243 4.279c.072.845-.807 1.471-1.633 1.162l-3.682-1.816c-1.212.446-2.527.921-3.903.921h-2.25C4.869 21.025 0 16.142 0 10.4 0 4.656 4.869 0 10.875 0z" fill="#FFF"></path></svg>
 				</span>

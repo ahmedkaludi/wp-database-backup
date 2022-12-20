@@ -1,8 +1,18 @@
+<?php
+
+$wpdbbkp_local_enabled	=	get_option( 'wp_db_local_backup',null );
+$wpdbbkp_local_path		=	get_option( 'wp_db_local_backup_path',null );
+$wpdbbkp_local_status		=	'<span class="dashicons dashicons-warning" style="color:orange;font-size: 30px;" title="Destination not setup"></span> ';
+if($wpdbbkp_local_enabled==1 && !empty($wpdbbkp_local_path))
+{
+	$wpdbbkp_local_status='<span class="dashicons dashicons-yes-alt" style="color:green;font-size: 30px;" title="Destination enabled"></span>';
+}
+?>
 <div class="panel panel-default">
 					<div class="panel-heading">
 						<h4 class="panel-title">
 							<a data-toggle="collapse" data-parent="#accordion" href="#collapseLocal">
-								<h2>Local Backup</h2>
+								<h2>Local Backup <?php echo $wpdbbkp_local_status;?></h2>
 
 							</a>
 						</h4>

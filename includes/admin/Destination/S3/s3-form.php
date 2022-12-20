@@ -36,13 +36,23 @@ if ( true === isset( $_POST['wpdb_amazon_s3'] ) && 'Y' === $_POST['wpdb_amazon_s
 	// Put a "settings updated" message on the screen.
 	$update_msg = '<div class="updated"><p><strong>Your amazon s3 setting has been saved.</strong></p></div>';
 }
-$wp_db_backup_destination_s3 = get_option( 'wp_db_backup_destination_s3' );
+$wp_db_backup_destination_s3 = get_option( 'wp_db_backup_destination_s3',0);
+$wpdb_dest_amazon_s3_bucket = get_option( 'wpdb_dest_amazon_s3_bucket',null);
+$wpdb_dest_amazon_s3_bucket_key = get_option( 'wpdb_dest_amazon_s3_bucket_key',null);
+$wpdb_dest_amazon_s3_bucket_secret = get_option( 'wpdb_dest_amazon_s3_bucket_secret',null);
+
+$wpdbbkp_amazon_s3_status			=	'<span class="dashicons dashicons-warning" style="color:orange;font-size: 30px;" title="Destination not setup"></span> ';
+if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !empty($wpdb_dest_amazon_s3_bucket_key) && !empty($wpdb_dest_amazon_s3_bucket_secret))
+{
+	$wpdbbkp_amazon_s3_status='<span class="dashicons dashicons-yes-alt" style="color:green;font-size: 30px;" title="Destination enabled"></span>';
+}
+
 ?>
 <div class="panel panel-default">
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapseAmazon">
-				<h2>Amazon S3</h2>
+				<h2>Amazon S3 <?php echo $wpdbbkp_amazon_s3_status;?></h2>
 
 			</a>
 		</h4>
@@ -84,7 +94,7 @@ $wp_db_backup_destination_s3 = get_option( 'wp_db_backup_destination_s3' );
 				}
 			}
 			?>
-			<p><a href="http://www.wpseeds.com/wp-database-backup/#amazon" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a> Back up WordPress database to Amazon S3.</p>
+			<p> Back up WordPress database to Amazon S3.</p>
 			<p>Enter your Amazon S3 details for your offsite backup. Leave these blank for local backups OR Disable Amazon S3 Destination</p>
 			<form  class="form-group" name="amazons3" method="post" action="">
 

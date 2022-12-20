@@ -19,7 +19,7 @@ if ( isset( $_GET['action'] ) && 'deleteauth' === $_GET['action'] ) {
 		echo '<div id="message" class="error"><p> Dropbox API: ' . esc_attr( $e->getMessage() ) . ' </p></div>';
 	}
 	update_option( 'wpdb_dropboxtoken', '' );
-	wp_safe_redirect( site_url() . '/wp-admin/tools.php?page=wp-database-backup&notification=deleteauth' );
+	wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=deleteauth' );
 
 }
 
@@ -70,7 +70,7 @@ $dropboxtoken      = ! empty( $wpdb_dropboxtoken ) ? maybe_unserialize( $wpdb_dr
 					}
 					?>
 					<br><br>
-					<a class="button secondary" href="<?php echo esc_url( site_url() . '/wp-admin/tools.php?page=wp-database-backup&action=deleteauth&_wpnonce=' . $nonce ); ?> " title="<?php esc_html_e( 'Unlink Dropbox Account', 'wpdbbkp' ); ?>"><?php esc_html_e( 'Unlink Dropbox Account', 'wpdbbkp' ); ?></a>
+					<a class="button secondary" href="<?php echo esc_url( site_url() . '/wp-admin/admin.php?page=wp-database-backup&action=deleteauth&_wpnonce=' . $nonce ); ?> " title="<?php esc_html_e( 'Unlink Dropbox Account', 'wpdbbkp' ); ?>"><?php esc_html_e( 'Unlink Dropbox Account', 'wpdbbkp' ); ?></a>
 					<p>Unlink Dropbox Account for local backups.</p>
 				<?php } ?>
 			</td>

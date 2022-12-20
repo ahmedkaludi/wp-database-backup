@@ -72,13 +72,6 @@ body{
   opacity: 1 !important;
   transform: rotate( 0deg ) scale(1) !important;
 }
-#db_home .submit{
-  padding-top:20px;
-}
-
-#db_schedul form{
-  margin-top:20px;
-}
 
 #db_setting input[type=checkbox]{
   vertical-align: sub;
@@ -92,4 +85,35 @@ body{
 }
 .toggle_anchor{
   text-decoration: none !important;
+}
+#create_backup{
+  margin-bottom:20px;
+}
+
+.bootstrap-wrapper  p.submit{
+  margin-left: 15px;
+}
+
+#db_setting .panel-group , #searchreplace .panel-group ,#db_help .panel-group {
+  margin-left:20px;
+  margin-right:20px;
+}
+
+#example_length select{
+  width:100px;
+}
+
+#db_destination  .panel-default, #db_info .panel-default{
+  margin:0 !important;
+}
+
+#db_destination .panel-body , #db_info .panel-body{
+  padding:20px;
+}
+.wpdbbkp_notification{
+  padding:0 15px;
+}
+.wpdbbkp_notification_row
+{
+  margin-top:20px;
 }

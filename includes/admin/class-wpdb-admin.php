@@ -120,7 +120,7 @@ class Wpdb_Admin {
 							update_option( 'wp_db_backup_replace_text', sanitize_text_field( wp_unslash( $_POST['wp_db_backup_replace_text'] ) ) );
 						}
 						$nonce = wp_create_nonce( 'wp-database-backup' );
-						wp_safe_redirect( esc_url( site_url() . '/wp-admin/tools.php?page=wp-database-backup&notification=save&tab=searchreplace&_wpnonce=' . $nonce ) );
+						wp_safe_redirect( esc_url( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=save&tab=searchreplace&_wpnonce=' . $nonce ) );
 					}
 
 					if ( isset( $_POST['wpsetting'] ) ) {
@@ -161,7 +161,7 @@ class Wpdb_Admin {
 							update_option( 'wp_db_exclude_table', '' );
 						}
 						$nonce = wp_create_nonce( 'wp-database-backup' );
-						wp_safe_redirect( site_url() . '/wp-admin/tools.php?page=wp-database-backup&notification=save&_wpnonce=' . $nonce );
+						wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=save&_wpnonce=' . $nonce );
 					}
 
 					if ( true === isset( $_POST['wp_db_local_backup_path'] ) ) {
@@ -208,7 +208,7 @@ class Wpdb_Admin {
 					}
 					// Close the directory.
 					closedir( $dir_handle );
-					wp_safe_redirect( site_url() . '/wp-admin/tools.php?page=wp-database-backup' );
+					wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup' );
 				}
 				$nonce = isset( $_REQUEST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ) : '';
 				if ( isset( $_REQUEST['_wpnonce'] ) && wp_verify_nonce( $nonce, 'wp-database-backup' ) ) {
@@ -216,7 +216,7 @@ class Wpdb_Admin {
 						switch ( (string) $_GET['action'] ) {
 							case 'createdbbackup':
 								$this->wp_db_backup_event_process();
-								wp_safe_redirect( site_url() . '/wp-admin/tools.php?page=wp-database-backup&notification=create&_wpnonce=' . $nonce );
+								wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=create&_wpnonce=' . $nonce );
 								break;
 							case 'removebackup':
 								if ( true === isset( $_GET['index'] ) ) {
@@ -239,7 +239,7 @@ class Wpdb_Admin {
 									}
 									update_option( 'wp_db_backup_backups', $newoptions );
 									$nonce = wp_create_nonce( 'wp-database-backup' );
-									wp_safe_redirect( site_url() . '/wp-admin/tools.php?page=wp-database-backup&notification=delete&_wpnonce=' . $nonce );
+									wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=delete&_wpnonce=' . $nonce );
 								}
 								break;
 							case 'clear_temp_db_backup_file':
@@ -268,7 +268,7 @@ class Wpdb_Admin {
 										closedir( $dh );
 									}
 								}
-								wp_safe_redirect( site_url() . '/wp-admin/tools.php?page=wp-database-backup&notification=clear_temp_db_backup_file&_wpnonce=' . $nonce );
+								wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=clear_temp_db_backup_file&_wpnonce=' . $nonce );
 								break;
 							case 'restorebackup':
 								$index      = (int) $_GET['index'];
@@ -369,7 +369,7 @@ class Wpdb_Admin {
 										unlink( $database_file );
 									}
 								}
-								wp_safe_redirect( site_url() . '/wp-admin/tools.php?page=wp-database-backup&notification=restore&_wpnonce=' . $nonce );
+								wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=restore&_wpnonce=' . $nonce );
 								break;
 
 							/* END: Restore Database Content */
@@ -402,7 +402,7 @@ class Wpdb_Admin {
 		$settings = get_option( 'wp_db_backup_options' ); ?>
 		<div class="bootstrap-wrapper">
 		<?php
-			include_once 'admin-header-notification.php';
+		include_once 'admin-header-notification.php';
 		$wp_db_local_backup_path = get_option( 'wp_db_local_backup_path' );
 		if ( false === empty( $wp_db_local_backup_path ) && false === file_exists( $wp_db_local_backup_path ) ) {
 			echo '<div class="alert alert-warning alert-dismissible fade in" role="alert">
@@ -457,21 +457,45 @@ class Wpdb_Admin {
 					<?php
 					echo '<div class="tab-content">';
 					echo '<div class="tab-pane active"  id="db_home">';
-					echo '<p class="submit">';
+
 					$nonce                     = wp_create_nonce( 'wp-database-backup' );
 					$wp_db_backup_search_text  = get_option( 'wp_db_backup_search_text' );
 					$wp_db_backup_replace_text = get_option( 'wp_db_backup_replace_text' );
 					if ( ( false === empty( $wp_db_backup_search_text ) ) && ( false === empty( $wp_db_backup_replace_text ) ) ) {
-						echo '<a href="' . esc_url( site_url() ) . '/wp-admin/tools.php?page=wp-database-backup&action=createdbbackup&_wpnonce=' . esc_attr( $nonce ) . '" id="create_backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create New Database Backup with Search/Replace</a>';
+						echo '<a href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=createdbbackup&_wpnonce=' . esc_attr( $nonce ) . '" id="create_backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create New Database Backup with Search/Replace</a>';
 						echo '<p>Backup file will replace <b>' . esc_attr( $wp_db_backup_search_text ) . '</b> text with <b>' . esc_attr( $wp_db_backup_replace_text ) . '</b>. For Regular Database Backup without replace then Go to Dashboard=>Tool=>WP-DB Backup > Settings > Search and Replace - Set Blank Fields </p>';
 					} else {
-						echo '<a href="' . esc_url( site_url() ) . '/wp-admin/tools.php?page=wp-database-backup&action=createdbbackup&_wpnonce=' . esc_attr( $nonce ) . '" id="create_backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create New Database Backup</a>';
+						echo '<a href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=createdbbackup&_wpnonce=' . esc_attr( $nonce ) . '" id="create_backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create New Database Backup</a>';
 					}
-					echo '</p>';
+					
 					?>
 
 					<?php
 					if ( $options ) {
+
+						echo ' <script>
+						var $j = jQuery.noConflict();
+						$j(document).ready(function () {
+							$j(".popoverid").popover();
+							var table = $j("#example").DataTable();
+							$j("#create_backup").click(function() {
+								$j("#backup_process").show();
+								$j("#create_backup").attr("disabled", true);
+							});
+						});
+
+						function excludetableall(){
+							var checkboxes = document.getElementsByClassName("wp_db_exclude_table");
+							var checked = "";
+							if($j("#wp_db_exclude_table_all").prop("checked") == true){
+								checked = "checked";
+							}
+							$j(".wp_db_exclude_table").each(function() {
+								this.checked = checked;
+							});
+						}
+
+					</script>';
 						echo ' <div class="table-responsive">
                                 <div id="dataTables-example_wrapper" class="dataTables_wrapper form-inline" role="grid">
 
@@ -480,7 +504,7 @@ class Wpdb_Admin {
 						echo '<tr class="wpdb-header">';
 						echo '<th class="manage-column" scope="col" width="5%" style="text-align: center;">#</th>';
 						echo '<th class="manage-column" scope="col" width="35%">Date</th>';
-						echo '<th class="manage-column" scope="col" width="5%"></th>';
+						echo '<th class="manage-column" scope="col" width="5%">Log</th>';
 						echo '<th class="manage-column" scope="col" width="15%">Destination</th>';
 						echo '<th class="manage-column" scope="col" width="10%">Backup File</th>';
 						echo '<th class="manage-column" scope="col" width="10%">Size</th>';
@@ -504,9 +528,12 @@ class Wpdb_Admin {
 							echo '<tr class="' . ( ( 0 === ( $count % 2 ) ) ? esc_attr( $str_class ) . ' alternate' : esc_attr( $str_class ) ) . '">';
 							echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
 							echo '<td><span style="display:none">' . esc_attr( gmdate( 'Y M jS h:i:s A', $option['date'] ) ) . '</span>' . esc_attr( gmdate( 'jS, F Y h:i:s A', $option['date'] ) ) . '</td>';
-							echo '<td class="wpdb_log">';
+							echo '<td class="wpdb_log" align="center">';
 							if ( false === empty( $option['log'] ) ) {
 								echo '<button id="popoverid" type="button" class="popoverid btn" data-toggle="popover" title="Log" data-content="' . wp_kses_post( $option['log'] ) . '"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></button>';
+							}
+							else{
+								echo 'NA';
 							}
 							echo '</td>';
 							echo '<td>';
@@ -521,14 +548,14 @@ class Wpdb_Admin {
 							}
 							echo '</td>';
 							echo '<td>';
-							echo '<a href="' . esc_url( $option['url'] ) . '" style="color: #21759B;">';
+							echo '<a class="btn btn-default" href="' . esc_url( $option['url'] ) . '" style="color: #21759B;border-color:#337ab7;">';
 							echo '<span class="glyphicon glyphicon-download-alt"></span> Download</a></td>';
 							echo '<td>' . esc_attr( $this->wp_db_backup_format_bytes( $option['size'] ) ) . '</td>';
-							echo '<td><a title="Remove Database Backup" onclick="return confirm(\'Are you sure you want to delete database backup?\')" href="' . esc_url( site_url() ) . '/wp-admin/tools.php?page=wp-database-backup&action=removebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) ) . '" class="btn btn-default"><span style="color:red" class="glyphicon glyphicon-trash"></span> Remove <a/> ';
+							echo '<td><a title="Remove Database Backup" onclick="return confirm(\'Are you sure you want to delete database backup?\')" href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=removebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) ) . '" class="btn btn-default"><span style="color:red" class="glyphicon glyphicon-trash"></span> Remove <a/> ';
 							if ( isset( $option['search_replace'] ) && 1 === (int) $option['search_replace'] ) {
 								echo '<span style="margin-left:15px" title="' . esc_html( $option['log'] ) . '" class="glyphicon glyphicon-search"></span>';
 							} else {
-								echo '<a title="Restore Database Backup" onclick="return confirm(\'Are you sure you want to restore database backup?\')" href="' . esc_url( site_url() ) . '/wp-admin/tools.php?page=wp-database-backup&action=restorebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) ) . '" class="btn btn-default"><span class="glyphicon glyphicon-refresh" style="color:blue"></span> Restore <a/>';
+								echo '<a title="Restore Database Backup" onclick="return confirm(\'Are you sure you want to restore database backup?\')" href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=restorebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) ) . '" class="btn btn-default"><span class="glyphicon glyphicon-refresh" style="color:blue"></span> Restore <a/>';
 							}
 							echo '</td></tr>';
 							$count++;
@@ -676,7 +703,7 @@ class Wpdb_Admin {
 								</div>
 
 								<div class=""><br>
-									<a type="button" href="<?php echo esc_url( site_url() ); ?>/wp-admin/tools.php?page=wp-database-backup&action=clear_temp_db_backup_file&_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="btn btn-warning"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Clear all old/temp database backup files</a>
+									<a type="button" href="<?php echo esc_url( site_url() ); ?>/wp-admin/admin.php?page=wp-database-backup&action=clear_temp_db_backup_file&_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="btn btn-warning"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Clear all old/temp database backup files</a>
 									<p>Click above button to clear all your old or temporary created database backup
 										files.
 										It only delete file from backup directory which is not in 'Database Backups'
@@ -1055,149 +1082,141 @@ class Wpdb_Admin {
 				</div>
 				
 				<div class="tab-pane" id="db_setting">
-					<div class="panel panel-group panel-default">
-						<div class="panel-body">
-							<?php
-							$wp_local_db_backup_count         = get_option( 'wp_local_db_backup_count' );
-							$wp_db_log                        = get_option( 'wp_db_log' );
-							$wp_db_exclude_table              = array();
-							$wp_db_exclude_table              = get_option( 'wp_db_exclude_table' );
-							$wp_db_backup_enable_auto_upgrade = get_option( 'wp_db_backup_enable_auto_upgrade' );
-							if ( 1 === (int) $wp_db_backup_enable_auto_upgrade ) {
-								$wp_db_backup_enable_auto_upgrade_checked = 'checked';
-							} else {
-								$wp_db_backup_enable_auto_upgrade_checked = '';
-							}
-							if ( 1 === (int) $wp_db_log ) {
-								$checked = 'checked';
-							} else {
-								$checked = '';
-							}
-							$wp_db_remove_local_backup = get_option( 'wp_db_remove_local_backup' );
-							if ( 1 === (int) $wp_db_remove_local_backup ) {
-								$remove_local_backup = 'checked';
-							} else {
-								$remove_local_backup = '';
-							}
-							?>
-							<form action="" method="post">
-								<?php wp_nonce_field( 'wp-database-backup' ); ?>
-								<div class="input-group">
-									<span class="input-group-addon" id="sizing-addon2">Maximum Local Backups</span>
-									<input type="number" name="wp_local_db_backup_count" value="<?php echo esc_html( $wp_local_db_backup_count ); ?>" class="form-control" placeholder="Maximum Local Backups" aria-describedby="sizing-addon2">
 
-								</div>
-								<div class="alert alert-default" role="alert">
-									<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> The maximum
-									number of Local Database Backups that should be kept, regardless of their size.</br>
-									Leave blank for keep unlimited database backups.
-								</div>
-								<hr>
-								<div class="input-group">
-									<label><input type="checkbox" <?php echo esc_attr( $checked ); ?> name="wp_db_log"> Enable Log.</label>
-								</div>
-								<hr>
-								<div class="input-group">
-								<label><input type="checkbox" <?php echo esc_attr( $wp_db_backup_enable_auto_upgrade_checked ); ?> name="wp_db_backup_enable_auto_upgrade"> Enable Auto Backups Before Upgrade.</label>
-									<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-										If checked then it will create database backup on(before) upgrade/update plugin, theme, WordPress.
-										<br>Leave blank/un-checked for disable this feature.
-									</p>
-								</div>
-								<hr>
-								<div class="input-group">
-								<label><input type="checkbox" <?php echo esc_attr( $remove_local_backup ); ?> name="wp_db_remove_local_backup"> Remove local backup.</label>
-									<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-										If Checked then it will remove local backup.
-										<br>Use this option only when you have set any destination.
-										<br>If somesites you need only external backup.
-									</p>
-								</div>
-								<hr>
-								<div class="input-group">
-								<label>	<input type="checkbox" <?php checked( get_option( 'wp_db_backup_enable_htaccess' ), '1' ); ?>  name="wp_db_backup_enable_htaccess"> Enable .htaccess File In Storage Directory</label>
-									<p>Disable if issues occur when downloading backup/archive files.</p>
-								</div>
-								<hr>
+				<div class="panel-group">
+					<?php
+					$wp_local_db_backup_count         = get_option( 'wp_local_db_backup_count' );
+					$wp_db_log                        = get_option( 'wp_db_log' );
+					$wp_db_exclude_table              = array();
+					$wp_db_exclude_table              = get_option( 'wp_db_exclude_table' );
+					$wp_db_backup_enable_auto_upgrade = get_option( 'wp_db_backup_enable_auto_upgrade' );
+					if ( 1 === (int) $wp_db_backup_enable_auto_upgrade ) {
+						$wp_db_backup_enable_auto_upgrade_checked = 'checked';
+					} else {
+						$wp_db_backup_enable_auto_upgrade_checked = '';
+					}
+					if ( 1 === (int) $wp_db_log ) {
+						$checked = 'checked';
+					} else {
+						$checked = '';
+					}
+					$wp_db_remove_local_backup = get_option( 'wp_db_remove_local_backup' );
+					if ( 1 === (int) $wp_db_remove_local_backup ) {
+						$remove_local_backup = 'checked';
+					} else {
+						$remove_local_backup = '';
+					}
+					?>
+					<form action="" method="post">
+						<?php wp_nonce_field( 'wp-database-backup' ); ?>
+						<div class="input-group">
+							<span class="input-group-addon" id="sizing-addon2">Maximum Local Backups</span>
+							<input type="number" name="wp_local_db_backup_count" value="<?php echo esc_html( $wp_local_db_backup_count ); ?>" class="form-control" placeholder="Maximum Local Backups" aria-describedby="sizing-addon2">
 
-								<div class="panel panel-default">
-									<div class="panel-heading">
-										<h4 class="panel-title">
-											<a data-toggle="collapse" data-parent="#accordion" href="#collapseExclude">
-												Exclude Table From Database Backup.
-											</a>
-										</h4>
-									</div>
-									<div id="collapseExclude" class="panel-collapse collapse in">
-										<div class="panel-body">
-											<table class="table table-condensed">
-												<tr class="success">
-													<th>No.</th>
-													<th>Tables</th>
-													<th>Records</th>
-													<th><input type="checkbox" value="" onclick="excludetableall()" name="wp_db_exclude_table_all" id="wp_db_exclude_table_all">Exclude Table</th>
-												</tr>
-												<?php
-												$no           = 0;
-												$row_usage    = 0;
-												$data_usage   = 0;
-												$tablesstatus = $wpdb->get_results( 'SHOW TABLE STATUS' ); // phpcs:ignore
-												foreach ( $tablesstatus as $tablestatus ) {
-													$tablestatus_arr = (array) $tablestatus;
-													if ( 0 === ( $no % 2 ) ) {
-														$style = '';
-													} else {
-														$style = ' class="alternate"';
-													}
-													$no++;
-													echo '<tr' . esc_attr( $style ) . '>';
-													echo '<td>' . esc_attr( number_format_i18n( $no ) ) . '</td>';
-													echo '<td>' . esc_attr( $tablestatus_arr['Name'] ) . '</td>';
-													echo '<td>' . esc_attr( number_format_i18n( $tablestatus_arr['Rows'] ) ) . '</td>';
-													if ( false === empty( $wp_db_exclude_table ) && in_array( $tablestatus_arr['Name'], $wp_db_exclude_table, true ) ) {
-														$checked = 'checked';
-													} else {
-														$checked = '';
-													}
-													echo '<td> <input class="wp_db_exclude_table" type="checkbox" ' . esc_attr( $checked ) . ' value="' . esc_attr( $tablestatus_arr['Name'] ) . '" name="wp_db_exclude_table[' . esc_attr( $tablestatus_arr['Name'] ) . ']"></td>';
-
-													$row_usage += $tablestatus_arr['Rows'];
-
-													echo '</tr>';
-												}
-												echo '<tr class="thead">';
-												echo '<th>Total:</th>';
-												echo '<th>' . esc_attr( number_format_i18n( $no ) ) . ' Table</th>';
-												echo '<th>' . esc_attr( number_format_i18n( $row_usage ) ) . ' Records</th>';
-												echo '<th></th>';
-												echo '</tr>';
-												?>
-											</table>
-										</div>
-									</div>
-								</div>
-								<hr>
-								<input class="btn btn-primary" type="submit" name="wpsetting" value="Save">
-							</form>
 						</div>
-					</div>
+						<div class="alert alert-default" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> The maximum
+							number of Local Database Backups that should be kept, regardless of their size.</br>
+							Leave blank for keep unlimited database backups.
+						</div>
+						<hr>
+						<div class="input-group">
+							<label><input type="checkbox" <?php echo esc_attr( $checked ); ?> name="wp_db_log"> Enable Log</label>
+						</div>
+						<hr>
+						<div class="input-group">
+						<label><input type="checkbox" <?php echo esc_attr( $wp_db_backup_enable_auto_upgrade_checked ); ?> name="wp_db_backup_enable_auto_upgrade"> Enable Auto Backups Before Upgrade</label>
+							<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+								If checked then it will create database backup on(before) upgrade/update plugin, theme, WordPress.
+								<br>Leave blank/un-checked for disable this feature.
+							</p>
+						</div>
+						<hr>
+						<div class="input-group">
+						<label><input type="checkbox" <?php echo esc_attr( $remove_local_backup ); ?> name="wp_db_remove_local_backup"> Remove local backup</label>
+							<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+								If Checked then it will remove local backup.
+								<br>Use this option only when you have set any destination.
+								<br>If somesites you need only external backup.
+							</p>
+						</div>
+						<hr>
+						<div class="input-group">
+						<label>	<input type="checkbox" <?php checked( get_option( 'wp_db_backup_enable_htaccess' ), '1' ); ?>  name="wp_db_backup_enable_htaccess"> Enable .htaccess File In Storage Directory</label>
+							<p>Disable if issues occur when downloading backup/archive files.</p>
+						</div>
+						<hr>
 
+						<div class="panel panel-default">
+							<div class="panel-heading">
+									<a data-toggle="collapse" data-parent="#accordion" href="#collapseExclude">
+									<h4 class="panel-title">
+										Exclude Table From Database Backup
+									</h4>
+									</a>
+							</div>
+							<div id="collapseExclude" class="panel-collapse collapse in">
+								<div class="panel-body">
+									<table class="table table-condensed">
+										<tr class="success">
+											<th>No.</th>
+											<th>Tables</th>
+											<th>Records</th>
+											<th>Exclude Table</th>
+										</tr>
+										<?php
+										$no           = 0;
+										$row_usage    = 0;
+										$data_usage   = 0;
+										$tablesstatus = $wpdb->get_results( 'SHOW TABLE STATUS' ); // phpcs:ignore
+										foreach ( $tablesstatus as $tablestatus ) {
+											$tablestatus_arr = (array) $tablestatus;
+											if ( 0 === ( $no % 2 ) ) {
+												$style = '';
+											} else {
+												$style = ' class="alternate"';
+											}
+											$no++;
+											echo '<tr' . esc_attr( $style ) . '>';
+											echo '<td>' . esc_attr( number_format_i18n( $no ) ) . '</td>';
+											echo '<td>' . esc_attr( $tablestatus_arr['Name'] ) . '</td>';
+											echo '<td>' . esc_attr( number_format_i18n( $tablestatus_arr['Rows'] ) ) . '</td>';
+											if ( false === empty( $wp_db_exclude_table ) && in_array( $tablestatus_arr['Name'], $wp_db_exclude_table, true ) ) {
+												$checked = 'checked';
+											} else {
+												$checked = '';
+											}
+											echo '<td> <input class="wp_db_exclude_table" type="checkbox" ' . esc_attr( $checked ) . ' value="' . esc_attr( $tablestatus_arr['Name'] ) . '" name="wp_db_exclude_table[' . esc_attr( $tablestatus_arr['Name'] ) . ']"></td>';
+
+											$row_usage += $tablestatus_arr['Rows'];
+
+											echo '</tr>';
+										}
+										echo '<tr class="thead">';
+										echo '<th>Total:</th>';
+										echo '<th>' . esc_attr( number_format_i18n( $no ) ) . ' Table</th>';
+										echo '<th>' . esc_attr( number_format_i18n( $row_usage ) ) . ' Records</th>';
+										echo '<th></th>';
+										echo '</tr>';
+										?>
+									</table>
+								</div>
+							</div>
+						</div>
+						<hr>
+						<input class="btn btn-primary" type="submit" name="wpsetting" value="Save">
+					</form>
+				</div>
 				</div>
 				<div class="tab-pane" id="searchreplace">
-					<div class="panel panel-group panel-default">
-					<div class="panel-heading">
-										<h4 class="panel-title">
-											Search & Replace
-										</h4>
-									</div>
-						<div class="panel-body">
+					<div class="panel-group">
 							<?php
 							$wp_db_backup_search_text  = get_option( 'wp_db_backup_search_text' );
 							$wp_db_backup_replace_text = get_option( 'wp_db_backup_replace_text' );
 							?>
 							<form action="" method="post">
 								<?php wp_nonce_field( 'wp-database-backup' ); ?>
-								<br>
+								
 								<p>If you even need to migrate your WordPress site to a different domain name, or add an SSL certificate to it, you must update the URLs in your database backup file then you can use this feature. <br> This feature allow you to Search and Replace text in your database backup file. <br> if you want only exclude tables from search and replace text then Go to Dashboard=>Tool=>WP-DB Backup > Setting > Exclude Table From Database Backup setting. The tables you selected will be skipped over for each backup you make.
 								</p>
 								<br>
@@ -1229,7 +1248,7 @@ class Wpdb_Admin {
 								<input class="btn btn-primary" type="submit" name="wpsetting_search" value="Save">
 							</form>
 						</div>
-					</div>
+				
 
 
 				</div>

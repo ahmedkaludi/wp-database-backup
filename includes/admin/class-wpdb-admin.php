@@ -477,7 +477,9 @@ class Wpdb_Admin {
 						var $j = jQuery.noConflict();
 						$j(document).ready(function () {
 							$j(".popoverid").popover();
-							var table = $j("#example").DataTable();
+							var table = $j("#example").DataTable({
+								order: [[0, "desc"]],
+							});
 							$j("#create_backup").click(function() {
 								$j("#backup_process").show();
 								$j("#create_backup").attr("disabled", true);
@@ -502,7 +504,7 @@ class Wpdb_Admin {
                                 <table class="table table-striped table-bordered table-hover display" id="example">
                                     <thead>';
 						echo '<tr class="wpdb-header">';
-						echo '<th class="manage-column" scope="col" width="5%" style="text-align: center;">#</th>';
+						//echo '<th class="manage-column" scope="col" width="5%" style="text-align: center;">#</th>';
 						echo '<th class="manage-column" scope="col" width="35%">Date</th>';
 						echo '<th class="manage-column" scope="col" width="5%">Log</th>';
 						echo '<th class="manage-column" scope="col" width="15%">Destination</th>';
@@ -526,7 +528,7 @@ class Wpdb_Admin {
 						foreach ( $options as $option ) {
 							$str_class = ( 0 === (int) $option['size'] ) ? 'text-danger' : 'wpdb_download';
 							echo '<tr class="' . ( ( 0 === ( $count % 2 ) ) ? esc_attr( $str_class ) . ' alternate' : esc_attr( $str_class ) ) . '">';
-							echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
+							//echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
 							echo '<td><span style="display:none">' . esc_attr( gmdate( 'Y M jS h:i:s A', $option['date'] ) ) . '</span>' . esc_attr( gmdate( 'jS, F Y h:i:s A', $option['date'] ) ) . '</td>';
 							echo '<td class="wpdb_log" align="center">';
 							if ( false === empty( $option['log'] ) ) {

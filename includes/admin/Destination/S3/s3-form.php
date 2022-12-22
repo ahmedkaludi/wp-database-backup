@@ -44,7 +44,7 @@ $wpdb_dest_amazon_s3_bucket_secret = get_option( 'wpdb_dest_amazon_s3_bucket_sec
 $wpdbbkp_amazon_s3_status			=	'<label><b>Status</b>: Not Configured </label> ';
 if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !empty($wpdb_dest_amazon_s3_bucket_key) && !empty($wpdb_dest_amazon_s3_bucket_secret))
 {
-	$wpdbbkp_amazon_s3_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span>Configured </label> ';
+	$wpdbbkp_amazon_s3_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span> </label> ';
 }
 
 ?>

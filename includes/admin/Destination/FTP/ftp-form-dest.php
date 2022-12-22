@@ -12,7 +12,7 @@ $wpdbbkp_ftp_pass		=	get_option( 'backupbreeze_ftp_pass',null );
 $wpdbbkp_ftp_status		=	'<label><b>Status</b>: Not Configured </label> ';
 if($wpdbbkp_ftp_enabled==1 && !empty($wpdbbkp_ftp_host) && !empty($wpdbbkp_ftp_user) && !empty($wpdbbkp_ftp_pass))
 {
-	$wpdbbkp_ftp_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span>Configured </label> ';
+	$wpdbbkp_ftp_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span> </label> ';
 }
 
 ?>

@@ -79,7 +79,7 @@ $wpdbbkp_gdrive_secret_key		=	get_option( 'wpdb_dest_google_secret_key',null );
 $wpdbbkp_gdrive_status			=	'<label><b>Status</b>: Not Configured </label> ';
 if(!empty($wpdbbkp_gdrive_authCode) && !empty($wpdbbkp_gdrive_client_key) && !empty($wpdbbkp_gdrive_secret_key))
 {
-	$wpdbbkp_gdrive_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span>Configured </label> ';
+	$wpdbbkp_gdrive_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span> </label> ';
 }
 ?>
 <div class="panel panel-default">

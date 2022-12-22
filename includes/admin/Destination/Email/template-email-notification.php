@@ -18,7 +18,7 @@ if ( 1 === (int) $wp_db_remove_local_backup ) {
 $message = '<div bgcolor="#e3e3e3" style="font-family:Arial;color:#707070;font-size:12px;background-color:#e3e3e3;margin:0;padding:0px">
 <div align="center" style="font-family:Arial;width:600px;background-color:#ffffff;margin:0 auto;padding:0px">
     <div style="font-family:Arial;border-bottom-color:#cccccc;border-bottom-width:1px;border-bottom-style:solid;background-color:#eee;margin:0px;padding:4px">
-       <a href="http://www.wpseeds.com"><img src="'. esc_attr( WPDB_PLUGIN_URL ) .'/assets/images/wp-database-backup.png" alt="WPSeeds-WprdPress Products" /></a>
+       <a href="https://backupforwp.com/"><img src="'. esc_attr( WPDB_PLUGIN_URL ) .'/assets/images/wp-database-backup.png" alt="Backup for WP" /></a>
     </div>
 
     <div align="left" style="font-family:Arial;text-align:left;margin:0px;padding:10px">
@@ -80,7 +80,7 @@ $message = '<div bgcolor="#e3e3e3" style="font-family:Arial;color:#707070;font-s
 
     <div style="font-family:Arial;border-top-width:1px;border-top-color:#cccccc;border-top-style:solid;background-color:#eee;margin:0px;padding:10px">
         You\'re receiving this email because you have active Email Notification on your site(' . $site_url . ').
-		<br>If you don\'t like to receieve a Email Notification then login to (' . $site_url . ') and goto (Dashboard=>Backups=>Destination=>Email Notification) remove email address.
+		<br>If you don\'t like to receieve a Email Notification then login to (' . $site_url . ') and goto (Dashboard=>Backups=>Save Backups to=>Email Notification) remove email address.
 		<div class="yj6qo"></div><div class="adL">
     </div></div><div class="adL">
 </div></div><div class="adL">

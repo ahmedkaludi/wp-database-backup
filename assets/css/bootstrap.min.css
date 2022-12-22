@@ -677,7 +677,7 @@
 }
 .bootstrap-wrapper fieldset{padding:0;margin:0;border:0;min-width:0}
 .bootstrap-wrapper legend{display:block;width:100%;padding:0;margin-bottom:20px;font-size:21px;line-height:inherit;color:#333;border:0;border-bottom:1px solid #e5e5e5}
-.bootstrap-wrapper label{display:inline-block;max-width:100%;margin-bottom:5px;font-weight:bold}
+.bootstrap-wrapper label{display:inline-block;max-width:100%;margin-bottom:5px;font-weight:bold;color:#000}
 .bootstrap-wrapper input[type="search"]{-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}
 .bootstrap-wrapper input[type="radio"], .bootstrap-wrapper input[type="checkbox"]{margin:4px 0 0;margin-top:1px \9;line-height:normal}
 .bootstrap-wrapper input[type="file"]{display:block}
@@ -685,8 +685,6 @@
 .bootstrap-wrapper select[multiple], .bootstrap-wrapper select[size]{height:auto}
 .bootstrap-wrapper input[type="file"]:focus, .bootstrap-wrapper input[type="radio"]:focus, .bootstrap-wrapper input[type="checkbox"]:focus{outline:thin dotted;outline:5px auto -webkit-focus-ring-color;outline-offset:-2px}
 .bootstrap-wrapper output{display:block;padding-top:7px;font-size:14px;line-height:1.42857143;color:#555}
-.bootstrap-wrapper .form-control{display:block;width:100%;height:34px;padding:6px 12px;font-size:14px;line-height:1.42857143;color:#555;background-color:#fff;border:1px solid #ccc;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0, .bootstrap-wrapper 0, .bootstrap-wrapper 0, .bootstrap-wrapper 0.075);box-shadow:inset 0 1px 1px rgba(0, .bootstrap-wrapper 0, .bootstrap-wrapper 0, .bootstrap-wrapper 0.075);-webkit-transition:border-color ease-in-out .15s, .bootstrap-wrapper  -webkit-box-shadow ease-in-out .15s;-o-transition:border-color ease-in-out .15s, .bootstrap-wrapper  box-shadow ease-in-out .15s;transition:border-color ease-in-out .15s, .bootstrap-wrapper  box-shadow ease-in-out .15s}
-.bootstrap-wrapper .form-control:focus{border-color:#66afe9;outline:0;-webkit-box-shadow:inset 0 1px 1px rgba(0, .bootstrap-wrapper 0, .bootstrap-wrapper 0, .bootstrap-wrapper .075), .bootstrap-wrapper  0 0 8px rgba(102, .bootstrap-wrapper  175, .bootstrap-wrapper  233, .bootstrap-wrapper  0.6);box-shadow:inset 0 1px 1px rgba(0, .bootstrap-wrapper 0, .bootstrap-wrapper 0, .bootstrap-wrapper .075), .bootstrap-wrapper  0 0 8px rgba(102, .bootstrap-wrapper  175, .bootstrap-wrapper  233, .bootstrap-wrapper  0.6)}
 .bootstrap-wrapper .form-control::-moz-placeholder{color:#999;opacity:1}
 .bootstrap-wrapper .form-control:-ms-input-placeholder{color:#999}
 .bootstrap-wrapper .form-control::-webkit-input-placeholder{color:#999}
@@ -1258,7 +1256,7 @@
 .bootstrap-wrapper .list-group-item-text{margin-bottom:0;line-height:1.3}
 .bootstrap-wrapper .panel{margin-bottom:20px;background-color:#fff;border:1px solid transparent;border-radius:4px;-webkit-box-shadow:0 1px 1px rgba(0, .bootstrap-wrapper 0, .bootstrap-wrapper 0, .bootstrap-wrapper 0.05);box-shadow:0 1px 1px rgba(0, .bootstrap-wrapper 0, .bootstrap-wrapper 0, .bootstrap-wrapper 0.05)}
 .bootstrap-wrapper .panel-body{padding-top:15px}
-.bootstrap-wrapper .panel-heading{padding:10px 15px;border-bottom:1px solid transparent;border-top-right-radius:3px;border-top-left-radius:3px}
+.bootstrap-wrapper .panel-heading{padding:15px;border-bottom:1px solid transparent;border-top-right-radius:3px;border-top-left-radius:3px}
 .bootstrap-wrapper .panel-heading>.dropdown .dropdown-toggle{color:inherit}
 .bootstrap-wrapper .panel-title{margin-top:0;margin-bottom:0;font-size:16px;color:inherit}
 .bootstrap-wrapper .panel-title>a, .bootstrap-wrapper .panel-title>small, .bootstrap-wrapper .panel-title>.small, .bootstrap-wrapper .panel-title>small>a, .bootstrap-wrapper .panel-title>.small>a{color:inherit}
@@ -1296,7 +1294,7 @@
 .bootstrap-wrapper .panel-group .panel-footer{border-top:0}
 .bootstrap-wrapper .panel-group .panel-footer+.panel-collapse .panel-body{border-bottom:1px solid #ddd}
 .bootstrap-wrapper .panel-default{border-color:#ddd;margin: 20px 20px 0 0;}
-.bootstrap-wrapper .panel-default>.panel-heading{color:#333;background-color:#f5f5f5;border-color:#ddd}
+.bootstrap-wrapper .panel-default>.panel-heading{color:#333;background-color:#eee;border-color:#ddd}
 .bootstrap-wrapper .panel-default>.panel-heading+.panel-collapse>.panel-body{border-top-color:#ddd}
 .bootstrap-wrapper .panel-default>.panel-heading .badge{color:#f5f5f5;background-color:#333}
 .bootstrap-wrapper .panel-default>.panel-footer+.panel-collapse>.panel-body{border-bottom-color:#ddd}

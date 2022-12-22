@@ -436,21 +436,19 @@ class Wpdb_Admin {
 		}
 		?>
 			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h3><a href="#" target="blank"><img
-								src="<?php echo esc_attr( WPDB_PLUGIN_URL ); ?>/assets/images/wp-database-backup.png"></a>Database
-						Backup Settings 
-					</h3>
+				<div class="panel-heading head-logo">
+					<a href="https://backupforwp.com/" target="blank"><img
+								src="<?php echo esc_attr( WPDB_PLUGIN_URL ); ?>/assets/images/wp-database-backup.png" width="230px"></a>
 				</div>
 				<div class="panel-body">
 					<ul class="nav nav-tabs">
 						<li class="active"><a href="#db_home" data-toggle="tab"><?php echo esc_html__('Database Backups', 'wpdbbkp') ?></a></li>
-						<li><a href="#db_schedul" data-toggle="tab"><?php echo esc_html__('Scheduler', 'wpdbbkp') ?></a></li>
+						<li><a href="#db_schedul" data-toggle="tab"><?php echo esc_html__('Auto Scheduler', 'wpdbbkp') ?></a></li>
+						<li><a href="#db_destination" data-toggle="tab"><?php echo esc_html__('Save Backups to', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_setting" data-toggle="tab"><?php echo esc_html__('Settings', 'wpdbbkp') ?></a></li>
 						<li><a href="#searchreplace" data-toggle="tab"><?php echo esc_html__('Search and Replace', 'wpdbbkp') ?></a></li>
-						<li><a href="#db_destination" data-toggle="tab"><?php echo esc_html__('Destination', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_help" data-toggle="tab"><?php echo esc_html__('Help &amp; Support', 'wpdbbkp') ?></a></li>
-						<li id="db_info_link" ><a href="#db_info" data-toggle="tab"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a></li>
+						<li id="db_info_link" title="System Info"><a href="#db_info" data-toggle="tab"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a></li>
 						
 					</ul>
 
@@ -662,7 +660,7 @@ class Wpdb_Admin {
 									</h4>
 								</a>
 						</div>
-						<div id="collapsedb" class="panel-collapse collapse">
+						<div id="collapsedb" class="panel-collapse collapse in">
 							<div class="panel-body list-group">
 
 								<div class="row list-group-item">
@@ -861,7 +859,7 @@ class Wpdb_Admin {
 							</a>
 						</div>
 
-						<div id="collapsedbinfo" class="panel-collapse collapse">
+						<div id="collapsedbinfo" class="panel-collapse collapse in">
 							<div class="panel-body">
 								<table class="table table-condensed">
 									<tr class="success">
@@ -914,7 +912,7 @@ class Wpdb_Admin {
 								</a>
 							
 						</div>
-						<div id="collapsedbtable" class="panel-collapse collapse">
+						<div id="collapsedbtable" class="panel-collapse collapse in">
 							<div class="panel-body">
 								<table class="table table-condensed">
 									<tr class="success">
@@ -967,7 +965,7 @@ class Wpdb_Admin {
 								</a>
 							
 						</div>
-						<div id="collapsewp" class="panel-collapse collapse">
+						<div id="collapsewp" class="panel-collapse collapse in">
 							<div class="panel-body">
 								<table class="table table-condensed">
 									<tr class="success">
@@ -1008,7 +1006,7 @@ class Wpdb_Admin {
 								</a>
 							
 						</div>
-						<div id="collapsewpsetting" class="panel-collapse collapse">
+						<div id="collapsewpsetting" class="panel-collapse collapse in">
 							<div class="panel-body">
 								<table class="table table-condensed">
 									<tr class="success">

@@ -130,19 +130,22 @@ body{
   margin: 6px;
 }
 #db_destination h2 label{
-  font-weight: inherit;
+  font-weight: 500;
   font-size: 14px;
   margin-bottom:0;
   margin-left: 15px;
   margin-top:0;
+  color:#777;
 }
 #db_destination h2 {
   margin-top:0;
   margin-bottom:0;
+  font-weight: 600;
 }
 
 #db_destination .dashicons-admin-generic{
   float:right;
+  color:#666;
 }
 
 .wpdbbkp-support-label {
@@ -164,4 +167,17 @@ body{
   margin: 15px 15px 15px 0;
   /* height: 22rem; */
   padding: 0px 20px;
+}
+
+label .configured{
+  color:green;
+}
+#wp_db_backup_options {
+  width:100px;
+}
+.bootstrap-wrapper a {
+  box-shadow:none;
+}
+.head-logo{
+  background-color:#eee;
 }

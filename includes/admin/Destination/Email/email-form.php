@@ -10,7 +10,7 @@ $wpdbbkp_email_id		=	get_option( 'wp_db_backup_email_id',null );
 $wpdbbkp_email_status		=	'<label><b>Status</b>: Not Configured </label> ';
 if($wpdbbkp_email_enabled==1 && !empty($wpdbbkp_email_id))
 {
-	$wpdbbkp_email_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span>Configured </label> ';
+	$wpdbbkp_email_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span> </label> ';
 }
 ?>
 <div class="panel panel-default">

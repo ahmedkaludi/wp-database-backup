@@ -5,7 +5,7 @@ $wpdbbkp_local_path		=	get_option( 'wp_db_local_backup_path',null );
 $wpdbbkp_local_status		=	'<label><b>Status</b>: Not Configured </label> ';
 if($wpdbbkp_local_enabled==1 && !empty($wpdbbkp_local_path))
 {
-	$wpdbbkp_local_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span>Configured </label> ';
+	$wpdbbkp_local_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span> </label> ';
 }
 ?>
 <div class="panel panel-default">

@@ -3,8 +3,8 @@ jQuery(document).ready(function($) {
     /* Newletters js starts here */      
         if(wpdbbkp_localize_data.do_tour){
                     
-          var  content = '<h3>Thanks For using GN Publisher!</h3>';
-              content += '<p>Do you want the latest on GN Publisher data update before others and some best resources on monetization in a single email? - Free just for users of GN Publisher!</p>';
+          var  content = '<h3>Thanks For using BackupforWP!</h3>';
+              content += '<p>Do you want the latest on BackupforWP data update before others and some best resources on monetization in a single email? - Free just for users of BackupforWP!</p>';
               content += '<style type="text/css">';
               content += '.wp-pointer-buttons{ padding:0; overflow: hidden; }';
               content += '.wp-pointer-content .button-secondary{  left: -25px;background: transparent;top: 5px; border: 0;position: relative; padding: 0; box-shadow: none;margin: 0;color: #0085ba;} .wp-pointer-content .button-primary{ display:none}  #wpdbbkp_mc_embed_signup{background:#fff; clear:left; font:14px Helvetica,Arial,sans-serif; }';

@@ -101,10 +101,12 @@ body{
 
 #example_length select{
   width:100px;
+  height:30px;
+  margin:6px;
 }
 
 #db_destination  .panel-default, #db_info .panel-default{
-  margin:0 !important;
+  margin:10px 0 !important;
 }
 
 #db_destination .panel-body , #db_info .panel-body{
@@ -116,4 +118,50 @@ body{
 .wpdbbkp_notification_row
 {
   margin-top:20px;
+}
+#example_length label, #example_filter label{
+  font-weight: inherit;
+  display: flex;
+  align-items: center;
+}
+
+.dataTables_wrapper .dataTables_filter input
+{
+  margin: 6px;
+}
+#db_destination h2 label{
+  font-weight: inherit;
+  font-size: 14px;
+  margin-bottom:0;
+  margin-left: 15px;
+  margin-top:0;
+}
+#db_destination h2 {
+  margin-top:0;
+  margin-bottom:0;
+}
+
+#db_destination .dashicons-admin-generic{
+  float:right;
+}
+
+.wpdbbkp-support-label {
+  margin-top: 4px;
+  float: left;
+  width: 70px;
+  font-size: 14px;
+}
+
+.wpdbbkp-bio-box:hover {
+  box-shadow: 5px 5px 8px #888888;
+}
+
+.wpdbbkp-bio-box {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 15px 20px;
+  border-radius: 4px;
+  margin: 15px 15px 15px 0;
+  /* height: 22rem; */
+  padding: 0px 20px;
 }

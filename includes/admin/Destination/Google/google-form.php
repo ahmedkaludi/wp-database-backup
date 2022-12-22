@@ -76,17 +76,17 @@ if ( isset( $_GET['code'] ) ) {
 $wpdbbkp_gdrive_authCode		=	get_option( 'wpdb_dest_google_authCode',null );
 $wpdbbkp_gdrive_secret_key		=	get_option( 'wpdb_dest_google_client_key',null );
 $wpdbbkp_gdrive_secret_key		=	get_option( 'wpdb_dest_google_secret_key',null );
-$wpdbbkp_gdrive_status			=	'<span class="dashicons dashicons-warning" style="color:orange;font-size: 30px;" title="Destination not setup"></span> ';
+$wpdbbkp_gdrive_status			=	'<label><b>Status</b>: Not Configured </label> ';
 if(!empty($wpdbbkp_gdrive_authCode) && !empty($wpdbbkp_gdrive_client_key) && !empty($wpdbbkp_gdrive_secret_key))
 {
-	$wpdbbkp_gdrive_status='<span class="dashicons dashicons-yes-alt" style="color:green;font-size: 30px;" title="Destination enabled"></span>';
+	$wpdbbkp_gdrive_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span>Configured </label> ';
 }
 ?>
 <div class="panel panel-default">
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapsegoogle">
-				<h2>Google drive <?php echo $wpdbbkp_gdrive_status;?></h2>
+				<h2>Google drive <?php echo $wpdbbkp_gdrive_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
 			</a>
 		</h4>
 	</div>

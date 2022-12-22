@@ -41,10 +41,10 @@ $wpdb_dest_amazon_s3_bucket = get_option( 'wpdb_dest_amazon_s3_bucket',null);
 $wpdb_dest_amazon_s3_bucket_key = get_option( 'wpdb_dest_amazon_s3_bucket_key',null);
 $wpdb_dest_amazon_s3_bucket_secret = get_option( 'wpdb_dest_amazon_s3_bucket_secret',null);
 
-$wpdbbkp_amazon_s3_status			=	'<span class="dashicons dashicons-warning" style="color:orange;font-size: 30px;" title="Destination not setup"></span> ';
+$wpdbbkp_amazon_s3_status			=	'<label><b>Status</b>: Not Configured </label> ';
 if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !empty($wpdb_dest_amazon_s3_bucket_key) && !empty($wpdb_dest_amazon_s3_bucket_secret))
 {
-	$wpdbbkp_amazon_s3_status='<span class="dashicons dashicons-yes-alt" style="color:green;font-size: 30px;" title="Destination enabled"></span>';
+	$wpdbbkp_amazon_s3_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span>Configured </label> ';
 }
 
 ?>
@@ -52,7 +52,7 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapseAmazon">
-				<h2>Amazon S3 <?php echo $wpdbbkp_amazon_s3_status;?></h2>
+				<h2>Amazon S3 <?php echo $wpdbbkp_amazon_s3_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
 
 			</a>
 		</h4>

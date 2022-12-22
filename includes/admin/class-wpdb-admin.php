@@ -534,9 +534,7 @@ class Wpdb_Admin {
 							if ( false === empty( $option['log'] ) ) {
 								echo '<button id="popoverid" type="button" class="popoverid btn" data-toggle="popover" title="Log" data-content="' . wp_kses_post( $option['log'] ) . '"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></button>';
 							}
-							else{
-								echo 'NA';
-							}
+						
 							echo '</td>';
 							echo '<td>';
 							if ( ! empty( $option['destination'] ) ) {
@@ -615,8 +613,8 @@ class Wpdb_Admin {
 				
 					?>
 						<div class="panel-group ">
-						        <div class="gn-flex-container">
-						          <div class="wpdbbkp-left-side">
+						        <div class="gn-flex-container row">
+						          <div class="wpdbbkp-left-side col-md-8">
 						            <p> <?php echo esc_html__('We are dedicated to provide Technical support &amp; Help to our users. Use the below form for sending your questions. ', 'wpdbbkp') ?> </p>
 						            <div class="wpdbbkp_support_div_form" id="technical-form">
 						              <ul>
@@ -643,6 +641,13 @@ class Wpdb_Admin {
 						              <span class="wpdbbkp-query-error wpdbbkp-result wpdbbkp-hide"> <?php echo esc_html__('Message not sent. please check your network connection', 'wpdbbkp') ?> </span>
 						            </div>
 						          </div>
+								  <div class="wpdbbkp-right-side col-md-4">
+								  <div class="wpdbbkp-bio-box" id="wpdbbkp_Bio">
+                <h3>Vision &amp; Mission</h3>
+                <p class="wpdbbkp-p">We strive to provide the best Backup Plugin in the world.</p>
+              <p class="wpdbbkp_boxdesk"> Delivering a good user experience means a lot to us, so we try our best to reply each and every question.</p>
+           </div>
+				</div>
 						        </div>
 						</div>
 					</div>
@@ -1705,10 +1710,14 @@ class Wpdb_Admin {
 			wp_cache_set( 'wpdb_mysqlversion', $mysqlversion, '', 18000 );
 		}
 		$my_theme     = wp_get_theme();
-		$log_message  = 'WordPress Version :' . get_bloginfo( 'version' );
-		$log_message .= ', Database Version :' . $mysqlversion;
-		$log_message .= ', Active Theme Name :' . $my_theme->get( 'Name' );
-		$log_message .= ', Theme Version :' . $my_theme->get( 'Version' );
+		$active_plugin = count(get_option('active_plugins'));
+		$total_plugin  = count(get_plugins());
+		$log_message  = '<b>WordPress Version</b> : ' . get_bloginfo( 'version' );
+		$log_message .= '<br> <b>Database Version</b> : ' . $mysqlversion;
+		$log_message .= '<br> <b>Active Theme Name</b> : ' . $my_theme->get( 'Name' );
+		$log_message .= '<br> <b>Theme Version</b> : ' . $my_theme->get( 'Version' );
+		$log_message .= '<br> <b>Plugin Count</b> : ' . $total_plugin;
+		$log_message .= '<br> <b>Active Plugins</b> : ' . $active_plugin;
 
 		$upload_path['size']    = filesize( $upload_path['dir'] );
 		$upload_path['sqlfile'] = $path_info['basedir'] . '/db-backup/' . $sql_filename;
@@ -1716,7 +1725,7 @@ class Wpdb_Admin {
 		if ( 1 === (int) $wp_db_log ) {
 			$wp_db_exclude_table = get_option( 'wp_db_exclude_table' );
 			if ( ! empty( $wp_db_exclude_table ) ) {
-				$log_message .= '<br> Exclude Table : ' . implode( ', ', $wp_db_exclude_table );
+				$log_message .= '<br> <b>Exclude Table</b> : ' . implode( ', ', $wp_db_exclude_table );
 			}
 			$upload_path['log'] = $log_message;
 		}

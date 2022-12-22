@@ -56,3 +56,13 @@ jQuery(document).ready(function($) {
     var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
     return regex.test(email);
 }
+
+jQuery(document).on("click", ".popoverid", function(e){
+  var itrms=jQuery('#example .popover-content');
+  for(var i=0;i<itrms.length;i++)
+  {
+    var popover_con=jQuery(itrms[i]).text();
+    jQuery(itrms[i]).html(popover_con);
+  }
+  
+}); 

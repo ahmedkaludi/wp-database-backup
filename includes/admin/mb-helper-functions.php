@@ -175,3 +175,54 @@ if ( $found ) {
 return $filtered;
 }
 
+function wpdbbkp_send_query_message(){   
+		    
+    if ( ! isset( $_POST['wpdbbkp_security_nonce'] ) ){
+       return; 
+    }
+    if ( !wp_verify_nonce( $_POST['wpdbbkp_security_nonce'], 'wpdbbkp-admin-nonce' ) ){
+       return;  
+    }   
+    $message        = wpdbbkp_sanitize_textarea_field($_POST['message']); 
+    $email          = wpdbbkp_sanitize_textarea_field($_POST['email']);   
+                            
+    if(function_exists('wp_get_current_user')){
+
+        $user           = wp_get_current_user();
+
+        $message = '<p>'.$message.'</p><br><br>'.'Query from BackupforWP plugin support tab';
+        
+        $user_data  = $user->data;        
+        $user_email = $user_data->user_email;     
+        
+        if($email){
+            $user_email = $email;
+        }            
+        //php mailer variables        
+        $sendto    = 'team@magazine3.in';
+        $subject   = "BackupforWP Query";
+        
+        $headers[] = 'Content-Type: text/html; charset=UTF-8';
+        $headers[] = 'From: '. esc_attr($user_email);            
+        $headers[] = 'Reply-To: ' . esc_attr($user_email);
+        // Load WP components, no themes.   
+
+        $sent = wp_mail($sendto, $subject, $message, $headers); 
+
+        if($sent){
+
+             echo json_encode(array('status'=>'t'));  
+
+        }else{
+
+            echo json_encode(array('status'=>'f'));            
+
+        }
+        
+    }
+                    
+    wp_die();           
+}
+
+
+

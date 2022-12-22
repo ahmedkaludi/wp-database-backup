@@ -5,8 +5,8 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: Database backup, db backup, backup, database, WordPress Database Backup, WP db backup, wp database backup, wp backup, wordpress backup, mysql backup, automatically database backup, website backup, website database backup, restore database backup, Store database backup on dropbox, backup on google drive, backup on amazon s3,ftp,email notification.
 Requires at least: 3.1+
-Tested up to: 6.0.1
-Stable tag: 5.9
+Tested up to: 6.1
+Stable tag: 6.0
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -43,81 +43,13 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 <li>Documentation</li>
 </ul>
 
-= Few of the Key Features =
-
-<ul>
-<li>Database Backup easily on single click.</li>
-<li>Auto-backup.</li>
-<li>Restore Database Backup easily on single click.</li>
-<li>Store database backup on safe place- Dropbox, Google drive, Amazon s3,FTP,Email.</li>
-<li>Pagination.</li>
-<li><a href="https://www.wpseeds.com/documentation/docs/wp-database-backup/search-and-replace/" target="_blank">Search and Replace.</a></li>
-<li>Documentation</li>
-</ul>
-
-= Get Pro 'WP All Backup' Plugin =
-* <a target="_blank" href="https://www.wpseeds.com/product/wp-all-backup/">www.wpseeds.com</a>
-
-<p>WP All Backup will backup and restore your entire site at will, complete with FTP &amp; S3 integration</p>
-<h2><strong>Pro Features</strong></h2>
-<ul>
-<li class="col-md-3"><strong>Complete Backup</strong></li>
-<li>Create Database Backup easily on single click. </li>
-<li><strong>Auto-backup </strong>Backup automatically on a repeating schedule</li>
-<li>Backup Listing : Pagination.</li>
-<li>Manual backup</li>
-<li>Multisite compatible</li>
-<li>Backup entire site</li>
-<li>Exclude specific folders and files</li>
-<li>Downloadable log files</li>
-<li>Simple one-click <strong>restore</strong></li>
-<li>Set number of backups to store</li>
-<li>Automatically remove oldest backup</li>
-<li>Multiple storage destinations</li>
-<li><strong>FTP integration</strong></li>
-<li><strong>Dropbox integration</strong></li>
-<li><strong>Google drive integration</strong></li>
-<li><strong>Amazon s3 integration</strong></li>
-<li><strong>Email Notification</strong></li>
-<li>Reporting- Sends emailed backups and backup reports to any email addresses</li>
-<li>ZipArchive</li>
-<li>Backup zip label with the site name(Help when backing up multiple sites).</li>
-<li>Select Backup Type: Only Database, Only Files, Complete Backup</li>
-<li>Inline Help</li>
-<li>Search backup from list(Date/Size)</li>
-<li>Sort backup list (Date/Size)</li>
-<li>Easy To Install(Very easy to use)</li>
-<li>Simple to configure(very less configuration).</li>
-<li>PclZip</li>
-<li><strong>Clone Site</strong></li>
-<li><strong>Move Site</strong></li>
-<li>Change Backup folder name</li>
-<li>Uses zip and mysqldump for faster back ups if they are available.</li>
-<li>Exclude Tables from your back ups.</li>
-<li>System Check ( i.e backup folder permission, execution time etc)</li>
-<li>Disk space check-up(memory available).</li>
-<li><strong>Support</strong></li>
-<li>Updates</li>
-<li>And More....</li>
-</ul>
-
-= Pro Version =
-* <a target="_blank" href="https://www.wpseeds.com/product/wp-all-backup/">www.wpseeds.com</a>
-
-= Documentation =
-* <a target="_blank" href="https://www.wpseeds.com/documentation/docs/wp-database-backup/">https://www.wpseeds.com/documentation/docs/wp-database-backup/</a>
-
 = Support =
-* <a target="_blank" href="https://www.wpseeds.com/support/">https://www.wpseeds.com/support/</a>
+* <a target="_blank" href="https://backupforwp.com/support">https://backupforwp.com/support</a>
 
 == Installation ==
 1. Download the plugin file, unzip and place it in your wp-content/plugins/ folder. You can alternatively upload it via the WordPress plugin backend.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. WP Database Backup menu will appear in Dashboard->Tool->WP-DB-Backup. Click on it & get started to use.
-
-= Refer bellow link for more information =
-
-* https://www.wpseeds.com/documentation/
+3. WP Database Backup menu will appear in Dashboard->Backups. Click on it & get started to use.
 
 [youtube https://www.youtube.com/watch?v=st8L90lTDwU]
 
@@ -129,6 +61,10 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 4. screenshot-4.png
 
 == Changelog ==
+
+= 6.0 =
+* 22-12-2022
+* UI/UX and other Improvements
 
 = 5.9 =
 * 09-08-2022
@@ -142,7 +78,6 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 * 01-08-2021
 * Fix issue with PHP 8
 * Added Feature - Create Database Backup On Upgrade/Update Plugin, Theme, WordPress.
-* https://www.wpseeds.com/documentation/docs/wp-database-backup/setting/automatic-backup-before-an-upgrade/
 
 = 5.8 =
 * 30-07-2021
@@ -164,7 +99,6 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 = 5.6 =
 * 24-09-2020
 * Added Feature - Search-and-replace.
-* https://www.wpseeds.com/documentation/docs/wp-database-backup/search-and-replace/
 
 = 5.5.5 =
 * 10-09-2020
@@ -383,7 +317,6 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 
 = 3.7 =
 * Removed PHP warnings
-* For more info visit : http://www.wpseeds.com/blog/release-new-version-3-7-wp-database-backup/
 
 = 3.6 =
 * Exclude Tables.
@@ -456,15 +389,15 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 
 == Frequently Asked Questions ==
 
- Q-How to  create database Backup?
- <br>Follow the steps listed below to Create Database Backup
+ = How to  create database Backup? =
+ Follow the steps listed below to Create Database Backup
 
  <br>Create Backup:
   <br>1) Click on Create New Database Backup
   <br>2) Download Database Backup file.
 
- Q-How to restore database backup?
-  <br>Restore Backup:
+= How to restore database backup? =
+  Restore Backup:
   <br>Click on Restore Database Backup
   <br>OR
   <br>1)Login to phpMyAdmin
@@ -474,13 +407,13 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
   <br>5)Click Browse. Locate the backup file stored on your computer.
   <br>6)Click the Go button
 
- Q-Always get an empty (0 bits) backup file?
- <br>Ans-This is generally caused by an access denied problem.
+ = Always get an empty (0 bits) backup file? =
+ This is generally caused by an access denied problem.
  <br>You don't have permission to write in the wp-content/uploads.
  <br>Please check if you have the read write permission on the folder.
 
-Q.On Click Create New Database Backup it goes to blank page.
-<br>Ans: if the site is very large, it takes time to create the database backup. And if the server execution time is set to low value, you get go to blank page.
+= On Click Create New Database Backup it goes to blank page =
+if the site is very large, it takes time to create the database backup. And if the server execution time is set to low value, you get go to blank page.
 There may be chance your server max execution time is 30 second. Please check debug log file.
 You will need to ask your hosting services to increase the execution time and the plugin will work fine for large data.
 You can also try to increase execution time. Please make below changes – Add below line
@@ -491,20 +424,9 @@ max_execution_time = 180 ;
 
 Also Please make sure that you have write permission to Backup folder and also check your log file.
 
- Q. Want more features?
- <br>If you want more feature then
- Drop Mail :walke.prashant28@gmail.com
- Pro Features :https://www.wpseeds.com/product/wp-all-backup/
+ = Want more features? =
+ If you want more features then please contact us at 
 
-* https://www.wpseeds.com/documentation/
 
 == Upgrade Notice ==
 * Sanitised multiple inputs and escape output to remove further risk of cross site script security.
-
-== Official Site ==
-* https://www.wpseeds.com/documentation/docs/wp-database-backup
-* https://www.wpseeds.com/wp-database-backup/
-* https://www.wpseeds.com/product/wp-all-backup/
-* https://walkeprashant.wordpress.com/wp-database-backup/
-* http://walkeprashant.in
-* walke.prashant28@gmail.com

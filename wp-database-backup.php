@@ -1,11 +1,11 @@
 <?php // phpcs:ignore
 /**
  * Plugin Name: WP Database Backup
- * Plugin URI:http://www.wpseeds.com/documentation/docs/wp-database-backup
- * Description: This plugin helps you to create/restore WordPress database backup. (Tools->WP-DB-Backup)
+ * Plugin URI:https://wordpress.org/plugins/wp-database-backup
+ * Description: This plugin helps you to create/restore WordPress database backup.
  * Version: 6.0
- * Author: Prashant Walke
- * Author URI: www.wpseeds.com
+ * Author: Backup for WP
+ * Author URI: https://backupforwp.com/
  * Text Domain: wpdbbkp
  * Domain Path: /lang
  *

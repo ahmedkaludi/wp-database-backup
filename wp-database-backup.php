@@ -1,11 +1,11 @@
 <?php // phpcs:ignore
 /**
  * Plugin Name: WP Database Backup
- * Plugin URI:http://www.wpseeds.com/documentation/docs/wp-database-backup
- * Description: This plugin helps you to create/restore WordPress database backup. (Tools->WP-DB-Backup)
- * Version: 5.9
- * Author: Prashant Walke
- * Author URI: www.wpseeds.com
+ * Plugin URI:https://wordpress.org/plugins/wp-database-backup
+ * Description: This plugin helps you to create/restore WordPress database backup.
+ * Version: 6.0
+ * Author: Backup for WP
+ * Author URI: https://backupforwp.com/
  * Text Domain: wpdbbkp
  * Domain Path: /lang
  *
@@ -47,7 +47,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		 *
 		 * @var string
 		 */
-		public $version = '5.7';
+		public $version = '6.0';
 
 		/**
 		 * Plugin instance
@@ -81,7 +81,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			// Define constants.
 			$this->define_constants();
 			register_activation_hook( __FILE__, array( $this, 'installation' ) );
-			$this->installation();
+			$this->installation(2);
 			// Include required files.
 			$this->includes();
 		}
@@ -94,6 +94,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 				define( 'WPDB_PLUGIN_URL', WP_CONTENT_URL . '/plugins/wp-database-backup' );
 			}
 			define( 'WPDB_PLUGIN_FILE', __FILE__ );
+			define( 'WPDB_PATH', plugin_dir_path( __FILE__ ) );
 			define( 'WPDB_ROOTPATH', str_replace( '\\', '/', ABSPATH ) );
 			define( 'WPDB_VERSION', $this->version );
 			define( 'WPDBPLUGIN_VERSION', WPDB_VERSION );
@@ -104,19 +105,26 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		 * Include Requred files and lib.
 		 */
 		private function includes() {
+			include_once 'includes/admin/mb-helper-functions.php';
 			include_once 'includes/admin/class-wpdb-admin.php';
 			include_once 'includes/admin/Destination/wp-backup-destination-upload-action.php';
 			include_once 'includes/class-wpdbbackuplog.php';
 			include_once 'includes/admin/filter.php';
+			include_once 'includes/admin/newsletter.php';
+			
 		}
 		/**
 		 * Installation setting at time of activation.
 		 */
-		public function installation() {
+		public function installation($flag=1) {
 			add_option( 'wp_db_backup_destination_FTP', 1 );
 			add_option( 'wp_db_backup_destination_Email', 1 );
 			add_option( 'wp_db_backup_destination_s3', 1 );
 			add_option( 'wp_db_remove_local_backup', 0 );
+			if($flag!=2)
+			{
+			 add_option( 'wpdbbkp_activation_redirect', true);
+		    }
 		}
 
 		/**

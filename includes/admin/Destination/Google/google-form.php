@@ -48,7 +48,7 @@ if ( isset( $_POST['wpdb_google_drive'] ) && 'Y' === $_POST['wpdb_google_drive']
 		// Get your credentials from the APIs Console.
 		$client->setClientId( $client_id );
 		$client->setClientSecret( $client_secret );
-		$client->setRedirectUri( site_url() . '/wp-admin/tools.php?page=wp-database-backup&action=auth' );
+		$client->setRedirectUri( site_url() . '/wp-admin/admin.php?page=wp-database-backup&action=auth' );
 		$client->setScopes( array( 'https://www.googleapis.com/auth/drive' ) );
 
 		$service = new Google_DriveService( $client );
@@ -63,7 +63,7 @@ if ( isset( $_POST['wpdb_google_drive'] ) && 'Y' === $_POST['wpdb_google_drive']
 		}
 	} elseif ( isset( $_POST['reset'] ) && 'Reset Configure' === $_POST['reset'] ) {
 		update_option( 'wpdb_dest_google_authCode', '' );
-		wp_safe_redirect( esc_url( site_url() . '/wp-admin/tools.php?page=wp-database-backup' ) );
+		wp_safe_redirect( esc_url( site_url() . '/wp-admin/admin.php?page=wp-database-backup' ) );
 	}
 
 	// Put a "settings updated" message on the screen.
@@ -72,16 +72,25 @@ if ( isset( $_POST['wpdb_google_drive'] ) && 'Y' === $_POST['wpdb_google_drive']
 if ( isset( $_GET['code'] ) ) {
 	update_option( 'wpdb_dest_google_authCode', wp_db_filter_data( sanitize_text_field( wp_unslash( $_GET['code'] ) ) ) );
 }
+
+$wpdbbkp_gdrive_authCode		=	get_option( 'wpdb_dest_google_authCode',null );
+$wpdbbkp_gdrive_secret_key		=	get_option( 'wpdb_dest_google_client_key',null );
+$wpdbbkp_gdrive_secret_key		=	get_option( 'wpdb_dest_google_secret_key',null );
+$wpdbbkp_gdrive_status			=	'<label><b>Status</b>: Not Configured </label> ';
+if(!empty($wpdbbkp_gdrive_authCode) && !empty($wpdbbkp_gdrive_client_key) && !empty($wpdbbkp_gdrive_secret_key))
+{
+	$wpdbbkp_gdrive_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span> </label> ';
+}
 ?>
 <div class="panel panel-default">
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapsegoogle">
-				<h2>Google drive</h2>
+				<h2>Google drive <?php echo $wpdbbkp_gdrive_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
 			</a>
 		</h4>
 	</div>
-	<div id="collapsegoogle" class="panel-collapse collapse in">
+	<div id="collapsegoogle" class="panel-collapse collapse">
 		<div class="panel-body">
 			<?php echo esc_html( $update_msg ); ?>
 			<form  class="form-group" name="googledrive" method="post" action="">
@@ -101,9 +110,9 @@ if ( isset( $_GET['code'] ) ) {
 					</p>
 				<?php } else { ?>
 
-					<p><a href="http://www.wpseeds.com/wp-database-backup/#google" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a> Back up WordPress database to google drive.</p>
+					<p>Back up WordPress database to google drive.</p>
 					<p>Configure google account, you need to create Client ID &amp; Client secret from the API section '<a href="https://code.google.com/apis/console/" target="_blank">Google API Console</a>' also use authorization redirecting url as <br>
-						<strong> <?php echo esc_url( site_url() . '/wp-admin/tools.php?page=wp-database-backup&action=auth' ); ?></strong></p>
+						<strong> <?php echo esc_url( site_url() . '/wp-admin/admin.php?page=wp-database-backup&action=auth' ); ?></strong></p>
 					<p>For local backup leave the setting as it is</p>
 
 					<div class="row form-group">

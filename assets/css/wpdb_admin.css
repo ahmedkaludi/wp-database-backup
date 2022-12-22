@@ -21,3 +21,163 @@ body{
     background: #f6f7f7 !important;
     padding: 10px !important;
 }
+.wpdbbkp-hide{
+  display:none;
+}
+
+.wpdbbkp-support-button {
+  appearance: none;
+  -webkit-box-align: center;
+  border-radius: 200px;
+  bottom: 2%;
+  display: block;
+  height: 60px;
+  max-width: 60px;
+  left: 95%;
+  -webkit-box-pack: center;
+  justify-content: center;
+  margin: 0;
+  line-height: 60px;
+  outline: none;
+  padding: 0;
+  position: fixed;
+  user-select: none;
+  z-index: 909999999999;
+  background-color: #337ab7 !important;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  min-width: 60px;
+  transition: background-color .2s linear 0s,transform .2s linear 0s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wpdbbkp-support-icon {
+  -webkit-box-align: center;
+  align-items: center;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  height: 100%;
+  -webkit-box-pack: center;
+  justify-content: center;
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  text-indent: -99999px;
+  top: 0;
+  transition: opacity 80ms linear 0s,transform .16s linear 0s;
+  width: 60px;
+  will-change: opacity,transform;
+  opacity: 1 !important;
+  transform: rotate( 0deg ) scale(1) !important;
+}
+
+#db_setting input[type=checkbox]{
+  vertical-align: sub;
+}
+#db_info_link{
+  float:right;
+}
+
+#db_help .panel-group{
+  margin-top:20px;
+}
+.toggle_anchor{
+  text-decoration: none !important;
+}
+#create_backup{
+  margin-bottom:20px;
+}
+
+.bootstrap-wrapper  p.submit{
+  margin-left: 15px;
+}
+
+#db_setting .panel-group , #searchreplace .panel-group ,#db_help .panel-group {
+  margin-left:20px;
+  margin-right:20px;
+}
+
+#example_length select{
+  width:100px;
+  height:30px;
+  margin:6px;
+}
+
+#db_destination  .panel-default, #db_info .panel-default{
+  margin:10px 0 !important;
+}
+
+#db_destination .panel-body , #db_info .panel-body{
+  padding:20px;
+}
+.wpdbbkp_notification{
+  padding:0 15px;
+}
+.wpdbbkp_notification_row
+{
+  margin-top:20px;
+}
+#example_length label, #example_filter label{
+  font-weight: inherit;
+  display: flex;
+  align-items: center;
+}
+
+.dataTables_wrapper .dataTables_filter input
+{
+  margin: 6px;
+}
+#db_destination h2 label{
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom:0;
+  margin-left: 15px;
+  margin-top:0;
+  color:#777;
+}
+#db_destination h2 {
+  margin-top:0;
+  margin-bottom:0;
+  font-weight: 600;
+}
+
+#db_destination .dashicons-admin-generic{
+  float:right;
+  color:#666;
+}
+
+.wpdbbkp-support-label {
+  margin-top: 4px;
+  float: left;
+  width: 70px;
+  font-size: 14px;
+}
+
+.wpdbbkp-bio-box:hover {
+  box-shadow: 5px 5px 8px #888888;
+}
+
+.wpdbbkp-bio-box {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 15px 20px;
+  border-radius: 4px;
+  margin: 15px 15px 15px 0;
+  /* height: 22rem; */
+  padding: 0px 20px;
+}
+
+label .configured{
+  color:green;
+}
+#wp_db_backup_options {
+  width:100px;
+}
+.bootstrap-wrapper a {
+  box-shadow:none;
+}
+.head-logo{
+  background-color:#eee;
+}

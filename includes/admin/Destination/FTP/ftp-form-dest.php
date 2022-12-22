@@ -5,16 +5,26 @@
  * @package wpdbbkp
  */
 
+$wpdbbkp_ftp_enabled	=	get_option( 'wp_db_backup_destination_FTP',null );
+$wpdbbkp_ftp_host		=	get_option( 'backupbreeze_ftp_host',null );
+$wpdbbkp_ftp_user		=	get_option( 'backupbreeze_ftp_user',null );
+$wpdbbkp_ftp_pass		=	get_option( 'backupbreeze_ftp_pass',null );
+$wpdbbkp_ftp_status		=	'<label><b>Status</b>: Not Configured </label> ';
+if($wpdbbkp_ftp_enabled==1 && !empty($wpdbbkp_ftp_host) && !empty($wpdbbkp_ftp_user) && !empty($wpdbbkp_ftp_pass))
+{
+	$wpdbbkp_ftp_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span> </label> ';
+}
+
 ?>
 <div class="panel panel-default">
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapseI">
-				<h2>FTP/sFTP </h2>
+				<h2>FTP/sFTP <?php echo $wpdbbkp_ftp_status;?> <span class="dashicons dashicons-admin-generic"></span></h2> 
 			</a>
 		</h4>
 	</div>
-	<div id="collapseI" class="panel-collapse collapse in">
+	<div id="collapseI" class="panel-collapse collapse">
 		<div class="panel-body">
 			<p>FTP/sFTP Destination Define an FTP destination connection. You can define destination which use FTP.</p>
 			<?php

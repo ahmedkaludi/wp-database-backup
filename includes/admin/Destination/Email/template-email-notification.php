@@ -18,7 +18,7 @@ if ( 1 === (int) $wp_db_remove_local_backup ) {
 $message = '<div bgcolor="#e3e3e3" style="font-family:Arial;color:#707070;font-size:12px;background-color:#e3e3e3;margin:0;padding:0px">
 <div align="center" style="font-family:Arial;width:600px;background-color:#ffffff;margin:0 auto;padding:0px">
     <div style="font-family:Arial;border-bottom-color:#cccccc;border-bottom-width:1px;border-bottom-style:solid;background-color:#eee;margin:0px;padding:4px">
-       <a href="http://www.wpseeds.com"><img src="'. esc_attr( WPDB_PLUGIN_URL ) .'/assets/images/wp-database-backup.png" alt="WPSeeds-WprdPress Products" /></a>
+       <a href="https://backupforwp.com/"><img src="'. esc_attr( WPDB_PLUGIN_URL ) .'/assets/images/wp-database-backup.png" alt="Backup for WP" /></a>
     </div>
 
     <div align="left" style="font-family:Arial;text-align:left;margin:0px;padding:10px">
@@ -58,57 +58,29 @@ $message = '<div bgcolor="#e3e3e3" style="font-family:Arial;color:#707070;font-s
       on <a href="http://wordpress.org/support/view/plugin-reviews/wp-database-backup" title="Rating" target="_blank" data-saferedirecturl="https://www.google.com/url?hl=en&amp;q=http://wordpress.org/support/view/plugin-reviews/wp-database-backup&amp;source=gmail&amp;ust=1466360448038000&amp;usg=AFQjCNHxdc3F079wMTbRqbs8hw7tYkR6ww">WordPress.org</a>
 
 </div>
-
-
     </div>
 
     <div style="font-family:Arial;border-top-style:solid;border-top-color:#cccccc;border-top-width:1px;color:#707070;font-size:12px;background-color:#efefef;margin:0px;padding:15px">
         <table width="100%" cellspacing="0" cellpadding="0" style="font-family:Arial;color:#707070;font-size:12px;margin:0px;padding:0px">
             <tbody><tr style="font-family:Arial;margin:0px;padding:0px">
                 <td width="300" valign="top" align="center" style="font-family:Arial;margin:0px;padding:0px">
-
                     <h4 style="font-family:Arial;margin:0 0 5px;padding:0px">Contacts</h4>
                     <dl style="font-family:Arial;font-size:16px;font-weight:bold;text-align:left;margin:0px 10px 10px;padding:0px">
                         <dt style="font-family:Arial;font-size:13px;font-weight:bold;margin:0px;padding:0px">
                             Tech Support:
                         </dt>
                         <dd style="font-family:Arial;font-weight:normal;font-size:12px;margin:0 0 0 15px;padding:0px">
-                           http://www.wpseeds.com/support/
+                         https://backupforwp.com/support/
                         </dd>
-
-                        <dt style="font-family:Arial;font-size:13px;font-weight:bold;margin:0px;padding:0px">
-                          Documentation
-                        </dt>
-                        <dd style="font-family:Arial;font-weight:normal;font-size:12px;margin:0 0 0 15px;padding:0px">
-                           http://www.wpseeds.com/documentation/docs/wp-database-backup
-                        </dd>
-						<dt style="font-family:Arial;font-size:13px;font-weight:bold;margin:0px;padding:0px">
-                           Pro Features
-                        </dt>
-                        <dd style="font-family:Arial;font-weight:normal;font-size:12px;margin:0 0 0 15px;padding:0px">
-                            www.wpseeds.com/product/wp-all-backup/
-                        </dd>
-                        <dt style="font-family:Arial;font-size:13px;font-weight:bold;margin:0px;padding:0px">
-                            General Info/Inquiry:
-                        </dt>
-                        <dd style="font-family:Arial;font-weight:normal;font-size:12px;margin:0 0 0 15px;padding:0px">
-                          <a target="_blank" style="font-family:Arial;color:#336699;font-weight:normal;text-decoration:underline;margin:0px;padding:0px" href="mailto:info@wpseeds.com">info@wpseeds.com</a>
-                        </dd>
-
-
                     </dl>
                 </td>
-
             </tr>
         </tbody></table>
-
-        <div style="font-family:Arial;margin:0px;padding:0px">Get Flat 40% off on <a target="_blank" href="http://www.wpseeds.com/product/wp-all-backup/">Pro Version.</a> Use Coupon code <strong> WPDBSPECIAL40</strong>
-        </div>
     </div>
 
     <div style="font-family:Arial;border-top-width:1px;border-top-color:#cccccc;border-top-style:solid;background-color:#eee;margin:0px;padding:10px">
         You\'re receiving this email because you have active Email Notification on your site(' . $site_url . ').
-		<br>If you don\'t like to receieve a Email Notification then login to (' . $site_url . ') and goto (Dashboard=>Tool=>WP-DB Backup=>Destination=>Email Notification) remove email address.
+		<br>If you don\'t like to receieve a Email Notification then login to (' . $site_url . ') and goto (Dashboard=>Backups=>Save Backups to=>Email Notification) remove email address.
 		<div class="yj6qo"></div><div class="adL">
     </div></div><div class="adL">
 </div></div><div class="adL">

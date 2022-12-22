@@ -5,17 +5,24 @@
  * @package wpdbbkp
  */
 
+$wpdbbkp_email_enabled	=	get_option( 'wp_db_backup_destination_Email',null );
+$wpdbbkp_email_id		=	get_option( 'wp_db_backup_email_id',null );
+$wpdbbkp_email_status		=	'<label><b>Status</b>: Not Configured </label> ';
+if($wpdbbkp_email_enabled==1 && !empty($wpdbbkp_email_id))
+{
+	$wpdbbkp_email_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span> </label> ';
+}
 ?>
 <div class="panel panel-default">
 					<div class="panel-heading">
 						<h4 class="panel-title">
 							<a data-toggle="collapse" data-parent="#accordion" href="#collapseII">
-								<h2>Email Notification</h2>
+								<h2>Email Notification <?php echo $wpdbbkp_email_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
 
 							</a>
 						</h4>
 					</div>
-					<div id="collapseII" class="panel-collapse collapse in">
+					<div id="collapseII" class="panel-collapse collapse">
 						<div class="panel-body">
 
 							<?php

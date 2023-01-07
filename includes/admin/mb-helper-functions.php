@@ -138,3 +138,13 @@ function wpdbbkp_enqueue_makebetter_email_js(){
 if( is_admin() && wpdbbkp_is_plugins_page()) {
     add_filter('admin_footer', 'wpdbbkp_add_deactivation_feedback_modal');
 }
+
+function wpdbbkp_is_pro_active()
+{
+    $check_status = false;
+    $pluginPath = 'wp-database-backup-pro/wp-all-backup.php';
+    if (is_plugin_active( $pluginPath )) {
+        $check_status = true;
+    }
+    return $check_status;
+}

@@ -50,6 +50,17 @@ class Wpdb_Admin {
 			'dashicons-database-view', 
 			99 
 		);
+
+		if(!wpdbbkp_is_pro_active()){
+			add_submenu_page(
+				'wp-database-backup',
+				'Upgrade To Premium',
+				'<span style="color:#fff176;">Upgrade To Premium</span>',
+				'manage_options',
+				'wp-db-backup-upgrade-premium',
+				array($this, 'wp_db_backup_premium_interface_render')
+			);
+		}
 	}
 
 	/**
@@ -648,6 +659,21 @@ class Wpdb_Admin {
 				</div>
 						        </div>
 						</div>
+						<?php if(!wpdbbkp_is_pro_active()){ ?>
+						<div class="panel-group">
+							<div class="wpdbbkp-right-side col-md-4 col-md-offset-8">
+								<div class="wpdbbkp-bio-box wpdbbkp-upgrade-pro">
+					                <h2 style="text-align: center"><?php echo esc_html__('Upgrade to Pro!', 'wpdbbkp'); ?></h2>
+					                <ul>
+					                    <li><?php echo esc_html__('Premium features', 'wpdbbkp'); ?></li>
+					                    <li><?php echo esc_html__('Dedicated Backup Support', 'wpdbbkp'); ?></li>
+					                    <li><?php echo esc_html__('Active Development', 'wpdbbkp'); ?></li>
+					                </ul>
+					                <a target="_blank" href="#"><?php echo esc_html__('UPGRADE', 'wpdbbkp'); ?></a>
+					            </div>
+					        </div>
+						</div>
+						<?php } ?>
 					</div>
 
 				<div class="tab-pane" id="db_info">
@@ -1275,6 +1301,15 @@ class Wpdb_Admin {
 				</span>
 			</a>
 		<?php
+	}
+
+	/**
+	 * Redirect to premium website
+	*/
+	public function wp_db_backup_premium_interface_render()
+	{
+		wp_redirect();
+		exit;
 	}
 
 	/**

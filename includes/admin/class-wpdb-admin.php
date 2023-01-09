@@ -32,6 +32,7 @@ class Wpdb_Admin {
 		add_action('admin_enqueue_scripts', array( $this, 'wpdbbkp_admin_style'));
 		add_action('admin_enqueue_scripts', array( $this, 'wpdbbkp_admin_newsletter_script'));
 		add_action('wp_ajax_wpdbbkp_send_query_message', array( $this, 'wpdbbkp_send_query_message'));
+		add_filter( 'plugin_action_links_' . plugin_basename( WP_BACKUP_PLUGIN_FILE ), array( $this, 'add_settings_plugin_action_wp' ), 10, 4 );
 		
 		
 	}
@@ -2128,6 +2129,14 @@ class Wpdb_Admin {
 							
 			wp_die();           
 		}
+		public function add_settings_plugin_action_wp( $actions, $plugin_file, $plugin_data, $context ) {
+			$plugin_actions['settings'] = sprintf(
+			  '<a href="%s">' . _x( 'Settings', 'wpdbbkp' ) . '</a>',
+			  admin_url( 'options-general.php?page=wp-database-backup' )
+			);
+			$actions = array_merge( $actions, $plugin_actions );
+			return $actions;
+		}	
 
 	}
 

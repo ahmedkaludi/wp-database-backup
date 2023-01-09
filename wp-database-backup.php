@@ -94,6 +94,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 				define( 'WPDB_PLUGIN_URL', WP_CONTENT_URL . '/plugins/wp-database-backup' );
 			}
 			define( 'WPDB_PLUGIN_FILE', __FILE__ );
+			define('WP_BACKUP_PLUGIN_FILE',__FILE__ );
 			define( 'WPDB_PATH', plugin_dir_path( __FILE__ ) );
 			define( 'WPDB_ROOTPATH', str_replace( '\\', '/', ABSPATH ) );
 			define( 'WPDB_VERSION', $this->version );

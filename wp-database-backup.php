@@ -1,6 +1,6 @@
 <?php // phpcs:ignore
 /**
- * Plugin Name: WP Database Backup
+ * Plugin Name: WP Database Backup - Unlimited Database & Files Backup by Backup for WP  
  * Plugin URI:https://wordpress.org/plugins/wp-database-backup
  * Description: This plugin helps you to create/restore WordPress database backup.
  * Version: 6.0

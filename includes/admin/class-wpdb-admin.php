@@ -327,31 +327,34 @@ class Wpdb_Admin {
 
 								// End for extract zip file V.3.3.0.
 								set_time_limit( 0 );
-								if ( '' !== ( trim( (string) $database_name ) ) && '' !== ( trim( (string) $database_user ) ) && '' !== ( trim( (string) $datadase_password ) ) && '' !== ( trim( (string) $database_host ) ) ) {
+								if ( '' !== ( trim( (string) $database_name ) ) && '' !== ( trim( (string) $database_user ) ) && '' !== ( trim( (string) $database_host ) ) ) {
 									$conn = mysqli_connect( (string) $database_host, (string) $database_user, (string) $datadase_password ); // phpcs:ignore
 									if ( $conn ) {
 										// Start Select the database.
-										if ( ! mysqli_select_db( (string) $database_name, $conn ) ) { // phpcs:ignore
+										if ( ! mysqli_select_db( $conn, (string) $database_name) ) { // phpcs:ignore
 											$sql = 'CREATE DATABASE IF NOT EXISTS `' . (string) $database_name . '`';
-											mysqli_query( $sql, $conn ); // phpcs:ignore
-											mysqli_select_db( (string) $database_name, $conn ); // phpcs:ignore
+											mysqli_query($conn, $sql); // phpcs:ignore
+											mysqli_select_db($conn, (string) $database_name ); // phpcs:ignore
 										}
 										/* END: Select the Database */
-
+	
 										/* BEGIN: Remove All Tables from the Database */
 										$found_tables = null;
-										$result       = mysqli_query( 'SHOW TABLES FROM `{' . (string) $database_name . '}`', $conn ); // phpcs:ignore
+										$result       = mysqli_query( $conn, 'SHOW TABLES FROM `' . (string) $database_name . '`' ); // phpcs:ignore
+
 										if ( $result ) {
-											$row = mysqli_fetch_row( $result ); // phpcs:ignore
-											while ( $row ) {
+											// $row = mysqli_fetch_row( $result ); // phpcs:ignore
+											while ($row = mysqli_fetch_row($result)) {
 												$found_tables[] = $row[0];
 											}
+
 											if ( count( $found_tables ) > 0 ) {
 												foreach ( $found_tables as $table_name ) {
-													mysqli_query( 'DROP TABLE `{' . (string) $database_name . "}`.{$table_name}", $conn ); // phpcs:ignore
+													mysqli_query( $conn, "DROP TABLE " . (string) $database_name . ".".$table_name ); // phpcs:ignore
 												}
 											}
 										}
+
 										/* END: Remove All Tables from the Database */
 
 										/* BEGIN: Restore Database Content */
@@ -362,13 +365,17 @@ class Wpdb_Admin {
 
 												$sql_queries       = explode( ";\n", $sql_file );
 												$sql_queries_count = count( $sql_queries );
+
+												mysqli_query($conn, "SET sql_mode = ''");
+
 												for ( $i = 0; $i < $sql_queries_count; $i++ ) {
-													mysqli_query( $sql_queries[ $i ], $conn ); // phpcs:ignore
+													mysqli_query($conn, $sql_queries[ $i ] ); // phpcs:ignore
 												}
 											}
 										}
 									}
 								}
+								
 								if ( isset( $options[ $index ]['sqlfile'] ) && file_exists( $options[ $index ]['sqlfile'] ) ) { // Added for extract zip file V.3.3.0.
 									if ( file_exists( $options[ $index ]['sqlfile'] ) ) {
 										unlink( $options[ $index ]['sqlfile'] );
@@ -465,7 +472,9 @@ class Wpdb_Admin {
 					</ul>
 
 					<?php
+					$loader_gif = esc_url( WPDB_PLUGIN_URL )."/assets/images/icon_loading.gif";
 					echo '<div class="tab-content">';
+					echo '<div id="wpdb-backup-process" style="display:none"><div class="text-center"><img width="50" height="50" src="'.$loader_gif.'"><h5 class="text-success"><strong>Backup under process, it may take some time, please do not press back or refresh button</strong></h5></div></div>';
 					echo '<div class="tab-pane active"  id="db_home">';
 
 					$nonce                     = wp_create_nonce( 'wp-database-backup' );
@@ -476,6 +485,8 @@ class Wpdb_Admin {
 						echo '<p>Backup file will replace <b>' . esc_attr( $wp_db_backup_search_text ) . '</b> text with <b>' . esc_attr( $wp_db_backup_replace_text ) . '</b>. For Regular Database Backup without replace then Go to Dashboard=>Tool=>WP-DB Backup > Settings > Search and Replace - Set Blank Fields </p>';
 					} else {
 						echo '<a href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=createdbbackup&_wpnonce=' . esc_attr( $nonce ) . '" id="create_backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create New Database Backup</a>';
+
+						echo do_action('wp_all_backup_create_all_backup');
 					}
 					
 					?>
@@ -515,9 +526,10 @@ class Wpdb_Admin {
                                     <thead>';
 						echo '<tr class="wpdb-header">';
 						//echo '<th class="manage-column" scope="col" width="5%" style="text-align: center;">#</th>';
-						echo '<th class="manage-column" scope="col" width="35%">Date</th>';
+						echo '<th class="manage-column" scope="col" width="25%">Date</th>';
 						echo '<th class="manage-column" scope="col" width="5%">Log</th>';
-						echo '<th class="manage-column" scope="col" width="15%">Destination</th>';
+						echo '<th class="manage-column" scope="col" width="10%">Destination</th>';
+						echo '<th class="manage-column" scope="col" width="15%">Type</th>';
 						echo '<th class="manage-column" scope="col" width="10%">Backup File</th>';
 						echo '<th class="manage-column" scope="col" width="10%">Size</th>';
 						echo '<th class="manage-column" scope="col" width="20%">Action</th>';
@@ -541,8 +553,13 @@ class Wpdb_Admin {
 							//echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
 							echo '<td><span style="display:none">' . esc_attr( gmdate( 'Y M jS h:i:s A', $option['date'] ) ) . '</span>' . esc_attr( gmdate( 'jS, F Y h:i:s A', $option['date'] ) ) . '</td>';
 							echo '<td class="wpdb_log" align="center">';
-							if ( false === empty( $option['log'] ) ) {
-								echo '<button id="popoverid" type="button" class="popoverid btn" data-toggle="popover" title="Log" data-content="' . wp_kses_post( $option['log'] ) . '"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></button>';
+							if (!empty($option['log'])) {
+								// echo '<button id="popoverid" type="button" class="popoverid btn" data-toggle="popover" title="Log" data-content="' . wp_kses_post( $option['log'] ) . '"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></button>';
+								echo '<a href="' . $option['log'] . '" target="_blank" class="label label-warning" title="There might be partial backup. Please check Log File for verify backup.">';
+                            echo  '<span class="glyphicon glyphicon-list-alt"></span>';
+                            echo '</a>';
+							}else{
+								echo '<span>-</span>';
 							}
 						
 							echo '</td>';
@@ -557,15 +574,32 @@ class Wpdb_Admin {
 								}
 							}
 							echo '</td>';
+							if(isset($option['type']) && !empty($option['type'])){
+								echo '<td>'.esc_html(ucwords($option['type'])).'</td>';	
+							}else{
+								echo '<td>Database</td>';
+							}
 							echo '<td>';
 							echo '<a class="btn btn-default" href="' . esc_url( $option['url'] ) . '" style="color: #21759B;border-color:#337ab7;">';
 							echo '<span class="glyphicon glyphicon-download-alt"></span> Download</a></td>';
 							echo '<td>' . esc_attr( $this->wp_db_backup_format_bytes( $option['size'] ) ) . '</td>';
-							echo '<td><a title="Remove Database Backup" onclick="return confirm(\'Are you sure you want to delete database backup?\')" href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=removebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) ) . '" class="btn btn-default"><span style="color:red" class="glyphicon glyphicon-trash"></span> Remove <a/> ';
+							$remove_backup_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=removebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
+							if(isset($option['type']) && !empty($option['type'])){
+								if($option['type'] == 'complete'){
+									$remove_backup_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=removebackuppro&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
+								}
+							}
+							echo '<td><a title="Remove Database Backup" onclick="return confirm(\'Are you sure you want to delete database backup?\')" href="' . $remove_backup_href . '" class="btn btn-default"><span style="color:red" class="glyphicon glyphicon-trash"></span> Remove <a/> ';
 							if ( isset( $option['search_replace'] ) && 1 === (int) $option['search_replace'] ) {
 								echo '<span style="margin-left:15px" title="' . esc_html( $option['log'] ) . '" class="glyphicon glyphicon-search"></span>';
 							} else {
-								echo '<a title="Restore Database Backup" onclick="return confirm(\'Are you sure you want to restore database backup?\')" href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=restorebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) ) . '" class="btn btn-default"><span class="glyphicon glyphicon-refresh" style="color:blue"></span> Restore <a/>';
+								$restore_url_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=restorebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
+								if(isset($option['type']) && !empty($option['type'])){
+									if($option['type'] == 'complete'){
+										$restore_url_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=restorebackuppro&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
+									}
+								}
+								echo '<a title="Restore Database Backup" onclick="return confirm(\'Are you sure you want to restore database backup?\')" href="' . $restore_url_href . '" class="btn btn-default"><span class="glyphicon glyphicon-refresh" style="color:blue"></span> Restore <a/>';
 							}
 							echo '</td></tr>';
 							$count++;
@@ -670,7 +704,7 @@ class Wpdb_Admin {
 					                    <li><?php echo esc_html__('Dedicated Backup Support', 'wpdbbkp'); ?></li>
 					                    <li><?php echo esc_html__('Active Development', 'wpdbbkp'); ?></li>
 					                </ul>
-					                <a target="_blank" href="#"><?php echo esc_html__('UPGRADE', 'wpdbbkp'); ?></a>
+					                <a target="_blank" href="<?php echo esc_url("https://backupforwp.com/pricing/"); ?>"><?php echo esc_html__('UPGRADE', 'wpdbbkp'); ?></a>
 					            </div>
 					        </div>
 						</div>
@@ -1309,7 +1343,7 @@ class Wpdb_Admin {
 	*/
 	public function wp_db_backup_premium_interface_render()
 	{
-		wp_redirect();
+		wp_redirect("https://backupforwp.com/pricing/");
 		exit;
 	}
 

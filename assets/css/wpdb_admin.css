@@ -90,7 +90,7 @@ body{
   margin-bottom:20px;
 }
 
-#create_full_backup{
+#wpdbbkp-create-full-backup{
   margin-bottom: 20px;
   margin-left: 10px;
 }
@@ -185,40 +185,4 @@ label .configured{
 }
 .head-logo{
   background-color:#eee;
-}
-
-.wpdbbkp-upgrade-pro ul {
-    margin: 25px 0 20px;
-    display: inline-block;
-}
-.wpdbbkp-upgrade-pro ul li:before {
-    content: "\f147";
-    background-repeat: no-repeat;
-    font-family: dashicons;
-    position: absolute;
-    color: #46b450;
-    font-size: 25px;
-    left: 0;
-    line-height: 1;
-    top: 0;
-}
-.wpdbbkp-upgrade-pro ul li {
-    position: relative;
-    padding-left: 30px;
-    font-size: 14px;
-    line-height: 1.4;
-    margin-bottom: 10px;
-}
-.wpdbbkp-upgrade-pro a {
-    padding: 10px 0;
-    display: block;
-    text-align: center;
-    color: #fff !important;
-    text-decoration: none !important;
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    border-radius: 5px;
-    background: #43a047 !important;
-    margin-bottom: 20px;
 }

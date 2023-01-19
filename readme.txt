@@ -1,4 +1,4 @@
-=== WP Database Backup ===
+=== WP Database Backup - Unlimited Database & Files Backup by Backup for WP ===
 Contributors: walkeprashant, databasebackup 
 Donate link:https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=387BZU5UNQ4LA
 License: GPLv2 or later

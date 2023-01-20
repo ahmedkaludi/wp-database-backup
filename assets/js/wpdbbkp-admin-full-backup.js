@@ -69,17 +69,19 @@ jQuery(document).ready(function($){
 												if(response_six.status === 'success'){
 													if(response_six.chunk_count > 0){
 														let totalChunkCnt = parseInt(response_six.chunk_count) + 5;
+														let fileCnt = 1;
 														for(let chk_cnt = 1; chk_cnt <= totalChunkCnt; chk_cnt++){
 															$.ajax({
 																type: 'POST',
 																url: wpdbbkp_localize_admin_data.ajax_url,
 																async: false,
-																data: {action: 'wpdbbkp_ajax_files_backup',FileName:backup_data_array.FileName,logFile:backup_data_array.logFile,files_added:backup_data_array.files_added,chunk_count:chk_cnt,total_chunk_cnt:totalChunkCnt,wpdbbkp_admin_security_nonce:wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce},
+																data: {action: 'wpdbbkp_ajax_files_backup',FileName:backup_data_array.FileName,logFile:backup_data_array.logFile,files_added:backup_data_array.files_added,chunk_count:chk_cnt,total_chunk_cnt:totalChunkCnt,file_count:fileCnt,wpdbbkp_admin_security_nonce:wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce},
 																success: function(response_seven){
 																	response_seven = JSON.parse(response_seven);
 																	if(response_seven.status === 'success'){
 																		backup_data_array.files_added = response_seven.files_added;
 																		backup_data_array.logMessage = response_seven.logMessage;
+																		fileCnt = response_seven.file_end_offset;
 																		if(response_seven.update_backup_info){
 																			backupArchiveReturnData = response_seven.update_backup_info;
 																			wp_all_backup_after_backup_completion(backupArchiveReturnData);

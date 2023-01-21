@@ -385,8 +385,15 @@ if(!function_exists('wpdbbkp_ajax_files_backup')){
 	                $file_end_offset = $file_start_offset + 2000;
 	                $file_loop_cnt = 1;
 	                foreach ($wp_backup_files as $file) { 
+	                	if($file_loop_cnt < $file_start_offset){
+	                		$file_loop_cnt++;
+	                		continue;
+	                	}
 	                	if($file_start_offset >=  $file_loop_cnt && $file_loop_cnt < $file_end_offset){
-	                		$file_object[] = $file;
+	                		if(!empty($file->getPathname())){
+	                			$file_object[] = $file;
+	                		}
+	                		$file_start_offset++;
 	                	}else{
 	                		if($file_loop_cnt > $file_end_offset){
 	                			break;
@@ -394,7 +401,6 @@ if(!function_exists('wpdbbkp_ajax_files_backup')){
 	                	}
 	                	$file_loop_cnt++;
 	                }
-
 	                // $wbf_array = array();
 	                // $wbf_array_chunk = array();
 	                // $wbf_array = iterator_to_array($wp_backup_files, true);

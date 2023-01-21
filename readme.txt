@@ -63,7 +63,7 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 == Changelog ==
 
 = 6.1 =
-* 20-01-2023
+* 21-01-2023
 * Added Feature - Added full backup files and database
 
 = 6.0 =

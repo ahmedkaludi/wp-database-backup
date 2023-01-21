@@ -331,7 +331,7 @@ if(!function_exists('wpdbbkp_ajax_get_backup_files')){
 	            }
 	            $zip->close();
 
-	            update_option('wp_db_backup_log_message', sanitize_text_field($logMessage));
+	            // update_option('wp_db_backup_log_message', sanitize_text_field($logMessage));
 
 	            $backup_files_array['status'] = 'success';
 	            $backup_files_array['chunk_count'] = $file_iterator_count;
@@ -358,7 +358,8 @@ if(!function_exists('wpdbbkp_ajax_files_backup')){
 			if((isset($_POST['FileName']) && !empty($_POST['FileName'])) && (isset($_POST['logFile']) && !empty($_POST['logFile'])) && (isset($_POST['chunk_count'])) && (isset($_POST['files_added']))){
 				$FileName = sanitize_text_field($_POST['FileName']);
 				$logFile = sanitize_text_field($_POST['logFile']);
-				$logMessage = sanitize_text_field(get_option('wp_db_backup_log_message'));
+				// $logMessage = sanitize_text_field(get_option('wp_db_backup_log_message'));
+				$logMessage = '';
 				$files_added = intval($_POST['files_added']);
 				$bkp_chunk_cnt = intval($_POST['chunk_count']);
 				$WPDBFileName = $FileName . '.zip';
@@ -447,7 +448,7 @@ if(!function_exists('wpdbbkp_ajax_files_backup')){
 		            }
 	            }
 	            $zip->close();
-				update_option('wp_db_backup_log_message', $logMessage);
+				// update_option('wp_db_backup_log_message', $logMessage);
 	            if($total_chunk_cnt == $bkp_chunk_cnt){
 					$update_backup_info = $wpdbbkp_admin_class_obj->wpdbbkp_update_backup_info($FileName, $logFile, $logMessage);
 					$file_backup_array['update_backup_info'] = $update_backup_info;
@@ -475,7 +476,8 @@ if(!function_exists('wpdbbkp_ajax_execute_file_backup_else')){
 		      //  error_log("Class ZipArchive Not Present");
 				$WPDBFileName = $FileName . '.zip';
 				$path_info = wp_upload_dir();
-				$logMessage = sanitize_text_field(get_option('wp_db_backup_log_message'));
+				// $logMessage = sanitize_text_field(get_option('wp_db_backup_log_message'));
+				$logMessage = '';
 
 		        $logMessage .= "\n Zip method: pclzip \n";
 		        // set maximum execution time go non stop                        
@@ -515,7 +517,7 @@ if(!function_exists('wpdbbkp_ajax_execute_file_backup_else')){
 		                error_log("Error : " . $archive->errorInfo(true));
 		            }
 		        }
-		        update_option('wp_db_backup_log_message', $logMessage);
+		        // update_option('wp_db_backup_log_message', $logMessage);
 		        $update_backup_info = $wpdbbkp_admin_class_obj->wpdbbkp_update_backup_info($FileName, $logFile, $logMessage);
 				$return_data_array['status'] = 'success';
 				$return_data_array['update_backup_info'] = $update_backup_info;
@@ -589,7 +591,7 @@ if(!function_exists('wpdbbkp_ajax_backup_event_process')){
 	            'size' => $details['size']
 	        );
 
-	        delete_option('wp_db_backup_log_message');
+	        // delete_option('wp_db_backup_log_message');
 
 	        update_option('wp_db_backup_backups', $options);
 	        $destination="Local, ";

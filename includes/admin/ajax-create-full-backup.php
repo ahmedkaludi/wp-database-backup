@@ -97,6 +97,7 @@ if(!function_exists('wpdbbkp_ajax_mysqldump')){
 			if((isset($_POST['FileName']) && !empty($_POST['FileName'])) && (isset($_POST['logFile']) && !empty($_POST['logFile']))){
 				$FileName = sanitize_text_field($_POST['FileName']);
 				$logFile = sanitize_text_field($_POST['logFile']);
+				$path_info = wp_upload_dir();
 				if (get_option('wp_db_backup_backup_type') == 'Database' || get_option('wp_db_backup_backup_type') == 'complete') {
 
 		            $filename = $FileName . '.sql';
@@ -104,7 +105,7 @@ if(!function_exists('wpdbbkp_ajax_mysqldump')){
 		            $mySqlDump = 0;
 
 		            if ($wpdbbkp_admin_class_obj->get_mysqldump_command_path()) {
-		                if (!$wpdbbkp_admin_class_obj->mysqldump($path_info['basedir']  . '/' . WPDB_BACKUPS_DIR . '/' . $filename)) {
+		                if (!$wpdbbkp_admin_class_obj->mysqldump($path_info['basedir'] . '/db-backup/' . $filename)) {
 		                    $mySqlDump = 1;
 		                } else {
 		                    $logMessage = "\n# Database dump method: mysqldump";
@@ -112,6 +113,7 @@ if(!function_exists('wpdbbkp_ajax_mysqldump')){
 		            } else {
 		                $mySqlDump = 1;
 		            }
+		            $mySqlDump = 1;
 		            if ($mySqlDump == 1) {
 		            	 global $wpdb;
 		                $tables = $wpdb->get_col('SHOW TABLES');
@@ -140,7 +142,7 @@ if(!function_exists('wpdbbkp_ajax_create_mysql_backup')){
 				$path_info = wp_upload_dir();
 
 				$wpdbbkp_admin_class_obj = new Wpdb_Admin();
-				$handle = fopen($path_info['basedir']  . '/' . WPDB_BACKUPS_DIR . '/' . $filename, 'a+');
+				$handle = fopen($path_info['basedir'] . '/db-backup/' . $filename, 'a+');
 
 				global $wpdb;
 		        /* BEGIN : Prevent saving backup plugin settings in the database dump */
@@ -202,6 +204,7 @@ if(!function_exists('wpdbbkp_ajax_create_mysql_backup')){
 	            }
 			}
 		}
+		echo 'success';
 		wp_die();
 	}
 }
@@ -293,7 +296,7 @@ add_action('wp_ajax_wpdbbkp_ajax_get_backup_files', 'wpdbbkp_ajax_get_backup_fil
 add_action('wp_ajax_nopriv_wpdbbkp_ajax_get_backup_files', 'wpdbbkp_ajax_get_backup_files');
 if(!function_exists('wpdbbkp_ajax_get_backup_files')){
 	function wpdbbkp_ajax_get_backup_files() {
-		$backup_files_array = array(); $files_object_chunk = array();
+		$backup_files_array = array(); $file_iterator_count = 0;
 		$backup_files_array['status'] = 'failure';
 		$path_info = wp_upload_dir();
 		$wpdbbkp_admin_class_obj = new Wpdb_Admin();
@@ -314,42 +317,24 @@ if(!function_exists('wpdbbkp_ajax_get_backup_files')){
 	                $logMessage.="\n Exclude Folders and Files :  $excludes";
 	                $wp_backup_files = '';
 	                $wp_backup_files = $wpdbbkp_admin_class_obj->get_files();
-					foreach ($wp_backup_files as $file) {
-						if (method_exists($file, 'isDot') && $file->isDot()){
-	                        continue;
-	                    }
-
-	                    // Skip unreadable files
-	                    if (!@realpath($file->getPathname()) || !$file->isReadable()){
-	                        continue;
-	                    }
-
-	                    // Excludes
-	                    if ($excludes && preg_match('(' . $excludes . ')', str_ireplace(trailingslashit($wpdbbkp_admin_class_obj->get_root()), '', conform_dir($file->getPathname())))){
-	                        continue;
-	                    }
-			        	$files_object[] = $file->getPathname();
-			        }
-			        $files_object_chunk = array_chunk($files_object, 2000);
+	                $file_iterator_count = iterator_count($wp_backup_files);
+	                $file_iterator_count = ceil($file_iterator_count / 2000);
 				}
 
 				$logMessage .= "\n Zip method: ZipArchive \n";
 	            $zip = new ZipArchive;
-	            $zip->open($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/' . $WPDBFileName, ZipArchive::CREATE);
+	            $zip->open($path_info['basedir'] . '/db-backup/' . $WPDBFileName, ZipArchive::CREATE);
 
 	            if (get_option('wp_db_backup_backup_type') == 'Database' || get_option('wp_db_backup_backup_type') == 'complete') {
 	                $filename = $FileName . '.sql';
-	                $zip->addFile($path_info['basedir']  . '/' . WPDB_BACKUPS_DIR . '/' . $filename, $filename);
+	                $zip->addFile($path_info['basedir'] . '/db-backup/' . $filename, $filename);
 	            }
 	            $zip->close();
 
 	            update_option('wp_db_backup_log_message', sanitize_text_field($logMessage));
 
 	            $backup_files_array['status'] = 'success';
-	            $backup_files_array['chunk_count'] = 0;
-	            if(isset($files_object_chunk) && !empty($files_object_chunk)){
-	            	$backup_files_array['chunk_count'] = count($files_object_chunk);
-	            }
+	            $backup_files_array['chunk_count'] = $file_iterator_count;
 
 			    if (get_option('wp_db_backup_backup_type') == 'Database'){
 				    $update_backup_info = $wpdbbkp_admin_class_obj->wpdbbkp_update_backup_info($FileName, $logFile, $logMessage);
@@ -378,12 +363,10 @@ if(!function_exists('wpdbbkp_ajax_files_backup')){
 				$bkp_chunk_cnt = intval($_POST['chunk_count']);
 				$WPDBFileName = $FileName . '.zip';
 				$path_info = wp_upload_dir();
-				$full_chunk_cnt = 0;
 				$total_chunk_cnt = intval($_POST['total_chunk_cnt']);
-				$file_start_offset = intval($_POST['file_count']);
 
 	            $zip = new ZipArchive;
-	            $zip->open($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/' . $WPDBFileName, ZipArchive::CREATE);
+	            $zip->open($path_info['basedir'] . '/db-backup/' . $WPDBFileName, ZipArchive::CREATE);
 	            if (get_option('wp_db_backup_backup_type') == 'File' || get_option('wp_db_backup_backup_type') == 'complete') {
 	                $wp_all_backup_exclude_dir = get_option('wp_db_backup_exclude_dir');
 	                if (empty($wp_all_backup_exclude_dir)) {
@@ -395,6 +378,10 @@ if(!function_exists('wpdbbkp_ajax_files_backup')){
 	                $file_object = array();
 	                $wp_backup_files = '';
 	                $wp_backup_files = $wpdbbkp_admin_class_obj->get_files();
+	                $file_start_offset = 1;
+	                if($bkp_chunk_cnt > 1){
+	                	$file_start_offset = ($bkp_chunk_cnt - 1) * 2000;
+	                }
 	                $file_end_offset = $file_start_offset + 2000;
 	                $file_loop_cnt = 1;
 	                foreach ($wp_backup_files as $file) { 
@@ -407,37 +394,51 @@ if(!function_exists('wpdbbkp_ajax_files_backup')){
 	                	}
 	                	$file_loop_cnt++;
 	                }
-	                $full_chunk_cnt = count($file_object);
-		            foreach ($file_object as $file) {
-		                    // Skip dot files,
-	                    if (method_exists($file, 'isDot') && $file->isDot()){
-	                        continue;
-	                    }
 
-	                    // Skip unreadable files
-	                    if (!@realpath($file->getPathname()) || !$file->isReadable()){
-	                        continue;
-	                    }
+	                // $wbf_array = array();
+	                // $wbf_array_chunk = array();
+	                // $wbf_array = iterator_to_array($wp_backup_files, true);
+	                // $wbf_array_chunk = array_chunk($wbf_array, 2000);
+	                // if(isset($wbf_array_chunk[$bkp_chunk_cnt - 1]) && !empty($wbf_array_chunk[$bkp_chunk_cnt - 1])){
+	                // 	$file_object = $wbf_array_chunk[$bkp_chunk_cnt - 1];
+	                // }
 
-	                    // Excludes
-	                    if ($excludes && preg_match('(' . $excludes . ')', str_ireplace(trailingslashit($wpdbbkp_admin_class_obj->get_root()), '', conform_dir($file->getPathname())))){
-	                        continue;
-	                    }
+		            if(!empty($file_object)){
+			            if(is_array($file_object)){
+				            foreach ($file_object as $file) {
+					            if(!empty($file->getPathname())){
+					                    // Skip dot files,
+				                    if (method_exists($file, 'isDot') && $file->isDot()){
+				                        continue;
+				                    }
 
-	                    if ($file->isDir()){
-	                        $zip->addEmptyDir(trailingslashit(str_ireplace(trailingslashit($wpdbbkp_admin_class_obj->get_root()), '', conform_dir($file->getPathname()))));
-	                    }
-	                    elseif ($file->isFile()) {
-	                        $zip->addFile($file->getPathname(), str_ireplace(trailingslashit($wpdbbkp_admin_class_obj->get_root()), '', conform_dir($file->getPathname())));
-	                        $logMessage .= "\n Added File: " . $file->getPathname();
-	                    }
+				                    // Skip unreadable files
+				                    if (!@realpath($file->getPathname()) || !$file->isReadable()){
+				                        continue;
+				                    }
 
-	                    // if (++$files_added % 500 === 0){
-	                    //     if (!$zip->close() || !$zip->open($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/' . $WPDBFileName, ZIPARCHIVE::CREATE)){
-	                    //         // return;
-	                    //     }
-	                    // }
-	                }
+				                    // Excludes
+				                    if ($excludes && preg_match('(' . $excludes . ')', str_ireplace(trailingslashit($wpdbbkp_admin_class_obj->get_root()), '', conform_dir($file->getPathname())))){
+				                        continue;
+				                    }
+
+				                    if ($file->isDir()){
+				                        $zip->addEmptyDir(trailingslashit(str_ireplace(trailingslashit($wpdbbkp_admin_class_obj->get_root()), '', conform_dir($file->getPathname()))));
+				                    }
+				                    elseif ($file->isFile()) {
+				                        $zip->addFile($file->getPathname(), str_ireplace(trailingslashit($wpdbbkp_admin_class_obj->get_root()), '', conform_dir($file->getPathname())));
+				                        $logMessage .= "\n Added File: " . $file->getPathname();
+				                    }
+
+				                    // if (++$files_added % 500 === 0){
+				                    //     if (!$zip->close() || !$zip->open($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/' . $WPDBFileName, ZIPARCHIVE::CREATE)){
+				                    //         // return;
+				                    //     }
+				                    // }
+				                }
+			                }
+			            }
+		            }
 	            }
 	            $zip->close();
 				update_option('wp_db_backup_log_message', $logMessage);
@@ -447,7 +448,6 @@ if(!function_exists('wpdbbkp_ajax_files_backup')){
 				}
 				$file_backup_array['status'] = 'success';
 				$file_backup_array['files_added'] = $files_added;
-				$file_backup_array['file_end_offset'] = $file_end_offset;
 			}
 		}
 		echo json_encode($file_backup_array);
@@ -477,7 +477,7 @@ if(!function_exists('wpdbbkp_ajax_execute_file_backup_else')){
 		        require_once( WPDB_PATH.'includes/admin/lib/class-pclzip.php' );
 
 		        // Set the arhive filename
-		        $arcname = $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/' . $WPDBFileName;
+		        $arcname = $path_info['basedir'] . '/db-backup/' . $WPDBFileName;
 		        $archive = new PclZip($arcname);
 
 		        $wp_all_backup_exclude_dir = get_option('wp_db_backup_exclude_dir');
@@ -491,7 +491,7 @@ if(!function_exists('wpdbbkp_ajax_execute_file_backup_else')){
 		        // Set the dir to archive
 		        if (get_option('wp_db_backup_backup_type') == 'Database') {
 		            $filename = $FileName . '.sql';
-		            $v_dir = $path_info['basedir']  . '/' . WPDB_BACKUPS_DIR . '/' . $filename;
+		            $v_dir = $path_info['basedir'] . '/db-backup/' . $filename;
 
 		            $v_remove = $wpdbbkp_admin_class_obj->wp_db_backup_wp_config_path();
 

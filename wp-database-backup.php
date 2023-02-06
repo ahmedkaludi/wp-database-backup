@@ -1,9 +1,9 @@
 <?php // phpcs:ignore
 /**
- * Plugin Name: WP Database Backup
+ * Plugin Name: Backup For WP  
  * Plugin URI:https://wordpress.org/plugins/wp-database-backup
- * Description: This plugin helps you to create/restore WordPress database backup.
- * Version: 6.0
+ * Description: This plugin helps you to create/restore Unlimited  Wordpress Database & Files backup.
+ * Version: 6.1
  * Author: Backup for WP
  * Author URI: https://backupforwp.com/
  * Text Domain: wpdbbkp
@@ -47,7 +47,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		 *
 		 * @var string
 		 */
-		public $version = '6.0';
+		public $version = '6.1';
 
 		/**
 		 * Plugin instance
@@ -94,11 +94,18 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 				define( 'WPDB_PLUGIN_URL', WP_CONTENT_URL . '/plugins/wp-database-backup' );
 			}
 			define( 'WPDB_PLUGIN_FILE', __FILE__ );
+			define('WP_BACKUP_PLUGIN_FILE',__FILE__ );
 			define( 'WPDB_PATH', plugin_dir_path( __FILE__ ) );
 			define( 'WPDB_ROOTPATH', str_replace( '\\', '/', ABSPATH ) );
 			define( 'WPDB_VERSION', $this->version );
 			define( 'WPDBPLUGIN_VERSION', WPDB_VERSION );
 			define( 'NOTIFIER_XML_FILE_WPDB', 'http://wpseeds.com/notifier/wp-database-backup.xml' );
+			$wpdbbkp_backups_dir=get_option('wp_db_backup_backups_dir');
+            if(!empty($wp_all_backup_backups_dir)){
+                define( 'WPDB_BACKUPS_DIR',get_option('wp_db_backup_backups_dir'));
+            }else{
+                define( 'WPDB_BACKUPS_DIR','db-backup');
+            }
 		}
 
 		/**
@@ -111,6 +118,8 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			include_once 'includes/class-wpdbbackuplog.php';
 			include_once 'includes/admin/filter.php';
 			include_once 'includes/admin/newsletter.php';
+   			include_once 'includes/admin/ajax-create-full-backup.php';
+   			include_once 'includes/log_generate.php';
 			
 		}
 		/**
@@ -121,6 +130,9 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			add_option( 'wp_db_backup_destination_Email', 1 );
 			add_option( 'wp_db_backup_destination_s3', 1 );
 			add_option( 'wp_db_remove_local_backup', 0 );
+			add_option('wp_db_backup_backup_type','complete');
+ 			add_option('wp_db_backup_exclude_dir',"wp-content/backupwordpress-728d36f682-backups|.git|db-backup");
+ 			add_option('wp_db_backup_backups_dir','db-backup');
 			if($flag!=2)
 			{
 			 add_option( 'wpdbbkp_activation_redirect', true);

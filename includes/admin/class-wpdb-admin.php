@@ -32,6 +32,7 @@ class Wpdb_Admin {
 		add_action('admin_enqueue_scripts', array( $this, 'wpdbbkp_admin_style'));
 		add_action('admin_enqueue_scripts', array( $this, 'wpdbbkp_admin_newsletter_script'));
 		add_action('wp_ajax_wpdbbkp_send_query_message', array( $this, 'wpdbbkp_send_query_message'));
+		add_filter( 'plugin_action_links_' . plugin_basename( WP_BACKUP_PLUGIN_FILE ), array( $this, 'add_settings_plugin_action_wp' ), 10, 4 );
 		
 		
 	}
@@ -315,31 +316,34 @@ class Wpdb_Admin {
 
 								// End for extract zip file V.3.3.0.
 								set_time_limit( 0 );
-								if ( '' !== ( trim( (string) $database_name ) ) && '' !== ( trim( (string) $database_user ) ) && '' !== ( trim( (string) $datadase_password ) ) && '' !== ( trim( (string) $database_host ) ) ) {
+								if ( '' !== ( trim( (string) $database_name ) ) && '' !== ( trim( (string) $database_user ) ) && '' !== ( trim( (string) $database_host ) ) ) {
 									$conn = mysqli_connect( (string) $database_host, (string) $database_user, (string) $datadase_password ); // phpcs:ignore
 									if ( $conn ) {
 										// Start Select the database.
-										if ( ! mysqli_select_db( (string) $database_name, $conn ) ) { // phpcs:ignore
+										if ( ! mysqli_select_db( $conn, (string) $database_name) ) { // phpcs:ignore
 											$sql = 'CREATE DATABASE IF NOT EXISTS `' . (string) $database_name . '`';
-											mysqli_query( $sql, $conn ); // phpcs:ignore
-											mysqli_select_db( (string) $database_name, $conn ); // phpcs:ignore
+											mysqli_query($conn, $sql); // phpcs:ignore
+											mysqli_select_db($conn, (string) $database_name ); // phpcs:ignore
 										}
 										/* END: Select the Database */
-
+	
 										/* BEGIN: Remove All Tables from the Database */
 										$found_tables = null;
-										$result       = mysqli_query( 'SHOW TABLES FROM `{' . (string) $database_name . '}`', $conn ); // phpcs:ignore
+										$result       = mysqli_query( $conn, 'SHOW TABLES FROM `' . (string) $database_name . '`' ); // phpcs:ignore
+
 										if ( $result ) {
-											$row = mysqli_fetch_row( $result ); // phpcs:ignore
-											while ( $row ) {
+											// $row = mysqli_fetch_row( $result ); // phpcs:ignore
+											while ($row = mysqli_fetch_row($result)) {
 												$found_tables[] = $row[0];
 											}
+
 											if ( count( $found_tables ) > 0 ) {
 												foreach ( $found_tables as $table_name ) {
-													mysqli_query( 'DROP TABLE `{' . (string) $database_name . "}`.{$table_name}", $conn ); // phpcs:ignore
+													mysqli_query( $conn, "DROP TABLE " . (string) $database_name . ".".$table_name ); // phpcs:ignore
 												}
 											}
 										}
+
 										/* END: Remove All Tables from the Database */
 
 										/* BEGIN: Restore Database Content */
@@ -350,13 +354,17 @@ class Wpdb_Admin {
 
 												$sql_queries       = explode( ";\n", $sql_file );
 												$sql_queries_count = count( $sql_queries );
+
+												mysqli_query($conn, "SET sql_mode = ''");
+
 												for ( $i = 0; $i < $sql_queries_count; $i++ ) {
-													mysqli_query( $sql_queries[ $i ], $conn ); // phpcs:ignore
+													mysqli_query($conn, $sql_queries[ $i ] ); // phpcs:ignore
 												}
 											}
 										}
 									}
 								}
+								
 								if ( isset( $options[ $index ]['sqlfile'] ) && file_exists( $options[ $index ]['sqlfile'] ) ) { // Added for extract zip file V.3.3.0.
 									if ( file_exists( $options[ $index ]['sqlfile'] ) ) {
 										unlink( $options[ $index ]['sqlfile'] );
@@ -371,6 +379,23 @@ class Wpdb_Admin {
 								}
 								wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=restore&_wpnonce=' . $nonce );
 								break;
+
+							case 'wpdbbkrestorefullbackup':
+		                        $index = (int) $_GET['index'];
+		                        require_once( 'class-restore.php' );
+		                        $restore = new Wpbp_Restore();
+		                        $restore->start($index);
+		                        if (get_option('wp_db_log') == 1) {
+		                            $options = get_option('wp_db_backup_backups');
+		                            $path_info = wp_upload_dir();
+		                            $logFileName = explode(".", $options[$index]['filename']);
+		                            $logfile = $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/' . $logFileName[0] . '.txt';
+		                            $message = "\n\n Restore Backup at " . date("Y-m-d h:i:sa");
+		                            $this->write_log($logfile, $message);
+		                        }
+		                        $nonce = wp_create_nonce( 'wp-database-backup' );
+		                        wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=restore&_wpnonce=' . $nonce );
+		                        break;
 
 							/* END: Restore Database Content */
 						}
@@ -453,7 +478,9 @@ class Wpdb_Admin {
 					</ul>
 
 					<?php
+					$loader_gif = esc_url( WPDB_PLUGIN_URL )."/assets/images/icon_loading.gif";
 					echo '<div class="tab-content">';
+					echo '<div id="wpdb-backup-process" style="display:none"><div class="text-center"><img width="50" height="50" src="'.$loader_gif.'"><h5 class="text-success"><strong>Backup under process, it may take some time, please do not press back or refresh button</strong></h5></div></div>';
 					echo '<div class="tab-pane active"  id="db_home">';
 
 					$nonce                     = wp_create_nonce( 'wp-database-backup' );
@@ -464,6 +491,7 @@ class Wpdb_Admin {
 						echo '<p>Backup file will replace <b>' . esc_attr( $wp_db_backup_search_text ) . '</b> text with <b>' . esc_attr( $wp_db_backup_replace_text ) . '</b>. For Regular Database Backup without replace then Go to Dashboard=>Tool=>WP-DB Backup > Settings > Search and Replace - Set Blank Fields </p>';
 					} else {
 						echo '<a href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=createdbbackup&_wpnonce=' . esc_attr( $nonce ) . '" id="create_backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create New Database Backup</a>';
+						echo '<a href="#" id="wpdbbkp-create-full-backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create Full Backup</a>';
 					}
 					
 					?>
@@ -503,9 +531,10 @@ class Wpdb_Admin {
                                     <thead>';
 						echo '<tr class="wpdb-header">';
 						//echo '<th class="manage-column" scope="col" width="5%" style="text-align: center;">#</th>';
-						echo '<th class="manage-column" scope="col" width="35%">Date</th>';
+						echo '<th class="manage-column" scope="col" width="25%">Date</th>';
 						echo '<th class="manage-column" scope="col" width="5%">Log</th>';
-						echo '<th class="manage-column" scope="col" width="15%">Destination</th>';
+						echo '<th class="manage-column" scope="col" width="10%">Destination</th>';
+						echo '<th class="manage-column" scope="col" width="15%">Type</th>';
 						echo '<th class="manage-column" scope="col" width="10%">Backup File</th>';
 						echo '<th class="manage-column" scope="col" width="10%">Size</th>';
 						echo '<th class="manage-column" scope="col" width="20%">Action</th>';
@@ -529,8 +558,13 @@ class Wpdb_Admin {
 							//echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
 							echo '<td><span style="display:none">' . esc_attr( gmdate( 'Y M jS h:i:s A', $option['date'] ) ) . '</span>' . esc_attr( gmdate( 'jS, F Y h:i:s A', $option['date'] ) ) . '</td>';
 							echo '<td class="wpdb_log" align="center">';
-							if ( false === empty( $option['log'] ) ) {
-								echo '<button id="popoverid" type="button" class="popoverid btn" data-toggle="popover" title="Log" data-content="' . wp_kses_post( $option['log'] ) . '"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></button>';
+							if (!empty($option['log'])) {
+								// echo '<button id="popoverid" type="button" class="popoverid btn" data-toggle="popover" title="Log" data-content="' . wp_kses_post( $option['log'] ) . '"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></button>';
+								echo '<a href="' . $option['log'] . '" target="_blank" class="label label-warning" title="There might be partial backup. Please check Log File for verify backup.">';
+                            echo  '<span class="glyphicon glyphicon-list-alt"></span>';
+                            echo '</a>';
+							}else{
+								echo '<span>-</span>';
 							}
 						
 							echo '</td>';
@@ -545,15 +579,29 @@ class Wpdb_Admin {
 								}
 							}
 							echo '</td>';
+							if(isset($option['type']) && !empty($option['type'])){
+								if($option['type'] == 'complete'){
+									echo '<td>'.esc_html__('Full Backup', 'wpdbbkp').'</td>';	
+								}
+							}else{
+								echo '<td>Database</td>';
+							}
 							echo '<td>';
 							echo '<a class="btn btn-default" href="' . esc_url( $option['url'] ) . '" style="color: #21759B;border-color:#337ab7;">';
 							echo '<span class="glyphicon glyphicon-download-alt"></span> Download</a></td>';
 							echo '<td>' . esc_attr( $this->wp_db_backup_format_bytes( $option['size'] ) ) . '</td>';
-							echo '<td><a title="Remove Database Backup" onclick="return confirm(\'Are you sure you want to delete database backup?\')" href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=removebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) ) . '" class="btn btn-default"><span style="color:red" class="glyphicon glyphicon-trash"></span> Remove <a/> ';
+							$remove_backup_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=removebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
+							echo '<td><a title="Remove Database Backup" onclick="return confirm(\'Are you sure you want to delete database backup?\')" href="' . $remove_backup_href . '" class="btn btn-default"><span style="color:red" class="glyphicon glyphicon-trash"></span> Remove <a/> ';
 							if ( isset( $option['search_replace'] ) && 1 === (int) $option['search_replace'] ) {
 								echo '<span style="margin-left:15px" title="' . esc_html( $option['log'] ) . '" class="glyphicon glyphicon-search"></span>';
 							} else {
-								echo '<a title="Restore Database Backup" onclick="return confirm(\'Are you sure you want to restore database backup?\')" href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=restorebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) ) . '" class="btn btn-default"><span class="glyphicon glyphicon-refresh" style="color:blue"></span> Restore <a/>';
+								$restore_url_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=restorebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
+								if(isset($option['type']) && !empty($option['type'])){
+									if($option['type'] == 'complete'){
+										$restore_url_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=wpdbbkrestorefullbackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
+									}
+								}
+								echo '<a title="Restore Database Backup" onclick="return confirm(\'Are you sure you want to restore database backup?\')" href="' . $restore_url_href . '" class="btn btn-default"><span class="glyphicon glyphicon-refresh" style="color:blue"></span> Restore <a/>';
 							}
 							echo '</td></tr>';
 							$count++;
@@ -1278,6 +1326,15 @@ class Wpdb_Admin {
 	}
 
 	/**
+	 * Redirect to premium website
+	*/
+	public function wp_db_backup_premium_interface_render()
+	{
+		wp_redirect("https://backupforwp.com/pricing/");
+		exit;
+	}
+
+	/**
 	 * Run after complete backup.
 	 *
 	 * @param bool $bytes - bytes details.
@@ -1971,6 +2028,17 @@ class Wpdb_Admin {
 				'nonce' => wp_create_nonce( 'wpdbbkp-admin-nonce' ),
 			)
 			);
+
+			// Adding custom js 
+	        $local = array(                    
+	                'ajax_url'                     => admin_url( 'admin-ajax.php' ),            
+	                'wpdbbkp_admin_security_nonce'     => wp_create_nonce('wpdbbkp_ajax_check_nonce'),
+	        ); 
+	        wp_register_script('wpdbbkp-admin-fb', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin-full-backup.js', array(), WPDB_VERSION , true );  
+
+	        wp_localize_script('wpdbbkp-admin-fb', 'wpdbbkp_localize_admin_data', $local );        
+	        wp_enqueue_script('wpdbbkp-admin-fb');
+	        // Custom Js ends
 		}
 	}
 
@@ -2093,6 +2161,296 @@ class Wpdb_Admin {
 							
 			wp_die();           
 		}
+		public function add_settings_plugin_action_wp( $actions, $plugin_file, $plugin_data, $context ) {
+			$plugin_actions['settings'] = sprintf(
+			  '<a href="%s">' . _x( 'Settings', 'wpdbbkp' ) . '</a>',
+			  admin_url( 'options-general.php?page=wp-database-backup' )
+			);
+			$actions = array_merge( $actions, $plugin_actions );
+			return $actions;
+		}	
+
+		public function wpdbbkp_update_backup_info($FileName, $logFile, $logMessage = '') {
+	        $path_info = wp_upload_dir();
+	        $filename = $FileName . '.sql';
+	        $WPDBFileName = $FileName . '.zip';
+	        @unlink($this->wp_db_backup_wp_config_path() . '/' . $filename);
+	        @unlink($this->wp_db_backup_wp_config_path() . '/wp_installer.php');
+	        @$filesize = filesize($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/' . $WPDBFileName);
+
+	        $upload_path = array(
+	            'filename' => ($WPDBFileName),
+	            'dir' => ($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/' . $WPDBFileName),
+	            'url' => ($path_info['baseurl'] . '/' . WPDB_BACKUPS_DIR . '/' . $WPDBFileName),
+	            'size' => ($filesize),
+	            'type' => get_option('wp_db_backup_backup_type')
+	        );
+
+
+	        if (get_option('wp_db_log') == 1) {
+	            $this->write_log($logFile, $logMessage);
+	            $upload_path['logfile'] = $path_info['baseurl'] . '/' . WPDB_BACKUPS_DIR . '/log/' . $FileName . '.txt';
+	            $upload_path['logfileDir'] = $logFile;
+	        } else {
+	            $upload_path['logfile'] = "";
+	        }
+	        $args = array($FileName, $logFile, $logMessage);
+	        do_action_ref_array('wpdbbkp_backup_completed', array(&$args));
+	        return $upload_path;
+	    }
+
+		private function write_log($logFile, $logMessage) {
+	        // Actually write the log file
+	        if (is_writable($logFile) || !file_exists($logFile)) {
+
+	            if (!$handle = @fopen($logFile, 'a'))
+	                return;
+
+	            if (!fwrite($handle, $logMessage))
+	                return;
+
+	            fclose($handle);
+
+	            return true;
+	        }
+	    }
+
+		public function get_zip_command_path() {
+
+	        // Check shell_exec is available
+	        if (!self::is_shell_exec_available())
+	            return '';
+
+	        // Return now if it's already been set
+	        if (isset($this->zip_command_path))
+	            return $this->zip_command_path;
+
+	        $this->zip_command_path = '';
+
+	        // Does zip work
+	        if (is_null(shell_exec('hash zip 2>&1'))) {
+
+	            // If so store it for later
+	            $this->set_zip_command_path('zip');
+
+	            // And return now
+	            return $this->zip_command_path;
+	        }
+
+	        // List of possible zip locations
+	        $zip_locations = array(
+	            '/usr/bin/zip'
+	        );
+
+	        // Find the one which works
+	        foreach ($zip_locations as $location)
+	            if (@is_executable(self::conform_dir($location)))
+	                $this->set_zip_command_path($location);
+
+	        return $this->zip_command_path;
+	    }
+
+		public function set_zip_command_path($path) {
+
+	        $this->zip_command_path = $path;
+	    }
+
+	    /* Begin : Generate Zip using cmd 06-03-2016 V.3.9 */
+
+	    public function zip($WPDBFileName) {
+
+	        $this->archive_method = 'zip';
+	        //  var_dump( 'cd ' . escapeshellarg( $this->get_root() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -rq ' . escapeshellarg( $WPDBFileName ) . ' ./' . ' 2>&1');
+	        //echo "hi";exit;
+	        $wp_all_backup_exclude_dir = get_option('wp_db_backup_exclude_dir');
+	        if (empty($wp_all_backup_exclude_dir)) {
+	            $excludes = WPDB_BACKUPS_DIR;
+	        } else {
+	            $excludes = WPDB_BACKUPS_DIR . '|' . $wp_all_backup_exclude_dir;
+	        }
+	        // Zip up $this->root with excludes
+	        if (!empty($excludes)) {
+	          //  error_log('in exclude rule' . $excludes);
+	            //      var_dump('cd ' . escapeshellarg( $this->get_root() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -rq ' . escapeshellarg($WPDBFileName) . ' ./' . ' -x ' . $this->exclude_string( 'zip' ) . ' 2>&1' );exit;
+	            $stderr = shell_exec('cd ' . escapeshellarg($this->get_root()) . ' && ' . escapeshellcmd($this->get_zip_command_path()) . ' -rq ' . escapeshellarg($WPDBFileName) . ' ./' . ' -x ' . $this->exclude_string('zip') . ' 2>&1');
+	        }
+
+	        // Zip up $this->root without excludes
+	        else {
+	          //  error_log('without exclude rule');
+	            $stderr = shell_exec('cd ' . escapeshellarg($this->get_root()) . ' && ' . escapeshellcmd($this->get_zip_command_path()) . ' -rq ' . escapeshellarg($WPDBFileName) . ' ./' . ' 2>&1');
+	        }
+	        error_log($stderr);
+	        // error_log('cd ' . escapeshellarg( $this->get_root() ) . ' && ' . escapeshellcmd( $this->get_zip_command_path() ) . ' -rq ' . escapeshellarg( $WPDBFileName ) . ' ./' . ' 2>&1');
+	        if (!empty($stderr))
+	            $this->warning($this->get_archive_method(), $stderr);
+
+	        return $this->verify_archive($WPDBFileName);
+	    }
+
+		public function get_root() {
+
+	        if (empty($this->root))
+	            $this->set_root(self::conform_dir(self::get_home_path()));
+
+	        return $this->root;
+	    }
+
+		public function set_root($path) {
+
+	        if (empty($path) || !is_string($path) || !is_dir($path))
+	            throw new Exception('Invalid root path <code>' . $path . '</code> must be a valid directory path');
+
+	        $this->root = self::conform_dir($path);
+	    }
+
+		public static function get_home_path() {
+
+	        $home_url = home_url();
+	        $site_url = site_url();
+
+	        $home_path = ABSPATH;
+
+	        // If site_url contains home_url and they differ then assume WordPress is installed in a sub directory
+	        if ($home_url !== $site_url && strpos($site_url, $home_url) === 0)
+	            $home_path = trailingslashit(substr(self::conform_dir(ABSPATH), 0, strrpos(self::conform_dir(ABSPATH), str_replace($home_url, '', $site_url))));
+
+	        return self::conform_dir($home_path);
+	    }
+
+		private function warning($context, $warning) {
+
+	        if (empty($context) || empty($warning))
+	            return;
+	        $this->warnings[$context][$_key = md5(implode(':', (array) $warning))] = $warning;
+	    }
+
+		public function exclude_string($context = 'zip') {
+
+	        // Return a comma separated list by default
+	        $separator = ', ';
+	        $wildcard = '';
+
+	        // The zip command
+	        if ($context === 'zip') {
+	            $wildcard = '*';
+	            $separator = ' -x ';
+
+	            // The PclZip fallback library
+	        } elseif ($context === 'regex') {
+	            $wildcard = '([\s\S]*?)';
+	            $separator = '|';
+	        }
+
+	        $wp_all_backup_exclude_dir = get_option('wp_db_backup_exclude_dir');
+	        if (empty($wp_all_backup_exclude_dir)) {
+	            $excludes = WPDB_BACKUPS_DIR;
+	        } else {
+	            $excludes = WPDB_BACKUPS_DIR . '|' . $wp_all_backup_exclude_dir;
+	        }
+
+	        //$excludes = $this->get_excludes();
+	        $excludes = explode("|", $excludes);
+	        foreach ($excludes as $key => &$rule) {
+
+	            $file = $absolute = $fragment = false;
+
+	            // Files don't end with /
+	            if (!in_array(substr($rule, -1), array('\\', '/')))
+	                $file = true;
+
+	            // If rule starts with a / then treat as absolute path
+	            elseif (in_array(substr($rule, 0, 1), array('\\', '/')))
+	                $absolute = true;
+
+	            // Otherwise treat as dir fragment
+	            else
+	                $fragment = true;
+
+	            // Strip $this->root and conform
+	            $rule = str_ireplace($this->get_root(), '', untrailingslashit(self::conform_dir($rule)));
+
+	            // Strip the preceeding slash
+	            if (in_array(substr($rule, 0, 1), array('\\', '/')))
+	                $rule = substr($rule, 1);
+
+	            // Escape string for regex
+	            if ($context === 'regex')
+	                $rule = str_replace('.', '\.', $rule);
+
+	            // Convert any existing wildcards
+	            if ($wildcard !== '*' && strpos($rule, '*') !== false)
+	                $rule = str_replace('*', $wildcard, $rule);
+
+	            // Wrap directory fragments and files in wildcards for zip
+	            if ($context === 'zip' && ( $fragment || $file ))
+	                $rule = $wildcard . $rule . $wildcard;
+
+	            // Add a wildcard to the end of absolute url for zips
+	            if ($context === 'zip' && $absolute)
+	                $rule .= $wildcard;
+
+	            // Add and end carrot to files for pclzip but only if it doesn't end in a wildcard
+	            if ($file && $context === 'regex')
+	                $rule .= '$';
+
+	            // Add a start carrot to absolute urls for pclzip
+	            if ($absolute && $context === 'regex')
+	                $rule = '^' . $rule;
+	        }
+
+	        // Escape shell args for zip command
+	        if ($context === 'zip')
+	            $excludes = array_map('escapeshellarg', array_unique($excludes));
+
+	        return implode($separator, $excludes);
+	    }
+
+		public function get_archive_method() {
+	        return $this->archive_method;
+	    }
+
+	    public function verify_archive($WPDBFileName) {
+	        // If we've already passed then no need to check again
+	        if (!empty($this->archive_verified))
+	            return true;
+
+	        // If there are errors delete the backup file.
+	        if ($this->get_errors($this->get_archive_method()) && file_exists($WPDBFileName))
+	            unlink($WPDBFileName);
+
+	        // If the archive file still exists assume it's good
+	        if (file_exists($WPDBFileName))
+	            return $this->archive_verified = true;
+
+	        return false;
+    	}
+
+	    public function get_files() {
+
+	        if (!empty($this->files))
+	            return $this->files;
+
+	        $this->files = array();
+
+	        // We only want to use the RecursiveDirectoryIterator if the FOLLOW_SYMLINKS flag is available
+	        if (defined('RecursiveDirectoryIterator::FOLLOW_SYMLINKS')) {
+
+	            $this->files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->get_root(), RecursiveDirectoryIterator::FOLLOW_SYMLINKS), RecursiveIteratorIterator::SELF_FIRST, RecursiveIteratorIterator::CATCH_GET_CHILD);
+
+	            // Skip dot files if the SKIP_Dots flag is available
+	            if (defined('RecursiveDirectoryIterator::SKIP_DOTS'))
+	                $this->files->setFlags(RecursiveDirectoryIterator::SKIP_DOTS + RecursiveDirectoryIterator::FOLLOW_SYMLINKS);
+
+
+	            // If RecursiveDirectoryIterator::FOLLOW_SYMLINKS isn't available then fallback to a less memory efficient method
+	        } else {
+
+	            $this->files = $this->get_files_fallback($this->get_root());
+	        }
+
+	        return $this->files;
+	    }
 
 	}
 

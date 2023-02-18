@@ -112,6 +112,8 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		 * Include Requred files and lib.
 		 */
 		private function includes() {
+			include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+			include_once 'includes/admin/mb-helper-functions.php';
 			include_once 'includes/admin/mb-helper-functions.php';
 			include_once 'includes/admin/class-wpdb-admin.php';
 			include_once 'includes/admin/Destination/wp-backup-destination-upload-action.php';

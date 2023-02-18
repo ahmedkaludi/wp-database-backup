@@ -26,6 +26,7 @@ class Wpdb_Admin {
 		add_action( 'admin_menu', array( $this, 'admin_menu' ), 9 );
 		add_filter( 'cron_schedules', array( $this, 'wp_db_backup_cron_schedules' ) );
 		add_action( 'wp_db_backup_event', array( $this, 'wp_db_backup_event_process' ) );
+		add_action( 'wp_db_backup_full_backup_event', array( $this, 'wp_db_backup_full_backup_event_process' ) );
 		add_action( 'wp', array( $this, 'wp_db_backup_scheduler_activation' ) );
 		add_action( 'wp_logout', array( $this, 'wp_db_cookie_expiration' ) ); // Fixed Vulnerability 22-06-2016 for prevent direct download.
 		add_action( 'wp_db_backup_completed', array( $this, 'wp_db_backup_completed_local' ), 12 );
@@ -647,6 +648,14 @@ class Wpdb_Admin {
 					echo '<option value="monthly" ' . selected( 'monthly', $autobackup_frequency, false ) . '>Monthly</option>';
 					echo '</select>';
 					echo '</div></div>';
+
+					$enable_full_backups = '0';
+					if ( isset( $settings['enable_full_backups'] ) ) {
+						$enable_full_backups = $settings['enable_full_backups'];
+					}
+					echo '<div class="row form-group"><label class="col-sm-2" for="enable_autobackups">Enable Full Backup</label>';
+					echo '<div class="col-sm-2"><input type="checkbox" id="wpdb_enable_full_backup" name="wp_db_backup_options[enable_full_backups]" value="1" ' . checked( 1, $enable_full_backups, false ) . '/></div>';
+					echo '</div>';
 
 					echo '<p class="submit">';
 					echo '<input type="submit" name="Submit" class="btn btn-primary" value="Save Settings" />';
@@ -1919,8 +1928,17 @@ class Wpdb_Admin {
 	 */
 	public function wp_db_backup_scheduler_activation() {
 		$options = get_option( 'wp_db_backup_options' );
-		if ( ( ! wp_next_scheduled( 'wp_db_backup_event' ) ) && ( true === isset( $options['enable_autobackups'] ) ) ) {
-			wp_schedule_event( time(), $options['autobackup_frequency'], 'wp_db_backup_event' );
+		if(isset( $options['enable_autobackups'] )){
+			if(isset($options['enable_full_backups'])){
+				if ( ( ! wp_next_scheduled( 'wp_db_backup_full_backup_event' ) ) ) {
+					wp_schedule_event( time(), $options['autobackup_frequency'], 'wp_db_backup_full_backup_event' );
+				}
+			}else{
+				if ( ( ! wp_next_scheduled( 'wp_db_backup_event' ) ) ) {
+					wp_schedule_event( time(), $options['autobackup_frequency'], 'wp_db_backup_event' );
+				}
+			}
+
 		}
 	}
 
@@ -2450,6 +2468,17 @@ class Wpdb_Admin {
 	        }
 
 	        return $this->files;
+	    }
+
+	    public function wp_db_backup_full_backup_event_process() {
+	    	$ajax_url = admin_url( 'admin-ajax.php' );
+	    	$wpdbbkp_admin_security_nonce = wp_create_nonce('wpdbbkp_ajax_check_nonce');  
+	    	echo '<script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>';
+	    	$js_src = WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin-full-backup.js?ver=' . WPDB_VERSION;
+	    	echo '<script type="text/javascript"> let wpdbbkp_localize_admin_data = {ajax_url: "'.$ajax_url.'", wpdbbkp_admin_security_nonce: "'.$wpdbbkp_admin_security_nonce.'"}</script>';
+	        echo '<script src="'.$js_src.'" id="wpdbbkp-admin-cron-js"></script>';
+			echo '<script type="text/javascript">wp_all_backup_full_backup();</script>';
+			exit;
 	    }
 
 	}

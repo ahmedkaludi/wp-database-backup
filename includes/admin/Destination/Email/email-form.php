@@ -71,7 +71,7 @@ if($wpdbbkp_email_enabled==1 && !empty($wpdbbkp_email_id))
 
 							echo '</div>';
 							echo '<p class="submit">';
-							echo '<input type="submit" name="Submit" class="btn btn-primary" value="Save Settings" />';
+							echo '<input type="submit" name="email_notification_submit" class="btn btn-primary" value="Save Settings" />';
 							echo '</p>';
 							echo '</form>';
 							?>

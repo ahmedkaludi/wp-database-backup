@@ -177,17 +177,19 @@ class Wpdb_Admin {
 						$email_attachment = sanitize_text_field( wp_unslash( $_POST['wp_db_backup_email_attachment'] ) );
 						update_option( 'wp_db_backup_email_attachment', $email_attachment );
 					}
-					if ( isset( $_POST['Submit'] ) && 'Save Settings' === $_POST['Submit'] ) {
-						if ( isset( $_POST['wp_db_backup_destination_Email'] ) ) {
-							update_option( 'wp_db_backup_destination_Email', 1 );
-						} else {
-							update_option( 'wp_db_backup_destination_Email', 0 );
-						}
-
+					if ( isset( $_POST['local_backup_submit'] ) && 'Save Settings' === $_POST['local_backup_submit'] ) {
 						if ( true === isset( $_POST['wp_db_local_backup'] ) ) {
 							update_option( 'wp_db_local_backup', 1 );
 						} else {
 							update_option( 'wp_db_local_backup', 0 );
+						}
+					}
+
+					if ( isset( $_POST['email_notification_submit'] ) && 'Save Settings' === $_POST['email_notification_submit'] ) {
+						if ( isset( $_POST['wp_db_backup_destination_Email'] ) ) {
+							update_option( 'wp_db_backup_destination_Email', 1 );
+						} else {
+							update_option( 'wp_db_backup_destination_Email', 0 );
 						}
 					}
 				}

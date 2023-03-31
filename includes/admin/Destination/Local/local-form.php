@@ -54,7 +54,7 @@ if($wpdbbkp_local_enabled==1 && !empty($wpdbbkp_local_path))
 							esc_attr_e( 'Ex.: C:/xampp/htdocs', 'wpdbbkp' );
 							echo '</div>';
 							echo '<div class="col-sm-12 submit">';
-							echo '<input type="submit" name="Submit" class="btn btn-primary" value="Save Settings" />';
+							echo '<input type="submit" name="local_backup_submit" class="btn btn-primary" value="Save Settings" />';
 							echo '</div>';
 							echo '</form>';
 							?>

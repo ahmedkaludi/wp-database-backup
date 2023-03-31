@@ -28,7 +28,7 @@ class wpdbbkp_ads_newsletter {
                 }
                                 
 	        $name    = sanitize_text_field($_POST['name']);
-                $email   = sanitize_text_field($_POST['email']);
+                $email   = sanitize_email($_POST['email']);
                 $website = sanitize_text_field($_POST['website']);
                 
                 if($email){

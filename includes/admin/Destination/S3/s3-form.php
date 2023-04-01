@@ -52,7 +52,7 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapseAmazon">
-				<h2>Amazon S3 <?php echo $wpdbbkp_amazon_s3_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
+				<h2><?php echo esc_html__('Amazon S3', 'wpdbbkp') ?> <?php echo $wpdbbkp_amazon_s3_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
 
 			</a>
 		</h4>
@@ -94,12 +94,12 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 				}
 			}
 			?>
-			<p> Back up WordPress database to Amazon S3.</p>
-			<p>Enter your Amazon S3 details for your offsite backup. Leave these blank for local backups OR Disable Amazon S3 Destination</p>
+			<p> <?php echo esc_html__('Back up WordPress database to Amazon S3.', 'wpdbbkp') ?></p>
+			<p><?php echo esc_html__('Enter your Amazon S3 details for your offsite backup. Leave these blank for local backups OR Disable Amazon S3 Destination', 'wpdbbkp') ?></p>
 			<form  class="form-group" name="amazons3" method="post" action="">
 
 				<div class="row form-group">
-					<label class="col-sm-2" for="wp_db_backup_destination_s3">Enable Amazon S3 Destination:</label>
+					<label class="col-sm-2" for="wp_db_backup_destination_s3"><?php echo esc_html__('Enable Amazon S3 Destination:', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 						<input type="checkbox" id="wp_db_backup_destination_s3" <?php echo ( true === isset( $wp_db_backup_destination_s3 ) && 1 === $wp_db_backup_destination_s3 ) ? 'checked' : ''; ?> name="wp_db_backup_destination_s3">
 				</div>
@@ -109,7 +109,7 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 				<input name="wpdbbackup_update_amazon_setting" type="hidden" value="<?php echo esc_attr( wp_create_nonce( 'wpdbbackup-update-amazon-setting' ) ); ?>" />
 				<?php wp_nonce_field( 'wp-database-backup' ); ?>
 				<div class="row form-group">
-					<label class="col-sm-2" for="wpdb_dest_amazon_s3_bucket">Bucket Name:</label>
+					<label class="col-sm-2" for="wpdb_dest_amazon_s3_bucket"><?php echo esc_html__('Bucket Name:', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 
 						<input type="text" id="wpdb_dest_amazon_s3_bucket" class="form-control" name="wpdb_dest_amazon_s3_bucket" value="<?php echo esc_html( get_option( 'wpdb_dest_amazon_s3_bucket' ) ); ?>" size="25" placeholder="Buket name">
@@ -118,7 +118,7 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 				</div>
 
 				<div class="row form-group">
-					<label class="col-sm-2" for="wpdb_dest_amazon_s3_bucket_key">Key:</label>
+					<label class="col-sm-2" for="wpdb_dest_amazon_s3_bucket_key"><?php echo esc_html__('Key:', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 						<input type="text" id="wpdb_dest_amazon_s3_bucket_key" class="form-control" name="wpdb_dest_amazon_s3_bucket_key" value="<?php echo esc_html( get_option( 'wpdb_dest_amazon_s3_bucket_key' ) ); ?>" size="25" placeholder="your access key id">
 						<a href="http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSGettingStartedGuide/AWSCredentials.html" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
@@ -126,7 +126,7 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 				</div>
 
 				<div class="row form-group">
-					<label class="col-sm-2" for="wpdb_dest_amazon_s3_bucket_secret">Secret:</label>
+					<label class="col-sm-2" for="wpdb_dest_amazon_s3_bucket_secret"><?php echo esc_html__('Secret:', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 						<input type="text" id="wpdb_dest_amazon_s3_bucket_secret" class="form-control" name="wpdb_dest_amazon_s3_bucket_secret" value="<?php echo esc_html( get_option( 'wpdb_dest_amazon_s3_bucket_secret' ) ); ?>" size="25" placeholder="your secret access key">
 						<a href="http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSGettingStartedGuide/AWSCredentials.html" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>

@@ -691,9 +691,9 @@ class Wpdb_Admin {
 						          </div>
 								  <div class="wpdbbkp-right-side col-md-4">
 								  <div class="wpdbbkp-bio-box" id="wpdbbkp_Bio">
-                <h3>Vision &amp; Mission</h3>
-                <p class="wpdbbkp-p">We strive to provide the best Backup Plugin in the world.</p>
-              <p class="wpdbbkp_boxdesk"> Delivering a good user experience means a lot to us, so we try our best to reply each and every question.</p>
+                <h3><?php echo esc_html__('Vision &amp; Mission', 'wpdbbkp') ?></h3>
+                <p class="wpdbbkp-p"><?php echo esc_html__('We strive to provide the best Backup Plugin in the world.', 'wpdbbkp') ?></p>
+              <p class="wpdbbkp_boxdesk"> <?php echo esc_html__(' Delivering a good user experience means a lot to us, so we try our best to reply each and every question.', 'wpdbbkp') ?></p>
            </div>
 				</div>
 						        </div>
@@ -759,14 +759,14 @@ class Wpdb_Admin {
 
 								<div class=""><br>
 									<a type="button" href="<?php echo esc_url( site_url() ); ?>/wp-admin/admin.php?page=wp-database-backup&action=clear_temp_db_backup_file&_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="btn btn-warning"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Clear all old/temp database backup files</a>
-									<p>Click above button to clear all your old or temporary created database backup
+									<p><?php echo esc_html__("Click above button to clear all your old or temporary created database backup
 										files.
 										It only delete file from backup directory which is not in 'Database Backups'
 										listing(all other file excluding backup files listed in 'Database Backups' ).
 										Before
 										using this option make sure that you have save your database backup on safe
-										place.</p>
-									<p>The disk that your backup is saved on doesn't have enough free space? Backup disk
+										place.", 'wpdbbkp') ?></p>
+									<p><?php echo esc_html__("The disk that your backup is saved on doesn't have enough free space? Backup disk
 										is
 										almost full? Low disk space for backup? Backup failed due to lack of space? As
 										you
@@ -776,7 +776,7 @@ class Wpdb_Admin {
 										someday.
 										It is a real pain to manually delete old backups. Don't worry about it. WP
 										Database
-										Backup makes it easy to delete old/temparary backup files using this option.</p>
+										Backup makes it easy to delete old/temparary backup files using this option.", 'wpdbbkp') ?></p>
 
 								</div>
 
@@ -785,7 +785,7 @@ class Wpdb_Admin {
 												class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 									</div>
 									<?php if ( true === isset( $_SERVER['DOCUMENT_ROOT'] ) ) { ?>
-									<div class="col-md-3">Root Path</div>
+									<div class="col-md-3"><?php echo esc_html__('Root Path', 'wpdbbkp') ?></div>
 									<div class="col-md-5"><?php echo esc_attr( sanitize_text_field( wp_unslash( $_SERVER['DOCUMENT_ROOT'] ) ) ); ?></div>
 									<?php } ?>
 								</div>
@@ -795,7 +795,7 @@ class Wpdb_Admin {
 									<div class="col-md-1"><a href="" target="_blank" title="Help"><span
 												class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 									</div>
-									<div class="col-md-3">ABSPATH</div>
+									<div class="col-md-3"><?php echo esc_html__('ABSPATH', 'wpdbbkp') ?></div>
 									<div class="col-md-5"><?php echo esc_attr( ABSPATH ); ?></div>
 								</div>
 
@@ -830,14 +830,14 @@ class Wpdb_Admin {
 									<div class="col-md-1"><a href="" target="_blank" title="Help"><span
 												class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 									</div>
-									<div class="col-md-3">Loaded PHP INI</div>
+									<div class="col-md-3"><?php echo esc_html__('Loaded PHP INI', 'wpdbbkp') ?></div>
 									<div class="col-md-5"><?php echo esc_attr( php_ini_loaded_file() ); ?></div>
 								</div>
 								<div class="row list-group-item">
 									<div class="col-md-1"><a href="" target="_blank" title="Help"><span
 												class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 									</div>
-									<div class="col-md-3">Memory Limit</div>
+									<div class="col-md-3"><?php echo esc_html__('Memory Limit', 'wpdbbkp') ?></div>
 									<div class="col-md-5">
 									<?php
 									echo esc_attr( WP_MEMORY_LIMIT );
@@ -905,7 +905,7 @@ class Wpdb_Admin {
 					<div class="panel panel-default">
 						<div class="panel-heading">
 						<a class="toggle_anchor" data-toggle="collapse" data-parent="#accordion" href="#collapsedbinfo">
-							<h4 class="panel-title">Database Information</h4>
+							<h4 class="panel-title"><?php echo esc_html__('Database Information', 'wpdbbkp') ?></h4>
 							</a>
 						</div>
 
@@ -913,25 +913,25 @@ class Wpdb_Admin {
 							<div class="panel-body">
 								<table class="table table-condensed">
 									<tr class="success">
-										<th>Setting</th>
-										<th>Value</th>
+										<th><?php echo esc_html__('Setting', 'wpdbbkp') ?></th>
+										<th><?php echo esc_html__('Value', 'wpdbbkp') ?></th>
 									</tr>
 									<tr>
-										<td>Database Host</td>
+										<td><?php echo esc_html__('Database Host', 'wpdbbkp') ?></td>
 										<td><?php echo esc_attr( DB_HOST ); ?></td>
 									</tr>
 									<tr class="default">
-										<td>Database Name</td>
+										<td><?php echo esc_html__('Database Name', 'wpdbbkp') ?></td>
 										<td> <?php echo esc_attr( DB_NAME ); ?></td>
 									</tr>
 									<tr>
-										<td>Database User</td>
+										<td><?php echo esc_html__('Database User', 'wpdbbkp') ?></td>
 										<td><?php echo esc_attr( DB_USER ); ?></td>
 										</td>
 									</tr>
 									<tr>
-										<td>Database Type</td>
-										<td>MYSQL</td>
+										<td><?php echo esc_html__('Database Type', 'wpdbbkp') ?></td>
+										<td><?php echo esc_html__('MYSQL', 'wpdbbkp') ?></td>
 									</tr>
 									<tr>
 										<?php
@@ -943,7 +943,7 @@ class Wpdb_Admin {
 											wp_cache_set( 'wpdb_mysqlversion', $mysqlversion, '', 18000 );
 										}
 										?>
-										<td>Database Version</td>
+										<td><?php echo esc_html__('Database Version', 'wpdbbkp') ?></td>
 										<td>v<?php echo esc_attr( $mysqlversion ); ?></td>
 									</tr>
 								</table>
@@ -957,7 +957,7 @@ class Wpdb_Admin {
 							
 								<a class="toggle_anchor"  data-toggle="collapse" data-parent="#accordion" href="#collapsedbtable">
 								<h4 class="panel-title">
-									Tables Information
+								<?php echo esc_html__('Tables Information', 'wpdbbkp') ?>
 									</h4>
 								</a>
 							
@@ -966,9 +966,9 @@ class Wpdb_Admin {
 							<div class="panel-body">
 								<table class="table table-condensed">
 									<tr class="success">
-										<th>No.</th>
-										<th>Tables</th>
-										<th>Records</th>
+										<th><?php echo esc_html__('No.', 'wpdbbkp') ?></th>
+										<th><?php echo esc_html__('Tables', 'wpdbbkp') ?></th>
+										<th><?php echo esc_html__('Records', 'wpdbbkp') ?></th>
 
 									</tr>
 									<?php
@@ -1010,7 +1010,7 @@ class Wpdb_Admin {
 							
 								<a class="toggle_anchor"  data-toggle="collapse" data-parent="#accordion" href="#collapsewp">
 								<h4 class="panel-title">
-									WordPress Information
+								<?php echo esc_html__('WordPress Information', 'wpdbbkp') ?>
 									</h4>
 								</a>
 							
@@ -1019,24 +1019,24 @@ class Wpdb_Admin {
 							<div class="panel-body">
 								<table class="table table-condensed">
 									<tr class="success">
-										<th>Setting</th>
-										<th>Value</th>
+										<th><?php echo esc_html__('Setting', 'wpdbbkp') ?></th>
+										<th><?php echo esc_html__('Value', 'wpdbbkp') ?></th>
 
 									</tr>
 									<tr>
-										<td>WordPress Version</td>
+										<td><?php echo esc_html__('WordPress Version', 'wpdbbkp') ?></td>
 										<td><?php bloginfo( 'version' ); ?></td>
 									</tr>
 									<tr>
-										<td>Home URL</td>
+										<td><?php echo esc_html__('Home URL', 'wpdbbkp') ?></td>
 										<td> <?php echo esc_url( home_url() ); ?></td>
 									</tr>
 									<tr>
-										<td>Site URL</td>
+										<td><?php echo esc_html__('Site URL', 'wpdbbkp') ?></td>
 										<td><?php echo esc_url( site_url() ); ?></td>
 									</tr>
 									<tr>
-										<td>Upload directory URL</td>
+										<td><?php echo esc_html__('Upload directory URL', 'wpdbbkp') ?></td>
 										<td><?php $upload_dir = wp_upload_dir(); ?>
 											<?php echo esc_url( $upload_dir['baseurl'] ); ?></td>
 									</tr>
@@ -1051,7 +1051,7 @@ class Wpdb_Admin {
 							
 								<a class="toggle_anchor"  data-toggle="collapse" data-parent="#accordion" href="#collapsewpsetting">
 								<h4 class="panel-title">
-									WordPress Settings
+								<?php echo esc_html__('WordPress Settings', 'wpdbbkp') ?>
 									</h4>
 								</a>
 							
@@ -1060,8 +1060,8 @@ class Wpdb_Admin {
 							<div class="panel-body">
 								<table class="table table-condensed">
 									<tr class="success">
-										<th>Plugin Name</th>
-										<th>Version</th>
+										<th><?php echo esc_html__('Plugin Name', 'wpdbbkp') ?></th>
+										<th><?php echo esc_html__('Version', 'wpdbbkp') ?></th>
 									</tr>
 									<?php
 									$plugins = get_plugins();
@@ -1075,8 +1075,8 @@ class Wpdb_Admin {
 								</table>
 								<table class="table table-condensed">
 									<tr class="success">
-										<th>Active Theme Name</th>
-										<th>Version</th>
+										<th><?php echo esc_html__('Active Theme Name', 'wpdbbkp') ?></th>
+										<th><?php echo esc_html__('Version', 'wpdbbkp') ?></th>
 									</tr>
 									<?php
 									$my_theme = wp_get_theme();
@@ -1089,7 +1089,7 @@ class Wpdb_Admin {
 								</table>
 								<div class="row">
 									<button class="btn btn-primary" type="button">
-										Drafts Post Count <span class="badge">
+									<?php echo esc_html__('Drafts Post Count', 'wpdbbkp') ?> <span class="badge">
 										<?php
 											$count_posts = wp_count_posts();
 										echo esc_attr( $count_posts->draft );
@@ -1097,7 +1097,7 @@ class Wpdb_Admin {
 		</span>
 									</button>
 									<button class="btn btn-primary" type="button">
-										Publish Post Count <span class="badge">
+									<?php echo esc_html__('Publish Post Count', 'wpdbbkp') ?> <span class="badge">
 										<?php
 
 										echo esc_attr( $count_posts->publish );
@@ -1105,7 +1105,7 @@ class Wpdb_Admin {
 		</span>
 									</button>
 									<button class="btn btn-primary" type="button">
-										Drafts Pages Count <span class="badge">
+									<?php echo esc_html__('Drafts Pages Count', 'wpdbbkp') ?> <span class="badge">
 										<?php
 											$count_pages = wp_count_posts( 'page' );
 										echo esc_attr( $count_pages->draft );
@@ -1113,7 +1113,7 @@ class Wpdb_Admin {
 		</span>
 									</button>
 									<button class="btn btn-primary" type="button">
-										Publish Pages Count <span class="badge">
+									<?php echo esc_html__('Publish Pages Count', 'wpdbbkp') ?> <span class="badge">
 										<?php
 
 										echo esc_attr( $count_pages->publish );
@@ -1121,7 +1121,7 @@ class Wpdb_Admin {
 		</span>
 									</button>
 									<button class="btn btn-primary" type="button">
-										Approved Comments Count <span class="badge">
+									<?php echo esc_html__('Approved Comments Count', 'wpdbbkp') ?> <span class="badge">
 										<?php
 											$comments_count = wp_count_comments();
 										echo esc_attr( $comments_count->approved );
@@ -1165,40 +1165,40 @@ class Wpdb_Admin {
 					<form action="" method="post">
 						<?php wp_nonce_field( 'wp-database-backup' ); ?>
 						<div class="input-group">
-							<span class="input-group-addon" id="sizing-addon2">Maximum Local Backups</span>
+							<span class="input-group-addon" id="sizing-addon2"><?php echo esc_html__('Maximum Local Backups', 'wpdbbkp') ?></span>
 							<input type="number" name="wp_local_db_backup_count" value="<?php echo esc_html( $wp_local_db_backup_count ); ?>" class="form-control" placeholder="Maximum Local Backups" aria-describedby="sizing-addon2">
 
 						</div>
 						<div class="alert alert-default" role="alert">
-							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> The maximum
-							number of Local Database Backups that should be kept, regardless of their size.</br>
-							Leave blank for keep unlimited database backups.
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span><?php echo esc_html__(' The maximum
+							number of Local Database Backups that should be kept, regardless of their size.', 'wpdbbkp') ?></br>
+							<?php echo esc_html__('Leave blank for keep unlimited database backups.', 'wpdbbkp') ?>
 						</div>
 						<hr>
 						<div class="input-group">
-							<label><input type="checkbox" <?php echo esc_attr( $checked ); ?> name="wp_db_log"> Enable Log</label>
+							<label><input type="checkbox" <?php echo esc_attr( $checked ); ?> name="wp_db_log"> <?php echo esc_html__('Enable Log', 'wpdbbkp') ?></label>
 						</div>
 						<hr>
 						<div class="input-group">
-						<label><input type="checkbox" <?php echo esc_attr( $wp_db_backup_enable_auto_upgrade_checked ); ?> name="wp_db_backup_enable_auto_upgrade"> Enable Auto Backups Before Upgrade</label>
+						<label><input type="checkbox" <?php echo esc_attr( $wp_db_backup_enable_auto_upgrade_checked ); ?> name="wp_db_backup_enable_auto_upgrade"> <?php echo esc_html__('Enable Auto Backups Before Upgrade', 'wpdbbkp') ?></label>
 							<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-								If checked then it will create database backup on(before) upgrade/update plugin, theme, WordPress.
-								<br>Leave blank/un-checked for disable this feature.
+							<?php echo esc_html__('If checked then it will create database backup on(before) upgrade/update plugin, theme, WordPress.', 'wpdbbkp') ?>
+								<br><?php echo esc_html__('Leave blank/un-checked for disable this feature.', 'wpdbbkp') ?>
 							</p>
 						</div>
 						<hr>
 						<div class="input-group">
-						<label><input type="checkbox" <?php echo esc_attr( $remove_local_backup ); ?> name="wp_db_remove_local_backup"> Remove local backup</label>
+						<label><input type="checkbox" <?php echo esc_attr( $remove_local_backup ); ?> name="wp_db_remove_local_backup"> <?php echo esc_html__('Remove local backup', 'wpdbbkp') ?></label>
 							<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-								If Checked then it will remove local backup.
-								<br>Use this option only when you have set any destination.
-								<br>If somesites you need only external backup.
+							<?php echo esc_html__('If Checked then it will remove local backup.', 'wpdbbkp') ?>
+								<br><?php echo esc_html__('Use this option only when you have set any destination.', 'wpdbbkp') ?>
+								<br><?php echo esc_html__('If somesites you need only external backup.', 'wpdbbkp') ?>
 							</p>
 						</div>
 						<hr>
 						<div class="input-group">
-						<label>	<input type="checkbox" <?php checked( get_option( 'wp_db_backup_enable_htaccess' ), '1' ); ?>  name="wp_db_backup_enable_htaccess"> Enable .htaccess File In Storage Directory</label>
-							<p>Disable if issues occur when downloading backup/archive files.</p>
+						<label>	<input type="checkbox" <?php checked( get_option( 'wp_db_backup_enable_htaccess' ), '1' ); ?>  name="wp_db_backup_enable_htaccess"> <?php echo esc_html__('Enable .htaccess File In Storage Directory', 'wpdbbkp') ?></label>
+							<p><?php echo esc_html__('Disable if issues occur when downloading backup/archive files.', 'wpdbbkp') ?></p>
 						</div>
 						<hr>
 
@@ -1206,7 +1206,7 @@ class Wpdb_Admin {
 							<div class="panel-heading">
 									<a data-toggle="collapse" data-parent="#accordion" href="#collapseExclude">
 									<h4 class="panel-title">
-										Exclude Table From Database Backup
+									<?php echo esc_html__('Exclude Table From Database Backup', 'wpdbbkp') ?>
 									</h4>
 									</a>
 							</div>
@@ -1214,10 +1214,10 @@ class Wpdb_Admin {
 								<div class="panel-body">
 									<table class="table table-condensed">
 										<tr class="success">
-											<th>No.</th>
-											<th>Tables</th>
-											<th>Records</th>
-											<th>Exclude Table</th>
+											<th><?php echo esc_html__('No.', 'wpdbbkp') ?></th>
+											<th><?php echo esc_html__('Tables', 'wpdbbkp') ?></th>
+											<th><?php echo esc_html__('Records', 'wpdbbkp') ?></th>
+											<th><?php echo esc_html__('Exclude Table', 'wpdbbkp') ?></th>
 										</tr>
 										<?php
 										$no           = 0;
@@ -1272,31 +1272,31 @@ class Wpdb_Admin {
 							<form action="" method="post">
 								<?php wp_nonce_field( 'wp-database-backup' ); ?>
 								
-								<p>If you even need to migrate your WordPress site to a different domain name, or add an SSL certificate to it, you must update the URLs in your database backup file then you can use this feature. <br> This feature allow you to Search and Replace text in your database backup file. <br> if you want only exclude tables from search and replace text then Go to Dashboard=>Tool=>WP-DB Backup > Setting > Exclude Table From Database Backup setting. The tables you selected will be skipped over for each backup you make.
+								<p><?php echo esc_html__('If you even need to migrate your WordPress site to a different domain name, or add an SSL certificate to it, you must update the URLs in your database backup file then you can use this feature. <br> This feature allow you to Search and Replace text in your database backup file. ', 'wpdbbkp') ?><br> <?php echo esc_html__('if you want only exclude tables from search and replace text then Go to Dashboard=>Tool=>WP-DB Backup > Setting > Exclude Table From Database Backup setting. The tables you selected will be skipped over for each backup you make.', 'wpdbbkp') ?> 
 								</p>
 								<br>
 								<div class="input-group">
-									<span class="input-group-addon" id="wp_db_backup_search_text">Search For</span>
+									<span class="input-group-addon" id="wp_db_backup_search_text"><?php echo esc_html__('Search For', 'wpdbbkp') ?></span>
 									<input type="text" name="wp_db_backup_search_text" value="<?php echo esc_html( $wp_db_backup_search_text ); ?>" class="form-control" placeholder="http://localhost/wordpress" aria-describedby="wp_db_backup_search_text">
 
 								</div>
 								<br>
 								<div class="input-group">
-									<span class="input-group-addon" id="wp_db_backup_replace_text">Replace With</span>
+									<span class="input-group-addon" id="wp_db_backup_replace_text"><?php echo esc_html__('Replace With', 'wpdbbkp') ?></span>
 									<input type="text" name="wp_db_backup_replace_text" value="<?php echo esc_html( $wp_db_backup_replace_text ); ?>" class="form-control" placeholder="http://site.com" aria-describedby="wp_db_backup_replace_text">
 
 								</div>
 
 								<div class="alert alert-default" role="alert">
 									<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-									Leave blank those fields if you don't want use this feature and want only regular Database backup.
+									<?php echo esc_html__("Leave blank those fields if you don't want use this feature and want only regular Database backup.", 'wpdbbkp') ?>
 									<br>
-									Ex:
-									<br>Search For: http://localhost/wordpress/
-									<br>Replace With: http://domain.com/
+									<?php echo esc_html__('Ex:', 'wpdbbkp') ?>
+									<br><?php echo esc_html__('Search For:', 'wpdbbkp') ?> http://localhost/wordpress/
+									<br><?php echo esc_html__('Replace With:', 'wpdbbkp') ?> http://domain.com/
 
 									<br><br>
-									Note - This is Search & Replace data in your WordPress Database Backup File not in current Database installation.
+									<?php echo esc_html__('Note - This is Search & Replace data in your WordPress Database Backup File not in current Database installation.', 'wpdbbkp') ?>
 									
 								</div>
 

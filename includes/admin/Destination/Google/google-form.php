@@ -103,27 +103,27 @@ if(!empty($wpdbbkp_gdrive_authCode) && !empty($wpdbbkp_gdrive_client_key) && !em
 				$wpdb_dest_google_secret_key = get_option( 'wpdb_dest_google_secret_key' );
 				if ( ! empty( $wpdb_dest_google_auth_code ) && ! empty( $wpdb_dest_google_client_key ) && ! empty( $wpdb_dest_google_secret_key ) ) {
 					?>
-					<p class="text-success">Configuration to Google Drive Access has been done successfully</p>
-					<p>By clicking reset, you can reconfigure Google Account</p>
-					<p>For local backup click on Reset Configure</p>
+					<p class="text-success"><?php echo esc_html__('Configuration to Google Drive Access has been done successfully', 'wpdbbkp') ?></p>
+					<p><?php echo esc_html__('By clicking reset, you can reconfigure Google Account', 'wpdbbkp') ?></p>
+					<p><?php echo esc_html__('For local backup click on Reset Configure', 'wpdbbkp') ?></p>
 					<p><input type="submit" name="reset" class="btn btn-primary" value="<?php esc_attr_e( 'Reset Configure' ); ?>" />&nbsp;
 					</p>
 				<?php } else { ?>
 
-					<p>Back up WordPress database to google drive.</p>
-					<p>Configure google account, you need to create Client ID &amp; Client secret from the API section '<a href="https://code.google.com/apis/console/" target="_blank">Google API Console</a>' also use authorization redirecting url as <br>
+					<p><?php echo esc_html__('Back up WordPress database to google drive.', 'wpdbbkp') ?></p>
+					<p><?php echo esc_html__('Configure google account, you need to create Client ID &amp; Client secret from the API section ', 'wpdbbkp') ?><a href="https://code.google.com/apis/console/" target="_blank"><?php echo esc_html__('Google API Console', 'wpdbbkp') ?></a><?php echo esc_html__("' also use authorization redirecting url as", 'wpdbbkp') ?> <br>
 						<strong> <?php echo esc_url( site_url() . '/wp-admin/admin.php?page=wp-database-backup&action=auth' ); ?></strong></p>
-					<p>For local backup leave the setting as it is</p>
+					<p><?php echo esc_html__('For local backup leave the setting as it is', 'wpdbbkp') ?></p>
 
 					<div class="row form-group">
-						<label class="col-sm-2" for="wpdb_dest_google_client_key">Client ID</label>
+						<label class="col-sm-2" for="wpdb_dest_google_client_key"><?php echo esc_html__('Client ID', 'wpdbbkp') ?></label>
 						<div class="col-sm-6">
 							<input type="text" id="wpdb_dest_google_client_key" class="form-control" name="wpdb_dest_google_client_key" value="<?php echo esc_html( get_option( 'wpdb_dest_google_client_key' ) ); ?>" size="25" placeholder="your client id">
 						</div>
 					</div>
 
 					<div class="row form-group">
-						<label class="col-sm-2" for="wpdb_dest_google_secret_key">Client secret:</label>
+						<label class="col-sm-2" for="wpdb_dest_google_secret_key"><?php echo esc_html__('Client secret:', 'wpdbbkp') ?></label>
 						<div class="col-sm-6">
 							<input type="text" id="wpdb_dest_google_secret_key" class="form-control" name="wpdb_dest_google_secret_key" value="<?php echo esc_html( get_option( 'wpdb_dest_google_secret_key' ) ); ?>" size="25" placeholder="your client secret key">
 						</div>

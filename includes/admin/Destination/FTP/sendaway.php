@@ -37,6 +37,9 @@ if ( isset( $host ) && ! empty( $host ) && isset( $user ) && ! empty( $user ) &&
 		}
 	}
 	// Close connection to host.
-	ftp_quit( $conn );
+	if(!is_bool($conn)){
+		ftp_quit( $conn );
+	}
+	
 }
 

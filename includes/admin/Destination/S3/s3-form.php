@@ -85,7 +85,7 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 					$s3     = new S3( AWSACCESSKEY, AWSSECRETKEY );
 					$result = $s3->listBuckets();
 					if ( get_option( 'wpdb_dest_amazon_s3_bucket' ) ) {
-						if ( false === in_array( get_option( 'wpdb_dest_amazon_s3_bucket' ), $result, true ) ) {
+						if (!empty($result) && false === in_array( get_option( 'wpdb_dest_amazon_s3_bucket' ), $result, true ) ) {
 							echo '<span class="label label-warning">Invalid bucket name or AWS details</span>';
 						}
 					}

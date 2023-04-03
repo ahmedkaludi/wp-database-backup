@@ -255,12 +255,12 @@ class Wpdb_Admin {
 								}
 								$path_info         = wp_upload_dir();
 								$wp_db_backup_path = $path_info['basedir'] . '/db-backup';
+								
 								// Open a directory, and read its contents.
 								if ( is_dir( $wp_db_backup_path ) ) {
 									$dh = opendir( $wp_db_backup_path );
-									if ( $dh ) {
-										$file = readdir( $dh );
-										while ( false !== $file ) {
+									if ( $dh ) {	
+										while ( false !== ($file = readdir( $dh )) ) {
 											if ( ! ( in_array( $file, $backup_check_list, true ) ) ) {
 												if ( file_exists( $wp_db_backup_path . '/' . $file ) ) {
 													unlink( $wp_db_backup_path . '/' . $file );

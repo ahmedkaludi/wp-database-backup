@@ -1633,8 +1633,8 @@ class Wpdb_Admin {
 
 		// If there are mysqldump errors delete the database dump file as mysqldump will still have written one.
 		if ( $this->get_errors( $this->get_mysqldump_method() ) && file_exists( $sql_filename ) ) {
-			if ( file_exists( $database_file ) ) {
-				unlink( $database_file );
+			if ( file_exists( $sql_filename ) ) {
+				unlink( $sql_filename );
 			}
 		}
 

@@ -26,7 +26,7 @@ $subdir = get_option( 'backupbreeze_ftp_subdir' );
 if ( '' === $subdir ) {
 	$subdir = '/';
 }
-$remotefile = $subdir . '/' . $filename;
+//$remotefile = $subdir . '/' . $filename;
 
 if ( $host ) {
 	// If in WP Dashboard or Admin Panels.

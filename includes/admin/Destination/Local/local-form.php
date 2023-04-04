@@ -12,7 +12,7 @@ if($wpdbbkp_local_enabled==1 && !empty($wpdbbkp_local_path))
 					<div class="panel-heading">
 						<h4 class="panel-title">
 							<a data-toggle="collapse" data-parent="#accordion" href="#collapseLocal">
-								<h2>Local Backup <?php echo $wpdbbkp_local_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
+								<h2><?php echo esc_html__('Local Backup', 'wpdbbkp') ?> <?php echo $wpdbbkp_local_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
 
 							</a>
 						</h4>
@@ -54,7 +54,7 @@ if($wpdbbkp_local_enabled==1 && !empty($wpdbbkp_local_path))
 							esc_attr_e( 'Ex.: C:/xampp/htdocs', 'wpdbbkp' );
 							echo '</div>';
 							echo '<div class="col-sm-12 submit">';
-							echo '<input type="submit" name="Submit" class="btn btn-primary" value="Save Settings" />';
+							echo '<input type="submit" name="local_backup_submit" class="btn btn-primary" value="Save Settings" />';
 							echo '</div>';
 							echo '</form>';
 							?>

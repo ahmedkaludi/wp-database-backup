@@ -33,10 +33,19 @@ class Wpdb_Admin {
 		add_action('admin_enqueue_scripts', array( $this, 'wpdbbkp_admin_newsletter_script'));
 		add_action('wp_ajax_wpdbbkp_send_query_message', array( $this, 'wpdbbkp_send_query_message'));
 		add_filter( 'plugin_action_links_' . plugin_basename( WP_BACKUP_PLUGIN_FILE ), array( $this, 'add_settings_plugin_action_wp' ), 10, 4 );
-		
+		add_action( 'admin_notices', array($this, 'check_ziparchive_avalable_admin_notice' ));
 		
 	}
 
+	/**
+	 * admin Notice.
+	 */
+	public function check_ziparchive_avalable_admin_notice() {
+		if (!class_exists( 'ZipArchive' ) ) { ?>
+			<div class="notice notice-info is-dismissible"><p><strong><?php echo esc_html__('Info!', 'wpdbbkp') ?></strong> <?php echo esc_html__(' Enable Zip Extension in php.ini to work BackupForWP all functionality smoothly.', 'wpdbbkp') ?> </p></div>
+		<?php } 
+	}
+	
 	/**
 	 * Backup Menu.
 	 */

@@ -47,7 +47,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		 *
 		 * @var string
 		 */
-		public $version = '6.1';
+		public $version = '6.2';
 
 		/**
 		 * Plugin instance

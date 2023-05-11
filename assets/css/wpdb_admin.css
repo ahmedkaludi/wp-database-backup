@@ -120,9 +120,9 @@ body{
 .wpdbbkp_notification{
   padding:0 15px;
 }
-.wpdbbkp_notification_row
-{
-  margin-top:20px;
+.wpdbbkp_notification_row {
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 #example_length label, #example_filter label{
   font-weight: inherit;

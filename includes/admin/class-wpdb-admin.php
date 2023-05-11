@@ -438,7 +438,6 @@ class Wpdb_Admin {
 		$settings = get_option( 'wp_db_backup_options' ); ?>
 		<div class="bootstrap-wrapper">
 		<?php
-		include_once 'admin-header-notification.php';
 		$wp_db_local_backup_path = get_option( 'wp_db_local_backup_path' );
 		if ( false === empty( $wp_db_local_backup_path ) && false === file_exists( $wp_db_local_backup_path ) ) {
 			echo '<div class="alert alert-warning alert-dismissible fade in" role="alert">
@@ -491,7 +490,6 @@ class Wpdb_Admin {
 					<?php
 					$loader_gif = esc_url( WPDB_PLUGIN_URL )."/assets/images/icon_loading.gif";
 					echo '<div class="tab-content">';
-					echo '<div id="wpdb-backup-process" style="display:none"><div class="text-center"><img width="50" height="50" src="'.$loader_gif.'"><h5 class="text-success"><strong>Backup under process, it may take some time, please do not press back or refresh button</strong></h5></div></div>';
 					echo '<div class="tab-pane active"  id="db_home">';
 
 					$nonce                     = wp_create_nonce( 'wp-database-backup' );
@@ -505,7 +503,8 @@ class Wpdb_Admin {
 						echo '<a href="#" id="wpdbbkp-create-full-backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create Full Backup</a>';
 					}
 					
-					?>
+					include_once 'admin-header-notification.php'; 
+					echo '<div id="wpdb-backup-process" style="display:none"><div class="text-center"><img width="50" height="50" src="'.$loader_gif.'"><h5 class="text-success"><strong>Backup under process, it may take some time, please do not press back or refresh button</strong></h5></div></div>';?>
 
 					<?php
 					if ( $options ) {

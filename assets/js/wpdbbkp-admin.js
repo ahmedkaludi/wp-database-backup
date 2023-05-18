@@ -58,7 +58,7 @@ jQuery(document).ready(function($) {
 }
 
 jQuery(document).on("click", ".popoverid", function(e){
-  var itrms=jQuery('#example .popover-content');
+  var itrms=jQuery('#wpdbbkp_table .popover-content');
   for(var i=0;i<itrms.length;i++)
   {
     var popover_con=jQuery(itrms[i]).text();

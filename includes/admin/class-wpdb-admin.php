@@ -513,7 +513,7 @@ class Wpdb_Admin {
 						var $j = jQuery.noConflict();
 						$j(document).ready(function () {
 							$j(".popoverid").popover();
-							var table = $j("#example").DataTable({
+							var table = $j("#wpdbbkp_table").DataTable({
 								order: [[0, "desc"]],
 							});
 							$j("#create_backup").click(function() {
@@ -535,9 +535,9 @@ class Wpdb_Admin {
 
 					</script>';
 						echo ' <div class="table-responsive">
-                                <div id="dataTables-example_wrapper" class="dataTables_wrapper form-inline" role="grid">
+                                <div id="wpdbbkp_dataTables" class="dataTables_wrapper form-inline" role="grid">
 
-                                <table class="table table-striped table-bordered table-hover display" id="example">
+                                <table class="table table-striped table-bordered table-hover display" id="wpdbbkp_table">
                                     <thead>';
 						echo '<tr class="wpdb-header">';
 						//echo '<th class="manage-column" scope="col" width="5%" style="text-align: center;">#</th>';
@@ -569,10 +569,7 @@ class Wpdb_Admin {
 							echo '<td><span style="display:none">' . esc_attr( gmdate( 'Y M jS h:i:s A', $option['date'] ) ) . '</span>' . esc_attr( gmdate( 'jS, F Y h:i:s A', $option['date'] ) ) . '</td>';
 							echo '<td class="wpdb_log" align="center">';
 							if (!empty($option['log'])) {
-								// echo '<button id="popoverid" type="button" class="popoverid btn" data-toggle="popover" title="Log" data-content="' . wp_kses_post( $option['log'] ) . '"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></button>';
-								echo '<a href="' . $option['log'] . '" target="_blank" class="label label-warning" title="There might be partial backup. Please check Log File for verify backup.">';
-                            echo  '<span class="glyphicon glyphicon-list-alt"></span>';
-                            echo '</a>';
+							echo '<button type="button" class="popoverid btn" data-toggle="popover" data-trigger="focus" title="There might be partial backup. Please check Log file to verify backup." data-content="' . wp_kses_post( $option['log'] ) . '"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></button>';
 							}else{
 								echo '<span>-</span>';
 							}

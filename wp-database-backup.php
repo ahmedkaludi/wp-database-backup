@@ -118,7 +118,8 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			include_once 'includes/class-wpdbbackuplog.php';
 			include_once 'includes/admin/filter.php';
 			include_once 'includes/admin/newsletter.php';
-   			include_once 'includes/admin/ajax-create-full-backup.php';
+   			//include_once 'includes/admin/ajax-create-full-backup.php';
+			include_once 'includes/admin/cron-create-full-backup.php';
    			include_once 'includes/log_generate.php';
 			
 		}

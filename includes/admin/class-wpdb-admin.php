@@ -488,7 +488,6 @@ class Wpdb_Admin {
 					</ul>
 
 					<?php
-					$loader_gif = esc_url( WPDB_PLUGIN_URL )."/assets/images/icon_loading.gif";
 					echo '<div class="tab-content">';
 					echo '<div class="tab-pane active"  id="db_home">';
 
@@ -503,8 +502,7 @@ class Wpdb_Admin {
 						echo '<a href="#" id="wpdbbkp-create-full-backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create Full Backup</a>';
 					}
 					
-					include_once 'admin-header-notification.php'; 
-					echo '<div id="wpdb-backup-process" style="display:none"><div class="text-center"><img width="50" height="50" src="'.$loader_gif.'"><h5 class="text-success"><strong>Backup under process, it may take some time, please do not press back or refresh button</strong></h5></div></div>';?>
+					include_once 'admin-header-notification.php'; ?>
 
 					<?php
 					if ( $options ) {
@@ -569,7 +567,15 @@ class Wpdb_Admin {
 							echo '<td><span style="display:none">' . esc_attr( gmdate( 'Y M jS h:i:s A', $option['date'] ) ) . '</span>' . esc_attr( gmdate( 'jS, F Y h:i:s A', $option['date'] ) ) . '</td>';
 							echo '<td class="wpdb_log" align="center">';
 							if (!empty($option['log'])) {
-							echo '<button type="button" class="popoverid btn" data-toggle="popover" data-trigger="focus" title="There might be partial backup. Please check Log file to verify backup." data-content="' . wp_kses_post( $option['log'] ) . '"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></button>';
+								if(isset($option['type']) && $option['type'] == 'complete'){
+							echo '<a href="' . $option['log'] . '" target="_blank" class="label label-warning" title="There might be partial backup. Please check Log File for verify backup.">';
+                            echo  '<span class="glyphicon glyphicon-list-alt"></span>';
+                            echo '</a>';
+								}else{
+									echo '<a class="popoverid btn" data-toggle="popover" data-html="true" title="There might be partial backup. Please check Log file to verify backup." data-content="' . wp_kses_post( $option['log'] ) . '"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';
+								}
+							
+
 							}else{
 								echo '<span>-</span>';
 							}
@@ -641,6 +647,10 @@ class Wpdb_Admin {
 					if ( isset( $settings['autobackup_frequency'] ) ) {
 						$autobackup_frequency = $settings['autobackup_frequency'];
 					}
+					$full_autobackup_frequency = 'disabled'; 
+					if ( isset( $settings['full_autobackup_frequency'] ) ) {
+						$full_autobackup_frequency = $settings['full_autobackup_frequency'];
+					}
 
 					echo '<div class="row form-group"><label class="col-sm-2" for="enable_autobackups">Enable Auto Backups</label>';
 					echo '<div class="col-sm-2"><input type="checkbox" id="enable_autobackups" name="wp_db_backup_options[enable_autobackups]" value="1" ' . checked( 1, $enable_autobackups, false ) . '/></div>';
@@ -652,6 +662,15 @@ class Wpdb_Admin {
 					echo '<option value="daily" ' . selected( 'daily', $autobackup_frequency, false ) . '>Daily</option>';
 					echo '<option value="weekly" ' . selected( 'weekly', $autobackup_frequency, false ) . '>Weekly</option>';
 					echo '<option value="monthly" ' . selected( 'monthly', $autobackup_frequency, false ) . '>Monthly</option>';
+					echo '</select>';
+					echo '</div></div>';
+
+					echo '<div class="row form-group"><label class="col-sm-2" for="wp_db_backup_options">Auto Full Backup Frequency</label>';
+					echo '<div class="col-sm-2"><select id="wp_db_backup_options" class="form-control" name="wp_db_backup_options[full_autobackup_frequency]">';
+					echo '<option value="disabled" ' . selected( 'disabled', $full_autobackup_frequency, false ) . '>Disabled</option>';
+					echo '<option value="daily" ' . selected( 'daily', $full_autobackup_frequency, false ) . '>Daily</option>';
+					echo '<option value="weekly" ' . selected( 'weekly', $full_autobackup_frequency, false ) . '>Weekly</option>';
+					echo '<option value="monthly" ' . selected( 'monthly', $full_autobackup_frequency, false ) . '>Monthly</option>';
 					echo '</select>';
 					echo '</div></div>';
 
@@ -2041,7 +2060,8 @@ class Wpdb_Admin {
 	                'ajax_url'                     => admin_url( 'admin-ajax.php' ),            
 	                'wpdbbkp_admin_security_nonce'     => wp_create_nonce('wpdbbkp_ajax_check_nonce'),
 	        ); 
-	        wp_register_script('wpdbbkp-admin-fb', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin-full-backup.js', array(), WPDB_VERSION , true );  
+	        //wp_register_script('wpdbbkp-admin-fb', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin-full-backup.js', array(), WPDB_VERSION , true );  
+			wp_register_script('wpdbbkp-admin-fb', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin-cron-backup.js', array(), WPDB_VERSION , true );  
 
 	        wp_localize_script('wpdbbkp-admin-fb', 'wpdbbkp_localize_admin_data', $local );        
 	        wp_enqueue_script('wpdbbkp-admin-fb');

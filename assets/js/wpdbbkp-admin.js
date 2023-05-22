@@ -49,10 +49,14 @@ jQuery(document).ready(function($) {
     }                        
 
 });
-
+    const url = new URL(window.location.href);
+    url.searchParams.delete("notification");
+    url.searchParams.delete("_wpnonce");
+    history.pushState(null, null,url);
   });
 
   function wpdbbkpIsEmail(email) {
     var regex = /^([a-zA-Z0-9_.+-])+\@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
     return regex.test(email);
 }
+

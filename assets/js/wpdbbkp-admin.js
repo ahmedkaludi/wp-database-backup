@@ -49,10 +49,12 @@ jQuery(document).ready(function($) {
     }                        
 
 });
+if (history.replaceState) {
     const url = new URL(window.location.href);
     url.searchParams.delete("notification");
     url.searchParams.delete("_wpnonce");
-    history.pushState(null, null,url);
+    history.replaceState(null, null,url);
+}
   });
 
   function wpdbbkpIsEmail(email) {

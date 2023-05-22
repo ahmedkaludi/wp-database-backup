@@ -26,7 +26,7 @@ class Wpdb_Admin {
 		add_action( 'admin_menu', array( $this, 'admin_menu' ), 9 );
 		add_filter( 'cron_schedules', array( $this, 'wp_db_backup_cron_schedules' ) );
 		add_action( 'wp_db_backup_event', array( $this, 'wp_db_backup_event_process' ) );
-		add_action( 'wp', array( $this, 'wp_db_backup_scheduler_activation' ) );
+		add_action( 'init', array( $this, 'wp_db_backup_scheduler_activation' ) );
 		add_action( 'wp_logout', array( $this, 'wp_db_cookie_expiration' ) ); // Fixed Vulnerability 22-06-2016 for prevent direct download.
 		add_action( 'wp_db_backup_completed', array( $this, 'wp_db_backup_completed_local' ), 12 );
 		add_action('admin_enqueue_scripts', array( $this, 'wpdbbkp_admin_style'));
@@ -564,7 +564,7 @@ class Wpdb_Admin {
 							$str_class = ( 0 === (int) $option['size'] ) ? 'text-danger' : 'wpdb_download';
 							echo '<tr class="' . ( ( 0 === ( $count % 2 ) ) ? esc_attr( $str_class ) . ' alternate' : esc_attr( $str_class ) ) . '">';
 							//echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
-							echo '<td><span style="display:none">' . esc_attr( gmdate( 'Y M jS h:i:s A', $option['date'] ) ) . '</span>' . esc_attr( gmdate( 'jS, F Y h:i:s A', $option['date'] ) ) . '</td>';
+							echo '<td><span style="display:none">' . esc_attr( date( 'Y M jS h:i:s A', $option['date'] ) ) . '</span>' . esc_attr( date( 'jS, F Y h:i:s A', $option['date'] ) ) . '</td>';
 							echo '<td class="wpdb_log" align="center">';
 							if (!empty($option['log'])) {
 								if(isset($option['type']) && $option['type'] == 'complete'){

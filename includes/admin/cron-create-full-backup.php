@@ -6,17 +6,17 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Cron schedule for full backup
  **********************************/
 
-add_action( 'wp','wp_db_fullbackup_scheduler_activation');
+add_action( 'init','wp_db_fullbackup_scheduler_activation');
 
  function wp_db_fullbackup_scheduler_activation() {
 	$options = get_option( 'wp_db_backup_options' );
-	if ( ( ! wp_next_scheduled( 'wp_db_backup_event_fullbackup' ) ) && ( true === isset( $options['enable_autobackups'] ) ) ) {
+	if ( ( ! wp_next_scheduled( 'wpdbkup_event_fullbackup' ) ) && ( true === isset( $options['enable_autobackups'] ) ) ) {
 		if(isset($options['full_autobackup_frequency']) && $options['full_autobackup_frequency'] != 'disabled'){
-		  wp_schedule_event( time(), $options['full_autobackup_frequency'], 'wp_db_backup_event_fullbackup' );
+		  wp_schedule_event( time(), $options['full_autobackup_frequency'], 'wpdbkup_event_fullbackup' );
 		}
 	}
 }
-add_action( 'wp_db_backup_event_fullbackup', 'wpdbbkp_cron_backup' );
+add_action( 'wpdbkup_event_fullbackup', 'wpdbbkp_cron_backup' );
 
 /*************************************************
  * Create custom enpoint for running cron backup

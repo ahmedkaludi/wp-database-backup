@@ -90,6 +90,9 @@ class Wpdb_Admin {
 	 * Admin init.
 	 */
 	public function wp_db_backup_admin_init() {
+		//setting user select timezone
+		$wp_db_backup_timezone     = get_option( 'wp_db_backup_timezone','UTC');
+		date_default_timezone_set($wp_db_backup_timezone);
 		//redirect to plugin page on activation
 		if (get_option('wpdbbkp_activation_redirect', false)) {
 			delete_option('wpdbbkp_activation_redirect');
@@ -126,9 +129,7 @@ class Wpdb_Admin {
 						if ( isset( $_POST['wp_db_backup_search_text'] ) ) {
 							update_option( 'wp_db_backup_search_text', sanitize_text_field( wp_unslash( $_POST['wp_db_backup_search_text'] ) ) );
 						}
-						if ( isset( $_POST['wp_db_backup_replace_text'] ) ) {
-							update_option( 'wp_db_backup_replace_text', sanitize_text_field( wp_unslash( $_POST['wp_db_backup_replace_text'] ) ) );
-						}
+
 						$nonce = wp_create_nonce( 'wp-database-backup' );
 						wp_safe_redirect( esc_url( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=save&tab=searchreplace&_wpnonce=' . $nonce ) );
 					}
@@ -148,7 +149,10 @@ class Wpdb_Admin {
 						} else {
 							update_option( 'wp_db_remove_local_backup', 0 );
 						}
-
+						if ( isset( $_POST['wp_db_backup_timezone'] ) ) {
+							update_option( 'wp_db_backup_timezone', sanitize_text_field( wp_unslash( $_POST['wp_db_backup_timezone'] ) ) );
+						}
+						
 						if ( isset( $_POST['wp_db_backup_enable_auto_upgrade'] ) ) {
 							update_option( 'wp_db_backup_enable_auto_upgrade', 1 );
 						} else {
@@ -564,7 +568,7 @@ class Wpdb_Admin {
 							$str_class = ( 0 === (int) $option['size'] ) ? 'text-danger' : 'wpdb_download';
 							echo '<tr class="' . ( ( 0 === ( $count % 2 ) ) ? esc_attr( $str_class ) . ' alternate' : esc_attr( $str_class ) ) . '">';
 							//echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
-							echo '<td><span style="display:none">' . esc_attr( date( 'Y M jS h:i:s A', $option['date'] ) ) . '</span>' . esc_attr( date( 'jS, F Y h:i:s A', $option['date'] ) ) . '</td>';
+							echo '<td><span style="display:none">' . esc_attr( date( 'Y-m-d H:i:s', $option['date'] ) ) . '</span>' . esc_attr( date( 'jS, F Y h:i:s A', $option['date'] ) ) . '</td>';
 							echo '<td class="wpdb_log" align="center">';
 							if (!empty($option['log'])) {
 								if(isset($option['type']) && $option['type'] == 'complete'){
@@ -1165,6 +1169,7 @@ class Wpdb_Admin {
 				<div class="panel-group">
 					<?php
 					$wp_local_db_backup_count         = get_option( 'wp_local_db_backup_count' );
+					$wp_db_backup_timezone            = get_option( 'wp_db_backup_timezone','UTC');
 					$wp_db_log                        = get_option( 'wp_db_log' );
 					$wp_db_exclude_table              = array();
 					$wp_db_exclude_table              = get_option( 'wp_db_exclude_table' );
@@ -1217,6 +1222,19 @@ class Wpdb_Admin {
 							<?php echo esc_html__('If Checked then it will remove local backup.', 'wpdbbkp') ?>
 								<br><?php echo esc_html__('Use this option only when you have set any destination.', 'wpdbbkp') ?>
 								<br><?php echo esc_html__('If somesites you need only external backup.', 'wpdbbkp') ?>
+							</p>
+						</div>
+						<hr>
+						<?php $wpdbbkp_timezones_list = DateTimeZone::listIdentifiers(DateTimeZone::ALL); ?>
+						<div class="input-group">
+						<label>Timezone
+							<select name="wp_db_backup_timezone" class="form-control">
+								<?php foreach($wpdbbkp_timezones_list as $timezone){ ?>
+								<option value="<?php echo $timezone;?>" <?php if($timezone==$wp_db_backup_timezone){ echo 'selected';} ?>><?php echo $timezone;?></option>
+								<?php } ?>
+							</select></label>
+							<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+							<?php echo esc_html__('This will show time according to selected timezone', 'wpdbbkp') ?>
 							</p>
 						</div>
 						<hr>
@@ -1733,7 +1751,7 @@ class Wpdb_Admin {
 		}
 		// Begin : Generate SQL DUMP and save to file database.sql.
 		$wp_site_name    = preg_replace( '/[^A-Za-z0-9\_]/', '_', get_bloginfo( 'name' ) );
-		$wp_db_file_name = $wp_site_name . '_' . gmdate( 'Y_m_d' ) . '_' . time() . '_' . substr( md5( AUTH_KEY ), 0, 7 ) . '_wpdb';
+		$wp_db_file_name = $wp_site_name . '_' . date( 'Y_m_d' ) . '_' . time() . '_' . substr( md5( AUTH_KEY ), 0, 7 ) . '_wpdb';
 		$sql_filename    = $wp_db_file_name . '.sql';
 		$filename        = $wp_db_file_name . '.zip';
 

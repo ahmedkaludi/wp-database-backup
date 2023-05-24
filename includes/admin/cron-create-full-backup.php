@@ -111,11 +111,12 @@ function wpdbbkp_get_progress(){
 
  function wpdbbkp_cron_backup(){
 	// make sure only one backup process is started at oe
-	if(get_option('wpdbbkp_backupcron_status','inactive')=='active'){
-		die();
+	if(get_transient( 'wpdbbkp_backup_status' )=='active'){
+		wp_die();
 	}
 	set_time_limit(0);
 	$progress = 0.00;
+	    set_transient('wpdbbkp_backup_status','active',1800);
 		update_option('wpdbbkp_backupcron_status','active');
 		update_option('wpdbbkp_backupcron_step','Initialization');
 		update_option('wpdbbkp_backupcron_current','Fetching Config');
@@ -137,6 +138,7 @@ function wpdbbkp_get_progress(){
 			update_option('wpdbbkp_backupcron_current',$table);
 			$progress = $progress+$single_item_percent;
 			update_option('wpdbbkp_backupcron_progress',intval($progress));
+			set_transient('wpdbbkp_backup_status','active',1800);
 			wpdbbkp_cron_create_mysql_backup($common_args);
 			sleep(1);
 		}
@@ -166,6 +168,7 @@ function wpdbbkp_get_progress(){
 					update_option('wpdbbkp_backupcron_current',$count.' of '.$total_chunk.' parts done' );
 					$progress = $progress+$single_chunk_percent;
 					update_option('wpdbbkp_backupcron_progress',intval($progress));
+					set_transient('wpdbbkp_backup_status','active',1800);
 					sleep(1);
 				}
 
@@ -724,7 +727,7 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 	            wpdbbkp_write_log($details['logfileDir'], $logMessage);
 	        }        
 
-	        $Destination.=" Local";
+	        $Destination.="Local, ";
 			$path_info = wp_upload_dir();
 			$filesize = @filesize($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/' . $details['filename']);
 	        $options[] = array(
@@ -741,14 +744,15 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 	        // delete_option('wp_db_backup_log_message');
 
 	        update_option('wp_db_backup_backups', $options);
+			$args2 = array($details['filename'], $details['dir'], $logMessage, $details['size'],$Destination);
+			do_action_ref_array('wpdbbkp_backup_completed', array(&$args2));
+
 			update_option('wpdbbkp_backupcron_status','inactive');
 			update_option('wpdbbkp_backupcron_progress',100);
 			update_option('wpdbbkp_backupcron_current','Backup Completed');
-	        $destination="Local, ";
-	        $args = array($details['filename'], $details['dir'], $logMessage, $details['size'],$details['logfileDir'],$details['type'],$destination);     
-	        do_action_ref_array('wpdbbkp_backup_completed', array(&$args));
+			delete_transient('wpdbbkp_backup_status');
 		}
-	return;
+	
 }
 
 function wpdbbkp_token_gen($length_of_string = 16)

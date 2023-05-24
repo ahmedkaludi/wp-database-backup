@@ -565,7 +565,7 @@ class Wpdb_Admin {
 							'Local'      => 'glyphicon glyphicon-home',
 							'Local Path' => 'glyphicon glyphicon-folder-open',
 							'Email'      => 'glyphicon glyphicon-envelope',
-							'FTP'        => 'glyphicon glyphicon-folder-open',
+							'FTP'        => 'glyphicon glyphicon-tasks',
 							'S3'         => 'glyphicon glyphicon-cloud-upload',
 							'Drive'      => 'glyphicon glyphicon-hdd',
 							'DropBox'    => 'glyphicon glyphicon-inbox',

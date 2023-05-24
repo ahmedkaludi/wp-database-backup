@@ -51,7 +51,6 @@ function wpdbbkp_show_progress(){
 			jQuery('#wpdbbkp_progressbar').text(progress+'%');
 			jQuery('#wpdbbkp_progressbar').css('width',progress+'%');
 			if(progress==100){
-				clearInterval(wpdbbkp_interval);
 				location.href=response.redirect_url;
 			}
 			setTimeout(wpdbbkp_show_progress, 5000);

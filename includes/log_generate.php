@@ -19,7 +19,7 @@ class WPDBFullBackupLog {
                         'url' =>$option['url'],
                         'dir' => $option['dir'],
                         'log' =>$option['log'],
-                        'destination' =>  $args[6],
+                        'destination' =>  $args[4],
                         'type' => $option['type'],
                         'size' => $option['size']
                     );

@@ -98,7 +98,7 @@ function wpdbbkp_get_progress(){
 		$wpdbbkp_progress['backupcron_current']=get_option('wpdbbkp_backupcron_current',false);
 		$wpdbbkp_progress['backupcron_progress']=get_option('wpdbbkp_backupcron_progress',false);
 		$wpdbbkp_progress['status']='success';
-		$wpdbbkp_progress['redirect_url'] = site_url() . '/wp-admin/admin.php?page=wp-database-backup';
+		$wpdbbkp_progress['redirect_url'] = site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=create&_wpnonce='.wp_create_nonce( 'wp-database-backup' );
 	}
 	echo json_encode($wpdbbkp_progress);
 	wp_die();
@@ -110,8 +110,10 @@ function wpdbbkp_get_progress(){
  *****************************************/
 
  function wpdbbkp_cron_backup(){
-	 
-	 
+	// make sure only one backup process is started at oe
+	if(get_option('wpdbbkp_backupcron_status','inactive')=='active'){
+		die();
+	}
 	set_time_limit(0);
 	$progress = 0.00;
 		update_option('wpdbbkp_backupcron_status','active');

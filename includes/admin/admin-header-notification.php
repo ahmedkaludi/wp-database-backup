@@ -59,14 +59,14 @@ if (true === isset($_GET['notification'])) { ?>
 
 <div id="wpdb-backup-process" style="display:none">
 	<div class="text-center"><img width="50" height="50" src="<?php echo $loader_gif; ?>">
-		<h5 class="text-success"><strong>Backup process started, it may take some time depending on size of your
-				website. You can close this tab backup will continue in background</strong></h5>
+		<h5 class="text-success"><strong><?php echo esc_html__('Backup process is working in background, it may take some time depending on size of your
+				website. You can close this tab if you want', 'wpdbbkp') ?></strong></h5>
 		<div class="progress">
 			<div id="wpdbbkp_progressbar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
 				style="width:0%">
 				0%
 			</div>
 		</div>
-		<h4 class="text-success" id="wpdbbkup_process_stats">Initializing...</h4>
+		<h4 class="text-success" id="wpdbbkup_process_stats"><?php echo esc_html__('Processing...', 'wpdbbkp') ?></h4>
 	</div>
 </div>

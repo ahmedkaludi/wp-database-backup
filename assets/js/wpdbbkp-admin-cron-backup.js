@@ -1,7 +1,5 @@
-
-var wpdbbkp_interval=false;
 jQuery(document).ready(function($){
-	
+	$('#wpdbbkp-create-full-backup').attr('disabled', true);
 	$(document).on('click', '#wpdbbkp-create-full-backup', function(e){
 		e.preventDefault();
 		$('#wpdb-backup-process').show();
@@ -13,7 +11,7 @@ jQuery(document).ready(function($){
 			success: function(response){
 				response = JSON.parse(response);
 				if(response.status=='success'){
-					wpdbbkp_interval=setInterval(wpdbbkp_show_progress, 3000);
+				 setTimeout(wpdbbkp_show_progress, 3000);
 				}else {
 					jQuery('#wpdbbkup_process_stats').text('Unable to start Backup, Please refresh the page');
 				}	
@@ -30,12 +28,12 @@ jQuery(document).ready(function($){
 				if(response.status=='active'){
 					$('#wpdbbkp-create-full-backup').attr('disabled', true);
 					$('#wpdb-backup-process').show();
-					wpdbbkp_interval=setInterval(wpdbbkp_show_progress, 3000);
+					setTimeout(wpdbbkp_show_progress, 3000);
+				}else {
+					$('#wpdbbkp-create-full-backup').attr('disabled', false);
 				}	
 			}
-		});
-	
-	
+		});	
 });
 
 function wpdbbkp_show_progress(){
@@ -56,8 +54,10 @@ function wpdbbkp_show_progress(){
 				clearInterval(wpdbbkp_interval);
 				location.href=response.redirect_url;
 			}
+			setTimeout(wpdbbkp_show_progress, 5000);
 			}
 			else{
+				setTimeout(wpdbbkp_show_progress, 5000);
 				jQuery('#wpdbbkup_process_stats').text(response.msg);
 			}
 

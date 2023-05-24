@@ -256,6 +256,8 @@ class Wpdb_Admin {
 									update_option( 'wp_db_backup_backups', $newoptions );
 									$nonce = wp_create_nonce( 'wp-database-backup' );
 									wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=delete&_wpnonce=' . $nonce );
+									exit;
+
 								}
 								break;
 							case 'clear_temp_db_backup_file':
@@ -285,6 +287,7 @@ class Wpdb_Admin {
 									}
 								}
 								wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=clear_temp_db_backup_file&_wpnonce=' . $nonce );
+								exit;
 								break;
 							case 'restorebackup':
 								$index      = (int) $_GET['index'];
@@ -393,6 +396,7 @@ class Wpdb_Admin {
 									}
 								}
 								wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=restore&_wpnonce=' . $nonce );
+								exit;
 								break;
 
 							case 'wpdbbkrestorefullbackup':
@@ -410,6 +414,7 @@ class Wpdb_Admin {
 		                        }
 		                        $nonce = wp_create_nonce( 'wp-database-backup' );
 		                        wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=restore&_wpnonce=' . $nonce );
+								exit;
 		                        break;
 
 							/* END: Restore Database Content */
@@ -514,10 +519,11 @@ class Wpdb_Admin {
 						echo ' <script>
 						var $j = jQuery.noConflict();
 						$j(document).ready(function () {
-							$j(".popoverid").popover();
+							
 							var table = $j("#wpdbbkp_table").DataTable({
 								order: [[0, "desc"]],
 							});
+							$j(".popoverid").popover();
 							$j("#create_backup").click(function() {
 								$j("#backup_process").show();
 								$j("#create_backup").attr("disabled", true);
@@ -2029,14 +2035,14 @@ class Wpdb_Admin {
 		if ( true === $this->is_wpdb_page() ) {
 				wp_enqueue_script( 'jquery' );
 
-				wp_register_script( 'bootstrapjs', WPDB_PLUGIN_URL . '/assets/js/bootstrap.min.js', array( 'jquery' ), WPDB_VERSION, true );
+				wp_register_script( 'bootstrapjs', WPDB_PLUGIN_URL . '/assets/js/bootstrap.min.js', array( 'jquery' ), WPDB_VERSION, false );
 				wp_enqueue_script( 'bootstrapjs' );
 
 				wp_register_style( 'bootstrapcss', WPDB_PLUGIN_URL . '/assets/css/bootstrap.min.css', array(), WPDB_VERSION );
 				wp_enqueue_style( 'bootstrapcss' );
 
-				wp_register_script( 'dataTables', WPDB_PLUGIN_URL . '/assets/js/jquery.dataTables.js', array( 'jquery' ), WPDB_VERSION, true );
-				wp_enqueue_script( 'dataTables' );
+				wp_register_script( 'dataTablesjs', WPDB_PLUGIN_URL . '/assets/js/jquery.dataTables.js', array( 'jquery' ), WPDB_VERSION, false );
+				wp_enqueue_script( 'dataTablesjs' );
 
 				wp_register_style( 'dataTablescss', WPDB_PLUGIN_URL . '/assets/css/jquery.dataTables.css', array(), WPDB_VERSION );
 				wp_enqueue_style( 'dataTablescss' );

@@ -48,12 +48,7 @@ if(!function_exists('wpdbbkp_ajax_wp_config_path')){
 	        $options = (array)get_option('wp_db_backup_backups');
 	        $newoptions = array();
 	        $number_of_existing_backups = count($options);
-	       // error_log("number_of_existing_backups");
-	      //  error_log($number_of_existing_backups);
 	        $number_of_backups_from_user = get_option('wp_all_backup_max_backups');
-	      //  error_log("number_of_backups_from_user");
-	       // error_log($number_of_backups_from_user);
-	        error_log("Delete old Backup:");
 
 	        if (!empty($number_of_backups_from_user)) {
 	            if (!($number_of_existing_backups < $number_of_backups_from_user)) {
@@ -64,9 +59,7 @@ if(!function_exists('wpdbbkp_ajax_wp_config_path')){
 	                    @unlink($options[$index]['dir']);
 	                }
 	                for ($i = ($diff + 1); $i < $number_of_existing_backups; $i++) {
-	                  //  error_log($i);
 	                    $index = $i;
-
 	                    $newoptions[] = $options[$index];
 	                }
 

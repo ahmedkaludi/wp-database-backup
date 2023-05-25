@@ -55,7 +55,7 @@ class Google_MediaFileUpload {
   public function __construct($mimeType, $data, $resumable=false, $chunkSize=false) {
     $this->mimeType = $mimeType;
     $this->data = $data;
-    $this->size = strlen($this->data);
+    $this->size = @strlen($this->data);
     $this->resumable = $resumable;
     if(!$chunkSize) {
       $chunkSize = 256 * 1024;

@@ -37,9 +37,9 @@ class WPDBFullBackupLog {
         if (get_option('wp_db_log') == 1) {
             if(isset($args[4]) && !empty($args[4]))
             {
-                if (is_writable($args[4]) || !file_exists($args[4])) {
+                if (is_writable($args[5]) || !file_exists($args[5])) {
 
-                    if (!$handle = @fopen($args[4], 'a'))
+                    if (!$handle = @fopen($args[5], 'a'))
                         return;
 
                     if (!fwrite($handle,  str_replace("<br>", "\n", $args[2])))

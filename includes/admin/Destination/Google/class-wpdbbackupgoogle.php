@@ -30,6 +30,7 @@ class WPDBBackupGoogle {
 		$client_secret = get_option( 'wpdb_dest_google_secret_key' );
 		date_default_timezone_set('UTC');
 		if ( ! empty( $auth_code ) && ! empty( $client_id ) && ! empty( $client_secret ) ) {
+			update_option('wpdbbkp_backupcron_current','Processing Google Backup');
 			set_time_limit( 0 );
 			require_once 'google-api-php-client/src/Google_Client.php';
 			require_once 'google-api-php-client/src/contrib/Google_DriveService.php';

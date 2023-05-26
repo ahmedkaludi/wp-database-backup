@@ -1320,7 +1320,11 @@ class Wpdb_Admin {
 							<form action="" method="post">
 								<?php wp_nonce_field( 'wp-database-backup' ); ?>
 								
-								<p><?php echo esc_html__('If you even need to migrate your WordPress site to a different domain name, or add an SSL certificate to it, you must update the URLs in your database backup file then you can use this feature. <br> This feature allow you to Search and Replace text in your database backup file. ', 'wpdbbkp') ?><br> <?php echo esc_html__('if you want only exclude tables from search and replace text then Go to Dashboard=>Tool=>WP-DB Backup > Setting > Exclude Table From Database Backup setting. The tables you selected will be skipped over for each backup you make.', 'wpdbbkp') ?> 
+								<p><?php echo esc_html__('If you even need to migrate your WordPress site to a different domain name, 
+								or add an SSL certificate to it, you must update the URLs in your database backup file
+								 then you can use this feature.','wpdbbkp'); ?> <br>
+								 <?php echo esc_html__(' This feature allow you to Search and Replace text in your database backup file. ','wpdbbkp'); ?>
+								 <br> <?php echo esc_html__('if you want only exclude tables from search and replace text then Go to Dashboard=>Tool=>WP-DB Backup > Setting > Exclude Table From Database Backup setting. The tables you selected will be skipped over for each backup you make.', 'wpdbbkp') ?> 
 								</p>
 								<br>
 								<div class="input-group">

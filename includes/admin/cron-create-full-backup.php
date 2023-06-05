@@ -79,6 +79,7 @@ function wpdbbkp_start_cron_manual(){
 			)
 		);
 	}
+	$wpdbbkp_cron_manual['response']=$response;
 	echo json_encode($wpdbbkp_cron_manual);
 	wp_die();
 
@@ -738,13 +739,29 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 			WPDBBackupDropbox::wp_db_backup_completed($args2);
 			WPDatabaseBackupS3::wp_db_backup_completed($args2);
 			wpdbbkp_fullbackup_log($args2);
-			
+			wpdbbkp_backup_completed_notification($args2);
+			update_option('wpdbbkp_dashboard_notify','create');
 			update_option('wpdbbkp_backupcron_status','inactive');
 			update_option('wpdbbkp_backupcron_progress',100);
 			update_option('wpdbbkp_backupcron_current','Backup Completed');
 			delete_transient('wpdbbkp_backup_status');
 		}
 	
+}
+
+function wpdbbkp_backup_completed_notification($args){
+
+			$to                     = sanitize_email( get_option( 'admin_email' ) );
+			$subject                = 'Full Website Backup (' . get_bloginfo( 'name' ) . ')';
+			$filename               = $args[0];
+			$filesze                = $args[3];
+			$site_url               = site_url();
+			$log_message_attachment = '';
+			$message                = '';
+
+			require_once( WPDB_PATH.'includes/admin/Destination/Email/template-email-notification-bg.php' );
+			$headers                = array( 'Content-Type: text/html; charset=UTF-8' );
+			wp_mail( $to, $subject, $message, $headers );
 }
 
  function wpdbbkp_fullbackup_log(&$args) {

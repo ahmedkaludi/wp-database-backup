@@ -99,7 +99,6 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			define( 'WPDB_ROOTPATH', str_replace( '\\', '/', ABSPATH ) );
 			define( 'WPDB_VERSION', $this->version );
 			define( 'WPDBPLUGIN_VERSION', WPDB_VERSION );
-			define( 'NOTIFIER_XML_FILE_WPDB', 'http://wpseeds.com/notifier/wp-database-backup.xml' );
 			$wpdbbkp_backups_dir=get_option('wp_db_backup_backups_dir');
             if(!empty($wp_all_backup_backups_dir)){
                 define( 'WPDB_BACKUPS_DIR',get_option('wp_db_backup_backups_dir'));

@@ -1,22 +1,16 @@
-body{
+.toplevel_page_wp-database-backup{
   background: transparent !important;
 }
 .wpdb-header{
   background-color: #dff0d8;
 }
-.panel {
+.toplevel_page_wp-database-backup .panel {
   margin-bottom: 0 !important;
-}
-#collapseDocumentation ul{
-    margin-left: 25px !important;
-}
-#collapseDocumentation ul li{
-    list-style-type: circle  !important;
 }
 .wpdb_log .arrow {
     margin-left: 0px !important;
 }
-.popover{
+.wpdb_download .popover{
     max-width: 500Px !important;
     background: #f6f7f7 !important;
     padding: 10px !important;
@@ -104,7 +98,7 @@ body{
   margin-right:20px;
 }
 
-#example_length select{
+#wpdbbkp_table_length select{
   width:100px;
   height:30px;
   margin:6px;
@@ -120,20 +114,16 @@ body{
 .wpdbbkp_notification{
   padding:0 15px;
 }
-.wpdbbkp_notification_row
-{
-  margin-top:20px;
+.wpdbbkp_notification_row {
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
-#example_length label, #example_filter label{
+#wpdbbkp_table_length label, #wpdbbkp_table_filter label{
   font-weight: inherit;
   display: flex;
   align-items: center;
 }
 
-.dataTables_wrapper .dataTables_filter input
-{
-  margin: 6px;
-}
 #db_destination h2 label{
   font-weight: 500;
   font-size: 14px;
@@ -174,15 +164,15 @@ body{
   padding: 0px 20px;
 }
 
-label .configured{
+.toplevel_page_wp-database-backup label .configured{
   color:green;
 }
 #wp_db_backup_options {
   width:100px;
 }
-.bootstrap-wrapper a {
+.toplevel_page_wp-database-backup .bootstrap-wrapper a {
   box-shadow:none;
 }
-.head-logo{
+.toplevel_page_wp-database-backup .head-logo{
   background-color:#eee;
 }

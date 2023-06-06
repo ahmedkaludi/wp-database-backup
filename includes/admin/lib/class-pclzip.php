@@ -5345,13 +5345,14 @@
 	}
 
 	// ----- Get and memorize the magic_quote value
+  if (version_compare(PHP_VERSION, '5.3.0', '<')) {
 	$this->magic_quotes_status = @get_magic_quotes_runtime();
 
 	// ----- Disable magic_quotes
 	if ($this->magic_quotes_status == 1) {
 	  @set_magic_quotes_runtime(0);
 	}
-
+}
     // ----- Return
     return $v_result;
   }
@@ -5379,10 +5380,11 @@
 	}
 
 	// ----- Swap back magic_quotes
-	if ($this->magic_quotes_status == 1) {
-  	  @set_magic_quotes_runtime($this->magic_quotes_status);
-	}
-
+  if (version_compare(PHP_VERSION, '5.3.0', '<')) {
+    if ($this->magic_quotes_status == 1) {
+        @set_magic_quotes_runtime($this->magic_quotes_status);
+    }
+  }
     // ----- Return
     return $v_result;
   }

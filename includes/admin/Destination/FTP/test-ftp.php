@@ -34,7 +34,6 @@ function backupbreeze_test_ftp() {
 	if ( '' === $subdir ) {
 		$subdir = '/';
 	}
-	$remotefile = $subdir . '/' . $filename;
 
 	if ( is_admin() ) {
 		// If user has WP manage options permissions.

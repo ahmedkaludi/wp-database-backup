@@ -54,16 +54,19 @@ if ( isset( $_POST['wpdb_google_drive'] ) && 'Y' === $_POST['wpdb_google_drive']
 		$service = new Google_DriveService( $client );
 
 		$auth_url = $client->createAuthUrl();
+		
 		if ( isset( $_GET['code'] ) ) {
 			update_option( 'wpdb_dest_google_authCode', wp_db_filter_data( sanitize_text_field( wp_unslash( $_GET['code'] ) ) ) );
 		} else {
 			if ( isset( $_POST['wpdb_dest_google_client_key'] ) && ! empty( $_POST['wpdb_dest_google_client_key'] ) && isset( $_POST['wpdb_dest_google_secret_key'] ) && ! empty( $_POST['wpdb_dest_google_secret_key'] ) ) {
-				wp_safe_redirect( filter_var( $auth_url, FILTER_SANITIZE_URL ) );
+				wp_redirect( filter_var( $auth_url, FILTER_SANITIZE_URL ) );
+				exit;
 			}
 		}
 	} elseif ( isset( $_POST['reset'] ) && 'Reset Configure' === $_POST['reset'] ) {
 		update_option( 'wpdb_dest_google_authCode', '' );
 		wp_safe_redirect( esc_url( site_url() . '/wp-admin/admin.php?page=wp-database-backup' ) );
+		exit;
 	}
 
 	// Put a "settings updated" message on the screen.
@@ -71,13 +74,15 @@ if ( isset( $_POST['wpdb_google_drive'] ) && 'Y' === $_POST['wpdb_google_drive']
 }
 if ( isset( $_GET['code'] ) ) {
 	update_option( 'wpdb_dest_google_authCode', wp_db_filter_data( sanitize_text_field( wp_unslash( $_GET['code'] ) ) ) );
+	$wpdbbkp_gdrive_authCode = wp_db_filter_data( sanitize_text_field( wp_unslash( $_GET['code'] ) ) );
 }
 
-$wpdbbkp_gdrive_authCode		=	get_option( 'wpdb_dest_google_authCode',null );
-$wpdbbkp_gdrive_secret_key		=	get_option( 'wpdb_dest_google_client_key',null );
-$wpdbbkp_gdrive_secret_key		=	get_option( 'wpdb_dest_google_secret_key',null );
+$wpdb_dest_google_auth_code  = get_option( 'wpdb_dest_google_authCode' );
+$wpdb_dest_google_client_key = get_option( 'wpdb_dest_google_client_key' );
+$wpdb_dest_google_secret_key = get_option( 'wpdb_dest_google_secret_key' );
 $wpdbbkp_gdrive_status			=	'<label><b>Status</b>: Not Configured </label> ';
-if(!empty($wpdbbkp_gdrive_authCode) && !empty($wpdbbkp_gdrive_client_key) && !empty($wpdbbkp_gdrive_secret_key))
+
+if(!empty($wpdb_dest_google_auth_code) && !empty($wpdb_dest_google_client_key) && !empty($wpdb_dest_google_secret_key))
 {
 	$wpdbbkp_gdrive_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span> </label> ';
 }
@@ -86,7 +91,7 @@ if(!empty($wpdbbkp_gdrive_authCode) && !empty($wpdbbkp_gdrive_client_key) && !em
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapsegoogle">
-				<h2>Google drive <?php echo $wpdbbkp_gdrive_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
+				<h2>Google drive<?php echo $wpdbbkp_gdrive_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
 			</a>
 		</h4>
 	</div>
@@ -98,9 +103,6 @@ if(!empty($wpdbbkp_gdrive_authCode) && !empty($wpdbbkp_gdrive_client_key) && !em
 				<input name="wpdbbackup_update_google_setting" type="hidden" value="<?php echo esc_attr( wp_create_nonce( 'wpdbbackup-update-google-setting' ) ); ?>" />
 				<?php
 				wp_nonce_field( 'wp-database-backup' );
-				$wpdb_dest_google_auth_code  = get_option( 'wpdb_dest_google_authCode' );
-				$wpdb_dest_google_client_key = get_option( 'wpdb_dest_google_client_key' );
-				$wpdb_dest_google_secret_key = get_option( 'wpdb_dest_google_secret_key' );
 				if ( ! empty( $wpdb_dest_google_auth_code ) && ! empty( $wpdb_dest_google_client_key ) && ! empty( $wpdb_dest_google_secret_key ) ) {
 					?>
 					<p class="text-success"><?php echo esc_html__('Configuration to Google Drive Access has been done successfully', 'wpdbbkp') ?></p>

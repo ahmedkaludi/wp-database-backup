@@ -3,7 +3,7 @@
  * Plugin Name: Backup For WP  
  * Plugin URI:https://wordpress.org/plugins/wp-database-backup
  * Description: This plugin helps you to create/restore Unlimited  Wordpress Database & Files backup.
- * Version: 6.2
+ * Version: 6.3
  * Author: Backup for WP
  * Author URI: https://backupforwp.com/
  * Text Domain: wpdbbkp
@@ -47,7 +47,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		 *
 		 * @var string
 		 */
-		public $version = '6.2';
+		public $version = '6.3';
 
 		/**
 		 * Plugin instance
@@ -99,7 +99,6 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			define( 'WPDB_ROOTPATH', str_replace( '\\', '/', ABSPATH ) );
 			define( 'WPDB_VERSION', $this->version );
 			define( 'WPDBPLUGIN_VERSION', WPDB_VERSION );
-			define( 'NOTIFIER_XML_FILE_WPDB', 'http://wpseeds.com/notifier/wp-database-backup.xml' );
 			$wpdbbkp_backups_dir=get_option('wp_db_backup_backups_dir');
             if(!empty($wp_all_backup_backups_dir)){
                 define( 'WPDB_BACKUPS_DIR',get_option('wp_db_backup_backups_dir'));
@@ -118,7 +117,8 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			include_once 'includes/class-wpdbbackuplog.php';
 			include_once 'includes/admin/filter.php';
 			include_once 'includes/admin/newsletter.php';
-   			include_once 'includes/admin/ajax-create-full-backup.php';
+   			//include_once 'includes/admin/ajax-create-full-backup.php';
+			include_once 'includes/admin/cron-create-full-backup.php';
    			include_once 'includes/log_generate.php';
 			
 		}

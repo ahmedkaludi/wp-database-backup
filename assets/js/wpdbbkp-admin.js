@@ -49,7 +49,12 @@ jQuery(document).ready(function($) {
     }                        
 
 });
-
+if (history.replaceState) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("notification");
+    url.searchParams.delete("_wpnonce");
+    history.replaceState(null, null,url);
+}
   });
 
   function wpdbbkpIsEmail(email) {
@@ -57,12 +62,3 @@ jQuery(document).ready(function($) {
     return regex.test(email);
 }
 
-jQuery(document).on("click", ".popoverid", function(e){
-  var itrms=jQuery('#example .popover-content');
-  for(var i=0;i<itrms.length;i++)
-  {
-    var popover_con=jQuery(itrms[i]).text();
-    jQuery(itrms[i]).html(popover_con);
-  }
-  
-}); 

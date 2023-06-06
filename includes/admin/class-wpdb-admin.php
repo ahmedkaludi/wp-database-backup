@@ -26,7 +26,7 @@ class Wpdb_Admin {
 		add_action( 'admin_menu', array( $this, 'admin_menu' ), 9 );
 		add_filter( 'cron_schedules', array( $this, 'wp_db_backup_cron_schedules' ) );
 		add_action( 'wp_db_backup_event', array( $this, 'wp_db_backup_event_process' ) );
-		add_action( 'wp', array( $this, 'wp_db_backup_scheduler_activation' ) );
+		add_action( 'init', array( $this, 'wp_db_backup_scheduler_activation' ) );
 		add_action( 'wp_logout', array( $this, 'wp_db_cookie_expiration' ) ); // Fixed Vulnerability 22-06-2016 for prevent direct download.
 		add_action( 'wp_db_backup_completed', array( $this, 'wp_db_backup_completed_local' ), 12 );
 		add_action('admin_enqueue_scripts', array( $this, 'wpdbbkp_admin_style'));
@@ -126,9 +126,7 @@ class Wpdb_Admin {
 						if ( isset( $_POST['wp_db_backup_search_text'] ) ) {
 							update_option( 'wp_db_backup_search_text', sanitize_text_field( wp_unslash( $_POST['wp_db_backup_search_text'] ) ) );
 						}
-						if ( isset( $_POST['wp_db_backup_replace_text'] ) ) {
-							update_option( 'wp_db_backup_replace_text', sanitize_text_field( wp_unslash( $_POST['wp_db_backup_replace_text'] ) ) );
-						}
+
 						$nonce = wp_create_nonce( 'wp-database-backup' );
 						wp_safe_redirect( esc_url( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=save&tab=searchreplace&_wpnonce=' . $nonce ) );
 					}
@@ -148,7 +146,6 @@ class Wpdb_Admin {
 						} else {
 							update_option( 'wp_db_remove_local_backup', 0 );
 						}
-
 						if ( isset( $_POST['wp_db_backup_enable_auto_upgrade'] ) ) {
 							update_option( 'wp_db_backup_enable_auto_upgrade', 1 );
 						} else {
@@ -252,6 +249,8 @@ class Wpdb_Admin {
 									update_option( 'wp_db_backup_backups', $newoptions );
 									$nonce = wp_create_nonce( 'wp-database-backup' );
 									wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=delete&_wpnonce=' . $nonce );
+									exit;
+
 								}
 								break;
 							case 'clear_temp_db_backup_file':
@@ -281,6 +280,7 @@ class Wpdb_Admin {
 									}
 								}
 								wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=clear_temp_db_backup_file&_wpnonce=' . $nonce );
+								exit;
 								break;
 							case 'restorebackup':
 								$index      = (int) $_GET['index'];
@@ -389,6 +389,7 @@ class Wpdb_Admin {
 									}
 								}
 								wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=restore&_wpnonce=' . $nonce );
+								exit;
 								break;
 
 							case 'wpdbbkrestorefullbackup':
@@ -406,6 +407,7 @@ class Wpdb_Admin {
 		                        }
 		                        $nonce = wp_create_nonce( 'wp-database-backup' );
 		                        wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=restore&_wpnonce=' . $nonce );
+								exit;
 		                        break;
 
 							/* END: Restore Database Content */
@@ -434,11 +436,13 @@ class Wpdb_Admin {
 	 * Setting page.
 	 */
 	public function wp_db_backup_settings_page() {
+		
 		$options  = get_option( 'wp_db_backup_backups' );
-		$settings = get_option( 'wp_db_backup_options' ); ?>
+		$settings = get_option( 'wp_db_backup_options' ); 
+		$wp_db_log = get_option( 'wp_db_log' );
+		date_default_timezone_set(wp_timezone_string()); ?>
 		<div class="bootstrap-wrapper">
 		<?php
-		include_once 'admin-header-notification.php';
 		$wp_db_local_backup_path = get_option( 'wp_db_local_backup_path' );
 		if ( false === empty( $wp_db_local_backup_path ) && false === file_exists( $wp_db_local_backup_path ) ) {
 			echo '<div class="alert alert-warning alert-dismissible fade in" role="alert">
@@ -489,9 +493,7 @@ class Wpdb_Admin {
 					</ul>
 
 					<?php
-					$loader_gif = esc_url( WPDB_PLUGIN_URL )."/assets/images/icon_loading.gif";
 					echo '<div class="tab-content">';
-					echo '<div id="wpdb-backup-process" style="display:none"><div class="text-center"><img width="50" height="50" src="'.$loader_gif.'"><h5 class="text-success"><strong>Backup under process, it may take some time, please do not press back or refresh button</strong></h5></div></div>';
 					echo '<div class="tab-pane active"  id="db_home">';
 
 					$nonce                     = wp_create_nonce( 'wp-database-backup' );
@@ -505,7 +507,7 @@ class Wpdb_Admin {
 						echo '<a href="#" id="wpdbbkp-create-full-backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create Full Backup</a>';
 					}
 					
-					?>
+					include_once 'admin-header-notification.php'; ?>
 
 					<?php
 					if ( $options ) {
@@ -513,13 +515,16 @@ class Wpdb_Admin {
 						echo ' <script>
 						var $j = jQuery.noConflict();
 						$j(document).ready(function () {
-							$j(".popoverid").popover();
-							var table = $j("#example").DataTable({
+							
+							var table = $j("#wpdbbkp_table").DataTable({
 								order: [[0, "desc"]],
 							});
+							$j(".popoverid").popover();
 							$j("#create_backup").click(function() {
+								$j(".wpdbbkp_notification").hide();
 								$j("#backup_process").show();
 								$j("#create_backup").attr("disabled", true);
+								
 							});
 						});
 
@@ -536,14 +541,16 @@ class Wpdb_Admin {
 
 					</script>';
 						echo ' <div class="table-responsive">
-                                <div id="dataTables-example_wrapper" class="dataTables_wrapper form-inline" role="grid">
+                                <div id="wpdbbkp_dataTables" class="dataTables_wrapper form-inline" role="grid">
 
-                                <table class="table table-striped table-bordered table-hover display" id="example">
+                                <table class="table table-striped table-bordered table-hover display" id="wpdbbkp_table">
                                     <thead>';
 						echo '<tr class="wpdb-header">';
-						//echo '<th class="manage-column" scope="col" width="5%" style="text-align: center;">#</th>';
+						echo '<th class="manage-column" scope="col" width="5%" style="text-align: center;">#</th>';
 						echo '<th class="manage-column" scope="col" width="25%">Date</th>';
-						echo '<th class="manage-column" scope="col" width="5%">Log</th>';
+						if($wp_db_log==1){
+							echo '<th class="manage-column" scope="col" width="5%">Log</th>';
+						}
 						echo '<th class="manage-column" scope="col" width="10%">Destination</th>';
 						echo '<th class="manage-column" scope="col" width="15%">Type</th>';
 						echo '<th class="manage-column" scope="col" width="10%">Backup File</th>';
@@ -558,7 +565,7 @@ class Wpdb_Admin {
 							'Local'      => 'glyphicon glyphicon-home',
 							'Local Path' => 'glyphicon glyphicon-folder-open',
 							'Email'      => 'glyphicon glyphicon-envelope',
-							'FTP'        => 'glyphicon glyphicon-folder-open',
+							'FTP'        => 'glyphicon glyphicon-tasks',
 							'S3'         => 'glyphicon glyphicon-cloud-upload',
 							'Drive'      => 'glyphicon glyphicon-hdd',
 							'DropBox'    => 'glyphicon glyphicon-inbox',
@@ -566,19 +573,22 @@ class Wpdb_Admin {
 						foreach ( $options as $option ) {
 							$str_class = ( 0 === (int) $option['size'] ) ? 'text-danger' : 'wpdb_download';
 							echo '<tr class="' . ( ( 0 === ( $count % 2 ) ) ? esc_attr( $str_class ) . ' alternate' : esc_attr( $str_class ) ) . '">';
-							//echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
-							echo '<td><span style="display:none">' . esc_attr( gmdate( 'Y M jS h:i:s A', $option['date'] ) ) . '</span>' . esc_attr( gmdate( 'jS, F Y h:i:s A', $option['date'] ) ) . '</td>';
-							echo '<td class="wpdb_log" align="center">';
+							echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
+							echo '<td><span style="display:none">' . esc_attr( date( 'Y-m-d H:i:s', $option['date'] ) ) . '</span><span title="'.esc_attr( date( 'jS, F Y h:i:s A', $option['date'] ) ) .'">' .$this->wpdbbkp_get_timeago($option['date']).'</span>';
+							echo '</td>';
+							if($wp_db_log==1){
+								echo '<td class="wpdb_log" align="center">';
 							if (!empty($option['log'])) {
-								// echo '<button id="popoverid" type="button" class="popoverid btn" data-toggle="popover" title="Log" data-content="' . wp_kses_post( $option['log'] ) . '"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></button>';
-								echo '<a href="' . $option['log'] . '" target="_blank" class="label label-warning" title="There might be partial backup. Please check Log File for verify backup.">';
+								if(isset($option['type']) && ($option['type'] == 'complete' || $option['type'] == 'database')){
+							echo '<a href="' . $option['log'] . '" target="_blank" class="label label-warning" title="There might be partial backup. Please check Log File for verify backup.">';
                             echo  '<span class="glyphicon glyphicon-list-alt"></span>';
                             echo '</a>';
-							}else{
-								echo '<span>-</span>';
+								}else{
+									echo '<a class="popoverid btn" role="button" data-toggle="popover" data-html="true" title="There might be partial backup. Please check Log file to verify backup." data-content="' . wp_kses_post( $option['log'] ) . '"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';
+								}
 							}
-						
 							echo '</td>';
+							}
 							echo '<td>';
 							if ( ! empty( $option['destination'] ) ) {
 								$destination = ( explode( ',', $option['destination'] ) );
@@ -593,6 +603,9 @@ class Wpdb_Admin {
 							if(isset($option['type']) && !empty($option['type'])){
 								if($option['type'] == 'complete'){
 									echo '<td>'.esc_html__('Full Backup', 'wpdbbkp').'</td>';	
+								}
+								if($option['type'] == 'database'){
+									echo '<td>'.esc_html__('Database', 'wpdbbkp').'</td>';	
 								}
 							}else{
 								echo '<td>Database</td>';
@@ -611,6 +624,7 @@ class Wpdb_Admin {
 									if($option['type'] == 'complete'){
 										$restore_url_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=wpdbbkrestorefullbackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
 									}
+									
 								}
 								echo '<a title="Restore Database Backup" onclick="return confirm(\'Are you sure you want to restore database backup?\')" href="' . $restore_url_href . '" class="btn btn-default"><span class="glyphicon glyphicon-refresh" style="color:blue"></span> Restore <a/>';
 							}
@@ -645,6 +659,10 @@ class Wpdb_Admin {
 					if ( isset( $settings['autobackup_frequency'] ) ) {
 						$autobackup_frequency = $settings['autobackup_frequency'];
 					}
+					$full_autobackup_frequency = 'disabled'; 
+					if ( isset( $settings['full_autobackup_frequency'] ) ) {
+						$full_autobackup_frequency = $settings['full_autobackup_frequency'];
+					}
 
 					echo '<div class="row form-group"><label class="col-sm-2" for="enable_autobackups">Enable Auto Backups</label>';
 					echo '<div class="col-sm-2"><input type="checkbox" id="enable_autobackups" name="wp_db_backup_options[enable_autobackups]" value="1" ' . checked( 1, $enable_autobackups, false ) . '/></div>';
@@ -656,6 +674,15 @@ class Wpdb_Admin {
 					echo '<option value="daily" ' . selected( 'daily', $autobackup_frequency, false ) . '>Daily</option>';
 					echo '<option value="weekly" ' . selected( 'weekly', $autobackup_frequency, false ) . '>Weekly</option>';
 					echo '<option value="monthly" ' . selected( 'monthly', $autobackup_frequency, false ) . '>Monthly</option>';
+					echo '</select>';
+					echo '</div></div>';
+
+					echo '<div class="row form-group"><label class="col-sm-2" for="wp_db_backup_options">Auto Full Backup Frequency</label>';
+					echo '<div class="col-sm-2"><select id="wp_db_backup_options" class="form-control" name="wp_db_backup_options[full_autobackup_frequency]">';
+					echo '<option value="disabled" ' . selected( 'disabled', $full_autobackup_frequency, false ) . '>Disabled</option>';
+					echo '<option value="daily" ' . selected( 'daily', $full_autobackup_frequency, false ) . '>Daily</option>';
+					echo '<option value="weekly" ' . selected( 'weekly', $full_autobackup_frequency, false ) . '>Weekly</option>';
+					echo '<option value="monthly" ' . selected( 'monthly', $full_autobackup_frequency, false ) . '>Monthly</option>';
 					echo '</select>';
 					echo '</div></div>';
 
@@ -724,6 +751,7 @@ class Wpdb_Admin {
 
 								<div class="row list-group-item">
 									<?php
+									if(function_exists('disk_free_space')){
 									/* get disk space free (in bytes) */
 									$df = disk_free_space( WPDB_ROOTPATH );
 									/* and get disk space total (in bytes)  */
@@ -737,6 +765,8 @@ class Wpdb_Admin {
 									$df = $this->wp_db_backup_format_bytes( $df );
 									$du = $this->wp_db_backup_format_bytes( $du );
 									$dt = $this->wp_db_backup_format_bytes( $dt );
+									}
+									$du=$df=$dt='NA';
 									?>
 									<div class="col-md-1"><a href="" target="_blank" title="Help"><span
 												class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
@@ -1205,12 +1235,6 @@ class Wpdb_Admin {
 							</p>
 						</div>
 						<hr>
-						<div class="input-group">
-						<label>	<input type="checkbox" <?php checked( get_option( 'wp_db_backup_enable_htaccess' ), '1' ); ?>  name="wp_db_backup_enable_htaccess"> <?php echo esc_html__('Enable .htaccess File In Storage Directory', 'wpdbbkp') ?></label>
-							<p><?php echo esc_html__('Disable if issues occur when downloading backup/archive files.', 'wpdbbkp') ?></p>
-						</div>
-						<hr>
-
 						<div class="panel panel-default">
 							<div class="panel-heading">
 									<a data-toggle="collapse" data-parent="#accordion" href="#collapseExclude">
@@ -1272,6 +1296,7 @@ class Wpdb_Admin {
 					</form>
 				</div>
 				</div>
+
 				<div class="tab-pane" id="searchreplace">
 					<div class="panel-group">
 							<?php
@@ -1281,7 +1306,11 @@ class Wpdb_Admin {
 							<form action="" method="post">
 								<?php wp_nonce_field( 'wp-database-backup' ); ?>
 								
-								<p><?php echo esc_html__('If you even need to migrate your WordPress site to a different domain name, or add an SSL certificate to it, you must update the URLs in your database backup file then you can use this feature. <br> This feature allow you to Search and Replace text in your database backup file. ', 'wpdbbkp') ?><br> <?php echo esc_html__('if you want only exclude tables from search and replace text then Go to Dashboard=>Tool=>WP-DB Backup > Setting > Exclude Table From Database Backup setting. The tables you selected will be skipped over for each backup you make.', 'wpdbbkp') ?> 
+								<p><?php echo esc_html__('If you even need to migrate your WordPress site to a different domain name, 
+								or add an SSL certificate to it, you must update the URLs in your database backup file
+								 then you can use this feature.','wpdbbkp'); ?> <br>
+								 <?php echo esc_html__(' This feature allow you to Search and Replace text in your database backup file. ','wpdbbkp'); ?>
+								 <br> <?php echo esc_html__('if you want only exclude tables from search and replace text then Go to Dashboard=>Tool=>WP-DB Backup > Setting > Exclude Table From Database Backup setting. The tables you selected will be skipped over for each backup you make.', 'wpdbbkp') ?> 
 								</p>
 								<br>
 								<div class="input-group">
@@ -1698,8 +1727,10 @@ class Wpdb_Admin {
 
 		$path_info    = wp_upload_dir();
 		$htasses_text = '';
-		wp_mkdir_p( $path_info['basedir'] . '/db-backup' );
-		fclose( fopen( $path_info['basedir'] . '/db-backup/index.php', 'w' ) ); // phpcs:ignore
+		wp_mkdir_p($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR);
+		wp_mkdir_p($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log');
+		fclose(fopen($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/index.php', 'w'));
+		fclose(fopen($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/index.php', 'w'));
 		// Added htaccess file 08-05-2015 for prevent directory listing.
 		// Fixed Vulnerability 22-06-2016 for prevent direct download.
 		if ( 1 === (int) get_option( 'wp_db_backup_enable_htaccess' ) ) {
@@ -1718,9 +1749,10 @@ class Wpdb_Admin {
 		}
 		// Begin : Generate SQL DUMP and save to file database.sql.
 		$wp_site_name    = preg_replace( '/[^A-Za-z0-9\_]/', '_', get_bloginfo( 'name' ) );
-		$wp_db_file_name = $wp_site_name . '_' . gmdate( 'Y_m_d' ) . '_' . time() . '_' . substr( md5( AUTH_KEY ), 0, 7 ) . '_wpdb';
+		$wp_db_file_name = $wp_site_name . '_' . date( 'Y_m_d' ) . '_' . time() . '_' . substr( md5( AUTH_KEY ), 0, 7 ) . '_wpdb';
 		$sql_filename    = $wp_db_file_name . '.sql';
 		$filename        = $wp_db_file_name . '.zip';
+		$logname        = $wp_db_file_name . '.txt';
 
 		// Begin : Generate SQL DUMP using cmd 06-03-2016.
 		$my_sql_dump = 0;
@@ -1752,6 +1784,8 @@ class Wpdb_Admin {
 			'filename' => ( $filename ),
 			'dir'      => ( $path_info['basedir'] . '/db-backup/' . $filename ),
 			'url'      => ( $path_info['baseurl'] . '/db-backup/' . $filename ),
+			'log_dir'      => ( $path_info['basedir'] . '/db-backup/log/' . $logname ),
+			'log_url'      => ( $path_info['baseurl'] . '/db-backup/log/' . $logname ),
 			'size'     => 0,
 		);
 		$arcname     = $path_info['basedir'] . '/db-backup/' . $wp_db_file_name . '.zip';
@@ -1821,6 +1855,7 @@ class Wpdb_Admin {
 				update_option( 'wp_db_backup_backups', $newoptions );
 			}
 		}
+
 		if ( file_exists( $path_info['basedir'] . '/db-backup/' . $sql_filename ) ) {
 			unlink( $path_info['basedir'] . '/db-backup/' . $sql_filename );
 		}
@@ -1874,26 +1909,41 @@ class Wpdb_Admin {
 		} else {
 			$log_message = '';
 		}
+		$wp_db_remove_local_backup = get_option( 'wp_db_remove_local_backup' );
+		$destination               = ( 1 === (int) $wp_db_remove_local_backup ) ? '' : 'Local, ';
+
+		$args = array( $details['filename'], $details['dir'], $log_message, $details['size'], $destination );
+		do_action_ref_array( 'wp_db_backup_completed', array( &$args ) );
 
 		$options[]                 = array(
 			'date'           => time(),
 			'filename'       => $details['filename'],
 			'url'            => $details['url'],
 			'dir'            => $details['dir'],
-			'log'            => $log_message,
+			'log'            => $details['log_url'],
 			'search_replace' => $is_search_replace_flag,
 			'sqlfile'        => $details['sqlfile'],
 			'size'           => $details['size'],
+			'type'			 =>'database',
+			'destination'    => $args[4]
 		);
-		$wp_db_remove_local_backup = get_option( 'wp_db_remove_local_backup' );
 		if ( 1 !== (int) $wp_db_remove_local_backup ) {
 			update_option( 'wp_db_backup_backups', $options );
 		}
-		$wp_db_remove_local_backup = get_option( 'wp_db_remove_local_backup' );
-		$destination               = ( 1 === (int) $wp_db_remove_local_backup ) ? '' : 'Local, ';
+		if(isset($details['log_dir']) && !empty($details['log_dir']))
+		{
+			if (is_writable($details['log_dir']) || !file_exists($details['log_dir'])) {
 
-		$args = array( $details['filename'], $details['dir'], $log_message, $details['size'], $destination );
-		do_action_ref_array( 'wp_db_backup_completed', array( &$args ) );
+				if ($handle = @fopen($details['log_dir'], 'a'))
+				{
+					if (fwrite($handle,  str_replace(array("<br>","<b>","</b>"), array("\n","",""), $args[2])))
+					{
+						fclose($handle);
+					}
+				}
+			
+			}
+		}
 	}
 
 	/**
@@ -1996,14 +2046,14 @@ class Wpdb_Admin {
 		if ( true === $this->is_wpdb_page() ) {
 				wp_enqueue_script( 'jquery' );
 
-				wp_register_script( 'bootstrapjs', WPDB_PLUGIN_URL . '/assets/js/bootstrap.min.js', array( 'jquery' ), WPDB_VERSION, true );
+				wp_register_script( 'bootstrapjs', WPDB_PLUGIN_URL . '/assets/js/bootstrap.min.js', array( 'jquery' ), WPDB_VERSION, false );
 				wp_enqueue_script( 'bootstrapjs' );
 
 				wp_register_style( 'bootstrapcss', WPDB_PLUGIN_URL . '/assets/css/bootstrap.min.css', array(), WPDB_VERSION );
 				wp_enqueue_style( 'bootstrapcss' );
 
-				wp_register_script( 'dataTables', WPDB_PLUGIN_URL . '/assets/js/jquery.dataTables.js', array( 'jquery' ), WPDB_VERSION, true );
-				wp_enqueue_script( 'dataTables' );
+				wp_register_script( 'dataTablesjs', WPDB_PLUGIN_URL . '/assets/js/jquery.dataTables.js', array( 'jquery' ), WPDB_VERSION, false );
+				wp_enqueue_script( 'dataTablesjs' );
 
 				wp_register_style( 'dataTablescss', WPDB_PLUGIN_URL . '/assets/css/jquery.dataTables.css', array(), WPDB_VERSION );
 				wp_enqueue_style( 'dataTablescss' );
@@ -2045,7 +2095,8 @@ class Wpdb_Admin {
 	                'ajax_url'                     => admin_url( 'admin-ajax.php' ),            
 	                'wpdbbkp_admin_security_nonce'     => wp_create_nonce('wpdbbkp_ajax_check_nonce'),
 	        ); 
-	        wp_register_script('wpdbbkp-admin-fb', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin-full-backup.js', array(), WPDB_VERSION , true );  
+	        //wp_register_script('wpdbbkp-admin-fb', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin-full-backup.js', array(), WPDB_VERSION , true );  
+			wp_register_script('wpdbbkp-admin-fb', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin-cron-backup.js', array(), WPDB_VERSION , true );  
 
 	        wp_localize_script('wpdbbkp-admin-fb', 'wpdbbkp_localize_admin_data', $local );        
 	        wp_enqueue_script('wpdbbkp-admin-fb');
@@ -2462,6 +2513,31 @@ class Wpdb_Admin {
 
 	        return $this->files;
 	    }
+
+		public function wpdbbkp_get_timeago( $time )
+		{
+			$time_difference = time() - $time;
+
+			if( $time_difference < 1 ) { return 'less than 1 second ago'; }
+			$condition = array( 12 * 30 * 24 * 60 * 60 =>  'year',
+						30 * 24 * 60 * 60       =>  'month',
+						24 * 60 * 60            =>  'day',
+						60 * 60                 =>  'hour',
+						60                      =>  'minute',
+						1                       =>  'second'
+			);
+
+			foreach( $condition as $secs => $str )
+			{
+				$d = $time_difference / $secs;
+
+				if( $d >= 1 )
+				{
+					$t = floor( $d );
+					return 'About ' . $t . ' ' . $str . ( $t > 1 ? 's' : '' ) . ' ago';
+				}
+			}
+		}
 
 	}
 

@@ -13,7 +13,7 @@ $success_png = esc_url(WPDB_PLUGIN_URL) . "/assets/images/success.png";
 $wpdbbkp_bg_notify = get_option('wpdbbkp_dashboard_notify',false);
 if (true === isset($_GET['notification']) && true === isset($_GET['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'wp-database-backup') || $wpdbbkp_bg_notify) { ?>
 
-	<div class="text-center"><img width="50" height="50" src="<?php echo $success_png; ?>">
+	<div class="text-center wpdbbkp_notification"><img width="50" height="50" src="<?php echo $success_png; ?>">
 		<h4 class="text-success"><?php if ('create' === $_GET['notification'] || $wpdbbkp_bg_notify=='create') {
 							$backup_list = get_option('wp_db_backup_backups');
 							$download_backup = end($backup_list);

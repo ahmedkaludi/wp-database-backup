@@ -90,7 +90,6 @@ class Wpdb_Admin {
 	 * Admin init.
 	 */
 	public function wp_db_backup_admin_init() {
-		date_default_timezone_set(wp_timezone_string());
 		//redirect to plugin page on activation
 		if (get_option('wpdbbkp_activation_redirect', false)) {
 			delete_option('wpdbbkp_activation_redirect');
@@ -437,9 +436,11 @@ class Wpdb_Admin {
 	 * Setting page.
 	 */
 	public function wp_db_backup_settings_page() {
+		
 		$options  = get_option( 'wp_db_backup_backups' );
 		$settings = get_option( 'wp_db_backup_options' ); 
-		$wp_db_log = get_option( 'wp_db_log' ); ?>
+		$wp_db_log = get_option( 'wp_db_log' );
+		date_default_timezone_set(wp_timezone_string()); ?>
 		<div class="bootstrap-wrapper">
 		<?php
 		$wp_db_local_backup_path = get_option( 'wp_db_local_backup_path' );
@@ -520,8 +521,10 @@ class Wpdb_Admin {
 							});
 							$j(".popoverid").popover();
 							$j("#create_backup").click(function() {
+								$j(".wpdbbkp_notification").hide();
 								$j("#backup_process").show();
 								$j("#create_backup").attr("disabled", true);
+								
 							});
 						});
 
@@ -602,7 +605,7 @@ class Wpdb_Admin {
 									echo '<td>'.esc_html__('Full Backup', 'wpdbbkp').'</td>';	
 								}
 								if($option['type'] == 'database'){
-									echo '<td>'.esc_html__('Database Backup', 'wpdbbkp').'</td>';	
+									echo '<td>'.esc_html__('Database', 'wpdbbkp').'</td>';	
 								}
 							}else{
 								echo '<td>Database</td>';
@@ -2526,7 +2529,7 @@ class Wpdb_Admin {
 
 				if( $d >= 1 )
 				{
-					$t = round( $d );
+					$t = floor( $d );
 					return 'About ' . $t . ' ' . $str . ( $t > 1 ? 's' : '' ) . ' ago';
 				}
 			}

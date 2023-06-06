@@ -3,6 +3,7 @@ jQuery(document).ready(function($){
 	$(document).on('click', '#wpdbbkp-create-full-backup', function(e){
 		e.preventDefault();
 		$('#wpdb-backup-process').show();
+		$('.wpdbbkp_notification').hide();
 		$(this).attr('disabled', true);
 		$.ajax({
 			type: 'POST',

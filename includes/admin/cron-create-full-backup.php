@@ -730,7 +730,7 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 	        );
 	        update_option('wp_db_backup_backups', $options);
 						
-			$args2 = array($details['filename'], $details['dir'], $logMessage, $details['size'],$Destination,$details['logfile']);
+			$args2 = array($details['filename'], $details['dir'], $logMessage, $filesize,$Destination,$details['logfile']);
 			
 			WPDBBackupLocal::wp_db_backup_completed($args2);
 			WPDBBackupFTP::wp_db_backup_completed($args2);
@@ -754,7 +754,7 @@ function wpdbbkp_backup_completed_notification($args){
 			$to                     = sanitize_email( get_option( 'admin_email' ) );
 			$subject                = 'Full Website Backup (' . get_bloginfo( 'name' ) . ')';
 			$filename               = $args[0];
-			$filesze                = $args[3];
+			$filesize                = $args[3];
 			$site_url               = site_url();
 			$log_message_attachment = '';
 			$message                = '';

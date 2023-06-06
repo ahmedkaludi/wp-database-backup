@@ -34,7 +34,7 @@ $message = '<div bgcolor="#e3e3e3" style="font-family:Arial;color:#707070;font-s
                     <tr style="font-family:Arial;margin:0px;padding:0px">
 					<td style="font-family:Arial;margin:0px;padding:2px 5px;border:1px solid #007bad;text-align:right">1</td>
                     <td style="font-family:Arial;margin:0px;padding:2px 5px;border:1px solid #007bad">' . $filename . '</td>
-                    <td style="font-family:Arial;margin:0px;padding:2px 5px;border:1px solid #007bad">' . WPDBBackupEmail::wp_db_backup_format_bytes( $filesze ) . '</td>
+                    <td style="font-family:Arial;margin:0px;padding:2px 5px;border:1px solid #007bad">' . WPDBBackupEmail::wp_db_backup_format_bytes( $filesize ) . '</td>
 
                 </tr>
 

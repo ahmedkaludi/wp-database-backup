@@ -188,7 +188,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 			while ( $data = fread( $file_handel, $chunk_size ) ) {
 				$chunk_upload_start = microtime( true );
 
-				if ( $this->job_object->is_debug() ) {
+				if ( method_exists($this->job_object,'is_debug') && method_exists($this->job_object,'log') && $this->job_object->is_debug() ) {
 					$this->job_object->log( sprintf( __( 'Uploading %s of data', 'backwpup' ), size_format( strlen( $data ) ) ) );
 				}
 
@@ -228,8 +228,9 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 			}
 
 			fclose( $file_handel );
-
-			$this->job_object->log( sprintf( __( 'Finishing upload session with a total of %s uploaded', 'backwpup' ), size_format( $this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] ) ) );
+			if(method_exists($this->job_object,'log')){
+				$this->job_object->log( sprintf( __( 'Finishing upload session with a total of %s uploaded', 'backwpup' ), size_format( $this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] ) ) );
+			}
 			$response = $this->filesUploadSessionFinish(
 				array(
 					'cursor' => array(
@@ -535,7 +536,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 					break;
 			}
 
-			if ( $this->job_object && $this->job_object->is_debug() && $endpointFormat != 'oauth' ) {
+			if ( $this->job_object && method_exists($this->job_object,'is_debug')&& method_exists($this->job_object,'log') &&$this->job_object->is_debug() && $endpointFormat != 'oauth' ) {
 				$message    = 'Call to ' . $endpoint;
 				$parameters = $args;
 				if ( isset( $parameters['contents'] ) ) {
@@ -655,7 +656,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				} else {
 					$message = '(' . wp_remote_retrieve_response_code( $result ) . ') Invalid response.';
 				}
-				if ( $this->job_object && $this->job_object->is_debug() ) {
+				if ( $this->job_object && method_exists($this->job_object,'log') && method_exists($this->job_object,'is_debug') && $this->job_object->is_debug() ) {
 					$this->job_object->log( 'Response with header: ' . $responce[0] );
 				}
 				// throw new WPDBBackup_Destination_Dropbox_API_Request_Exception($message, $code, null, isset($output['error']) ? $output['error'] : null);

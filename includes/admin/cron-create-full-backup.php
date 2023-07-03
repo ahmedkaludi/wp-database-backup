@@ -14,8 +14,26 @@ add_action( 'init','wp_db_fullbackup_scheduler_activation');
 		  wp_schedule_event( time(), $options['full_autobackup_frequency'], 'wpdbkup_event_fullbackup' );
 		}
 	}
+	
+
 }
 add_action( 'wpdbkup_event_fullbackup', 'wpdbbkp_cron_backup' );
+
+add_action( 'backup_files_cron_new', 'backup_files_cron_with_resume' );
+
+function wp_db_fullbackup_add_cron_schedules($schedules){
+    if(!isset($schedules["five_minutes"])){
+        $schedules["five_minutes"] = array(
+            'interval' => 5*60,
+            'display' => __('Once every 5 minutes'));
+    }
+    return $schedules;
+}
+
+add_filter('cron_schedules','wp_db_fullbackup_add_cron_schedules');
+if ( ! wp_next_scheduled( 'backup_files_cron_new' ) ) {
+    wp_schedule_event( time(), 'five_minutes', 'backup_files_cron_new' );
+}
 
 /*************************************************
  * Create custom enpoint for running cron backup
@@ -27,6 +45,7 @@ function wpdbbkp_cron_backup_api(){
     register_rest_route( 'wpdbbkp/v1', '/cron_backup/(?P<token>[a-zA-Z0-9]+)', array(
         'methods' => 'GET',
         'callback' => 'wpdbbkp_cron_backup',
+		'permission_callback' =>'__return_true',
 		'args' => array(
 		'token' => array(
 			'validate_callback' => function($param, $request, $key) {
@@ -111,13 +130,13 @@ function wpdbbkp_get_progress(){
 
  function wpdbbkp_cron_backup(){
 	// make sure only one backup process is started at oe
-	if(get_transient( 'wpdbbkp_backup_status' )=='active'){
-		wp_die();
-	}
-
-	set_time_limit(0);
-	$progress = 0.00;
-	    set_transient('wpdbbkp_backup_status','active',1800);
+		if(get_transient( 'wpdbbkp_backup_status' )=='active'){
+			wp_die();
+		}
+	    ignore_user_abort(true);
+		set_time_limit(0);
+		$progress = 0.00;
+	    set_transient('wpdbbkp_backup_status','active',600);
 		update_option('wpdbbkp_backupcron_status','active');
 		update_option('wpdbbkp_backupcron_step','Initialization');
 		update_option('wpdbbkp_backupcron_current','Fetching Config');
@@ -139,7 +158,7 @@ function wpdbbkp_get_progress(){
 			update_option('wpdbbkp_backupcron_current',$table);
 			$progress = $progress+$single_item_percent;
 			update_option('wpdbbkp_backupcron_progress',intval($progress));
-			set_transient('wpdbbkp_backup_status','active',1800);
+			set_transient('wpdbbkp_backup_status','active',600);
 			wpdbbkp_cron_create_mysql_backup($common_args);
 			sleep(1);
 		}
@@ -153,26 +172,15 @@ function wpdbbkp_get_progress(){
 
 			update_option('wpdbbkp_backupcron_step','Creating Backup');
 			update_option('wpdbbkp_backupcron_current','Starting File Backup');
-
 			$backup_info=wpdbbkp_cron_get_backup_files($common_args);
 			if(isset($backup_info['status']) && $backup_info['status']=='success' && isset($backup_info['chunk_count']) && $backup_info['chunk_count'] > 0){
 				
 				$total_chunk=$backup_info['chunk_count']+1;
-
 				update_option('wpdbbkp_backupcron_current','0 of '.$total_chunk.' parts done' );
-
-				$common_args['total_chunk_cnt']=$total_chunk;
-				$single_chunk_percent = number_format(((1/$total_chunk)*64),2,".","");
-				for($count = 1; $count <= $total_chunk; $count++){
-					$common_args['chunk_count']=$count;
-					wpdbbkp_cron_files_backup($common_args);
-					update_option('wpdbbkp_backupcron_current',$count.' of '.$total_chunk.' parts done' );
-					$progress = $progress+$single_chunk_percent;
-					update_option('wpdbbkp_backupcron_progress',intval($progress));
-					set_transient('wpdbbkp_backup_status','active',1800);
-					sleep(1);
-				}
-
+				update_option('wpdbbkp_total_chunk_cnt',$total_chunk);
+				update_option('wpdbbkp_current_chunk_cnt',0);
+				update_option('wpdbbkp_current_chunk_args',$common_args);
+				backup_files_cron_with_resume();
 			}
 			else{
 				error_log('No files were found to backup');
@@ -184,8 +192,9 @@ function wpdbbkp_get_progress(){
 			wpdbbkp_cron_execute_file_backup_else($common_args);
 			update_option('wpdbbkp_backupcron_current','File Backup Complete');
 			update_option('wpdbbkp_backupcron_progress',100);
+			wpdbbkp_cron_backup_event_process($method_zip['update_backup_info']);
 		}
-		wpdbbkp_cron_backup_event_process($method_zip['update_backup_info']);
+		
 		}
  }
 
@@ -817,4 +826,54 @@ function wpdbbkp_token_gen($length_of_string = 16)
 {
     $str_result = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
     return substr(str_shuffle($str_result),0, $length_of_string);
+}
+
+function backup_files_cron_with_resume(){
+
+	$trasient_lock = get_transient( 'wpdbbkp_backup_status' );
+	$status_lock = get_option( 'wpdbbkp_backupcron_status','inactive');
+	if($status_lock!='active' || ((!$trasient_lock && $status_lock!='active')|| ($trasient_lock!='active' && $status_lock!='active'))){
+		wp_die();
+	}
+	ignore_user_abort(true);
+	set_time_limit(0);
+	
+	$total_chunk 	= get_option( 'wpdbbkp_total_chunk_cnt',false );
+	$current_chunk  = get_option( 'wpdbbkp_current_chunk_cnt',0 );
+	$current_args 	= get_option( 'wpdbbkp_current_chunk_args',false );
+	$progress 		= get_option('wpdbbkp_backupcron_progress',30);
+	$last_update 	= get_option('wpdbbkp_last_update',false);
+
+	if($last_update)
+	{
+		if($trasient_lock=='active'){
+			$diff = time()-intval($last_update);
+			if($diff<600){
+				wp_die();
+			}
+		}
+	}
+	
+	if(!$total_chunk || !$current_args){
+		wp_die();
+	}
+	$single_chunk_percent = number_format(((1/$total_chunk)*64),2,".","");
+	$current_args['total_chunk_cnt'] = $total_chunk;
+	$chunk_count=$current_chunk+1;
+	for($i=$current_chunk;$i<$total_chunk;$i++){
+		$current_args['chunk_count']=$chunk_count;
+		wpdbbkp_cron_files_backup($current_args);
+		update_option('wpdbbkp_backupcron_current',$chunk_count.' of '.$total_chunk.' parts done' );
+		$progress = $progress+$single_chunk_percent;
+		update_option('wpdbbkp_backupcron_progress',intval($progress));
+		update_option('wpdbbkp_last_update',time());
+		update_option('wpdbbkp_current_chunk_cnt',$chunk_count);
+		update_option('wpdbbkp_current_chunk_args',$current_args);
+		$chunk_count++;
+	}
+	if($chunk_count==($total_chunk+1)){
+		$wpdbbkp_admin_class_obj = new Wpdb_Admin();
+		$wpdbbkp_update_backup_info =$wpdbbkp_admin_class_obj->wpdbbkp_update_backup_info($current_args['FileName'],$current_args['logFile'],'');
+		wpdbbkp_cron_backup_event_process($wpdbbkp_update_backup_info);
+	}
 }

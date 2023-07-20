@@ -222,7 +222,9 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 						}
 					}
 				}
-				$this->job_object->update_working_data();
+				if(property_exists($this->job_object,'update_working_data')){
+					$this->job_object->update_working_data();
+				}
 				// correct position
 				fseek( $file_handel, $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] );
 			}

@@ -60,6 +60,69 @@ class Wpdb_Admin {
 			'dashicons-database-view', 
 			99 
 		);
+
+		add_submenu_page(
+			'wp-database-backup',
+			'Auto Scheduler',
+			'Auto Scheduler',
+			'manage_options',
+			'wp-database-backup#tab_db_schedul',
+			array($this, 'wp_db_backup_settings_page' ));
+
+		add_submenu_page(
+			'wp-database-backup',
+			'Save Backups to',
+			'Save Backups to',
+			'manage_options',
+			'wp-database-backup#tab_db_destination',
+			array($this, 'wp_db_backup_settings_page' ));
+
+		add_submenu_page(
+			'wp-database-backup',
+			'Settings',
+			'Settings',
+			'manage_options',
+			'wp-database-backup#tab_db_setting',
+			array($this, 'wp_db_backup_settings_page' ));
+
+
+
+				add_submenu_page(
+					'wp-database-backup',
+					'Help & Support',
+					'Help & Support',
+					'manage_options',
+					'wp-database-backup#tab_db_help',
+					array($this, 'wp_db_backup_settings_page' ));
+
+		if(!defined('BKPFORWP_VERSION')){
+			add_submenu_page(
+				'wp-database-backup',
+				'Upgrade to Premium',
+				'Upgrade to Premium',
+				'manage_options',
+				'wp-database-backup#tab_db_upgrade',
+				array($this, 'wp_db_backup_settings_page' ));
+		}
+		else{
+			add_submenu_page(
+				'wp-database-backup',
+				'Premium Features',
+				'Premium Features',
+				'manage_options',
+				'wp-database-backup#tab_db_features',
+				array($this, 'wp_db_backup_settings_page' ));
+				add_submenu_page(
+					'wp-database-backup',
+					'Licence',
+					'Licence',
+					'manage_options',
+					'wp-database-backup#tab_db_licence',
+					array($this, 'wp_db_backup_settings_page' ));
+		}
+
+
+
 	}
 
 	/**
@@ -191,13 +254,11 @@ class Wpdb_Admin {
 						}
 					}
 
-					if ( isset( $_POST['email_notification_submit'] ) && 'Save Settings' === $_POST['email_notification_submit'] ) {
-						if ( isset( $_POST['wp_db_backup_destination_Email'] ) ) {
-							update_option( 'wp_db_backup_destination_Email', 1 );
-						} else {
-							update_option( 'wp_db_backup_destination_Email', 0 );
-						}
+					if ( isset( $_POST['wp_db_backup_options'] ) ) {
+						update_option( 'wp_db_backup_options', $_POST['wp_db_backup_options']);
 					}
+					
+					do_action('wpdbbkp_save_pro_options');
 				}
 				$wp_db_backup_destination_email = get_option( 'wp_db_backup_destination_Email' );
 
@@ -285,6 +346,7 @@ class Wpdb_Admin {
 							case 'restorebackup':
 								$index      = (int) $_GET['index'];
 								$options    = get_option( 'wp_db_backup_backups' );
+								$restore_limit = get_option( 'wp_db_restore_limit',);
 								$newoptions = array();
 								$count      = 0;
 								foreach ( $options as $option ) {
@@ -293,6 +355,16 @@ class Wpdb_Admin {
 									}
 									$count++;
 								}
+								if ( isset( $options[ $index ]['restore_limit'] ) && $options[ $index ]['restore_limit']==1) {
+									include_once ABSPATH . 'wp-admin/includes/plugin.php';
+									if ( !is_plugin_active( 'wp-database-backup-pro/wp-database-backup-pro.php' ) ) {
+										wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=restore_limit&_wpnonce=' . $nonce );
+									} 
+								}
+								if(!empty($options[ $index ]['restore_limit'])){
+									$options[ $index ]['restore_limit']=1;
+								}
+
 								if ( isset( $options[ $index ]['sqlfile'] ) ) { // Added for extract zip file V.3.3.0.
 									$database_file = ( $options[ $index ]['sqlfile'] );
 								} else {
@@ -327,6 +399,7 @@ class Wpdb_Admin {
 
 								// End for extract zip file V.3.3.0.
 								set_time_limit( 0 );
+								ignore_user_abort(true);
 								if ( '' !== ( trim( (string) $database_name ) ) && '' !== ( trim( (string) $database_user ) ) && '' !== ( trim( (string) $database_host ) ) ) {
 									$conn = mysqli_connect( (string) $database_host, (string) $database_user, (string) $datadase_password ); // phpcs:ignore
 									if ( $conn ) {
@@ -369,7 +442,8 @@ class Wpdb_Admin {
 												mysqli_query($conn, "SET sql_mode = ''");
 
 												for ( $i = 0; $i < $sql_queries_count; $i++ ) {
-													mysqli_query($conn, $sql_queries[ $i ] ); // phpcs:ignore
+													$sql_query_=apply_filters( 'wpdbbkp_sql_query_restore', $sql_queries[ $i ] );
+													mysqli_query($conn, $sql_query_ ); // phpcs:ignore
 												}
 											}
 										}
@@ -475,18 +549,36 @@ class Wpdb_Admin {
 				<?php
 		}
 		?>
+			
+		<div id="wpdbbkpModal" class="modal">
+			<div class="wpdbbkpmodal-content">
+				<div class="wpdbbkp-modal-header">
+					<span class="wpdbbkp-close">&times;</span>
+					<h2><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>&nbsp;<span id="wpdbbkp-modal-header-title"></span></h2>
+				</div>
+				<div class="wpdbbkp-modal-body">
+					<p  id="wpdbbkp-modal-body-text"></p>
+				</div>
+				<div class="wpdbbkp-modal-footer">
+					<a class="btn btn-danger" onclick="return confirm('Are you sure you want to restore backup?')" id="wpdbbkp-proceed-btn">Continue Anyway</a>&nbsp;<a class="btn btn-default wpdbbkp-close">Close</a>
+				</div>
+			</div>
+		</div>
+
 			<div class="panel panel-default">
 				<div class="panel-heading head-logo">
 					<a href="https://backupforwp.com/" target="blank"><img
 								src="<?php echo esc_attr( WPDB_PLUGIN_URL ); ?>/assets/images/wp-database-backup.png" width="230px"></a>
 				</div>
 				<div class="panel-body">
-					<ul class="nav nav-tabs">
-						<li class="active"><a href="#db_home" data-toggle="tab"><?php echo esc_html__('Database Backups', 'wpdbbkp') ?></a></li>
+					<ul class="nav nav-tabs wbdbbkp_has_nav">
+						<li class="active"><a href="#db_home" data-toggle="tab"><?php echo esc_html__('Backups', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_schedul" data-toggle="tab"><?php echo esc_html__('Auto Scheduler', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_destination" data-toggle="tab"><?php echo esc_html__('Save Backups to', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_setting" data-toggle="tab"><?php echo esc_html__('Settings', 'wpdbbkp') ?></a></li>
 						<li><a href="#searchreplace" data-toggle="tab"><?php echo esc_html__('Search and Replace', 'wpdbbkp') ?></a></li>
+						<li style="display:none"><a href="#db_upgrade" data-toggle="tab"><?php echo esc_html__('Upgrade', 'wpdbbkp') ?></a></li>
+						<?php do_action( 'wpdbbkp_pro_tab_links' ); ?>
 						<li><a href="#db_help" data-toggle="tab"><?php echo esc_html__('Help &amp; Support', 'wpdbbkp') ?></a></li>
 						<li id="db_info_link" title="System Info"><a href="#db_info" data-toggle="tab"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a></li>
 						
@@ -500,13 +592,12 @@ class Wpdb_Admin {
 					$wp_db_backup_search_text  = get_option( 'wp_db_backup_search_text' );
 					$wp_db_backup_replace_text = get_option( 'wp_db_backup_replace_text' );
 					if ( ( false === empty( $wp_db_backup_search_text ) ) && ( false === empty( $wp_db_backup_replace_text ) ) ) {
-						echo '<a href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=createdbbackup&_wpnonce=' . esc_attr( $nonce ) . '" id="create_backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create New Database Backup with Search/Replace</a>';
+						echo '<a href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=createdbbackup&_wpnonce=' . esc_attr( $nonce ) . '" id="create_backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create Database Backup with Search/Replace</a>';
 						echo '<p>Backup file will replace <b>' . esc_attr( $wp_db_backup_search_text ) . '</b> text with <b>' . esc_attr( $wp_db_backup_replace_text ) . '</b>. For Regular Database Backup without replace then Go to Dashboard=>Tool=>WP-DB Backup > Settings > Search and Replace - Set Blank Fields </p>';
 					} else {
-						echo '<a href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=createdbbackup&_wpnonce=' . esc_attr( $nonce ) . '" id="create_backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create New Database Backup</a>';
+						echo '<a href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=createdbbackup&_wpnonce=' . esc_attr( $nonce ) . '" id="create_backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create Database Backup</a>';
 						echo '<a href="#" id="wpdbbkp-create-full-backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create Full Backup</a>';
 					}
-					
 					include_once 'admin-header-notification.php'; ?>
 
 					<?php
@@ -626,7 +717,7 @@ class Wpdb_Admin {
 									}
 									
 								}
-								echo '<a title="Restore Database Backup" onclick="return confirm(\'Are you sure you want to restore database backup?\')" href="' . $restore_url_href . '" class="btn btn-default"><span class="glyphicon glyphicon-refresh" style="color:blue"></span> Restore <a/>';
+								echo '<a title="Restore Database Backup" onclick="wpdbbkp_restore_backup(this);" href="javascript:void(0);"  data-msg="Are you sure you want to restore database backup? It will overwrite all data /files with the respective backup and all recent changes would be lost. Are you sure you want to continue?"  data-title="Restore Backup" data-href="'.$restore_url_href.'" class="btn btn-default"><span class="glyphicon glyphicon-refresh" style="color:blue"></span> Restore <a/>';
 							}
 							echo '</td></tr>';
 							$count++;
@@ -645,11 +736,8 @@ class Wpdb_Admin {
 
 					echo '<div class="tab-pane" id="db_schedul">';
 					echo '<div class="panel-group">';
-					echo '<form method="post" action="options.php" name="wp_auto_commenter_form">';
+					echo '<form method="post" action="" name="wp_auto_commenter_form">';
 					wp_nonce_field( 'wp-database-backup' );
-					settings_fields( 'wp_db_backup_options' );
-					do_settings_sections( 'wp-database-backup' );
-
 					$enable_autobackups = '0';
 					if ( isset( $settings['enable_autobackups'] ) ) {
 						$enable_autobackups = $settings['enable_autobackups'];
@@ -664,11 +752,12 @@ class Wpdb_Admin {
 						$full_autobackup_frequency = $settings['full_autobackup_frequency'];
 					}
 
-					echo '<div class="row form-group"><label class="col-sm-2" for="enable_autobackups">Enable Auto Backups</label>';
-					echo '<div class="col-sm-2"><input type="checkbox" id="enable_autobackups" name="wp_db_backup_options[enable_autobackups]" value="1" ' . checked( 1, $enable_autobackups, false ) . '/></div>';
+					echo '<div class="row form-group"><label class="col-sm-3" for="enable_autobackups">Enable Auto Backups</label>';
+					echo '<div class="col-sm-9"><input type="checkbox" id="enable_autobackups" name="wp_db_backup_options[enable_autobackups]" value="1" ' . checked( 1, $enable_autobackups, false ) . '/>';
+					echo '<p>an class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>AutoBackups will be based on Wordpress Cron so it can have execution delay of +/- 30 mins . If you have disabled Wordpress Cron then autobackup will not work until you have set Server Cron for wordpress. </p></div>';
 					echo '</div>';
-					echo '<div class="row form-group"><label class="col-sm-2" for="wp_db_backup_options">Auto Database Backup Frequency</label>';
-					echo '<div class="col-sm-2"><select id="wp_db_backup_options" class="form-control" name="wp_db_backup_options[autobackup_frequency]">';
+					echo '<div class="row form-group"><label class="col-sm-3" for="autobackup_days">Auto Database Backup Frequency</label>';
+					echo '<div class="col-sm-9"><select id="autobackup_frequency" class="form-control" name="wp_db_backup_options[autobackup_frequency]">';
 					echo '<option value="hourly" ' . selected( 'hourly', $autobackup_frequency, false ) . '>Hourly</option>';
 					echo '<option value="twicedaily" ' . selected( 'twicedaily', $autobackup_frequency, false ) . '>Twice Daily</option>';
 					echo '<option value="daily" ' . selected( 'daily', $autobackup_frequency, false ) . '>Daily</option>';
@@ -676,16 +765,16 @@ class Wpdb_Admin {
 					echo '<option value="monthly" ' . selected( 'monthly', $autobackup_frequency, false ) . '>Monthly</option>';
 					echo '</select>';
 					echo '</div></div>';
-
-					echo '<div class="row form-group"><label class="col-sm-2" for="wp_db_backup_options">Auto Full Backup Frequency</label>';
-					echo '<div class="col-sm-2"><select id="wp_db_backup_options" class="form-control" name="wp_db_backup_options[full_autobackup_frequency]">';
+					do_action('wpdbbkp_database_backup_options');
+					echo '<div class="row form-group"><label class="col-sm-3" for="full_autobackup_frequency">Auto Full Backup Frequency</label>';
+					echo '<div class="col-sm-9"><select id="full_autobackup_frequency" class="form-control" name="wp_db_backup_options[full_autobackup_frequency]">';
 					echo '<option value="disabled" ' . selected( 'disabled', $full_autobackup_frequency, false ) . '>Disabled</option>';
 					echo '<option value="daily" ' . selected( 'daily', $full_autobackup_frequency, false ) . '>Daily</option>';
 					echo '<option value="weekly" ' . selected( 'weekly', $full_autobackup_frequency, false ) . '>Weekly</option>';
 					echo '<option value="monthly" ' . selected( 'monthly', $full_autobackup_frequency, false ) . '>Monthly</option>';
 					echo '</select>';
 					echo '</div></div>';
-
+					do_action('wpdbbkp_full_backup_options');
 					echo '<p class="submit">';
 					echo '<input type="submit" name="Submit" class="btn btn-primary" value="Save Settings" />';
 					echo '</p>';
@@ -693,9 +782,162 @@ class Wpdb_Admin {
 					echo '</div>';
 					echo '</div>';
 
-					echo '<div class="tab-pane" id="db_help">';
+					do_action('wpdbbkp_pro_tab_content');
 				
 					?>
+
+			<div class="tab-pane" id="db_upgrade">
+						<div class="panel-group ">
+						        <div class="gn-flex-container row">
+						          <div class=" col-md-12">
+									<div class="wpdbbkp-wrapper">
+            <div class="wpdbbkp-wr">
+                <div class="bkp-wpdbbkp-img">
+                    <span class="sp_ov"></span>
+                </div>
+                <div class="bkp-wpdbbkp-cnt">
+                    <h1><?php esc_html_e('UPGRADE to PRO Version','wpdbbkp');?></h1>
+                    <a class="buy" href="https://backupforwp.com/pricing/#pricings" target="_blank">Purchase Now</a>
+                </div>
+                <div class="pvf">
+                    <div class="pvf-cnt">
+                        <div class="pvf-tlt">
+                            <h2><?php esc_html_e('Compare Pro vs. Free Version','wpdbbkp');?></h2>
+                            <span><?php esc_html_e('See what you\'ll get with the professional version','wpdbbkp');?></span>
+                        </div>
+                        <div class="pvf-cmp">
+                            <div class="fr">
+                                <h1><?php esc_html_e('FREE','wpdbbkp');?></h1>
+                                <div class="fr-fe">
+                                    <div class="fe-1">
+                                        <h4><?php esc_html_e('Continious Development','wpdbbkp');?></h4>
+                                        <p><?php esc_html_e('We take bug reports and feature requests seriously. We\'re continiously developing &amp; improve this product for last 2 years with passion and love.','wpdbbkp');?></p>
+                                    </div>
+                                    <div class="fe-1">
+                                        <h4><?php esc_html_e('10+ Features','wpdbbkp');?></h4>
+                                        <p><?php esc_html_e('We\'re constantly expanding the plugin and make it more useful. We have wide variety of features which will fit any use-case.','wpdbbkp');?></p>
+                                    </div>
+                                </div><!-- /. fr-fe -->
+                            </div><!-- /. fr -->
+                            <div class="pr">
+                                <h1>PRO</h1>
+                                <div class="pr-fe">
+                                    <span><?php esc_html_e('Everything in Free, and:','wpdbbkp');?></span>
+                                    <div class="fet">
+                                        <div class="fe-2">
+                                            <div class="fe-t">
+                                                <img src="<?php echo WPDB_PLUGIN_URL;?>/assets/images/right-tick.png" alt="right-tick">
+                                                <h4><?php esc_html_e('Anonymization Function','wpdbbkp');?></h4>
+                                            </div>
+                                            <p><?php esc_html_e('Anonymization you critical data during backup with three methods','wpdbbkp');?> </p>
+                                        </div>
+                                        <div class="fe-2">
+                                            <div class="fe-t">
+                                                <img src="<?php echo WPDB_PLUGIN_URL;?>/assets/images/right-tick.png" alt="right-tick">
+                                                <h4><?php esc_html_e('Pre-update backups','wpdbbkp');?></h4>
+                                            </div>
+                                            <p> <?php esc_html_e('Automatically backs up your website before any updates to plugins, themes and WordPress core.','wpdbbkp');?></p>
+                                        </div>
+
+                                        <div class="fe-2">
+                                            <div class="fe-t">
+                                                <img src="<?php echo WPDB_PLUGIN_URL;?>/assets/images/right-tick.png" alt="right-tick">
+                                                <h4><?php esc_html_e('Backup time and scheduling','wpdbbkp'); ?></h4>
+                                            </div>
+                                            <p><?php esc_html_e('Set exact times to create or delete backups.','wpdbbkp');?></p>
+                                        </div>
+
+
+                                        <div class="fe-2">
+                                            <div class="fe-t">
+                                                <img src="<?php echo WPDB_PLUGIN_URL;?>/assets/images/right-tick.png" alt="right-tick">
+                                                <h4><?php esc_html_e('Fast, personal support','wpdbbkp'); ?></h4>
+                                            </div>
+                                            <p><?php esc_html_e('Provides expert help and support from the developers whenever you need it.','wpdbbkp'); ?></p>
+                                        </div>
+                                        <div class="fe-2">
+                                            <div class="fe-t">
+                                                <img src="<?php echo WPDB_PLUGIN_URL;?>/assets/images/right-tick.png" alt="right-tick">
+                                                <h4><?php esc_html_e('Continuous Updates','wpdbbkp'); ?></h4>
+                                            </div>
+                                            <p><?php esc_html_e('We\'re continuously updating our premium features and releasing them.','wpdbbkp'); ?></p>
+                                        </div>
+                                        <div class="fe-2">
+                                            <div class="fe-t">
+                                                <img src="<?php echo WPDB_PLUGIN_URL;?>/assets/images/right-tick.png" alt="right-tick">
+                                                <h4><?php esc_html_e('Documentation','wpdbbkp'); ?></h4>
+                                            </div>
+                                            <p><?php esc_html_e('We create tutorials for every possible feature and keep it updated for you.','wpdbbkp'); ?></p>
+                                        </div>
+                                    </div><!-- /. fet -->
+                                    <div class="pr-btn">
+                                        <a href="https://backupforwp.com/pricing/#pricings" target="_blank"><?php esc_html_e('Upgrade to Pro','wpdbbkp'); ?></a>
+                                    </div><!-- /. pr-btn -->
+                                </div><!-- /. pr-fe -->
+                            </div><!-- /.pr -->
+                        </div><!-- /. pvf-cmp -->
+                    </div><!-- /. pvf-cnt -->
+            
+                    <div class="wpdbbkpfaq">
+                        <h2><?php esc_html_e('Frequently Asked Questions','wpdbbkp'); ?></h2>
+                        <div class="faq-lst">
+                            <div class="lt">
+                                <ul>
+                                    <li>
+                                        <span><?php esc_html_e('Is there a setup fee?','wpdbbkp'); ?></span>
+                                        <p><?php esc_html_e('No. There are no setup fees on any of our plans','wpdbbkp'); ?></p>
+                                    </li>
+                                    <li>
+                                        <span><?php esc_html_e('What\'s the time span for your contracts?','wpdbbkp'); ?></span>
+                                        <p><?php esc_html_e('All the plans are year-to-year which are subscribed annually except for lifetime plan.','wpdbbkp'); ?></p>
+                                    </li>
+                                    <li>
+                                        <span><?php esc_html_e('What payment methods are accepted?','wpdbbkp'); ?></span>
+                                        <p><?php esc_html_e('We accepts PayPal and Credit Card payments.','wpdbbkp'); ?></p>
+                                    </li>
+                                    <li>
+                                        <span><?php esc_html_e('Do you offer support if I need help?','wpdbbkp'); ?></span>
+                                        <p><?php esc_html_e('Yes! Top-notch customer support for our paid customers is key for a quality product, so we\'ll do our very best to resolve any issues you encounter via our support page.','wpdbbkp'); ?></p>
+                                    </li>
+                                    <li>
+                                        <span><?php esc_html_e('Can I use the plugins after my subscription is expired?','wpdbbkp'); ?></span>
+                                        <p><?php esc_html_e('Yes, you can use the plugins, but you will not get future updates for those plugins.','wpdbbkp'); ?></p>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="rt">
+                                <ul>
+                                    <li>
+                                        <span><?php esc_html_e('Can I cancel my membership at any time?','wpdbbkp'); ?></span>
+                                        <p><?php esc_html_e('Yes. You can cancel your membership by contacting us.','wpdbbkp'); ?></p>
+                                    </li>
+                                    <li>
+                                        <span><?php esc_html_e('Can I change my plan later on?','wpdbbkp'); ?></span>
+                                        <p><?php esc_html_e('Yes. You can upgrade your plan by contacting us.','wpdbbkp'); ?></p>
+                                    </li>
+                                    <li>
+                                        <span><?php esc_html_e('Do you offer refunds?','wpdbbkp'); ?></span>
+                                        <p><?php esc_html_e('You are fully protected by our 100% Money-Back Guarantee Unconditional. If during the next 14 days you experience an issue that makes the plugin unusable, and we are unable to resolve it, we\'ll happily offer a full refund.','wpdbbkp'); ?></p>
+                                    </li>
+                                    <li>
+                                        <span><?php esc_html_e('Do I get updates for the premium plugin?','wpdbbkp'); ?></span>
+                                        <p><?php esc_html_e('Yes, you will get updates for all the premium plugins until your subscription is active.','wpdbbkp'); ?></p>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div><!-- /.faq-lst -->
+                    </div><!-- /.faq -->
+                </div><!-- /. pvf -->
+            </div>
+        </div>
+					
+						            </div>
+						          </div>
+						        </div>
+						</div>
+			
+
+				<div class="tab-pane" id="db_help">
 						<div class="panel-group ">
 						        <div class="gn-flex-container row">
 						          <div class="wpdbbkp-left-side col-md-8">
@@ -1406,7 +1648,7 @@ class Wpdb_Admin {
 		$output              = '';
 		foreach ( $tables as $table ) {
 			if ( empty( $wp_db_exclude_table ) || ( ! ( in_array( $table, $wp_db_exclude_table, true ) ) ) ) {
-				$result       = $wpdb->get_results( "SELECT * FROM {$table}", ARRAY_N ); // phpcs:ignore
+				$result       = $wpdb->get_results( "SELECT * FROM {$table}", ARRAY_A  ); // phpcs:ignore
 				$row2         = $wpdb->get_row( 'SHOW CREATE TABLE ' . $table, ARRAY_N ); // phpcs:ignore
 				$output      .= "\n\n" . $row2[1] . ";\n\n";
 				$result_count = count( $result );
@@ -1414,12 +1656,14 @@ class Wpdb_Admin {
 					$row            = $result[ $i ];
 					$output        .= 'INSERT INTO ' . $table . ' VALUES(';
 					$result_o_index = count( $result[0] );
-					for ( $j = 0; $j < $result_o_index; $j++ ) {
-						$row[ $j ] = $wpdb->_real_escape( $row[ $j ] );
-						$output   .= ( isset( $row[ $j ] ) ) ? '"' . $row[ $j ] . '"' : '""';
+					$j=0;
+					foreach ($row as $key => $value) {
+						$row[ $key] = $wpdb->_real_escape( apply_filters( 'wpdbbkp_process_db_fields', $row[$key],$table,$key) );
+						$output   .= ( isset( $row[ $key ] ) ) ? '"' . $row[ $key ] . '"' : '""';
 						if ( $j < ( $result_o_index - 1 ) ) {
 							$output .= ',';
 						}
+						$j++;
 					}
 					$output .= ");\n";
 				}
@@ -1479,8 +1723,8 @@ class Wpdb_Admin {
 			'/opt/local/lib/mysql6/bin/mysqldump',
 			'/opt/local/lib/mysql5/bin/mysqldump',
 			'/opt/local/lib/mysql4/bin/mysqldump',
-			'/xampp/mysql/bin/mysqldump',
-			'/Program Files/xampp/mysql/bin/mysqldump',
+			'/xwpdbbkpp/mysql/bin/mysqldump',
+			'/Program Files/xwpdbbkpp/mysql/bin/mysqldump',
 			'/Program Files/MySQL/MySQL Server 6.0/bin/mysqldump',
 			'/Program Files/MySQL/MySQL Server 5.5/bin/mysqldump',
 			'/Program Files/MySQL/MySQL Server 5.4/bin/mysqldump',
@@ -1888,7 +2132,14 @@ class Wpdb_Admin {
 	 */
 	public function wp_db_backup_event_process() {
 		// Added in v.3.9.5!
+
+		$cron_condition = apply_filters('wpdbbkp_dbback_cron_condition',true );
+		if(wp_doing_cron() && !$cron_condition){
+			wp_die();
+		}
+
 		set_time_limit( 0 );
+		ignore_user_abort(true);
 
 		$details = $this->wp_db_backup_create_archive();
 		$options = get_option( 'wp_db_backup_backups' );
@@ -1981,7 +2232,8 @@ class Wpdb_Admin {
 	public function wp_db_backup_scheduler_activation() {
 		$options = get_option( 'wp_db_backup_options' );
 		if ( ( ! wp_next_scheduled( 'wp_db_backup_event' ) ) && ( true === isset( $options['enable_autobackups'] ) ) ) {
-			wp_schedule_event( time(), $options['autobackup_frequency'], 'wp_db_backup_event' );
+			$cron_freq = apply_filters( 'wpdbbkp_dbback_cron_frequency',$options['autobackup_frequency']);
+			wp_schedule_event( time(), $cron_freq, 'wp_db_backup_event' );
 		}
 	}
 

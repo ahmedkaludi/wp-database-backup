@@ -11,7 +11,13 @@ add_action( 'init','wp_db_fullbackup_scheduler_activation');
 	$options = get_option( 'wp_db_backup_options' );
 	if ( ( ! wp_next_scheduled( 'wpdbkup_event_fullbackup' ) ) && ( true === isset( $options['enable_autobackups'] ) ) ) {
 		if(isset($options['full_autobackup_frequency']) && $options['full_autobackup_frequency'] != 'disabled'){
-		  wp_schedule_event( time(), $options['full_autobackup_frequency'], 'wpdbkup_event_fullbackup' );
+			if(isset($options['autobackup_full_time']) && !empty($options['autobackup_full_time'])){
+				wp_schedule_event( time(), 'thirty_minutes', 'wpdbkup_event_fullbackup' );
+			}
+			else{
+				wp_schedule_event( time(), $options['full_autobackup_frequency'], 'wpdbkup_event_fullbackup' );
+			}
+		  
 		}
 	}
 	
@@ -22,17 +28,22 @@ add_action( 'wpdbkup_event_fullbackup', 'wpdbbkp_cron_backup' );
 add_action( 'backup_files_cron_new', 'backup_files_cron_with_resume' );
 
 function wp_db_fullbackup_add_cron_schedules($schedules){
-    if(!isset($schedules["five_minutes"])){
-        $schedules["five_minutes"] = array(
-            'interval' => 5*60,
-            'display' => __('Once every 5 minutes'));
+    if(!isset($schedules["ten_minutes"])){
+        $schedules["ten_minutes"] = array(
+            'interval' => 10*60,
+            'display' => __('Once every 10 minutes'));
+    }
+	if(!isset($schedules["thirty_minutes"])){
+        $schedules["thirty_minutes"] = array(
+            'interval' => 30*60,
+            'display' => __('Once every 30 minutes'));
     }
     return $schedules;
 }
 
 add_filter('cron_schedules','wp_db_fullbackup_add_cron_schedules');
 if ( ! wp_next_scheduled( 'backup_files_cron_new' ) ) {
-    wp_schedule_event( time(), 'five_minutes', 'backup_files_cron_new' );
+    wp_schedule_event( time(), 'ten_minutes', 'backup_files_cron_new' );
 }
 
 /*************************************************
@@ -129,7 +140,14 @@ function wpdbbkp_get_progress(){
  *****************************************/
 
  function wpdbbkp_cron_backup(){
-	// make sure only one backup process is started at oe
+		// make sure only one backup process is started
+
+		$cron_condition = apply_filters('wpdbbkp_fullback_cron_condition',true);
+
+		if(!$cron_condition){
+			wp_die();
+		}
+
 		if(get_transient( 'wpdbbkp_backup_status' )=='active'){
 			wp_die();
 		}
@@ -153,6 +171,10 @@ function wpdbbkp_get_progress(){
 		$tables= wpdbbkp_cron_mysqldump($config);
 		$count_tables = count($tables['tables']);
 		$single_item_percent = number_format(((1/$count_tables)*30),2,".","");
+		$options_backup  = get_option( 'wp_db_backup_backups' );
+		$settings_backup = get_option( 'wp_db_backup_options' );
+		delete_option( 'wp_db_backup_backups' );
+		delete_option( 'wp_db_backup_options' );
 		foreach($tables['tables'] as $table){
 			$common_args['tableName']= $table;
 			update_option('wpdbbkp_backupcron_current',$table);
@@ -163,6 +185,8 @@ function wpdbbkp_get_progress(){
 			sleep(1);
 		}
 
+		update_option('wp_db_backup_backups',$options_backup);
+		update_option('wp_db_backup_options',$settings_backup);
 		update_option('wpdbbkp_backupcron_current','DB Backed Up');
 
 		$method_zip = wpdbbkp_cron_method_zip($common_args);
@@ -271,15 +295,15 @@ if(!function_exists('wpdbbkp_cron_mysqldump')){
 		            /* Begin : Generate SQL DUMP using cmd 06-03-2016 */
 		            $mySqlDump = 0;
 
-		            if ($wpdbbkp_admin_class_obj->get_mysqldump_command_path()) {
-		                if (!$wpdbbkp_admin_class_obj->mysqldump($path_info['basedir'] . '/db-backup/' . $filename)) {
-		                    $mySqlDump = 1;
-		                } else {
-		                    $logMessage = "\n# Database dump method: mysqldump";
-		                }
-		            } else {
-		                $mySqlDump = 1;
-		            }
+		            // if ($wpdbbkp_admin_class_obj->get_mysqldump_command_path()) {
+		            //     if (!$wpdbbkp_admin_class_obj->mysqldump($path_info['basedir'] . '/db-backup/' . $filename)) {
+		            //         $mySqlDump = 1;
+		            //     } else {
+		            //         $logMessage = "\n# Database dump method: mysqldump";
+		            //     }
+		            // } else {
+		            //     $mySqlDump = 1;
+		            // }
 		            $mySqlDump = 1;
 		            if ($mySqlDump == 1) {
 		            	 global $wpdb;
@@ -328,27 +352,31 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 		            $logMessage .= "\n#--------------------------------------------------------\n";
 		        }
 		        /* END : Prevent saving backup plugin settings in the database dump */
-		        $tables = $wpdb->get_col('SHOW TABLES');
 		        $output = '';
 		        if (empty($wp_db_exclude_table) || (!(in_array($table, $wp_db_exclude_table)))) {
 		            $logMessage .= "\n $table";
-		            $result = $wpdb->get_results("SELECT * FROM {$table}", ARRAY_N);
+		            $result = $wpdb->get_results("SELECT * FROM {$table}", ARRAY_A);
 		            $row2 = $wpdb->get_row('SHOW CREATE TABLE ' . $table, ARRAY_N);
 		            $output .= "\n\n" . $row2[1] . ";\n\n";
 		            $logMessage .= "(" . count($result) . ")";
 					$result_count=count($result);
-		            for ($i = 0; $i < $result_count; $i++) {
-		                $row = $result[$i];
-		                $output .= 'INSERT INTO ' . $table . ' VALUES(';
-		                for ($j = 0; $j < count($result[0]); $j++) {
-		                    $row[$j] = $wpdb->_real_escape($row[$j]);
-		                    $output .= (isset($row[$j])) ? '"' . $row[$j] . '"' : '""';
-		                    if ($j < (count($result[0]) - 1)) {
-		                        $output .= ',';
-		                    }
-		                }
-		                $output .= ");\n";
-		            }
+
+					for ( $i = 0; $i < $result_count; $i++ ) {
+						$row            = $result[ $i ];
+						$output        .= 'INSERT INTO ' . $table . ' VALUES(';
+						$result_o_index = count( $result[0] );
+						$j=0;
+						foreach ($row as $key => $value) {
+							$row[ $key] = $wpdb->_real_escape( apply_filters( 'wpdbbkp_process_db_fields', $row[$key],$table,$key) );
+							$output   .= ( isset( $row[ $key ] ) ) ? '"' . $row[ $key ] . '"' : '""';
+							if ( $j < ( $result_o_index - 1 ) ) {
+								$output .= ',';
+							}
+							$j++;
+	
+						}
+						$output .= ");\n";
+					}
 		            $output .= "\n";
 		        }
 		        $wpdb->flush();

@@ -95,6 +95,7 @@ class Wpbp_Restore {
                 ini_set("max_input_time",     "5000");
                 ini_set('memory_limit', '1000M');
                 set_time_limit(0);
+                ignore_user_abort(true);
 
                 if ( '' !== ( trim( (string) $database_name ) ) && '' !== ( trim( (string) $database_user ) ) && '' !== ( trim( (string) $database_host ) ) ) {
                         $conn = mysqli_connect( (string) $database_host, (string) $database_user, (string) $datadase_password ); // phpcs:ignore
@@ -139,7 +140,8 @@ class Wpbp_Restore {
                                                 mysqli_query($conn, "SET sql_mode = ''");
 
                                                 for ( $i = 0; $i < $sql_queries_count; $i++ ) {
-                                                        mysqli_query($conn, $sql_queries[ $i ] ); // phpcs:ignore
+                                                        $sql_query_=apply_filters( 'wpdbbkp_sql_query_restore', $sql_queries[ $i ] );
+                                                        mysqli_query($conn, $sql_query_ ); // phpcs:ignore
                                                 }
                                         }
                                 }

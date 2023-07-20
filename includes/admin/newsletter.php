@@ -26,6 +26,9 @@ class wpdbbkp_ads_newsletter {
                 if ( !wp_verify_nonce( $_POST['wpdbbkp_security_nonce'], 'wpdbbkp_ajax_check_nonce' ) ){
                    return;  
                 }
+                if( ! current_user_can( 'manage_options' ) ) { 
+                   return;
+                }
                                 
 	        $name    = sanitize_text_field($_POST['name']);
                 $email   = sanitize_email($_POST['email']);

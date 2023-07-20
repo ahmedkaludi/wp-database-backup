@@ -23,7 +23,9 @@ if (true === isset($_GET['notification']) && true === isset($_GET['_wpnonce']) &
 							esc_attr_e('Backup Created Successfully. ', 'wpdbbkp');
 						} elseif ('restore' === $_GET['notification']) {
 							esc_attr_e('Backup Restore Successfully', 'wpdbbkp');
-						} elseif ('delete' === $_GET['notification']) {
+						} elseif ('restore_limit' === $_GET['notification']) {
+							esc_attr_e('Restore Limit for Backup reached. Please update to PRO to remove this limit', 'wpdbbkp');
+						}elseif ('delete' === $_GET['notification']) {
 							esc_attr_e('Backup deleted Successfully', 'wpdbbkp');
 						} elseif ('clear_temp_db_backup_file' === $_GET['notification']) {
 							esc_attr_e('Clear all old/temp database backup files Successfully', 'wpdbbkp');

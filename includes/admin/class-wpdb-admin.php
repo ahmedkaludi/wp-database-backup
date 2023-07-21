@@ -754,9 +754,10 @@ class Wpdb_Admin {
 
 					echo '<div class="row form-group"><label class="col-sm-3" for="enable_autobackups">Enable Auto Backups</label>';
 					echo '<div class="col-sm-9"><input type="checkbox" id="enable_autobackups" name="wp_db_backup_options[enable_autobackups]" value="1" ' . checked( 1, $enable_autobackups, false ) . '/>';
-					echo '<p>an class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>AutoBackups will be based on Wordpress Cron so it can have execution delay of +/- 30 mins . If you have disabled Wordpress Cron then autobackup will not work until you have set Server Cron for wordpress. </p></div>';
+					echo '<div class="alert alert-default" role="alert"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> AutoBackups will be based on Wordpress Cron so it can have execution delay of +/- 30 mins . If you have disabled Wordpress Cron then autobackup will not work until you have set Server Cron for wordpress.</div>';
 					echo '</div>';
-					echo '<div class="row form-group"><label class="col-sm-3" for="autobackup_days">Auto Database Backup Frequency</label>';
+					echo '</div>';
+					echo '<div class="row form-group autobackup_frequency" style="display:none"><label class="col-sm-3" for="autobackup_frequency">Auto Database Backup Frequency</label>';
 					echo '<div class="col-sm-9"><select id="autobackup_frequency" class="form-control" name="wp_db_backup_options[autobackup_frequency]">';
 					echo '<option value="hourly" ' . selected( 'hourly', $autobackup_frequency, false ) . '>Hourly</option>';
 					echo '<option value="twicedaily" ' . selected( 'twicedaily', $autobackup_frequency, false ) . '>Twice Daily</option>';
@@ -766,7 +767,7 @@ class Wpdb_Admin {
 					echo '</select>';
 					echo '</div></div>';
 					do_action('wpdbbkp_database_backup_options');
-					echo '<div class="row form-group"><label class="col-sm-3" for="full_autobackup_frequency">Auto Full Backup Frequency</label>';
+					echo '<div class="row form-group full_autobackup_frequency" style="display:none"><label class="col-sm-3" for="full_autobackup_frequency">Auto Full Backup Frequency</label>';
 					echo '<div class="col-sm-9"><select id="full_autobackup_frequency" class="form-control" name="wp_db_backup_options[full_autobackup_frequency]">';
 					echo '<option value="disabled" ' . selected( 'disabled', $full_autobackup_frequency, false ) . '>Disabled</option>';
 					echo '<option value="daily" ' . selected( 'daily', $full_autobackup_frequency, false ) . '>Daily</option>';

@@ -127,3 +127,26 @@ wpdbbkp_modal.style.display = "block";
 
 
 }
+
+function wpdbbkp_schduler_switch(){
+	var db_backups =document.getElementById('enable_autobackups');
+  if(db_backups){
+		if(db_backups.checked){
+            document.querySelector('.autobackup_frequency').style.display="block";
+            document.querySelector('.full_autobackup_frequency').style.display="block";
+		}
+		else{
+            document.querySelector('.autobackup_frequency').style.display="none";
+            document.querySelector('.full_autobackup_frequency').style.display="none";
+         
+		}
+	}
+
+}
+
+jQuery('#enable_autobackups').change(function(){
+    console.log('hhh');
+    wpdbbkp_schduler_switch();
+});
+
+wpdbbkp_schduler_switch();

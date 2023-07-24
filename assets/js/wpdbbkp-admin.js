@@ -132,21 +132,100 @@ function wpdbbkp_schduler_switch(){
 	var db_backups =document.getElementById('enable_autobackups');
   if(db_backups){
 		if(db_backups.checked){
-            document.querySelector('.autobackup_frequency').style.display="block";
-            document.querySelector('.full_autobackup_frequency').style.display="block";
-		}
-		else{
-            document.querySelector('.autobackup_frequency').style.display="none";
-            document.querySelector('.full_autobackup_frequency').style.display="none";
-         
+            document.querySelector('.autobackup_type').style.display="block";
+        }else{
+            document.querySelector('.autobackup_type').style.display="none";
+            jQuery('.autobackup_frequency_pro').hide();
+            jQuery('.autobackup_frequency_lite').hide();
+            jQuery('.autobackup_frequency').hide();
+            jQuery('.database_autobackup').hide();
 		}
 	}
-
 }
-
 jQuery('#enable_autobackups').change(function(){
-    console.log('hhh');
     wpdbbkp_schduler_switch();
 });
 
+function wpdbbkp_autobackup_type_switch(){
+	var db_backups =document.getElementById('autobackup_type');
+  if(db_backups.value){
+        document.querySelector('.autobackup_frequency').style.display="block";
+        document.querySelector('.autobackup_daily_lite').style.display="block";
+       
+	}else{
+        document.querySelector('.autobackup_frequency').style.display="none";
+        document.querySelector('.autobackup_daily_lite').style.display="none";
+        if( document.querySelector('.autobackup_frequency_lite').length){
+            document.querySelector('.autobackup_frequency_lite').style.display="none";
+        }
+        if( document.querySelector('.autobackup_frequency_pro').length){
+            document.querySelector('.autobackup_frequency_pro').style.display="none";
+        }
+    }
+}
+jQuery('#autobackup_type').change(function(){
+    wpdbbkp_autobackup_type_switch();
+    autobackup_frequency_info();
+});
+
+
+function wpdbbkp_autobackup_frequency_switch(){
+	var db_backups =document.getElementById('autobackup_type');
+  if(db_backups.value){
+        document.querySelector('.autobackup_frequency').style.display="block";
+	}else{
+        document.querySelector('.autobackup_frequency').style.display="none";
+    }
+}
+
+
+jQuery('#autobackup_frequency').change(function(){
+    autobackup_frequency_info();
+});
+
+function autobackup_frequency_info(){
+    var autobackup_frequency = jQuery('#autobackup_frequency').val();
+    if(jQuery('.autobackup_time').length==0){
+        if(autobackup_frequency=='daily'){
+            jQuery('.autobackup_frequency_lite').hide();
+            jQuery('.autobackup_daily_lite').parent().show();
+        }else if(autobackup_frequency=='weekly'){
+            jQuery('.autobackup_frequency_lite').hide();
+            jQuery('.autobackup_weekly_lite').parent().show();
+        } else if(autobackup_frequency=='monthly'){
+            jQuery('.autobackup_frequency_lite').hide();
+            jQuery('.autobackup_monthly_lite').parent().show();
+        }else{
+            jQuery('.autobackup_frequency_lite').hide();
+        }
+    
+    }
+}
+
+function modify_backup_frequency(){
+    if(jQuery('.autobackup_time').length==0){
+            var wpdbbkp_span = document.getElementsByClassName("wpdbbkp-close");
+            let data_title = 'Upgrade to unlock this feature';
+            let data_href = 'https://backupforwp/pricing';
+            let data_href_txt = 'Upgrade to Pro';
+            let data_msg = 'Upgragde to Pro version and unlock many features including Data anonimization , timed backup , prority support';
+            for(var i=0;i<wpdbbkp_span.length;i++){
+                wpdbbkp_span[i].onclick = function() {
+                    wpdbbkp_modal.style.display = "none";
+                  }
+            }
+            jQuery('#wpdbbkp-modal-header-title').text(data_title);
+            jQuery('#wpdbbkp-modal-body-text').text(data_msg);
+            jQuery('#wpdbbkp-proceed-btn').prop('href',data_href);
+            jQuery('#wpdbbkp-proceed-btn').prop('onclick',"");
+            jQuery('#wpdbbkp-proceed-btn').text(data_href_txt);
+            wpdbbkp_modal.style.display = "block";
+    }
+    else{
+        modify_backup_frequency_pro();
+    }
+}
+
 wpdbbkp_schduler_switch();
+wpdbbkp_autobackup_type_switch();
+

@@ -163,11 +163,17 @@ function wpdbbkp_get_progress(){
 
 		$config= wpdbbkp_wp_cron_config_path();
 		$common_args=$config;
-		
+		$options = get_option( 'wp_db_backup_options' );
+		if(isset($options['autobackup_type']) && $options['autobackup_type']=="files")
+		{
+			$progress= $progress+29;
+			update_option('wpdbbkp_backupcron_progress',intval($progress));
+
+		}
+		else{
 		update_option('wpdbbkp_backupcron_step','Fetching Tables');
 		$progress = $progress+4;
 		update_option('wpdbbkp_backupcron_progress',intval($progress));
-
 		$tables= wpdbbkp_cron_mysqldump($config);
 		$count_tables = count($tables['tables']);
 		$single_item_percent = number_format(((1/$count_tables)*30),2,".","");
@@ -184,10 +190,12 @@ function wpdbbkp_get_progress(){
 			wpdbbkp_cron_create_mysql_backup($common_args);
 			sleep(1);
 		}
+	
 
 		update_option('wp_db_backup_backups',$options_backup);
 		update_option('wp_db_backup_options',$settings_backup);
 		update_option('wpdbbkp_backupcron_current','DB Backed Up');
+	}
 
 		$method_zip = wpdbbkp_cron_method_zip($common_args);
 		if(isset($method_zip['status']) && $method_zip['status']=='success'){

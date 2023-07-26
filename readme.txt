@@ -42,6 +42,15 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 <li>Documentation</li>
 </ul>
 
+= Upgrade to PRO =
+<ul>
+<li>With <a target="_blank" href="https://backupforwp.com/pricing/#price">Backup For WP PRO</a> You will get access to more professional Settings, options .</li>
+<li>*New - Data Anonymization </li>
+<li>*New - Backup time and scheduling  </li>
+<li>*New - Fast, personal support </li>
+
+</ul>
+
 = Support =
 * <a target="_blank" href="https://backupforwp.com/support">https://backupforwp.com/support</a>
 
@@ -61,7 +70,11 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 
 == Changelog ==
 
-= 6.4 =
+= 6.5 =
+* 26-07-2023
+* Fixed: Dropbox says "Not Configured" but its connected and authenticated. #51
+* Added: Data anonymous on the clone website for the GDPR integration. #20
+
 * 03-07-2023
 * Fixed: The backup progress bar gets stuck while creating the backup #53
 * Fixed: A Fatal error appears after clicking on "Create New Database backup" #52

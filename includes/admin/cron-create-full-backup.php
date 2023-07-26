@@ -122,7 +122,7 @@ function wpdbbkp_start_cron_manual(){
 add_action('wp_ajax_wpdbbkp_get_progress', 'wpdbbkp_get_progress');
 function wpdbbkp_get_progress(){
 	$wpdbbkp_progress=['status'=>'fail','msg'=>'Unable to track progress, try reloading the page'];
-	if(isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce')){
+	if(isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce') && current_user_can( 'manage_options' )){
 		$wpdbbkp_progress['backupcron_status']=get_option('wpdbbkp_backupcron_status',false);
 		$wpdbbkp_progress['backupcron_step']=get_option('wpdbbkp_backupcron_step',false);
 		$wpdbbkp_progress['backupcron_current']=get_option('wpdbbkp_backupcron_current',false);

@@ -2443,7 +2443,12 @@ class Wpdb_Admin {
 			}
 			if ( !wp_verify_nonce( $_POST['wpdbbkp_security_nonce'], 'wpdbbkp-admin-nonce' ) ){
 			   return;  
-			}   
+			}
+
+			if( ! current_user_can( 'manage_options' ) ) { 
+				return;
+			 }
+			   
 			$message        = $this->wpdbbkp_sanitize_textarea_field($_POST['message']); 
 			$email          = $this->wpdbbkp_sanitize_textarea_field($_POST['email']);   
 									

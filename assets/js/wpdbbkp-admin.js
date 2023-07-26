@@ -206,7 +206,7 @@ function modify_backup_frequency(){
     if(jQuery('.autobackup_time').length==0){
             var wpdbbkp_span = document.getElementsByClassName("wpdbbkp-close");
             let data_title = 'Upgrade to unlock this feature';
-            let data_href = 'https://backupforwp/pricing';
+            let data_href = 'https://backupforwp.com/pricing#price';
             let data_href_txt = 'Upgrade to Pro';
             let data_msg = 'Upgragde to Pro version and unlock many features including Data anonimization , timed backup , prority support';
             for(var i=0;i<wpdbbkp_span.length;i++){

@@ -107,8 +107,8 @@ class Wpdb_Admin {
 		else{
 			add_submenu_page(
 				'wp-database-backup',
-				'Premium Features',
-				'Premium Features',
+				'Modules',
+				'Modules',
 				'manage_options',
 				'wp-database-backup#tab_db_features',
 				array($this, 'wp_db_backup_settings_page' ));

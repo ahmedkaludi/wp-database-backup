@@ -73,6 +73,9 @@ function wpdbbkp_send_feedback() {
     return;  
     } 
 
+    if( ! current_user_can( 'manage_options' ) ) { 
+        return;
+     }
 
     if( isset( $_POST['data'] ) ) {
         parse_str( $_POST['data'], $form );

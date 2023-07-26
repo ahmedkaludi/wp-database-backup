@@ -1,12 +1,11 @@
 === WP Database Backup - Unlimited Database & Files Backup by Backup for WP ===
-Contributors: walkeprashant, databasebackup 
-Donate link:https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=387BZU5UNQ4LA
+Contributors: walkeprashant, databasebackup
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: Database backup, db backup, backup, database, WordPress Database Backup, WP db backup, wp database backup, wp backup, wordpress backup, mysql backup, automatically database backup, website backup, website database backup, restore database backup, Store database backup on dropbox, backup on google drive, backup on amazon s3,ftp, file, file backup,  files backup, backup file, WP file backup,email notification.
 Requires at least: 3.1+
 Tested up to: 6.2
-Stable tag: 6.4
+Stable tag: 6.5
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -43,6 +42,15 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 <li>Documentation</li>
 </ul>
 
+= Upgrade to PRO =
+<ul>
+<li>With <a target="_blank" href="https://backupforwp.com/pricing/#price">Backup For WP PRO</a> You will get access to more professional Settings, options .</li>
+<li>*New - Data Anonymization </li>
+<li>*New - Backup time and scheduling  </li>
+<li>*New - Fast, personal support </li>
+
+</ul>
+
 = Support =
 * <a target="_blank" href="https://backupforwp.com/support">https://backupforwp.com/support</a>
 
@@ -61,6 +69,11 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 4. screenshot-4.png
 
 == Changelog ==
+
+= 6.5 =
+* 26-07-2023
+* Fixed: Dropbox says "Not Configured" but its connected and authenticated. #51
+* Added: Data anonymous on the clone website for the GDPR integration. #20
 
 = 6.4 =
 * 03-07-2023

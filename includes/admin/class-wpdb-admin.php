@@ -664,7 +664,8 @@ class Wpdb_Admin {
 							$str_class = ( 0 === (int) $option['size'] ) ? 'text-danger' : 'wpdb_download';
 							echo '<tr class="' . ( ( 0 === ( $count % 2 ) ) ? esc_attr( $str_class ) . ' alternate' : esc_attr( $str_class ) ) . '">';
 							echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
-							$curr_date = new DateTime(date( 'Y-m-d H:i:s', $option['date'] ), new DateTimeZone(wp_timezone_string()));
+							$curr_date = new DateTime(date( 'Y-m-d H:i:s', $option['date'] ));
+							$curr_date->setTimezone(new DateTimeZone(wp_timezone_string()));
 							echo '<td><span style="display:none">' . esc_attr( $curr_date->format('Y-m-d H:i:s') ) . '</span><span title="'.esc_attr( $curr_date->format('jS, F Y h:i:s A') ) .'">' .$this->wpdbbkp_get_timeago($option['date']).'</span>';
 							echo '</td>';
 							if($wp_db_log==1){

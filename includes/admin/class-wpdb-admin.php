@@ -1671,7 +1671,7 @@ class Wpdb_Admin {
 						if($sub_result){
 							$result = array_merge($result,$sub_result);
 						}
-						
+						sleep(1);
 					}
 				}
 				else{
@@ -1699,6 +1699,7 @@ class Wpdb_Admin {
 				}
 				$output .= "\n";
 			}
+			sleep(1);
 		}
 		$wpdb->flush();
 		/* BEGIN : Prevent saving backup plugin settings in the database dump */

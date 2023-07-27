@@ -375,7 +375,7 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 							if($sub_result){
 								$result = array_merge($result,$sub_result);
 							}
-							
+							sleep(1);
 						}
 					}
 					else{
@@ -923,6 +923,7 @@ function backup_files_cron_with_resume(){
 		update_option('wpdbbkp_current_chunk_cnt',$chunk_count);
 		update_option('wpdbbkp_current_chunk_args',$current_args);
 		$chunk_count++;
+		sleep(1);
 	}
 	if($chunk_count==($total_chunk+1)){
 		$wpdbbkp_admin_class_obj = new Wpdb_Admin();

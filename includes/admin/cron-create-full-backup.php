@@ -363,7 +363,24 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 		        $output = '';
 		        if (empty($wp_db_exclude_table) || (!(in_array($table, $wp_db_exclude_table)))) {
 		            $logMessage .= "\n $table";
-		            $result = $wpdb->get_results("SELECT * FROM {$table}", ARRAY_A);
+					$check_count      = $wpdb->get_results( "SELECT count(*) as t_count FROM {$table}", ARRAY_A  ); // phpcs:ignore
+					$sub_limit =500;
+					if(isset($check_count['t_count']) && $check_count['t_count']>$sub_limit){
+						$result =array();
+						$t_sub_queries= ceil($check_count['t_count']/$sub_limit);
+						for($sub_i=0;$sub_i<$t_sub_queries;$sub_i++)
+						{
+							$sub_offset = $sub_i*$sub_limit;
+							$sub_result = $wpdb->get_results( "SELECT * FROM {$table} LIMIT {$sub_limit} OFFSET {$sub_offset}", ARRAY_A  ); 
+							if($sub_result){
+								$result = array_merge($result,$sub_result);
+							}
+							
+						}
+					}
+					else{
+						$result       = $wpdb->get_results( "SELECT * FROM {$table}", ARRAY_A  ); // phpcs:ignore
+					}
 		            $row2 = $wpdb->get_row('SHOW CREATE TABLE ' . $table, ARRAY_N);
 		            $output .= "\n\n" . $row2[1] . ";\n\n";
 		            $logMessage .= "(" . count($result) . ")";

@@ -513,8 +513,7 @@ class Wpdb_Admin {
 		
 		$options  = get_option( 'wp_db_backup_backups' );
 		$settings = get_option( 'wp_db_backup_options' ); 
-		$wp_db_log = get_option( 'wp_db_log' );
-		date_default_timezone_set(wp_timezone_string()); ?>
+		$wp_db_log = get_option( 'wp_db_log' ); ?>
 		<div class="bootstrap-wrapper">
 		<?php
 		$wp_db_local_backup_path = get_option( 'wp_db_local_backup_path' );
@@ -665,7 +664,8 @@ class Wpdb_Admin {
 							$str_class = ( 0 === (int) $option['size'] ) ? 'text-danger' : 'wpdb_download';
 							echo '<tr class="' . ( ( 0 === ( $count % 2 ) ) ? esc_attr( $str_class ) . ' alternate' : esc_attr( $str_class ) ) . '">';
 							echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
-							echo '<td><span style="display:none">' . esc_attr( date( 'Y-m-d H:i:s', $option['date'] ) ) . '</span><span title="'.esc_attr( date( 'jS, F Y h:i:s A', $option['date'] ) ) .'">' .$this->wpdbbkp_get_timeago($option['date']).'</span>';
+							$curr_date = new DateTime(date( 'Y-m-d H:i:s', $option['date'] ), new DateTimeZone(wp_timezone_string()));
+							echo '<td><span style="display:none">' . esc_attr( $curr_date->format('Y-m-d H:i:s') ) . '</span><span title="'.esc_attr( $curr_date->format('jS, F Y h:i:s A') ) .'">' .$this->wpdbbkp_get_timeago($option['date']).'</span>';
 							echo '</td>';
 							if($wp_db_log==1){
 								echo '<td class="wpdb_log" align="center">';
@@ -2824,6 +2824,12 @@ class Wpdb_Admin {
 				}
 			}
 		}
+	// function wp_db_process_timezone(){
+	// 	$timezone = wp_timezone_string();
+	// 	$timezone_fix=array(
+	// 		'UTC-12'=>
+	// 	)
+	// }
 
 	}
 

@@ -346,7 +346,7 @@ class Wpdb_Admin {
 							case 'restorebackup':
 								$index      = (int) $_GET['index'];
 								$options    = get_option( 'wp_db_backup_backups' );
-								$restore_limit = get_option( 'wp_db_restore_limit',);
+								$restore_limit = get_option( 'wp_db_restore_limit');
 								$newoptions = array();
 								$count      = 0;
 								foreach ( $options as $option ) {

@@ -155,10 +155,10 @@ function wpdbbkp_autobackup_type_switch(){
 	}else{
         document.querySelector('.autobackup_frequency').style.display="none";
         document.querySelector('.autobackup_daily_lite').style.display="none";
-        if( document.querySelector('.autobackup_frequency_lite').length){
+        if( document.querySelector('.autobackup_frequency_lite') && document.querySelector('.autobackup_frequency_lite').length){
             document.querySelector('.autobackup_frequency_lite').style.display="none";
         }
-        if( document.querySelector('.autobackup_frequency_pro').length){
+        if( document.querySelector('.autobackup_frequency_pro') && document.querySelector('.autobackup_frequency_pro').length){
             document.querySelector('.autobackup_frequency_pro').style.display="none";
         }
     }

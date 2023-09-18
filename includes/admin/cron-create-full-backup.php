@@ -102,7 +102,13 @@ function wpdbbkp_start_cron_manual(){
 	$wpdbbkp_cron_manual=['status'=>'success','msg'=>'Cron Started'];
 	$token=wpdbbkp_token_gen();
 	update_option('wpdbbkp_api_token',$token);
-	  $response = wp_remote_get(site_url('/wp-json/wpdbbkp/v1/cron_backup/'.$token),
+	$permalink_structure = get_option('permalink_structure','');
+	if(empty( $permalink_structure )){
+		$rest_route = '?rest_route=/wp-json/wpdbbkp/v1/cron_backup/';
+	}else{
+		$rest_route = '/wp-json/wpdbbkp/v1/cron_backup/';
+	}
+	  $response = wp_remote_get(site_url($rest_route.$token),
 			array(
 				'timeout'     => 3,
 				'httpversion' => '1.1',

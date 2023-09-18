@@ -1012,7 +1012,7 @@ class Wpdb_Admin {
 									$du = $dt - $df;
 									/* percentage of disk used - this will be used to also set the width % of the progress bar */
 									$dp = sprintf( '%.2f', ( $du / $dt ) * 100 );
-
+									$dp = isset( $dp )? $dp : 'NA';
 									/* and we formate the size from bytes to MB, GB, etc. */
 									$df = $this->wp_db_backup_format_bytes( $df );
 									$du = $this->wp_db_backup_format_bytes( $du );

@@ -1711,6 +1711,61 @@ class Wpdb_Admin {
 		return $output;
 	}
 
+		/**
+	 * Create database backup new function.
+	 */
+	public function wp_db_backup_create_mysql_backup_new($table) {
+		global $wpdb;
+		$output              = '';
+
+		$check_count      = $wpdb->get_var( "SELECT count(*) FROM {$table}"); // phpcs:ignore
+		$check_count = intval($check_count);
+		$sub_limit =500;
+		if(isset($check_count) && $check_count>$sub_limit){
+			$result =array();
+			$t_sub_queries= ceil($check_count/$sub_limit);
+			for($sub_i=0;$sub_i<$t_sub_queries;$sub_i++)
+			{
+				$sub_offset = $sub_i*$sub_limit;
+				$sub_result = $wpdb->get_results( "SELECT * FROM {$table} LIMIT {$sub_limit} OFFSET {$sub_offset}", ARRAY_A  ); 
+				if($sub_result){
+					$result = array_merge($result,$sub_result);
+				}
+				sleep(1);
+			}
+		}
+		else{
+			$result       = $wpdb->get_results( "SELECT * FROM {$table}", ARRAY_A  ); // phpcs:ignore
+		}
+			
+
+			$row2         = $wpdb->get_row( 'SHOW CREATE TABLE ' . $table, ARRAY_N ); // phpcs:ignore
+			$output      .= "\n\n" . $row2[1] . ";\n\n";
+			$result_count = count( $result );
+			for ( $i = 0; $i < $result_count; $i++ ) {
+				$row            = $result[ $i ];
+				$output        .= 'INSERT INTO ' . $table . ' VALUES(';
+				$result_o_index = count( $result[0] );
+				$j=0;
+				foreach ($row as $key => $value) {
+					$row[ $key] = $wpdb->_real_escape( apply_filters( 'wpdbbkp_process_db_fields', $row[$key],$table,$key) );
+					$output   .= ( isset( $row[ $key ] ) ) ? '"' . $row[ $key ] . '"' : '""';
+					if ( $j < ( $result_o_index - 1 ) ) {
+						$output .= ',';
+					}
+					$j++;
+				}
+				$output .= ");\n";
+			}
+			$output .= "\n";
+
+		sleep(1);
+			
+		$wpdb->flush();
+		
+		return $output;
+	}
+
 	/**
 	 * Mysql Dump set path.
 	 *
@@ -2040,10 +2095,30 @@ class Wpdb_Admin {
 		} else {
 			$my_sql_dump = 1;
 		}
+
 		if ( 1 === (int) $my_sql_dump ) {
-			$handle = fopen( $path_info['basedir'] . '/db-backup/' . $sql_filename, 'w+' ); // phpcs:ignore
-			fwrite( $handle, $this->wp_db_backup_create_mysql_backup() ); // phpcs:ignore
-			fclose( $handle ); // phpcs:ignore
+			/* BEGIN : Prevent saving backup plugin settings in the database dump */
+			$options_backup  = get_option( 'wp_db_backup_backups' );
+			$settings_backup = get_option( 'wp_db_backup_options' );
+			delete_option( 'wp_db_backup_backups' );
+			delete_option( 'wp_db_backup_options' );
+			/* END : Prevent saving backup plugin settings in the database dump */
+			global $wpdb;
+			$tables              = $wpdb->get_col( 'SHOW TABLES' );
+			$wp_db_exclude_table = get_option( 'wp_db_exclude_table',array());
+
+			foreach($tables as $table){
+				if ( empty( $wp_db_exclude_table ) || ( ! ( in_array( $table, $wp_db_exclude_table, true ) ) ) ) {
+					$handle = fopen( $path_info['basedir'] . '/db-backup/' . $sql_filename, 'a' ); // phpcs:ignore
+					fwrite( $handle, $this->wp_db_backup_create_mysql_backup_new($table) ); // phpcs:ignore
+					fclose( $handle ); // phpcs:ignore
+					
+				}
+			}
+			/* BEGIN : Prevent saving backup plugin settings in the database dump */
+			add_option( 'wp_db_backup_backups', $options_backup );
+			add_option( 'wp_db_backup_options', $settings_backup );
+			/* END : Prevent saving backup plugin settings in the database dump */
 		}
 		/* End : Generate SQL DUMP using cmd 06-03-2016 */
 

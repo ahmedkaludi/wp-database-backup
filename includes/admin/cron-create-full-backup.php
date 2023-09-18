@@ -345,14 +345,9 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 				$path_info = wp_upload_dir();
 
 				$wpdbbkp_admin_class_obj = new Wpdb_Admin();
-				$handle = fopen($path_info['basedir'] . '/db-backup/' . $filename, 'a+');
+				
 
 				global $wpdb;
-		        /* BEGIN : Prevent saving backup plugin settings in the database dump */
-		        $options_backup = get_option('wp_db_backup_backups');
-		        $settings_backup = get_option('wp_all_backup_options');
-		        delete_option('wp_all_backup_options');
-		        delete_option('wp_db_backup_backups');
 		        $wp_db_exclude_table = array();
 		        $wp_db_exclude_table = get_option('wp_db_exclude_table');
 		        $logMessage = "\n#--------------------------------------------------------\n";
@@ -362,7 +357,7 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 		            $logMessage.= 'Exclude Table : ' . implode(', ', $wp_db_exclude_table);
 		            $logMessage .= "\n#--------------------------------------------------------\n";
 		        }
-		        /* END : Prevent saving backup plugin settings in the database dump */
+	
 		        $output = '';
 		        if (empty($wp_db_exclude_table) || (!(in_array($table, $wp_db_exclude_table)))) {
 		            $logMessage .= "\n $table";
@@ -410,16 +405,13 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 		        }
 		        $wpdb->flush();
 		        $logMessage .= "\n#--------------------------------------------------------\n";
-		        /* BEGIN : Prevent saving backup plugin settings in the database dump */
-		        add_option('wp_db_backup_backups', $options_backup);
-		        add_option('wp_all_backup_options', $settings_backup);
-		        /* END : Prevent saving backup plugin settings in the database dump */
 		        if (get_option('wp_db_log') == 1) {
 		            wpdbbkp_write_log($logFile, $logMessage);
 		            $upload_path['logfile'] = $logFile;
 		        } else {
 		            $upload_path['logfile'] = "";
 		        }
+				$handle = fopen($path_info['basedir'] . '/db-backup/' . $filename, 'a');
 		        fwrite($handle, $output);
 				fclose($handle);
 

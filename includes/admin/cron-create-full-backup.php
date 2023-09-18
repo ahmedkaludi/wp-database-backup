@@ -935,3 +935,21 @@ function backup_files_cron_with_resume(){
 		wpdbbkp_cron_backup_event_process($wpdbbkp_update_backup_info);
 	}
 }
+
+/************************************************
+ * Adding ajax call to stop manual cron backup
+ ************************************************/
+
+ add_action('wp_ajax_wpdbbkp_stop_cron_manual', 'wpdbbkp_stop_cron_manual');
+
+ function wpdbbkp_stop_cron_manual(){
+	 $wpdbbkp_cron_manual=['status'=>'fail','msg'=>'Invalid Action'];
+	 if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce')){
+		update_option('wpdbbkp_backupcron_status','inactive',false);
+		update_option('wpdbbkp_backup_status','inactive',false);
+	 }
+	 $wpdbbkp_cron_manual=['status'=>'success','msg'=>'Cron Stopped'];
+	 echo json_encode($wpdbbkp_cron_manual);
+	 wp_die();
+	
+ }

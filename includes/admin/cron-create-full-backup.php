@@ -102,13 +102,9 @@ function wpdbbkp_start_cron_manual(){
 	$wpdbbkp_cron_manual=['status'=>'success','msg'=>'Cron Started'];
 	$token=wpdbbkp_token_gen();
 	update_option('wpdbbkp_api_token',$token);
-	$permalink_structure = get_option('permalink_structure','');
-	if(empty( $permalink_structure )){
-		$rest_route = '?rest_route=/wp-json/wpdbbkp/v1/cron_backup/';
-	}else{
-		$rest_route = '/wp-json/wpdbbkp/v1/cron_backup/';
-	}
-	  $response = wp_remote_get(site_url($rest_route.$token),
+	$rest_route = get_rest_url(null,'wpdbbkp/v1/cron_backup/'.$token);
+	
+	  $response = wp_remote_get(esc_url($rest_route),
 			array(
 				'timeout'     => 3,
 				'httpversion' => '1.1',
@@ -116,6 +112,7 @@ function wpdbbkp_start_cron_manual(){
 		);
 	}
 	$wpdbbkp_cron_manual['response']=$response;
+	$wpdbbkp_cron_manual['url']=$rest_route;
 	echo json_encode($wpdbbkp_cron_manual);
 	wp_die();
 

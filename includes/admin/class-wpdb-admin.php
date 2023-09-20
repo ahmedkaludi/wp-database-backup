@@ -767,9 +767,9 @@ class Wpdb_Admin {
 					echo '<div class="row form-group autobackup_type" style="display:none"><label class="col-sm-3" for="autobackup_frequency">Which part should we backup for you ?</label>';
 					echo '<div class="col-sm-9"><select id="autobackup_type" class="form-control" name="wp_db_backup_options[autobackup_type]">';
 					echo '<option value="">Select Backup Type</option>';
-					echo '<option value="full" ' . selected( 'full', $autobackup_frequency, false ) . '>Full(Files + DB)</option>';
-					echo '<option value="files" ' . selected( 'files', $autobackup_frequency, false ) . '>Files Only</option>';
-					echo '<option value="db" ' . selected( 'db', $autobackup_frequency, false ) . '>Database Only</option>';
+					echo '<option value="full" ' . selected( 'full', $autobackup_type, false ) . '>Full(Files + DB)</option>';
+					echo '<option value="files" ' . selected( 'files', $autobackup_type, false ) . '>Files Only</option>';
+					echo '<option value="db" ' . selected( 'db', $autobackup_type, false ) . '>Database Only</option>';
 					echo '</select>';
 					echo '</div></div>';
 

@@ -1747,6 +1747,7 @@ class Wpdb_Admin {
 				$output        .= 'INSERT INTO ' . $table . ' VALUES(';
 				$result_o_index = count( $result[0] );
 				$j=0;
+				if(!empty($row)){
 				foreach ($row as $key => $value) {
 					$row[ $key] = $wpdb->_real_escape( apply_filters( 'wpdbbkp_process_db_fields', $row[$key],$table,$key) );
 					$output   .= ( isset( $row[ $key ] ) ) ? '"' . $row[ $key ] . '"' : '""';
@@ -1755,6 +1756,7 @@ class Wpdb_Admin {
 					}
 					$j++;
 				}
+			}
 				$output .= ");\n";
 			}
 			$output .= "\n";
@@ -2106,7 +2108,7 @@ class Wpdb_Admin {
 			global $wpdb;
 			$tables              = $wpdb->get_col( 'SHOW TABLES' );
 			$wp_db_exclude_table = get_option( 'wp_db_exclude_table',array());
-
+			if(!empty($tables)){
 			foreach($tables as $table){
 				if ( empty( $wp_db_exclude_table ) || ( ! ( in_array( $table, $wp_db_exclude_table, true ) ) ) ) {
 					$handle = fopen( $path_info['basedir'] . '/db-backup/' . $sql_filename, 'a' ); // phpcs:ignore
@@ -2115,6 +2117,7 @@ class Wpdb_Admin {
 					
 				}
 			}
+		 }
 			/* BEGIN : Prevent saving backup plugin settings in the database dump */
 			add_option( 'wp_db_backup_backups', $options_backup );
 			add_option( 'wp_db_backup_options', $settings_backup );

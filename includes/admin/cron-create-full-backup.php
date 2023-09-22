@@ -941,7 +941,7 @@ function backup_files_cron_with_resume(){
 		update_option('wpdbbkp_backup_status','inactive',false);
 	 }
 	 $wpdbbkp_cron_manual=['status'=>'success','msg'=>'Cron Stopped'];
-	 echo json_encode($wpdbbkp_cron_manual);
+	 echo wp_json_encode($wpdbbkp_cron_manual);
 	 wp_die();
 	
  }

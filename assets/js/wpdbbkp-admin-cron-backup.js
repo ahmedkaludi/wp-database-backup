@@ -13,6 +13,7 @@ jQuery(document).ready(function($){
 				response = JSON.parse(response);
 				if(response.status=='success'){
 				 setTimeout(wpdbbkp_show_progress, 3000);
+				 $('#wpdbbkp-stop-full-backup').show();
 				}else {
 					jQuery('#wpdbbkup_process_stats').text('Unable to start Backup, Please refresh the page');
 				}	
@@ -20,6 +21,28 @@ jQuery(document).ready(function($){
 		});
 			
 	});
+
+	$(document).on('click', '#wpdbbkp-stop-full-backup', function(e){
+		e.preventDefault();
+		$('.wpdbbkp_notification').hide();
+		$('#wpdbbkup_process_stats').text('Cancelling Backup, Please Wait');
+		$(this).attr('disabled', true);
+		$.ajax({
+			type: 'POST',
+			url: wpdbbkp_localize_admin_data.ajax_url,
+			data: {action: 'wpdbbkp_stop_cron_manual', wpdbbkp_admin_security_nonce:wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce},
+			success: function(response){
+				response = JSON.parse(response);
+				if(response.status=='success'){
+					window.location.reload();
+				}else {
+					jQuery('#wpdbbkup_process_stats').text('Refresh the page and try again');
+				}	
+			}
+		});
+			
+	});
+
 	$.ajax({
 			type: 'POST',
 			url: wpdbbkp_localize_admin_data.ajax_url,
@@ -30,8 +53,10 @@ jQuery(document).ready(function($){
 					$('#wpdbbkp-create-full-backup').attr('disabled', true);
 					$('#wpdb-backup-process').show();
 					setTimeout(wpdbbkp_show_progress, 3000);
+					$('#wpdbbkp-stop-full-backup').show();
 				}else {
 					$('#wpdbbkp-create-full-backup').attr('disabled', false);
+					$('#wpdbbkp-stop-full-backup').hide();
 				}	
 			}
 		});	

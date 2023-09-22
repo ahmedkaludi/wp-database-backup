@@ -346,7 +346,7 @@ class Wpdb_Admin {
 							case 'restorebackup':
 								$index      = (int) $_GET['index'];
 								$options    = get_option( 'wp_db_backup_backups' );
-								$restore_limit = get_option( 'wp_db_restore_limit',);
+								$restore_limit = get_option( 'wp_db_restore_limit');
 								$newoptions = array();
 								$count      = 0;
 								foreach ( $options as $option ) {
@@ -513,8 +513,7 @@ class Wpdb_Admin {
 		
 		$options  = get_option( 'wp_db_backup_backups' );
 		$settings = get_option( 'wp_db_backup_options' ); 
-		$wp_db_log = get_option( 'wp_db_log' );
-		date_default_timezone_set(wp_timezone_string()); ?>
+		$wp_db_log = get_option( 'wp_db_log' ); ?>
 		<div class="bootstrap-wrapper">
 		<?php
 		$wp_db_local_backup_path = get_option( 'wp_db_local_backup_path' );
@@ -592,11 +591,12 @@ class Wpdb_Admin {
 					$wp_db_backup_search_text  = get_option( 'wp_db_backup_search_text' );
 					$wp_db_backup_replace_text = get_option( 'wp_db_backup_replace_text' );
 					if ( ( false === empty( $wp_db_backup_search_text ) ) && ( false === empty( $wp_db_backup_replace_text ) ) ) {
-						echo '<a href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=createdbbackup&_wpnonce=' . esc_attr( $nonce ) . '" id="create_backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create Database Backup with Search/Replace</a>';
-						echo '<p>Backup file will replace <b>' . esc_attr( $wp_db_backup_search_text ) . '</b> text with <b>' . esc_attr( $wp_db_backup_replace_text ) . '</b>. For Regular Database Backup without replace then Go to Dashboard=>Tool=>WP-DB Backup > Settings > Search and Replace - Set Blank Fields </p>';
+						echo '<a href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=createdbbackup&_wpnonce=' . esc_attr( $nonce ) . '" id="create_backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> '.esc_html__('Create Database Backup with Search/Replace', 'wpdbbkp').'</a>';
+						echo '<p>Backup file will replace <b>' . esc_attr( $wp_db_backup_search_text ) . '</b> text with <b>' . esc_attr( $wp_db_backup_replace_text ) . '</b>. For Regular Database Backup without replace then Go to Dashboard=>Tool=>WP-DB Backup > Settings > '.esc_html__('Search and Replace - Set Blank Fields', 'wpdbbkp').' </p>';
 					} else {
-						echo '<a href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=createdbbackup&_wpnonce=' . esc_attr( $nonce ) . '" id="create_backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create Database Backup</a>';
-						echo '<a href="#" id="wpdbbkp-create-full-backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> Create Full Backup</a>';
+						echo '<a href="' . esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=createdbbackup&_wpnonce=' . esc_attr( $nonce ) . '" id="create_backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> '.esc_html__('Create Database Backup', 'wpdbbkp').'</a>';
+						echo '<a href="#" id="wpdbbkp-create-full-backup" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> '.esc_html__('Create Full Backup', 'wpdbbkp').'</a>';
+						echo '<a href="#" id="wpdbbkp-stop-full-backup" class="btn btn-danger wpdbbkp-cancel-btn" style="display:none;margin-bottom: 20px;margin-left: 10px;" > <span class="glyphicon glyphicon-ban"></span> '.esc_html__('Stop Backup Process', 'wpdbbkp').'</a>';
 					}
 					include_once 'admin-header-notification.php'; ?>
 
@@ -665,7 +665,9 @@ class Wpdb_Admin {
 							$str_class = ( 0 === (int) $option['size'] ) ? 'text-danger' : 'wpdb_download';
 							echo '<tr class="' . ( ( 0 === ( $count % 2 ) ) ? esc_attr( $str_class ) . ' alternate' : esc_attr( $str_class ) ) . '">';
 							echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
-							echo '<td><span style="display:none">' . esc_attr( date( 'Y-m-d H:i:s', $option['date'] ) ) . '</span><span title="'.esc_attr( date( 'jS, F Y h:i:s A', $option['date'] ) ) .'">' .$this->wpdbbkp_get_timeago($option['date']).'</span>';
+							$curr_date = new DateTime(date( 'Y-m-d H:i:s', $option['date'] ));
+							$curr_date->setTimezone(new DateTimeZone(wp_timezone_string()));
+							echo '<td><span style="display:none">' . esc_attr( $curr_date->format('Y-m-d H:i:s') ) . '</span><span title="'.esc_attr( $curr_date->format('jS, F Y h:i:s A') ) .'">' .$this->wpdbbkp_get_timeago($option['date']).'</span>';
 							echo '</td>';
 							if($wp_db_log==1){
 								echo '<td class="wpdb_log" align="center">';
@@ -765,9 +767,9 @@ class Wpdb_Admin {
 					echo '<div class="row form-group autobackup_type" style="display:none"><label class="col-sm-3" for="autobackup_frequency">Which part should we backup for you ?</label>';
 					echo '<div class="col-sm-9"><select id="autobackup_type" class="form-control" name="wp_db_backup_options[autobackup_type]">';
 					echo '<option value="">Select Backup Type</option>';
-					echo '<option value="full" ' . selected( 'full', $autobackup_frequency, false ) . '>Full(Files + DB)</option>';
-					echo '<option value="files" ' . selected( 'files', $autobackup_frequency, false ) . '>Files Only</option>';
-					echo '<option value="db" ' . selected( 'db', $autobackup_frequency, false ) . '>Database Only</option>';
+					echo '<option value="full" ' . selected( 'full', $autobackup_type, false ) . '>Full(Files + DB)</option>';
+					echo '<option value="files" ' . selected( 'files', $autobackup_type, false ) . '>Files Only</option>';
+					echo '<option value="db" ' . selected( 'db', $autobackup_type, false ) . '>Database Only</option>';
 					echo '</select>';
 					echo '</div></div>';
 
@@ -1011,13 +1013,13 @@ class Wpdb_Admin {
 									$du = $dt - $df;
 									/* percentage of disk used - this will be used to also set the width % of the progress bar */
 									$dp = sprintf( '%.2f', ( $du / $dt ) * 100 );
-
+									$dp = isset( $dp )? $dp : 'NA';
 									/* and we formate the size from bytes to MB, GB, etc. */
 									$df = $this->wp_db_backup_format_bytes( $df );
 									$du = $this->wp_db_backup_format_bytes( $du );
 									$dt = $this->wp_db_backup_format_bytes( $dt );
 									}
-									$du=$df=$dt='NA';
+									$du=$dp=$df=$dt='NA';
 									?>
 									<div class="col-md-1"><a href="" target="_blank" title="Help"><span
 												class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
@@ -1156,7 +1158,7 @@ class Wpdb_Admin {
 									<div
 										class="col-md-5"> <?php echo esc_attr( $upload_dir['basedir'] . '/db-backup' ); ?></div>
 									<div
-										class="col-md-1"><?php echo esc_attr( substr( sprintf( '%o', fileperms( esc_attr( $upload_dir['basedir'] ) . '/db-backup' ) ), -4 ) ); ?></div>
+										class="col-md-1"><?php echo esc_attr( substr( sprintf( '%o', @fileperms( esc_attr( $upload_dir['basedir'] ) . '/db-backup' ) ), -4 ) ); ?></div>
 									<div
 										class="col-md-2"><?php echo ( ! is_writable( $upload_dir['basedir'] . '/db-backup' ) ) ? '<p class="text-danger"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span> Not writable </p>' : '<p class="text-success"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> writable</p>'; ?></div>
 								</div>
@@ -1657,7 +1659,28 @@ class Wpdb_Admin {
 		$output              = '';
 		foreach ( $tables as $table ) {
 			if ( empty( $wp_db_exclude_table ) || ( ! ( in_array( $table, $wp_db_exclude_table, true ) ) ) ) {
-				$result       = $wpdb->get_results( "SELECT * FROM {$table}", ARRAY_A  ); // phpcs:ignore
+
+				$check_count      = $wpdb->get_var( "SELECT count(*) FROM {$table}"); // phpcs:ignore
+				$check_count = intval($check_count);
+				$sub_limit =500;
+				if(isset($check_count) && $check_count>$sub_limit){
+					$result =array();
+					$t_sub_queries= ceil($check_count/$sub_limit);
+					for($sub_i=0;$sub_i<$t_sub_queries;$sub_i++)
+					{
+						$sub_offset = $sub_i*$sub_limit;
+						$sub_result = $wpdb->get_results( "SELECT * FROM {$table} LIMIT {$sub_limit} OFFSET {$sub_offset}", ARRAY_A  ); 
+						if($sub_result){
+							$result = array_merge($result,$sub_result);
+						}
+						sleep(1);
+					}
+				}
+				else{
+					$result       = $wpdb->get_results( "SELECT * FROM {$table}", ARRAY_A  ); // phpcs:ignore
+				}
+				
+
 				$row2         = $wpdb->get_row( 'SHOW CREATE TABLE ' . $table, ARRAY_N ); // phpcs:ignore
 				$output      .= "\n\n" . $row2[1] . ";\n\n";
 				$result_count = count( $result );
@@ -1678,12 +1701,70 @@ class Wpdb_Admin {
 				}
 				$output .= "\n";
 			}
+			sleep(1);
 		}
 		$wpdb->flush();
 		/* BEGIN : Prevent saving backup plugin settings in the database dump */
 		add_option( 'wp_db_backup_backups', $options_backup );
 		add_option( 'wp_db_backup_options', $settings_backup );
 		/* END : Prevent saving backup plugin settings in the database dump */
+		return $output;
+	}
+
+		/**
+	 * Create database backup new function.
+	 */
+	public function wp_db_backup_create_mysql_backup_new($table) {
+		global $wpdb;
+		$output              = '';
+
+		$check_count      = $wpdb->get_var( "SELECT count(*) FROM {$table}"); // phpcs:ignore
+		$check_count = intval($check_count);
+		$sub_limit =500;
+		if(isset($check_count) && $check_count>$sub_limit){
+			$result =array();
+			$t_sub_queries= ceil($check_count/$sub_limit);
+			for($sub_i=0;$sub_i<$t_sub_queries;$sub_i++)
+			{
+				$sub_offset = $sub_i*$sub_limit;
+				$sub_result = $wpdb->get_results( "SELECT * FROM {$table} LIMIT {$sub_limit} OFFSET {$sub_offset}", ARRAY_A  ); 
+				if($sub_result){
+					$result = array_merge($result,$sub_result);
+				}
+				sleep(1);
+			}
+		}
+		else{
+			$result       = $wpdb->get_results( "SELECT * FROM {$table}", ARRAY_A  ); // phpcs:ignore
+		}
+			
+
+			$row2         = $wpdb->get_row( 'SHOW CREATE TABLE ' . $table, ARRAY_N ); // phpcs:ignore
+			$output      .= "\n\n" . $row2[1] . ";\n\n";
+			$result_count = count( $result );
+			for ( $i = 0; $i < $result_count; $i++ ) {
+				$row            = $result[ $i ];
+				$output        .= 'INSERT INTO ' . $table . ' VALUES(';
+				$result_o_index = count( $result[0] );
+				$j=0;
+				if(!empty($row)){
+				foreach ($row as $key => $value) {
+					$row[ $key] = $wpdb->_real_escape( apply_filters( 'wpdbbkp_process_db_fields', $row[$key],$table,$key) );
+					$output   .= ( isset( $row[ $key ] ) ) ? '"' . $row[ $key ] . '"' : '""';
+					if ( $j < ( $result_o_index - 1 ) ) {
+						$output .= ',';
+					}
+					$j++;
+				}
+			}
+				$output .= ");\n";
+			}
+			$output .= "\n";
+
+		sleep(1);
+			
+		$wpdb->flush();
+		
 		return $output;
 	}
 
@@ -2016,10 +2097,31 @@ class Wpdb_Admin {
 		} else {
 			$my_sql_dump = 1;
 		}
+
 		if ( 1 === (int) $my_sql_dump ) {
-			$handle = fopen( $path_info['basedir'] . '/db-backup/' . $sql_filename, 'w+' ); // phpcs:ignore
-			fwrite( $handle, $this->wp_db_backup_create_mysql_backup() ); // phpcs:ignore
-			fclose( $handle ); // phpcs:ignore
+			/* BEGIN : Prevent saving backup plugin settings in the database dump */
+			$options_backup  = get_option( 'wp_db_backup_backups' );
+			$settings_backup = get_option( 'wp_db_backup_options' );
+			delete_option( 'wp_db_backup_backups' );
+			delete_option( 'wp_db_backup_options' );
+			/* END : Prevent saving backup plugin settings in the database dump */
+			global $wpdb;
+			$tables              = $wpdb->get_col( 'SHOW TABLES' );
+			$wp_db_exclude_table = get_option( 'wp_db_exclude_table',array());
+			if(!empty($tables)){
+			foreach($tables as $table){
+				if ( empty( $wp_db_exclude_table ) || ( ! ( in_array( $table, $wp_db_exclude_table, true ) ) ) ) {
+					$handle = fopen( $path_info['basedir'] . '/db-backup/' . $sql_filename, 'a' ); // phpcs:ignore
+					fwrite( $handle, $this->wp_db_backup_create_mysql_backup_new($table) ); // phpcs:ignore
+					fclose( $handle ); // phpcs:ignore
+					
+				}
+			}
+		 }
+			/* BEGIN : Prevent saving backup plugin settings in the database dump */
+			add_option( 'wp_db_backup_backups', $options_backup );
+			add_option( 'wp_db_backup_options', $settings_backup );
+			/* END : Prevent saving backup plugin settings in the database dump */
 		}
 		/* End : Generate SQL DUMP using cmd 06-03-2016 */
 
@@ -2061,6 +2163,9 @@ class Wpdb_Admin {
 		if ( true === empty( $mysqlversion ) ) {
 			$mysqlversion = $wpdb->get_var( 'SELECT VERSION() AS version' ); // phpcs:ignore
 			wp_cache_set( 'wpdb_mysqlversion', $mysqlversion, '', 18000 );
+		}
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 		$my_theme     = wp_get_theme();
 		$active_plugin = count(get_option('active_plugins'));
@@ -2804,6 +2909,12 @@ class Wpdb_Admin {
 				}
 			}
 		}
+	// function wp_db_process_timezone(){
+	// 	$timezone = wp_timezone_string();
+	// 	$timezone_fix=array(
+	// 		'UTC-12'=>
+	// 	)
+	// }
 
 	}
 

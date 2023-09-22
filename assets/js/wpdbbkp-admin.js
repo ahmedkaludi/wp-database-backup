@@ -155,10 +155,10 @@ function wpdbbkp_autobackup_type_switch(){
 	}else{
         document.querySelector('.autobackup_frequency').style.display="none";
         document.querySelector('.autobackup_daily_lite').style.display="none";
-        if( document.querySelector('.autobackup_frequency_lite').length){
+        if( document.querySelector('.autobackup_frequency_lite') && document.querySelector('.autobackup_frequency_lite').length){
             document.querySelector('.autobackup_frequency_lite').style.display="none";
         }
-        if( document.querySelector('.autobackup_frequency_pro').length){
+        if( document.querySelector('.autobackup_frequency_pro') && document.querySelector('.autobackup_frequency_pro').length){
             document.querySelector('.autobackup_frequency_pro').style.display="none";
         }
     }
@@ -208,7 +208,7 @@ function modify_backup_frequency(){
             let data_title = 'Upgrade to unlock this feature';
             let data_href = 'https://backupforwp.com/pricing#price';
             let data_href_txt = 'Upgrade to Pro';
-            let data_msg = 'Upgragde to Pro version and unlock many features including Data anonimization , timed backup , prority support';
+            let data_msg = 'Upgrade to Pro version and unlock many features including Data anonimization , timed backup , prority support';
             for(var i=0;i<wpdbbkp_span.length;i++){
                 wpdbbkp_span[i].onclick = function() {
                     wpdbbkp_modal.style.display = "none";

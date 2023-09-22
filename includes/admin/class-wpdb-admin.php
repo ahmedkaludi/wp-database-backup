@@ -1019,7 +1019,7 @@ class Wpdb_Admin {
 									$du = $this->wp_db_backup_format_bytes( $du );
 									$dt = $this->wp_db_backup_format_bytes( $dt );
 									}
-									$du=$df=$dt='NA';
+									$du=$dp=$df=$dt='NA';
 									?>
 									<div class="col-md-1"><a href="" target="_blank" title="Help"><span
 												class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>

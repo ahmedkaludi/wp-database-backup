@@ -2161,6 +2161,9 @@ class Wpdb_Admin {
 			$mysqlversion = $wpdb->get_var( 'SELECT VERSION() AS version' ); // phpcs:ignore
 			wp_cache_set( 'wpdb_mysqlversion', $mysqlversion, '', 18000 );
 		}
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
 		$my_theme     = wp_get_theme();
 		$active_plugin = count(get_option('active_plugins'));
 		$total_plugin  = count(get_plugins());

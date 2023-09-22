@@ -4,8 +4,8 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: Database backup, db backup, backup, database, WordPress Database Backup, WP db backup, wp database backup, wp backup, wordpress backup, mysql backup, automatically database backup, website backup, website database backup, restore database backup, Store database backup on dropbox, backup on google drive, backup on amazon s3,ftp, file, file backup,  files backup, backup file, WP file backup,email notification.
 Requires at least: 3.1+
-Tested up to: 6.2
-Stable tag: 6.5.1
+Tested up to: 6.3
+Stable tag: 6.6
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -69,6 +69,14 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 4. screenshot-4.png
 
 == Changelog ==
+
+= 6.6 =
+* 22-09-2023
+* Added: Support for background backup for plain permalink structure #67
+* Improvement: DB backup leads to fatal error for large tables #68
+* Added: Button to stop the background backups process. #62
+* Fixed: Error in php log and console #66
+* Compatibility: Tested with WordPress 6.3 #61
 
 = 6.5.1 =
 * 04-08-2023

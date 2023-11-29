@@ -30,7 +30,7 @@ class WPDBBackupGoogle {
 		$client_secret = get_option( 'wpdb_dest_google_secret_key' );
 		date_default_timezone_set('UTC');
 		if ( ! empty( $auth_code ) && ! empty( $client_id ) && ! empty( $client_secret ) ) {
-			update_option('wpdbbkp_backupcron_current','Processing Google Backup');
+			update_option('wpdbbkp_backupcron_current','Processing Google Backup', false);
 			set_time_limit( 0 );
 			require_once 'google-api-php-client/src/Google_Client.php';
 			require_once 'google-api-php-client/src/contrib/Google_DriveService.php';
@@ -46,7 +46,7 @@ class WPDBBackupGoogle {
 			if ( ! get_option( 'wpdb_google_drive_token' ) ) {
 				// Save token for future use.
 				$access_token = $client->authenticate( $auth_code );
-				update_option( 'wpdb_google_drive_token', $access_token );
+				update_option( 'wpdb_google_drive_token', $access_token , false);
 			} else {
 				$access_token = get_option( 'wpdb_google_drive_token' );
 			}

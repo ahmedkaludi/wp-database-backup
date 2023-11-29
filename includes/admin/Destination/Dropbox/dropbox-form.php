@@ -5,9 +5,8 @@
  * @package wpdbbkp
  */
 $wpdb_dropboxtoken = get_option( 'wpdb_dropboxtoken',null );
-$wpdb_dropbbox_code = get_option( 'wpdb_dropbbox_code',null );
 $wpdbbkp_dropbox_status			=	'<label><b>Status</b>: Not Configured </label> ';
-if(!empty($wpdb_dropboxtoken) && !empty($wpdb_dropbbox_code))
+if(!empty($wpdb_dropboxtoken))
 {
 	$wpdbbkp_dropbox_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span></label> ';
 }

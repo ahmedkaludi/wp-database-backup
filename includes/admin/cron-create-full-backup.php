@@ -939,6 +939,8 @@ function backup_files_cron_with_resume(){
 	 if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce')){
 		update_option('wpdbbkp_backupcron_status','inactive',false);
 		update_option('wpdbbkp_backup_status','inactive',false);
+		update_option('wpdbbkp_backupcron_step','Initialization',false);
+		update_option('wpdbbkp_backupcron_current','Fetching Config',false);
 	 }
 	 $wpdbbkp_cron_manual=['status'=>'success','msg'=>'Cron Stopped'];
 	 echo wp_json_encode($wpdbbkp_cron_manual);

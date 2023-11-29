@@ -20,18 +20,18 @@ if ( true === isset( $_POST['wpdb_amazon_s3'] ) && 'Y' === $_POST['wpdb_amazon_s
 
 	// Save the posted value in the database.
 	if ( true === isset( $_POST['wpdb_dest_amazon_s3_bucket'] ) ) {
-		update_option( 'wpdb_dest_amazon_s3_bucket', wp_db_filter_data( sanitize_text_field( wp_unslash( $_POST['wpdb_dest_amazon_s3_bucket'] ) ) ) );
+		update_option( 'wpdb_dest_amazon_s3_bucket', wp_db_filter_data( sanitize_text_field( wp_unslash( $_POST['wpdb_dest_amazon_s3_bucket'] ) ) ), false );
 	}
 	if ( true === isset( $_POST['wpdb_dest_amazon_s3_bucket_key'] ) ) {
-		update_option( 'wpdb_dest_amazon_s3_bucket_key', wp_db_filter_data( sanitize_text_field( wp_unslash( $_POST['wpdb_dest_amazon_s3_bucket_key'] ) ) ) );
+		update_option( 'wpdb_dest_amazon_s3_bucket_key', wp_db_filter_data( sanitize_text_field( wp_unslash( $_POST['wpdb_dest_amazon_s3_bucket_key'] ) ) ) , false);
 	}
 	if ( true === isset( $_POST['wpdb_dest_amazon_s3_bucket_secret'] ) ) {
-		update_option( 'wpdb_dest_amazon_s3_bucket_secret', wp_db_filter_data( sanitize_text_field( wp_unslash( $_POST['wpdb_dest_amazon_s3_bucket_secret'] ) ) ) );
+		update_option( 'wpdb_dest_amazon_s3_bucket_secret', wp_db_filter_data( sanitize_text_field( wp_unslash( $_POST['wpdb_dest_amazon_s3_bucket_secret'] ) ) ), false );
 	}
 	if ( isset( $_POST['wp_db_backup_destination_s3'] ) ) {
-		update_option( 'wp_db_backup_destination_s3', 1 );
+		update_option( 'wp_db_backup_destination_s3', 1 , false);
 	} else {
-		update_option( 'wp_db_backup_destination_s3', 0 );
+		update_option( 'wp_db_backup_destination_s3', 0 , false);
 	}
 	// Put a "settings updated" message on the screen.
 	$update_msg = '<div class="updated"><p><strong>Your amazon s3 setting has been saved.</strong></p></div>';

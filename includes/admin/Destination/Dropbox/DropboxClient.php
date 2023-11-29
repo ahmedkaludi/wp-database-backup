@@ -78,8 +78,12 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 			if ( empty( $this->oauth_app_key ) || empty( $this->oauth_app_secret ) ) {
 				throw new WPDBBackup_Destination_Dropbox_API_Exception( 'No App key or App Secret specified.' );
 			}
-
-			$this->job_object = $job_object;
+			$default =[
+				'step_working' => '',
+				'steps_data'=> array(),
+			 ];
+			
+			$this->job_object = $job_object?$job_object:json_decode(json_encode($default));
 		}
 
 		// Helper methods.
@@ -168,27 +172,27 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				throw new WPDBBackup_Destination_Dropbox_API_Exception( 'Can not open source file for transfer.' );
 			}
 
-			if ( ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['uploadid'] ) ) {
+			if ( isset($this->job_object->step_working) && ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['uploadid'] ) ) {
 				// $this->job_object->log(__('Beginning new file upload session', 'backwpup'));
 				$session = $this->filesUploadSessionStart();
 				$this->job_object->steps_data[ $this->job_object->step_working ]['uploadid'] = $session['session_id'];
 			}
-			if ( ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] ) ) {
+			if ( isset($this->job_object->step_working) && ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] ) ) {
 				$this->job_object->steps_data[ $this->job_object->step_working ]['offset'] = 0;
 			}
-			if ( ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] ) ) {
+			if ( isset($this->job_object->step_working) && ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] ) ) {
 				$this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] = 0;
 			}
 
 			// seek to current position
-			if ( $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] > 0 ) {
+			if ( isset($this->job_object->step_working) && $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] > 0 ) {
 				fseek( $file_handel, $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] );
 			}
 
 			while ( $data = fread( $file_handel, $chunk_size ) ) {
 				$chunk_upload_start = microtime( true );
 
-				if ( method_exists($this->job_object,'is_debug') && method_exists($this->job_object,'log') && $this->job_object->is_debug() ) {
+				if ( $this->job_object && method_exists($this->job_object,'is_debug') && method_exists($this->job_object,'log') && $this->job_object->is_debug() ) {
 					$this->job_object->log( sprintf( __( 'Uploading %s of data', 'backwpup' ), size_format( strlen( $data ) ) ) );
 				}
 
@@ -538,7 +542,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 					break;
 			}
 
-			if ( $this->job_object && method_exists($this->job_object,'is_debug')&& method_exists($this->job_object,'log') &&$this->job_object->is_debug() && $endpointFormat != 'oauth' ) {
+			if ( $this->job_object && method_exists($this->job_object,'is_debug')&& method_exists($this->job_object,'log') && $this->job_object->is_debug() && $endpointFormat != 'oauth' ) {
 				$message    = 'Call to ' . $endpoint;
 				$parameters = $args;
 				if ( isset( $parameters['contents'] ) ) {

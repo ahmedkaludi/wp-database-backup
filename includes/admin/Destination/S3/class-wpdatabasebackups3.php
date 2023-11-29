@@ -26,7 +26,7 @@ class WPDatabaseBackupS3 {
 	public static function wp_db_backup_completed( &$args ) {
 		$destination_s3 = get_option( 'wp_db_backup_destination_s3' );
 		if ( isset( $destination_s3 ) && 1 === $destination_s3 && get_option( 'wpdb_dest_amazon_s3_bucket' ) && get_option( 'wpdb_dest_amazon_s3_bucket_key' ) && get_option( 'wpdb_dest_amazon_s3_bucket_secret' ) ) {
-			update_option('wpdbbkp_backupcron_current','Processing Amazon S3 Backup');
+			update_option('wpdbbkp_backupcron_current','Processing Amazon S3 Backup', false);
 			try {
 				if ( ! class_exists( 'S3' ) ) {
 					require_once 'S3.php';

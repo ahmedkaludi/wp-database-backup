@@ -27,7 +27,7 @@ class WPDBBackupLocal {
 		$wp_db_local_backup      = get_option( 'wp_db_local_backup' );
 		$wp_db_local_backup_path = get_option( 'wp_db_local_backup_path' );
 		if ( true === isset( $wp_db_local_backup ) && 1 === (int) $wp_db_local_backup && false === empty( $wp_db_local_backup_path ) && true === file_exists( $wp_db_local_backup_path ) ) {
-			update_option('wpdbbkp_backupcron_current','Processing Local Backup');
+			update_option('wpdbbkp_backupcron_current','Processing Local Backup', false);
 			$file                    = $args[1];
 			$filename                = $args[0];
 			$wp_db_local_backup_file = $wp_db_local_backup_path . '/' . $filename;

@@ -32,7 +32,7 @@ class WPDBFullBackupLog {
 
         }
                                 
-        update_option('wp_db_backup_backups', $newoptions);
+        update_option('wp_db_backup_backups', $newoptions, false);
 
         if (get_option('wp_db_log') == 1) {
             if(isset($args[4]) && !empty($args[4]))

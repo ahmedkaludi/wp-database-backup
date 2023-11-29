@@ -38,7 +38,7 @@ class WPDBBackupLog {
 			
 		}		
 
-		update_option( 'wp_db_backup_backups', $newoptions );
+		update_option( 'wp_db_backup_backups', $newoptions ,false);
 	}
 
 }

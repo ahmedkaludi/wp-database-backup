@@ -81,6 +81,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 			$default =[
 				'step_working' => '',
 				'steps_data'=> array(),
+				'job'=>array(),
 			 ];
 			
 			$this->job_object = $job_object?$job_object:json_decode(json_encode($default));

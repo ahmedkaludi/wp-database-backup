@@ -4,7 +4,6 @@
  *
  * @package wpdbbkp
  */
-
 ob_start();
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -300,20 +299,54 @@ class Wpdb_Admin {
 										}
 										$count++;
 									}
-									if ( file_exists( $options[ $index ]['dir'] ) ) {
-										unlink( $options[ $index ]['dir'] );
+									$upload_dir = wp_upload_dir();
+									$actual_working_directory = getcwd();
+									$file_directory = $upload_dir['basedir'].'/db-backup/';
+									/*
+									Fix for when you try to delete a file thats in a folder 
+									higher in the hierarchy to your working directory */
+									chdir($file_directory);
+									if ( file_exists( $options[ $index ]['filename'] ) ) {
+									unlink( $options[ $index ]['filename'] );
 									}
-									$file_sql = explode( '.', $options[ $index ]['dir'] );
+									$file_sql = explode( '.', $options[ $index ]['filename'] );
 									if ( file_exists( $file_sql[0] . '.sql' ) ) {
 										unlink( $file_sql[0] . '.sql' );
 									}
-									update_option( 'wp_db_backup_backups', $newoptions );
+									chdir($actual_working_directory);
+									update_option( 'wp_db_backup_backups', $newoptions , false);
 									$nonce = wp_create_nonce( 'wp-database-backup' );
 									wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=delete&_wpnonce=' . $nonce );
 									exit;
 
 								}
 								break;
+								case 'removeallbackup':
+									
+										$upload_dir = wp_upload_dir();
+										$actual_working_directory = getcwd();
+										$file_directory = $upload_dir['basedir'];
+										/*
+										Fix for when you try to delete a file thats in a folder 
+										higher in the hierarchy to your working directory 
+										*/
+										chdir($file_directory);
+										$files = glob($file_directory.'/db-backup'.'/*');  
+   
+										// Deleting all the files in the list 
+										foreach($files as $file) { 
+											if(is_file($file)){
+												unlink($file);
+											}  
+										} 
+										chdir($actual_working_directory);
+										update_option( 'wp_db_backup_backups', array() , false);
+										$nonce = wp_create_nonce( 'wp-database-backup' );
+										wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=deleteall&_wpnonce=' . $nonce );
+										exit;
+	
+									
+									break;
 							case 'clear_temp_db_backup_file':
 								$options           = get_option( 'wp_db_backup_backups' );
 								$newoptions        = array();
@@ -1486,6 +1519,15 @@ class Wpdb_Admin {
 								<br><?php echo esc_html__('Use this option only when you have set any destination.', 'wpdbbkp') ?>
 								<br><?php echo esc_html__('If somesites you need only external backup.', 'wpdbbkp') ?>
 							</p>
+						</div>
+						<hr>
+						<?php
+						$remove_backup_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=removeallbackup&_wpnonce=' . esc_attr( $nonce ); ?>
+
+						<div class="input-group">
+						<a title="Remove Database Backup" onclick="return confirm('Are you sure you want to delete all the backups? Deleted backups can not be recovered.')" href="<?php echo esc_url($remove_backup_href)?>" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> <?php _e('Delete all Backups', 'wpdbbkp')?></a>
+							<br><?php echo esc_html__('Warning :This is will delete all the backups on the website. Once deleted backups can not be recovered.', 'wpdbbkp') ?>
+
 						</div>
 						<hr>
 						<div class="panel panel-default">

@@ -186,7 +186,7 @@ class Wpdb_Admin {
 				if ( isset( $_REQUEST['_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_REQUEST['_wpnonce'] ) ), 'wp-database-backup' ) ) {
 					if ( isset( $_POST['wpsetting_search'] ) ) {
 						if ( isset( $_POST['wp_db_backup_search_text'] ) ) {
-							update_option( 'wp_db_backup_search_text', sanitize_text_field( wp_unslash( $_POST['wp_db_backup_search_text'] ) ) );
+							update_option( 'wp_db_backup_search_text', sanitize_text_field( wp_unslash( $_POST['wp_db_backup_search_text'] ) ), false );
 						}
 
 						$nonce = wp_create_nonce( 'wp-database-backup' );
@@ -195,29 +195,29 @@ class Wpdb_Admin {
 
 					if ( isset( $_POST['wpsetting'] ) ) {
 						if ( isset( $_POST['wp_local_db_backup_count'] ) ) {
-							update_option( 'wp_local_db_backup_count', wp_db_filter_data( sanitize_text_field( wp_unslash( $_POST['wp_local_db_backup_count'] ) ) ) );
+							update_option( 'wp_local_db_backup_count', wp_db_filter_data( sanitize_text_field( wp_unslash( $_POST['wp_local_db_backup_count'] ) ) ) , false);
 						}
 
 						if ( isset( $_POST['wp_db_log'] ) ) {
-							update_option( 'wp_db_log', 1 );
+							update_option( 'wp_db_log', 1 , false);
 						} else {
-							update_option( 'wp_db_log', 0 );
+							update_option( 'wp_db_log', 0 , false);
 						}
 						if ( isset( $_POST['wp_db_remove_local_backup'] ) ) {
-							update_option( 'wp_db_remove_local_backup', 1 );
+							update_option( 'wp_db_remove_local_backup', 1 , false);
 						} else {
-							update_option( 'wp_db_remove_local_backup', 0 );
+							update_option( 'wp_db_remove_local_backup', 0 , false);
 						}
 						if ( isset( $_POST['wp_db_backup_enable_auto_upgrade'] ) ) {
-							update_option( 'wp_db_backup_enable_auto_upgrade', 1 );
+							update_option( 'wp_db_backup_enable_auto_upgrade', 1 , false);
 						} else {
-							update_option( 'wp_db_backup_enable_auto_upgrade', 0 );
+							update_option( 'wp_db_backup_enable_auto_upgrade', 0 , false);
 						}
 
 						if ( isset( $_POST['wp_db_backup_enable_htaccess'] ) ) {
-							update_option( 'wp_db_backup_enable_htaccess', 1 );
+							update_option( 'wp_db_backup_enable_htaccess', 1 , false);
 						} else {
-							update_option( 'wp_db_backup_enable_htaccess', 0 );
+							update_option( 'wp_db_backup_enable_htaccess', 0 , false);
 							$path_info = wp_upload_dir();
 							if ( file_exists( $path_info['basedir'] . '/db-backup/.htaccess' ) ) {
 								unlink( $path_info['basedir'] . '/db-backup/.htaccess' );
@@ -225,9 +225,9 @@ class Wpdb_Admin {
 						}
 
 						if ( isset( $_POST['wp_db_exclude_table'] ) ) {
-							update_option( 'wp_db_exclude_table', $this->recursive_sanitize_text_field( wp_unslash( $_POST['wp_db_exclude_table'] ) ) ); // phpcs:ignore
+							update_option( 'wp_db_exclude_table', $this->recursive_sanitize_text_field( wp_unslash( $_POST['wp_db_exclude_table'] ) ) , false); // phpcs:ignore
 						} else {
-							update_option( 'wp_db_exclude_table', '' );
+							update_option( 'wp_db_exclude_table', '', false );
 						}
 						$nonce = wp_create_nonce( 'wp-database-backup' );
 						wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=save&_wpnonce=' . $nonce );
@@ -238,28 +238,28 @@ class Wpdb_Admin {
 					}
 
 					if ( isset( $_POST['wp_db_backup_email_id'] ) ) {
-						update_option( 'wp_db_backup_email_id', wp_db_filter_data( sanitize_email( wp_unslash( $_POST['wp_db_backup_email_id'] ) ) ) );
+						update_option( 'wp_db_backup_email_id', wp_db_filter_data( sanitize_email( wp_unslash( $_POST['wp_db_backup_email_id'] ) ) ) , false);
 					}
 
 					if ( isset( $_POST['wp_db_backup_email_attachment'] ) ) {
-						$email_attachment = sanitize_text_field( wp_unslash( $_POST['wp_db_backup_email_attachment'] ) );
+						$email_attachment = sanitize_text_field( wp_unslash( $_POST['wp_db_backup_email_attachment'] ) , false);
 						update_option( 'wp_db_backup_email_attachment', $email_attachment );
 					}
 					if ( isset( $_POST['local_backup_submit'] ) && 'Save Settings' === $_POST['local_backup_submit'] ) {
 						if ( true === isset( $_POST['wp_db_local_backup'] ) ) {
-							update_option( 'wp_db_local_backup', 1 );
+							update_option( 'wp_db_local_backup', 1 , false);
 						} else {
-							update_option( 'wp_db_local_backup', 0 );
+							update_option( 'wp_db_local_backup', 0 , false);
 						}
 					}
 
 					if ( isset( $_POST['wp_db_backup_options'] ) ) {
-						update_option( 'wp_db_backup_options', $_POST['wp_db_backup_options']);
+						update_option( 'wp_db_backup_options', $_POST['wp_db_backup_options'], false);
 					}
 					
 					do_action('wpdbbkp_save_pro_options');
 				}
-				$wp_db_backup_destination_email = get_option( 'wp_db_backup_destination_Email' );
+				$wp_db_backup_destination_email = get_option( 'wp_db_backup_destination_Email' , false);
 
 				if ( isset( $_GET['page'] ) && 'wp-database-backup' === $_GET['page'] && isset( $_GET['action'] ) && 'unlink' === $_GET['action'] ) {
 					// Specify the target directory and add forward slash.
@@ -2171,10 +2171,11 @@ class Wpdb_Admin {
 		$wp_db_backup_search_text  = get_option( 'wp_db_backup_search_text' );
 		$wp_db_backup_replace_text = get_option( 'wp_db_backup_replace_text' );
 		if ( ( false === empty( $wp_db_backup_search_text ) ) && ( false === empty( $wp_db_backup_replace_text ) ) ) {
-			$backup_str = file_get_contents( $path_info['basedir'] . '/db-backup/' . $sql_filename ); // phpcs:ignore
 			$filecontent = wp_remote_get( $path_info['basedir'] . '/db-backup/' . $sql_filename );
-			$backup_str = str_replace( $wp_db_backup_search_text, $wp_db_backup_replace_text, $backup_str ); // phpcs:ignore
-			file_put_contents( $path_info['basedir'] . '/db-backup/' . $sql_filename, $backup_str ); // phpcs:ignore
+			if (! is_wp_error( $filecontent ) && isset($filecontent['body']) ) {
+				$backup_str = str_replace( $wp_db_backup_search_text, $wp_db_backup_replace_text, $filecontent['body'] ); // phpcs:ignore
+				file_put_contents( $path_info['basedir'] . '/db-backup/' . $sql_filename, $backup_str ); // phpcs:ignore
+			}
 		}
 
 		/* End : Generate SQL DUMP and save to file database.sql */
@@ -2253,7 +2254,7 @@ class Wpdb_Admin {
 					$newoptions[] = $options[ $index ];
 				}
 
-				update_option( 'wp_db_backup_backups', $newoptions );
+				update_option( 'wp_db_backup_backups', $newoptions , false);
 			}
 		}
 
@@ -2336,7 +2337,7 @@ class Wpdb_Admin {
 			'destination'    => $args[4]
 		);
 		if ( 1 !== (int) $wp_db_remove_local_backup ) {
-			update_option( 'wp_db_backup_backups', $options );
+			update_option( 'wp_db_backup_backups', $options , false);
 		}
 		if(isset($details['log_dir']) && !empty($details['log_dir']))
 		{
@@ -2625,11 +2626,11 @@ class Wpdb_Admin {
 		
 				if($sent){
 		
-					 echo json_encode(array('status'=>'t'));  
+					 echo wp_json_encode(array('status'=>'t'));  
 		
 				}else{
 		
-					echo json_encode(array('status'=>'f'));            
+					echo wp_json_encode(array('status'=>'f'));            
 		
 				}
 				

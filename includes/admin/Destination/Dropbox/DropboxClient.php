@@ -84,7 +84,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				'job'=>array(),
 			 ];
 			
-			$this->job_object = $job_object?$job_object:json_decode(json_encode($default));
+			$this->job_object = $job_object?$job_object:json_decode(wp_json_encode($default));
 		}
 
 		// Helper methods.
@@ -551,7 +551,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 					unset( $parameters['contents'] );
 				}
 				if ( ! empty( $parameters ) ) {
-					$message .= ', with parameters: ' . json_encode( $parameters );
+					$message .= ', with parameters: ' . wp_json_encode( $parameters );
 				}
 				$this->job_object->log( $message );
 			}
@@ -587,13 +587,13 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				}
 				$headers['Content-Type'] = 'application/octet-stream';
 				if ( ! empty( $args ) ) {
-					$headers['Dropbox-API-Arg'] = json_encode( $args );
+					$headers['Dropbox-API-Arg'] = wp_json_encode( $args );
 				} else {
 					$headers['Dropbox-API-Arg'] = '{}';
 				}
 			} else {
 				// curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-				$headers['Dropbox-API-Arg'] = json_encode( $args );
+				$headers['Dropbox-API-Arg'] = wp_json_encode( $args );
 			}
 			$Agent = 'WP-Database-Backup/V.4.5.1; WordPress/4.8.2; ' . home_url();
 			// curl_setopt($ch, CURLOPT_USERAGENT, $Agent);

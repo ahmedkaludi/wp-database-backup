@@ -63,9 +63,9 @@ if ( isset( $_POST[ 'sftp_submit' ] ) && 'Save' === $_POST[ 'sftp_submit' ] ) {
 	update_option( 'wp_db_backup_sftp_details', wp_db_filter_data( $option_to_save ) ,false);
 
 	if ( isset( $_POST['wp_db_backup_destination_SFTP'] ) ) {
-		update_option( 'wp_db_backup_destination_SFTP', 1 );
+		update_option( 'wp_db_backup_destination_SFTP', 1 , false);
 	} else {
-		update_option( 'wp_db_backup_destination_SFTP', 0 );
+		update_option( 'wp_db_backup_destination_SFTP', 0 , false);
 	}
 
 	

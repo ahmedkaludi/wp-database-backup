@@ -72,7 +72,7 @@ if ( true === isset( $_POST[ $hidden_field_name3 ] ) && 'Y' === $_POST[ $hidden_
 	}
 	// Save the posted value in the database.
 	if ( true === isset( $_POST[ $opt_val6 ] ) ) {
-		update_option( $opt_name6, wp_db_filter_data( sanitize_text_field( $opt_val6 ) ) );
+		update_option( $opt_name6, wp_db_filter_data( sanitize_text_field( $opt_val6 ) ) , false);
 	}
 	// Put a "settings updated" message on the screen.
 	?>
@@ -110,20 +110,20 @@ if ( isset( $_POST[ $hidden_field_name ] ) && 'Y' === $_POST[ $hidden_field_name
 	}
 
 	// Save the posted value in the database.
-	update_option( $opt_name, wp_db_filter_data( sanitize_text_field( $opt_val ) ) );
-	update_option( $opt_name2, wp_db_filter_data( sanitize_text_field( $opt_val2 ) ) );
-	update_option( $opt_name3, wp_db_filter_data( sanitize_text_field( $opt_val3 ) ) );
-	update_option( $opt_name4, wp_db_filter_data( sanitize_text_field( $opt_val4 ) ) );
+	update_option( $opt_name, wp_db_filter_data( sanitize_text_field( $opt_val ) ) , false);
+	update_option( $opt_name2, wp_db_filter_data( sanitize_text_field( $opt_val2 ) ) , false);
+	update_option( $opt_name3, wp_db_filter_data( sanitize_text_field( $opt_val3 ) ), false );
+	update_option( $opt_name4, wp_db_filter_data( sanitize_text_field( $opt_val4 ) ) , false);
 	if ( isset( $_POST['wp_db_backup_destination_FTP'] ) ) {
-		update_option( 'wp_db_backup_destination_FTP', 1 );
+		update_option( 'wp_db_backup_destination_FTP', 1 , false);
 	} else {
-		update_option( 'wp_db_backup_destination_FTP', 0 );
+		update_option( 'wp_db_backup_destination_FTP', 0, false );
 	}
 	$wp_db_backup_destination_ftp = wp_db_filter_data( get_option( 'wp_db_backup_destination_FTP' ) );
 	if ( isset( $_POST[ $data_field_name5 ] ) ) {
-		update_option( $opt_name5, wp_db_filter_data( sanitize_text_field( $opt_val5 ) ) );
+		update_option( $opt_name5, wp_db_filter_data( sanitize_text_field( $opt_val5 ) ) , false);
 	}
-	update_option( $opt_name9, wp_db_filter_data( sanitize_text_field( $opt_val9 ) ) );
+	update_option( $opt_name9, wp_db_filter_data( sanitize_text_field( $opt_val9 ) ) , false);
 
 	// Put a "settings updated" message on the screen.
 	?>
@@ -152,14 +152,14 @@ if ( isset( $_POST[ $hidden_field_name ] ) && 'Test Connection' === $_POST[ $hid
 	$opt_val9 = sanitize_text_field( wp_unslash( $_POST[ $data_field_name9 ] ) );
 
 	// Save the posted value in the database.
-	update_option( $opt_name, wp_db_filter_data( sanitize_text_field( $opt_val ) ) );
-	update_option( $opt_name2, wp_db_filter_data( sanitize_text_field( $opt_val2 ) ) );
-	update_option( $opt_name3, wp_db_filter_data( sanitize_text_field( $opt_val3 ) ) );
-	update_option( $opt_name4, wp_db_filter_data( sanitize_text_field( $opt_val4 ) ) );
+	update_option( $opt_name, wp_db_filter_data( sanitize_text_field( $opt_val ) ) , false);
+	update_option( $opt_name2, wp_db_filter_data( sanitize_text_field( $opt_val2 ) ), false );
+	update_option( $opt_name3, wp_db_filter_data( sanitize_text_field( $opt_val3 ) ) , false);
+	update_option( $opt_name4, wp_db_filter_data( sanitize_text_field( $opt_val4 ) ) , false);
 	if ( isset( $_POST[ $data_field_name5 ] ) ) {
-		update_option( $opt_name5, wp_db_filter_data( sanitize_text_field( $opt_val5 ) ) );
+		update_option( $opt_name5, wp_db_filter_data( sanitize_text_field( $opt_val5 ) ) , false);
 	}
-	update_option( $opt_name9, wp_db_filter_data( sanitize_text_field( $opt_val9 ) ) );
+	update_option( $opt_name9, wp_db_filter_data( sanitize_text_field( $opt_val9 ) ) , false);
 	$result = backupbreeze_test_ftp();
 
 	if ( 'OK' !== $result ) {

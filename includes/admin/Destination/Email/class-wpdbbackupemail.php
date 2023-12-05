@@ -27,7 +27,7 @@ class WPDBBackupEmail {
 		
 		$destination_email = get_option( 'wp_db_backup_destination_Email' );
 		if ( isset( $destination_email ) && 1 === (int) $destination_email && get_option( 'wp_db_backup_email_id' ) ) {
-			update_option('wpdbbkp_backupcron_current','Processing Email Backup');
+			update_option('wpdbbkp_backupcron_current','Processing Email Backup', false);
 			$to                     = sanitize_email( get_option( 'wp_db_backup_email_id' ) );
 			$subject                = 'Database Backup (' . get_bloginfo( 'name' ) . ')';
 			$filename               = $args[0];

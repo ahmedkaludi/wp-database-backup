@@ -46,11 +46,16 @@ class wpdbbkp_ads_newsletter {
                     );
                     
 		    $response = wp_remote_post( $api_url, array( 'timeout' => 15, 'sslverify' => false, 'body' => $api_params ) );
-                    $response = wp_remote_retrieve_body( $response );                    
-		    echo $response;
+                    if ( ! is_wp_error( $response ) ) {
+                        $response = wp_remote_retrieve_body( $response );                    
+                        echo $response;
+                    }else{
+                        echo __('Unable to submit form, please try again','wpdbbkp') ;
+                    }
+                    
 
                 }else{
-                        echo 'Email id required';//wpdbbkp_t_string('Email id required');                        
+                        echo __('Email id required','wpdbbkp');//wpdbbkp_t_string('Email id required');                        
                 }                        
 
                 wp_die();

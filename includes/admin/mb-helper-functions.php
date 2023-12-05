@@ -14,9 +14,15 @@ if( !defined( 'ABSPATH' ) )
  * @return bool
  */
 function wpdbbkp_is_plugins_page() {
-    global $pagenow;
-
-    return ( 'plugins.php' === $pagenow );
+    if(function_exists('get_current_screen')){
+        $screen = get_current_screen();
+            if(is_object($screen)){
+                if($screen->id == 'plugins' || $screen->id == 'plugins-network'){
+                    return true;
+                }
+            }
+    }
+    return false;
 }
 
 function wpdbbkp_get_current_url(){
@@ -138,9 +144,7 @@ function wpdbbkp_enqueue_makebetter_email_js(){
     );
 }
 
-if( is_admin() && wpdbbkp_is_plugins_page()) {
     add_filter('admin_footer', 'wpdbbkp_add_deactivation_feedback_modal');
-}
 
 function wpdbbkp_is_pro_active()
 {

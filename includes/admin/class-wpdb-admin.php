@@ -690,6 +690,7 @@ class Wpdb_Admin {
 							'Local Path' => 'glyphicon glyphicon-folder-open',
 							'Email'      => 'glyphicon glyphicon-envelope',
 							'FTP'        => 'glyphicon glyphicon-tasks',
+							'SFTP'       => 'glyphicon glyphicon-tasks',
 							'S3'         => 'glyphicon glyphicon-cloud-upload',
 							'Drive'      => 'glyphicon glyphicon-hdd',
 							'DropBox'    => 'glyphicon glyphicon-inbox',

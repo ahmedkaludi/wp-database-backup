@@ -126,9 +126,10 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		 * Installation setting at time of activation.
 		 */
 		public function installation($flag=1) {
-			add_option( 'wp_db_backup_destination_FTP', 1 ,false);
-			add_option( 'wp_db_backup_destination_Email', 1,false );
-			add_option( 'wp_db_backup_destination_s3', 1 ,false);
+			add_option( 'wp_db_backup_destination_SFTP', 0 ,false);
+			add_option( 'wp_db_backup_destination_FTP', 0 ,false);
+			add_option( 'wp_db_backup_destination_Email', 0,false);
+			add_option( 'wp_db_backup_destination_s3', 0 ,false);
 			add_option( 'wp_db_remove_local_backup', 0 ,false);
 			add_option('wp_db_backup_backup_type','complete',false);
  			add_option('wp_db_backup_exclude_dir',"wp-content/backupwordpress-728d36f682-backups|.git|db-backup",false);

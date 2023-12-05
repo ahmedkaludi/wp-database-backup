@@ -82,7 +82,7 @@ jQuery('.wbdbbkp_has_nav a').on('click', function (e) {
 });
 
 jQuery('.toplevel_page_wp-database-backup a').on('click', function (e) {
-    if(jQuery('.nav-tabs a[href="'+e.target.hash.replace(wpdbbkp_prefix,"")+'"]').length){
+    if(e.target.hash && jQuery('.nav-tabs a[href="'+e.target.hash.replace(wpdbbkp_prefix,"")+'"]').length){
         window.location.hash = e.target.hash.replace("#", "#" + wpdbbkp_prefix);
         jQuery('.nav-tabs a[href="'+e.target.hash.replace(wpdbbkp_prefix,"")+'"]').tab('show');
         window.scrollTo(0, 0);
@@ -229,3 +229,27 @@ function modify_backup_frequency(){
 wpdbbkp_schduler_switch();
 wpdbbkp_autobackup_type_switch();
 
+jQuery('#wpdbbkp_sftp_auth_select').change(function(){
+   if(jQuery(this).val()=='key'){
+        jQuery('#wpdbbkp_sftp_sshkey_password').parent().parent().show();
+        jQuery('#wp_db_backup_sftp_key').parent().parent().show();
+        jQuery('#wpdbbkp_sftp_password').parent().parent().hide();
+    }else{
+        jQuery('#wpdbbkp_sftp_sshkey_password').parent().parent().hide();
+        jQuery('#wp_db_backup_sftp_key').parent().parent().hide();
+        jQuery('#wpdbbkp_sftp_password').parent().parent().show();
+    }
+});
+
+document.querySelector('#wpdbbkp_sftp_sshkey').addEventListener('input', function() {
+    const file = this.files[0]
+    let fr = new FileReader()
+    fr.readAsText(file)
+    fr.onload = () => {
+        document.querySelector('#wp_db_backup_sftp_key').value=btoa(fr.result);
+        console.log('key upload success');
+    }
+    fr.onerror = () => {
+      console.log(fr.error);
+    }
+  })

@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 require plugin_dir_path( __FILE__ ) . '/FTP/class-wpdbbackupftp.php';
+require plugin_dir_path( __FILE__ ) . '/SFTP/class-wpdbbackupsftp.php';
 require plugin_dir_path( __FILE__ ) . '/Local/class-wpdbbackuplocal.php';
 require plugin_dir_path( __FILE__ ) . '/Email/class-wpdbbackupemail.php';
 require plugin_dir_path( __FILE__ ) . '/Google/class-wpdbbackupgoogle.php';

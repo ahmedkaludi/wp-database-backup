@@ -12,14 +12,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 $message = '<div bgcolor="#e3e3e3" style="font-family:Arial;color:#707070;font-size:12px;background-color:#e3e3e3;margin:0;padding:0px">
 <div align="center" style="font-family:Arial;width:600px;background-color:#ffffff;margin:0 auto;padding:0px">
     <div style="font-family:Arial;border-bottom-color:#cccccc;border-bottom-width:1px;border-bottom-style:solid;background-color:#eee;margin:0px;padding:4px">
-       <a href="https://backupforwp.com/"><img src="'. esc_attr( WPDB_PLUGIN_URL ) .'/assets/images/wp-database-backup.png" alt="Backup for WP" /></a>
+       <a href="https://backupforwp.com/"><img src="'. esc_url( WPDB_PLUGIN_URL.'/assets/images/wp-database-backup.png') .'" alt="Backup for WP" /></a>
     </div>
 
     <div align="left" style="font-family:Arial;text-align:left;margin:0px;padding:10px">
         <div>
     Dear <strong style="font-family:Arial;margin:0px;padding:0px">WP Database Backup User</strong>, <br><br>
 
-   Full Website Backup Created Successfully on ' . $site_url . '.
+   Full Website Backup Created Successfully on ' . esc_url($site_url) . '.
     <br><br>
             <h3 style="font-family:Arial;font-size:14px;font-weight:bold;margin:0 0 5px 5px;padding:0px">Details as follow</h3>
 
@@ -33,8 +33,8 @@ $message = '<div bgcolor="#e3e3e3" style="font-family:Arial;color:#707070;font-s
                 </tr>
                     <tr style="font-family:Arial;margin:0px;padding:0px">
 					<td style="font-family:Arial;margin:0px;padding:2px 5px;border:1px solid #007bad;text-align:right">1</td>
-                    <td style="font-family:Arial;margin:0px;padding:2px 5px;border:1px solid #007bad">' . $filename . '</td>
-                    <td style="font-family:Arial;margin:0px;padding:2px 5px;border:1px solid #007bad">' . WPDBBackupEmail::wp_db_backup_format_bytes( $filesize ) . '</td>
+                    <td style="font-family:Arial;margin:0px;padding:2px 5px;border:1px solid #007bad">' . esc_html($filename) . '</td>
+                    <td style="font-family:Arial;margin:0px;padding:2px 5px;border:1px solid #007bad">' . esc_html(WPDBBackupEmail::wp_db_backup_format_bytes( $filesize )) . '</td>
 
                 </tr>
 
@@ -68,8 +68,8 @@ $message = '<div bgcolor="#e3e3e3" style="font-family:Arial;color:#707070;font-s
     </div>
 
     <div style="font-family:Arial;border-top-width:1px;border-top-color:#cccccc;border-top-style:solid;background-color:#eee;margin:0px;padding:10px">
-        You\'re receiving this email because you have active Email Notification on your site(' . $site_url . ').
-		<br>If you don\'t like to receieve a Email Notification then login to (' . $site_url . ') and goto (Dashboard=>Backups=>Save Backups to=>Email Notification) remove email address.
+        You\'re receiving this email because you have active Email Notification on your site(' . esc_url($site_url) . ').
+		<br>If you don\'t like to receieve a Email Notification then <a href="'.esc_url($site_url).'">Click Here to unsubcribe</a>.
 		<div class="yj6qo"></div><div class="adL">
     </div></div><div class="adL">
 </div></div><div class="adL">

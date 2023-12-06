@@ -14,10 +14,10 @@ if ( isset( $_POST[ 'sftp_submit' ] ) && 'Save' === $_POST[ 'sftp_submit' ] ) {
 	$sftp_details = $_POST['wp_db_backup_sftp_details'];
 	// Validate that the contents of the form request came from the current site and not somewhere else added 21-08-15 V.3.4.
 	if ( ! isset( $_POST['wpdbbackup_update_setting'] ) ) {
-		die( '<br><br>Invalid form data. form request came from the somewhere else not current site! ' );
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
-	if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpdbbackup_update_setting'] ) ), 'wpdbbackup-update-setting' ) ) {
-		die( '<br><br>Invalid form data. form request came from the somewhere else not current site! ' );
+	if ( ! wp_verify_nonce( $_POST['wpdbbackup_update_setting'] , 'wpdbbackup-update-setting' ) ) {
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
 	// Read their posted value.
 
@@ -80,10 +80,10 @@ if ( isset( $_POST[ 'sftp_test'  ] ) && 'Test Connection' === $_POST[ 'sftp_test
 	$sftp_details = $_POST['wp_db_backup_sftp_details'];
 	// Validate that the contents of the form request came from the current site and not somewhere else added 21-08-15 V.3.4.
 	if ( ! isset( $_POST['wpdbbackup_update_setting'] ) ) {
-		die( '<br><br>Invalid form data. form request came from the somewhere else not current site! ' );
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
-	if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpdbbackup_update_setting'] ) ), 'wpdbbackup-update-setting' ) ) {
-		die( '<br><br>Invalid form data. form request came from the somewhere else not current site! ' );
+	if ( ! wp_verify_nonce( $_POST['wpdbbackup_update_setting'] , 'wpdbbackup-update-setting' ) ) {
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
 	include plugin_dir_path( __FILE__ ) . 'test-sftp.php';
 	// update all options while we're at it.
@@ -191,8 +191,8 @@ $wpdbbkp_sftp_authtype = isset($wpdbbkp_sftp_details['auth_type'])?$wpdbbkp_sftp
 		<label class="col-sm-2" for="wpdbbkp_sftp_auth_select"><?php echo esc_html__('SFTP Auth Type :', 'wpdbbkp') ?></label>
 		<div class="col-sm-6">
 			<select  id="wpdbbkp_sftp_auth_select" class="form-control" name="wp_db_backup_sftp_details[auth_type]" >
-				<option value="password" <?php if($wpdbbkp_sftp_authtype=='password'){ echo 'selected';}?> ><?php echo _e('Using Password', 'wpdbbkp') ?></option>
-				<option value="key" <?php if($wpdbbkp_sftp_authtype=='key'){ echo 'selected';}?>><?php echo _e('Using Key', 'wpdbbkp') ?></option>
+				<option value="password" <?php if($wpdbbkp_sftp_authtype=='password'){ echo 'selected';}?> ><?php esc_html_e('Using Password', 'wpdbbkp') ?></option>
+				<option value="key" <?php if($wpdbbkp_sftp_authtype=='key'){ echo 'selected';}?>><?php echo esc_html_e('Using Key', 'wpdbbkp') ?></option>
 			</select>
 		</div>
 	</div>
@@ -212,8 +212,8 @@ $wpdbbkp_sftp_authtype = isset($wpdbbkp_sftp_details['auth_type'])?$wpdbbkp_sftp
 			<input type="hidden" name="wp_db_backup_sftp_details[sftp_key]" id="wp_db_backup_sftp_key" value="<?php echo $wpdbbkp_sftp_details['sftp_key'];?>">
 		</div>
 		<div class="col-sm-4">
-		<em style="color:green"><?php if(!empty($wpdbbkp_sftp_details['sftp_key'])){ echo _e('(Key Already exists. To change please upload new key)', 'wpdbbkp'); } ?></em>
-		<em>Please use OpenSSH standard keys</em>
+		<em style="color:green"><?php if(!empty($wpdbbkp_sftp_details['sftp_key'])){ esc_html_e('(Key Already exists. To change please upload new key)', 'wpdbbkp'); } ?></em>
+		<em> <?php esc_html_e('Please use OpenSSH standard keys', 'wpdbbkp');?></em>
 		</div>
 	</div>
 	<div class="row form-group" <?php if($wpdbbkp_sftp_authtype!='key'){ echo 'style="display:none"'; }?> >
@@ -222,7 +222,7 @@ $wpdbbkp_sftp_authtype = isset($wpdbbkp_sftp_details['auth_type'])?$wpdbbkp_sftp
 			<input type="password" id="wpdbbkp_sftp_sshkey_password" class="form-control" name="wp_db_backup_sftp_details[key_password]" value="<?php echo esc_attr( isset($wpdbbkp_sftp_details['key_password'])?$wpdbbkp_sftp_details['key_password']:''); ?>" size="25">
 		</div>
 		<div class="col-sm-4">
-			<?php _e('Enter password only if you have set the password','wpdbbkp');?>
+			<?php esc_html_e('Enter password only if you have set the password','wpdbbkp');?>
 		</div>
 	</div>
 	<div class="row form-group">
@@ -235,7 +235,7 @@ $wpdbbkp_sftp_authtype = isset($wpdbbkp_sftp_details['auth_type'])?$wpdbbkp_sftp
 		</div>
 	</div>
 
-	<p><input type="submit" name="sftp_submit" class="btn btn-primary" value="<?php esc_attr_e( 'Save' ); ?>" />&nbsp;
+	<p><input type="submit" name="sftp_submit" class="btn btn-primary" value="<?php esc_attr_e( 'Save', 'wpdbbkp' ); ?>" />&nbsp;
 		<input type="submit" name="sftp_test" class="btn btn-secondary" value="Test Connection" />
 
 		<br />

@@ -78,7 +78,7 @@ use phpseclib3\System\SSH\Agent;
  */
 class SSH2
 {
-    /**#@+
+    /**
      * Compression Types
      *
      */

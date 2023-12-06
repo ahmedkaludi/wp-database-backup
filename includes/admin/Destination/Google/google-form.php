@@ -14,10 +14,10 @@ $update_msg = '';
 if ( isset( $_POST['wpdb_google_drive'] ) && 'Y' === $_POST['wpdb_google_drive'] ) {
 	// Validate that the contents of the form request came from the current site and not somewhere else added 21-08-15 V.3.4.
 	if ( ! isset( $_POST['wpdbbackup_update_google_setting'] ) ) {
-		die( '<br><br>Invalid form data. form request came from the somewhere else not current site!' );
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
-	if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpdbbackup_update_google_setting'] ) ), 'wpdbbackup-update-google-setting' ) ) {
-		die( '<br><br>Invalid form data. form request came from the somewhere else not current site! ' );
+	if ( ! wp_verify_nonce( $_POST['wpdbbackup_update_google_setting'] , 'wpdbbackup-update-google-setting' ) ) {
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
 	$client_id     = '';
 	$client_secret = '';
@@ -108,7 +108,7 @@ if(!empty($wpdb_dest_google_auth_code) && !empty($wpdb_dest_google_client_key) &
 					<p class="text-success"><?php echo esc_html__('Configuration to Google Drive Access has been done successfully', 'wpdbbkp') ?></p>
 					<p><?php echo esc_html__('By clicking reset, you can reconfigure Google Account', 'wpdbbkp') ?></p>
 					<p><?php echo esc_html__('For local backup click on Reset Configure', 'wpdbbkp') ?></p>
-					<p><input type="submit" name="reset" class="btn btn-primary" value="<?php esc_attr_e( 'Reset Configure' ); ?>" />&nbsp;
+					<p><input type="submit" name="reset" class="btn btn-primary" value="<?php esc_attr_e( 'Reset Configure' , 'wpdbbkp' ); ?>" />&nbsp;
 					</p>
 				<?php } else { ?>
 
@@ -131,8 +131,8 @@ if(!empty($wpdb_dest_google_auth_code) && !empty($wpdb_dest_google_client_key) &
 						</div>
 					</div>
 
-					<p><input type="submit" name="Submit" class="btn btn-primary" value="<?php esc_attr_e( 'Allow Access' ); ?>" />&nbsp;
-						<input type="submit" name="Save" class="btn btn-secondary" value="<?php esc_attr_e( 'Save' ); ?>" />&nbsp;
+					<p><input type="submit" name="Submit" class="btn btn-primary" value="<?php esc_attr_e( 'Allow Access' , 'wpdbbkp' ); ?>" />&nbsp;
+						<input type="submit" name="Save" class="btn btn-secondary" value="<?php esc_attr_e( 'Save' , 'wpdbbkp' ); ?>" />&nbsp;
 					</p>
 				<?php } ?>
 			</form>

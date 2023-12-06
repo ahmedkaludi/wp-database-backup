@@ -121,7 +121,7 @@ function wpdbbkp_send_feedback() {
 
     $success = wp_mail( 'team@magazine3.in', $subject, $text, $headers );
 
-    die();
+    wp_die();
 }
 add_action( 'wp_ajax_wpdbbkp_send_feedback', 'wpdbbkp_send_feedback' );
  
@@ -149,8 +149,7 @@ function wpdbbkp_enqueue_makebetter_email_js(){
 function wpdbbkp_is_pro_active()
 {
     $check_status = false;
-    $pluginPath = 'wp-database-backup-pro/wp-all-backup.php';
-    if (is_plugin_active( $pluginPath )) {
+    if (function_exists( 'bkpforwp_pro_tab_content' )) {
         $check_status = true;
     }
     return $check_status;

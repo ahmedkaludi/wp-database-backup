@@ -310,17 +310,6 @@ if(!function_exists('wpdbbkp_cron_mysqldump')){
 
 		            $filename = $FileName . '.sql';
 		            /* Begin : Generate SQL DUMP using cmd 06-03-2016 */
-		            $mySqlDump = 0;
-
-		            // if ($wpdbbkp_admin_class_obj->get_mysqldump_command_path()) {
-		            //     if (!$wpdbbkp_admin_class_obj->mysqldump($path_info['basedir'] . '/db-backup/' . $filename)) {
-		            //         $mySqlDump = 1;
-		            //     } else {
-		            //         $logMessage = "\n# Database dump method: mysqldump";
-		            //     }
-		            // } else {
-		            //     $mySqlDump = 1;
-		            // }
 		            $mySqlDump = 1;
 		            if ($mySqlDump == 1) {
 		            	 global $wpdb;
@@ -376,7 +365,7 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 						for($sub_i=0;$sub_i<$t_sub_queries;$sub_i++)
 						{
 							$sub_offset = $sub_i*$sub_limit;
-							$sub_result = $wpdb->get_results( "SELECT * FROM {$table} LIMIT {$sub_limit} OFFSET {$sub_offset}", ARRAY_A  ); 
+							$sub_result = $wpdb->get_results( $wpdb->prepare("SELECT * FROM %i LIMIT %d OFFSET %d",array($table,$sub_limit,$sub_offset)), ARRAY_A  );
 							if($sub_result){
 								$result = array_merge($result,$sub_result);
 							}
@@ -384,7 +373,7 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 						}
 					}
 					else{
-						$result       = $wpdb->get_results( "SELECT * FROM {$table}", ARRAY_A  ); // phpcs:ignore
+						$result       = $wpdb->get_results( $wpdb->prepare("SELECT * FROM %i",array($table)), ARRAY_A  ); // phpcs:ignore
 					}
 		            $row2 = $wpdb->get_row('SHOW CREATE TABLE ' . $table, ARRAY_N);
 		            $output .= "\n\n" . $row2[1] . ";\n\n";

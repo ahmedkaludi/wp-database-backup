@@ -23,7 +23,6 @@ class WPDBFullBackupLog {
                         'type' => $option['type'],
                         'size' => $option['size']
                     );
-                    // error_log("set destination to $args[0]");
                 }else{
                         $newoptions[] = $option;
                 }

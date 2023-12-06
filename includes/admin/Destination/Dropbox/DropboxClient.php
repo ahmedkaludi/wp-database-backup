@@ -131,19 +131,23 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 		 */
 		public function upload( $file, $path = '', $overwrite = true ) {
 			$file = str_replace( '\\', '/', $file );
-
+			$output ='';
 			if ( ! is_readable( $file ) ) {
 				throw new WPDBBackup_Destination_Dropbox_API_Exception( "Error: File \"$file\" is not readable or doesn't exist." );
 			}
 
 			if ( filesize( $file ) < 5242880 ) { // chunk transfer on bigger uploads
-				$output = $this->filesUpload(
-					array(
-						'contents' => file_get_contents( $file ),
-						'path'     => $path,
-						'mode'     => ( $overwrite ) ? 'overwrite' : 'add',
-					)
-				);
+				$file_content = file_get_contents( $file );
+				if($file_content){
+					$output = $this->filesUpload(
+						array(
+							'contents' => $file_content,
+							'path'     => $path,
+							'mode'     => ( $overwrite ) ? 'overwrite' : 'add',
+						)
+					);
+				}
+				
 			} else {
 				$output = $this->multipartUpload( $file, $path, $overwrite );
 			}
@@ -556,11 +560,6 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				$this->job_object->log( $message );
 			}
 
-			// Build cURL Request
-			// $ch = curl_init();
-			// curl_setopt($ch, CURLOPT_URL, $url);
-			// curl_setopt($ch, CURLOPT_POST, true);
-
 			$headers['Expect'] = '';
 
 			if ( $endpointFormat != 'oauth' ) {
@@ -569,7 +568,6 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 
 			if ( $endpointFormat == 'oauth' ) {
 				$POSTFIELDS = http_build_query( $args, null, '&' );
-				// curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($args, null, '&'));
 				$headers['Content-Type'] = 'application/x-www-form-urlencoded';
 			} elseif ( $endpointFormat == 'rpc' ) {
 				if ( ! empty( $args ) ) {
@@ -592,25 +590,11 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 					$headers['Dropbox-API-Arg'] = '{}';
 				}
 			} else {
-				// curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+				
 				$headers['Dropbox-API-Arg'] = wp_json_encode( $args );
 			}
 			$Agent = 'WP-Database-Backup/V.4.5.1; WordPress/4.8.2; ' . home_url();
-			// curl_setopt($ch, CURLOPT_USERAGENT, $Agent);
-			// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			// curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-			// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 			$output = '';
-			if ( $echo ) {
-				// echo curl_exec($ch);
-			} else {
-				// curl_setopt($ch, CURLOPT_HEADER, true);
-				// $responce = explode("\r\n\r\n", curl_exec($ch), 2);
-				// if (!empty($responce[1])) {
-					// $output = json_decode($responce[1], true);
-				// }
-			}
-			// $status = curl_getinfo($ch);
 
 			$request  = new WP_Http();
 			$result   = $request->request(
@@ -644,14 +628,10 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				}
 
 				// redo request
-				return $this->request( $url, $args, $endpointFormat, $data, $echo );
+				return $this->request( $url, $args, $endpointFormat, $echo );
 			} // We can't really handle anything else, so throw it back to the caller
 			elseif ( isset( $output['error'] ) || wp_remote_retrieve_response_code( $result ) >= 400 ) {
 				$code = wp_remote_retrieve_response_code( $result );
-				// if (curl_errno($ch) != 0) {
-				 // $message = '(' . curl_errno($ch) . ') ' . curl_error($ch);
-				   // $code = 0;
-				// } else
 				if ( wp_remote_retrieve_response_code( $result ) == 400 ) {
 					$message = '(400) Bad input parameter: ' . strip_tags( $responce[1] );
 				} elseif ( wp_remote_retrieve_response_code( $result ) == 401 ) {
@@ -666,9 +646,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				if ( $this->job_object && method_exists($this->job_object,'log') && method_exists($this->job_object,'is_debug') && $this->job_object->is_debug() ) {
 					$this->job_object->log( 'Response with header: ' . $responce[0] );
 				}
-				// throw new WPDBBackup_Destination_Dropbox_API_Request_Exception($message, $code, null, isset($output['error']) ? $output['error'] : null);
 			} else {
-				// curl_close($ch);
 				if ( ! is_array( $output ) ) {
 					return $responce[1];
 				} else {

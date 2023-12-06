@@ -12,10 +12,10 @@ $update_msg = '';
 if ( true === isset( $_POST['wpdb_amazon_s3'] ) && 'Y' === $_POST['wpdb_amazon_s3'] ) {
 	// Validate that the contents of the form request came from the current site and not somewhere else added 21-08-15 V.3.4.
 	if ( ! isset( $_POST['wpdbbackup_update_amazon_setting'] ) ) {
-		die( '<br><br>Invalid form data. form request came from the somewhere else not current site!' );
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
-	if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpdbbackup_update_amazon_setting'] ) ), 'wpdbbackup-update-amazon-setting' ) ) {
-		die( '<br><br>Invalid form data. form request came from the somewhere else not current site! ' );
+	if ( ! wp_verify_nonce( $_POST['wpdbbackup_update_amazon_setting'] , 'wpdbbackup-update-amazon-setting' ) ) {
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
 
 	// Save the posted value in the database.
@@ -133,7 +133,7 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 					</div>
 				</div>
 
-				<p><input type="submit" name="Submit" class="btn btn-primary" value="<?php esc_attr_e( 'Save' ); ?>" />&nbsp;
+				<p><input type="submit" name="Submit" class="btn btn-primary" value="<?php esc_attr_e( 'Save' , 'wpdbbkp' ); ?>" />&nbsp;
 				</p>
 			</form>
 

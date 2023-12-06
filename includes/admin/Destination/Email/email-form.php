@@ -12,6 +12,26 @@ if($wpdbbkp_email_enabled==1 && !empty($wpdbbkp_email_id))
 {
 	$wpdbbkp_email_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span> </label> ';
 }
+
+
+// If user pressed this button, this hidden field will be set to 'Y'.
+if ( isset( $_POST[ 'email_notification_submit' ] ) && 'Save Settings' === $_POST[ 'email_notification_submit' ] ) {
+
+	if ( isset( $_POST['wp_db_backup_destination_Email'] ) ) {
+		update_option( 'wp_db_backup_destination_Email', 1 , false);
+	} else {
+		update_option( 'wp_db_backup_destination_Email', 0 , false);
+	}
+
+	if ( isset( $_POST['wp_db_backup_email_attachment'] ) ) {
+		update_option( 'wp_db_backup_email_attachment', $_POST['wp_db_backup_email_attachment'] , false);
+	} 
+
+	if ( isset( $_POST['wp_db_backup_email_id'] ) ) {
+		update_option( 'wp_db_backup_email_attachment', sanitize_email( $_POST['wp_db_backup_email_id'] ) , false);
+	} 
+
+} // end if.
 ?>
 <div class="panel panel-default">
 					<div class="panel-heading">

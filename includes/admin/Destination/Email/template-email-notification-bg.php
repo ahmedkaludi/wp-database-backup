@@ -8,7 +8,11 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
-
+$unsub_token = get_option('wpdbbkp_unsubscribe_token',false);
+if(!$unsub_token){
+    $unsub_token = hash("sha256", mt_rand(999,99999999));
+    update_option('wpdbbkp_unsubscribe_token',$unsub_token ,false);
+}
 $message = '<div bgcolor="#e3e3e3" style="font-family:Arial;color:#707070;font-size:12px;background-color:#e3e3e3;margin:0;padding:0px">
 <div align="center" style="font-family:Arial;width:600px;background-color:#ffffff;margin:0 auto;padding:0px">
     <div style="font-family:Arial;border-bottom-color:#cccccc;border-bottom-width:1px;border-bottom-style:solid;background-color:#eee;margin:0px;padding:4px">
@@ -69,7 +73,7 @@ $message = '<div bgcolor="#e3e3e3" style="font-family:Arial;color:#707070;font-s
 
     <div style="font-family:Arial;border-top-width:1px;border-top-color:#cccccc;border-top-style:solid;background-color:#eee;margin:0px;padding:10px">
         You\'re receiving this email because you have active Email Notification on your site(' . esc_url($site_url) . ').
-		<br>If you don\'t like to receieve a Email Notification then <a href="'.esc_url($site_url).'">Click Here to unsubcribe</a>.
+		<br>If you don\'t like to receieve a Email Notification then <a href="'.esc_url(admin_url('admin-ajax.php?action=wpdbbkp_email_unsubscribe&unsubscribe_token='.esc_attr($unsub_token))).'">Click Here to unsubcribe</a>.
 		<div class="yj6qo"></div><div class="adL">
     </div></div><div class="adL">
 </div></div><div class="adL">

@@ -32,6 +32,7 @@ $pkey   = isset($wpdbbkp_sftp_details['sftp_key'])?base64_decode($wpdbbkp_sftp_d
 $key_pass   = isset($wpdbbkp_sftp_details['key_password'])?$wpdbbkp_sftp_details['key_password']:false;
 $directory = isset($wpdbbkp_sftp_details['directory'])?$wpdbbkp_sftp_details['directory']:'';
 $wpdbbkp_auth_type_ = isset($wpdbbkp_sftp_details[ 'auth_type' ])?$wpdbbkp_sftp_details[ 'auth_type' ]:'password';
+$sftp = false;
 if ( '' === $directory ) {
 	$directory = '/';
 }
@@ -41,10 +42,9 @@ if ( $host ) {
 		// If user has WP manage options permissions.
 		if ( current_user_can( 'manage_options' ) ) {
 			// Connect to host ONLY if the 2 security conditions are valid / met.
-			$conn = $sftp = new SFTP( $host , $port );
-			if ( ! $conn ) {
-				$trouble = 'Could not connect to your SFTP server.<br />Please check your SFTP Host settings and try again (leave FTP Host BLANK for local backups).';
-				wpdbbkp_preflight_problem( $trouble );
+			$sftp = new SFTP( $host , $port );
+			if ( ! $sftp ) {
+				return esc_html__('Could not connect to your SFTP server.','wpdbbkp').'<br />'.esc_html__('Please check your SFTP Host settings and try again (leave FTP Host BLANK for local backups).','wpdbbkp');
 			}
 			if($wpdbbkp_auth_type_=='key'){
 				$key = PublicKeyLoader::load($pkey,$key_pass);
@@ -53,8 +53,7 @@ if ( $host ) {
 				$result = $sftp->login($user, $pass);
 			}
 			if ( ! $result ) {
-				$trouble = 'Could not log in to your FTP server.<br />Please check your SFTP Username and Password, then try again.<br />For local backups, please leave the FTP Host option BLANK.';
-				wpdbbkp_preflight_problem( $trouble );
+				return esc_html__('Could not log in to your FTP server.','wpdbbkp').'<br />'.esc_html__('Please check your SFTP Username and Password, then try again.','wpdbbkp').'<br />'.esc_html__('For local backups, please leave the FTP Host option BLANK.','wpdbbkp');
 			}
 		}
 	}

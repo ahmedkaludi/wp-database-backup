@@ -39,7 +39,7 @@ if($wpdbbkp_local_enabled==1 && !empty($wpdbbkp_local_path))
                                 </div>
                             </div>';
 							echo '<div class="row form-group"><label class="col-sm-2" for="wp_db_backup_email_id">'.esc_html__('Local Backup Path','wpdbbkp').'</label>';
-							echo '<div class="col-sm-6"><input type="text" id="wp_db_backup_email_id" class="form-control" name="wp_db_local_backup_path" value="' . esc_url( $wp_db_local_backup_path ) . '" placeholder="'.esc_html__('Directory Path','wpdbbkp').'"></div>';
+							echo '<div class="col-sm-6"><input type="text" id="wp_db_backup_email_id" class="form-control" name="wp_db_local_backup_path" value="' . esc_url( $wp_db_local_backup_path ) . '" placeholder="'.esc_attr__('Directory Path','wpdbbkp').'"></div>';
 							echo '<div class="col-sm-4">'.esc_html__('Leave blank if you don\'t want use this feature or Disable Local Backup','wpdbbkp').'</div></div>';
 							echo '<div class="row form-group">';
 							echo '<div class="col-sm-12">';
@@ -54,7 +54,7 @@ if($wpdbbkp_local_enabled==1 && !empty($wpdbbkp_local_path))
 							esc_html_e( 'Ex.: C:/xampp/htdocs', 'wpdbbkp' );
 							echo '</div>';
 							echo '<div class="col-sm-12 submit">';
-							echo '<input type="submit" name="local_backup_submit" class="btn btn-primary" value="'.esc_html__('Save Settings','wpdbbkp').'" />';
+							echo '<input type="submit" name="local_backup_submit" class="btn btn-primary" value="'.esc_attr__('Save Settings','wpdbbkp').'" />';
 							echo '</div>';
 							echo '</form>';
 							?>

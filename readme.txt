@@ -76,6 +76,16 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 
 == Changelog ==
 
+= 6.7 =
+* 07-12-2023
+* Added: Option to delete all the Backup lists at once #70
+* Added: Support for database backup using SFTP #64
+* Fixed: 1-click unsubscribe for email notification #24
+* Compatibility: Tested with WordPress 6.4 #72
+* Fixed: Auto Backup is not working for DropBox #58
+* Fixed: Plugin is not being deactivated in multisite #74
+* Improvement: readme txt improvements #22 #28
+
 = 6.6 =
 * 22-09-2023
 * Added: Support for background backup for plain permalink structure #67

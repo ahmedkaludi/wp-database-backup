@@ -14,7 +14,7 @@ class WPDBFullBackupLog {
             foreach ($options as $option) {
                 if ($option['filename'] == $args[0]) {
                     $newoptions[] = $option;
-                    $newoptions['destination'] = esc_html($args[4]);
+                    $newoptions['destination'] = wp_kses($args[4]);
                 }else{
                         $newoptions[] = $option;
                 }

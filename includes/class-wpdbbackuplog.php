@@ -28,8 +28,8 @@ class WPDBBackupLog {
 
 			foreach ( $options as $option ) {
 				if (isset($args[0]) && $option['filename'] === sanitize_text_field($args[0])) {
-					$option['destination'] = esc_html($args[4]);
-					$option['log']         = esc_html($args[2]);
+					$option['destination'] = wp_kses($args[4]);
+					$option['log']         = wp_kses($args[2]);
 					$newoptions[]          = $option;
 				} else {
 					$newoptions[] = $option;

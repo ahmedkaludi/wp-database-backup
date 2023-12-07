@@ -14,16 +14,15 @@ $wp_upload_dir = wp_upload_dir();
 $wp_upload_dir['basedir'] = str_replace( '\\', '/', $wp_upload_dir['basedir'] );
 $remotefile               = $directory . '/' . $filename;
 $localfile                = trailingslashit( $wp_upload_dir['basedir'] . '/db-backup' ) . $filename;
-error_log($result);
-	if ( $result ) {
-		$success = $sftp->put($remotefile, $localfile, SFTP::SOURCE_LOCAL_FILE | SFTP::RESUME_START);
-		if ( $success ) {
-			$args[2] = $args[2] . '<br> Upload Database Backup on SFTP ' . $host;
-			$args[4] = $args[4] .= 'SFTP, ';
-		}
+if ( $result ) {
+	$success = $sftp->put($remotefile, $localfile, SFTP::SOURCE_LOCAL_FILE | SFTP::RESUME_START);
+	if ( $success ) {
+		$args[2] = $args[2] . '<br> Upload Database Backup on SFTP ' . $host;
+		$args[4] = $args[4] .= 'SFTP, ';
 	}
-	// Close connection to host.
-	if($sftp){
-		$sftp->disconnect();
-	}
+}
+// Close connection to host.
+if($sftp){
+	$sftp->disconnect();
+}
 

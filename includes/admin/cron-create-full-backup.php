@@ -96,9 +96,9 @@ function wpdbbkp_check_fullbackup_stat(){
 add_action('wp_ajax_wpdbbkp_start_cron_manual', 'wpdbbkp_start_cron_manual');
 
 function wpdbbkp_start_cron_manual(){
-	$wpdbbkp_cron_manual=['status'=>esc_html__('fail','wpdbbkp'),'msg'=>esc_html__('Invalid Action','wpdbbkp')];
+	$wpdbbkp_cron_manual=['status'=>esc_attr('fail'),'msg'=>esc_html__('Invalid Action','wpdbbkp')];
 	if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce')){
-	$wpdbbkp_cron_manual=['status'=>esc_html__('success','wpdbbkp'),'msg'=>esc_html__('Cron Started','wpdbbkp')];
+	$wpdbbkp_cron_manual=['status'=>esc_attr('success'),'msg'=>esc_html__('Cron Started','wpdbbkp')];
 	$token=wpdbbkp_token_gen();
 	update_option('wpdbbkp_api_token',$token, false);
 	$rest_route = get_rest_url(null,'wpdbbkp/v1/cron_backup/'.$token);
@@ -130,7 +130,7 @@ function wpdbbkp_start_cron_manual(){
 
 add_action('wp_ajax_wpdbbkp_get_progress', 'wpdbbkp_get_progress');
 function wpdbbkp_get_progress(){
-	$wpdbbkp_progress=['status'=>esc_html__('fail','wpdbbkp'),'msg'=>esc_html__('Unable to track progress, try reloading the page','wpdbbkp')];
+	$wpdbbkp_progress=['status'=>esc_html('fail'),'msg'=>esc_html__('Unable to track progress, try reloading the page','wpdbbkp')];
 	if(isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce') && current_user_can( 'manage_options' )){
 		$wpdbbkp_progress['backupcron_status']=esc_html(get_option('wpdbbkp_backupcron_status',false));
 		$wpdbbkp_progress['backupcron_step']=esc_html(get_option('wpdbbkp_backupcron_step',false));
@@ -924,14 +924,14 @@ function backup_files_cron_with_resume(){
  add_action('wp_ajax_wpdbbkp_stop_cron_manual', 'wpdbbkp_stop_cron_manual');
 
  function wpdbbkp_stop_cron_manual(){
-	 $wpdbbkp_cron_manual=['status'=>esc_html__('fail','wpdbbkp'),'msg'=>esc_html__('Invalid Action','wpdbbkp')];
+	 $wpdbbkp_cron_manual=['status'=>esc_html('fail'),'msg'=>esc_html__('Invalid Action','wpdbbkp')];
 	 if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce')){
 		update_option('wpdbbkp_backupcron_status','inactive',false);
 		update_option('wpdbbkp_backup_status','inactive',false);
 		update_option('wpdbbkp_backupcron_step','Initialization',false);
 		update_option('wpdbbkp_backupcron_current','Fetching Config',false);
 	 }
-	 $wpdbbkp_cron_manual=['status'=>esc_html__('fail','wpdbbkp'),'msg'=>esc_html__('Cron Stopped','wpdbbkp')];
+	 $wpdbbkp_cron_manual=['status'=>esc_html('fail'),'msg'=>esc_html__('Cron Stopped','wpdbbkp')];
 	 echo wp_json_encode($wpdbbkp_cron_manual);
 	 wp_die();
 	

@@ -96,9 +96,9 @@ function wpdbbkp_check_fullbackup_stat(){
 add_action('wp_ajax_wpdbbkp_start_cron_manual', 'wpdbbkp_start_cron_manual');
 
 function wpdbbkp_start_cron_manual(){
-	$wpdbbkp_cron_manual=['status'=>esc_attr('fail'),'msg'=>esc_html__('Invalid Action','wpdbbkp')];
+	$wpdbbkp_cron_manual=['status'=>esc_html('fail'),'msg'=>esc_html__('Invalid Action','wpdbbkp')];
 	if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce')){
-	$wpdbbkp_cron_manual=['status'=>esc_attr('success'),'msg'=>esc_html__('Cron Started','wpdbbkp')];
+	$wpdbbkp_cron_manual=['status'=>esc_html('success'),'msg'=>esc_html__('Cron Started','wpdbbkp')];
 	$token=wpdbbkp_token_gen();
 	update_option('wpdbbkp_api_token',$token, false);
 	$rest_route = get_rest_url(null,'wpdbbkp/v1/cron_backup/'.$token);

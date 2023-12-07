@@ -1,9 +1,9 @@
 <?php // phpcs:ignore
 /**
- * Plugin Name: Backup For WP  
+ * Plugin Name: Backup For WP
  * Plugin URI:https://wordpress.org/plugins/wp-database-backup
- * Description: This plugin helps you to create/restore Unlimited  Wordpress Database & Files backup.
- * Version: 6.6
+ * Description: This plugin helps you to create/restore Unlimited  WordPress Database & Files backup.
+ * Version: 6.7
  * Author: Backup for WP
  * Author URI: https://backupforwp.com/
  * Text Domain: wpdbbkp
@@ -47,7 +47,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		 *
 		 * @var string
 		 */
-		public $version = '6.6';
+		public $version = '6.7';
 
 		/**
 		 * Plugin instance
@@ -100,11 +100,11 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			define( 'WPDB_VERSION', $this->version );
 			define( 'WPDBPLUGIN_VERSION', WPDB_VERSION );
 			$wp_all_backup_backups_dir=get_option('wp_db_backup_backups_dir');
-            if(!empty($wp_all_backup_backups_dir)){
-                define( 'WPDB_BACKUPS_DIR',$wp_all_backup_backups_dir);
-            }else{
-                define( 'WPDB_BACKUPS_DIR','db-backup');
-            }
+			if(!empty($wp_all_backup_backups_dir)){
+				define( 'WPDB_BACKUPS_DIR',$wp_all_backup_backups_dir);
+			}else{
+				define( 'WPDB_BACKUPS_DIR','db-backup');
+			}
 		}
 
 		/**
@@ -117,26 +117,25 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			include_once 'includes/class-wpdbbackuplog.php';
 			include_once 'includes/admin/filter.php';
 			include_once 'includes/admin/newsletter.php';
-   			//include_once 'includes/admin/ajax-create-full-backup.php';
 			include_once 'includes/admin/cron-create-full-backup.php';
-   			include_once 'includes/log_generate.php';
+			include_once 'includes/log_generate.php';
 			
 		}
 		/**
 		 * Installation setting at time of activation.
 		 */
 		public function installation($flag=1) {
-			add_option( 'wp_db_backup_destination_FTP', 1 );
-			add_option( 'wp_db_backup_destination_Email', 1 );
-			add_option( 'wp_db_backup_destination_s3', 1 );
-			add_option( 'wp_db_remove_local_backup', 0 );
-			add_option('wp_db_backup_backup_type','complete');
- 			add_option('wp_db_backup_exclude_dir',"wp-content/backupwordpress-728d36f682-backups|.git|db-backup");
- 			add_option('wp_db_backup_backups_dir','db-backup');
-			if($flag!=2)
-			{
-			 add_option( 'wpdbbkp_activation_redirect', true);
-		    }
+			add_option( 'wp_db_backup_destination_SFTP', 0 ,false);
+			add_option( 'wp_db_backup_destination_FTP', 0 ,false);
+			add_option( 'wp_db_backup_destination_Email', 0,false);
+			add_option( 'wp_db_backup_destination_s3', 0 ,false);
+			add_option( 'wp_db_remove_local_backup', 0 ,false);
+			add_option('wp_db_backup_backup_type','complete',false);
+			add_option('wp_db_backup_exclude_dir',"wp-content/backupwordpress-728d36f682-backups|.git|db-backup",false);
+			add_option('wp_db_backup_backups_dir','db-backup',false);
+			if($flag!=2){
+				add_option( 'wpdbbkp_activation_redirect', true,false);
+			}
 		}
 
 		/**

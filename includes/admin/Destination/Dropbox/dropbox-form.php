@@ -5,9 +5,8 @@
  * @package wpdbbkp
  */
 $wpdb_dropboxtoken = get_option( 'wpdb_dropboxtoken',null );
-$wpdb_dropbbox_code = get_option( 'wpdb_dropbbox_code',null );
 $wpdbbkp_dropbox_status			=	'<label><b>Status</b>: Not Configured </label> ';
-if(!empty($wpdb_dropboxtoken) && !empty($wpdb_dropbbox_code))
+if(!empty($wpdb_dropboxtoken))
 {
 	$wpdbbkp_dropbox_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span></label> ';
 }
@@ -16,7 +15,7 @@ if(!empty($wpdb_dropboxtoken) && !empty($wpdb_dropbbox_code))
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapseIII">
-				<h2>Dropbox <?php echo $wpdbbkp_dropbox_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
+				<h2><?php esc_html_e('Dropbox','wpdbbkp');?> <?php echo $wpdbbkp_dropbox_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
 			</a>
 		</h4>
 	</div>

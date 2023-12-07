@@ -13,17 +13,8 @@ class WPDBFullBackupLog {
 
             foreach ($options as $option) {
                 if ($option['filename'] == $args[0]) {
-                        $newoptions[] = array(
-                        'date' => $option['date'],
-                        'filename' => $option['filename'],
-                        'url' =>$option['url'],
-                        'dir' => $option['dir'],
-                        'log' =>$option['log'],
-                        'destination' =>  $args[4],
-                        'type' => $option['type'],
-                        'size' => $option['size']
-                    );
-                    // error_log("set destination to $args[0]");
+                    $newoptions[] = $option;
+                    $newoptions['destination'] = wp_kses($args[4]);
                 }else{
                         $newoptions[] = $option;
                 }
@@ -32,7 +23,7 @@ class WPDBFullBackupLog {
 
         }
                                 
-        update_option('wp_db_backup_backups', $newoptions);
+        update_option('wp_db_backup_backups', $newoptions, false);
 
         if (get_option('wp_db_log') == 1) {
             if(isset($args[4]) && !empty($args[4]))

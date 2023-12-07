@@ -166,12 +166,6 @@
   define( 'PCLZIP_CB_POST_EXTRACT', 78002 );
   define( 'PCLZIP_CB_PRE_ADD', 78003 );
   define( 'PCLZIP_CB_POST_ADD', 78004 );
-  /* For futur use
-  define( 'PCLZIP_CB_PRE_LIST', 78005 );
-  define( 'PCLZIP_CB_POST_LIST', 78006 );
-  define( 'PCLZIP_CB_PRE_DELETE', 78007 );
-  define( 'PCLZIP_CB_POST_DELETE', 78008 );
-  */
 
   // --------------------------------------------------------------------------------
   // Class : PclZip
@@ -218,7 +212,7 @@
     // ----- Tests the zlib
     if (!function_exists('gzopen'))
     {
-      die('Abort '.basename(__FILE__).' : Missing zlib extensions');
+      wp_die(esc_html__('Abort','wpdbbkp').basename(__FILE__).esc_html__(' : Missing zlib extensions','wpdbbkp'));
     }
 
     // ----- Set the attributes
@@ -1744,12 +1738,6 @@
         case PCLZIP_CB_POST_EXTRACT :
         case PCLZIP_CB_PRE_ADD :
         case PCLZIP_CB_POST_ADD :
-        /* for futur use
-        case PCLZIP_CB_PRE_DELETE :
-        case PCLZIP_CB_POST_DELETE :
-        case PCLZIP_CB_PRE_LIST :
-        case PCLZIP_CB_POST_LIST :
-        */
           // ----- Check the number of parameters
           if (($i+1) >= $p_size) {
             // ----- Error log
@@ -2550,15 +2538,6 @@
       return PclZip::errorCode();
     }
 
-    // ----- Look for a stored different filename
-    /* TBC : Removed
-    if (isset($p_filedescr['stored_filename'])) {
-      $v_stored_filename = $p_filedescr['stored_filename'];
-    }
-    else {
-      $v_stored_filename = $p_filedescr['stored_filename'];
-    }
-    */
 
     // ----- Set the file properties
     clearstatcache();
@@ -2746,7 +2725,6 @@
 
         // ----- Call the header generation
         if (($v_result = $this->privWriteFileHeader($p_header)) != 1) {
-          @fclose($v_file);
           return $v_result;
         }
 
@@ -3397,18 +3375,6 @@
           }
       }
 
-      // ----- Look for extract by ereg rule
-      // ereg() is deprecated with PHP 5.3
-      /*
-      else if (   (isset($p_options[PCLZIP_OPT_BY_EREG]))
-               && ($p_options[PCLZIP_OPT_BY_EREG] != "")) {
-
-          if (ereg($p_options[PCLZIP_OPT_BY_EREG], $v_header['stored_filename'])) {
-              $v_extract = true;
-          }
-      }
-      */
-
       // ----- Look for extract by preg rule
       else if (   (isset($p_options[PCLZIP_OPT_BY_PREG]))
                && ($p_options[PCLZIP_OPT_BY_PREG] != "")) {
@@ -3850,10 +3816,6 @@
           {
             $v_read_size = ($v_size < PCLZIP_READ_BLOCK_SIZE ? $v_size : PCLZIP_READ_BLOCK_SIZE);
             $v_buffer = @fread($this->zip_fd, $v_read_size);
-            /* Try to speed up the code
-            $v_binary_data = pack('a'.$v_read_size, $v_buffer);
-            @fwrite($v_dest_file, $v_binary_data, $v_read_size);
-            */
             @fwrite($v_dest_file, $v_buffer, $v_read_size);
             $v_size -= $v_read_size;
           }
@@ -3978,7 +3940,7 @@
     // ----- Creates a temporary file
     $v_gzip_temp_name = PCLZIP_TEMPORARY_DIR.uniqid('pclzip-').'.gz';
     if (($v_dest_file = @fopen($v_gzip_temp_name, "wb")) == 0) {
-      fclose($v_file);
+      fclose($v_dest_file);
       PclZip::privErrorLog(PCLZIP_ERR_WRITE_OPEN_FAIL, 'Unable to open temporary file \''.$v_gzip_temp_name.'\' in binary write mode');
       return PclZip::errorCode();
     }
@@ -4772,18 +4734,6 @@
               }
           }
       }
-
-      // ----- Look for extract by ereg rule
-      // ereg() is deprecated with PHP 5.3
-      /*
-      else if (   (isset($p_options[PCLZIP_OPT_BY_EREG]))
-               && ($p_options[PCLZIP_OPT_BY_EREG] != "")) {
-
-          if (ereg($p_options[PCLZIP_OPT_BY_EREG], $v_header_list[$v_nb_extracted]['stored_filename'])) {
-              $v_found = true;
-          }
-      }
-      */
 
       // ----- Look for extract by preg rule
       else if (   (isset($p_options[PCLZIP_OPT_BY_PREG]))

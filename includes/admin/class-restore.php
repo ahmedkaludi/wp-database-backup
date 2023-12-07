@@ -79,7 +79,7 @@ class Wpbp_Restore {
                         $file_path = $dir .$filename;
 
                         if ( ! $archive->extract( PCLZIP_OPT_PATH, $dir ) ){
-                                wp_die( 'Unable to extract zip file. Please check that zlib php extension is enabled. <button onclick="history.go(-1);">Go Back</button>', 'ZIP Error' );
+                                wp_die( esc_html__('Unable to extract zip file. Please check that zlib php extension is enabled.','wpdbbkp').'<button onclick="history.go(-1);">'.esc_html__('Go Back','wpdbbkp').'</button>', esc_html__('ZIP Error','wpdbbkp') );
                         }
                 } else {
                         $file_path = $file;
@@ -133,15 +133,16 @@ class Wpbp_Restore {
                                         $database_file = $database_file;
                                         if ( file_exists( $database_file ) ) {
                                                 $sql_file = file_get_contents( $database_file, true );
+                                                if($sql_file){
+                                                        $sql_queries       = explode( ";\n", $sql_file );
+                                                        $sql_queries_count = count( $sql_queries );
 
-                                                $sql_queries       = explode( ";\n", $sql_file );
-                                                $sql_queries_count = count( $sql_queries );
+                                                        mysqli_query($conn, "SET sql_mode = ''");
 
-                                                mysqli_query($conn, "SET sql_mode = ''");
-
-                                                for ( $i = 0; $i < $sql_queries_count; $i++ ) {
-                                                        $sql_query_=apply_filters( 'wpdbbkp_sql_query_restore', $sql_queries[ $i ] );
-                                                        mysqli_query($conn, $sql_query_ ); // phpcs:ignore
+                                                        for ( $i = 0; $i < $sql_queries_count; $i++ ) {
+                                                                $sql_query_=apply_filters( 'wpdbbkp_sql_query_restore', $sql_queries[ $i ] );
+                                                                mysqli_query($conn, $sql_query_ ); // phpcs:ignore
+                                                        }
                                                 }
                                         }
                                 }
@@ -161,34 +162,43 @@ class Wpbp_Restore {
                 }
 
                 if ( ! $archive->extract( PCLZIP_OPT_PATH, ABSPATH ) ){
-                        wp_die( 'Unable to extract zip file. Please check that zlib php extension is enabled. <button onclick="history.go(-1);">Go Back</button>', 'ZIP Error' );
+                        wp_die( esc_html__('Unable to extract zip file. Please check that zlib php extension is enabled.','wpdbbkp').'<button onclick="history.go(-1);">'.esc_html__('Go Back','wpdbbkp').'</button>', esc_html__('ZIP Error','wpdbbkp') );
                 }
         }
 
         public function wp_backup_get_config_db_name() {
                 $filepath=get_home_path().'/wp-config.php';
                 $config_file = @file_get_contents("$filepath", true);
-                preg_match("/'DB_NAME',\s*'(.*)?'/", $config_file, $matches);
-                return $matches[1];
+                if($config_file){
+                        preg_match("/'DB_NAME',\s*'(.*)?'/", $config_file, $matches);
+                        return $matches[1];
+                }
+                
+                return '';
         }
 
         public function wp_backup_get_config_data($key) {
                 $filepath=get_home_path().'/wp-config.php';
                 $config_file = @file_get_contents("$filepath", true);
-                switch($key) {
-                        case 'DB_NAME':
-                                preg_match("/'DB_NAME',\s*'(.*)?'/", $config_file, $matches);
-                                break;
-                        case 'DB_USER':
-                                preg_match("/'DB_USER',\s*'(.*)?'/", $config_file, $matches);
-                                break;
-                        case 'DB_PASSWORD':
-                                preg_match("/'DB_PASSWORD',\s*'(.*)?'/", $config_file, $matches);
-                                break;
-                        case 'DB_HOST':
-                                preg_match("/'DB_HOST',\s*'(.*)?'/", $config_file, $matches);
-                                break;
+                if($config_file){
+                        switch($key) {
+                                case 'DB_NAME':
+                                        preg_match("/'DB_NAME',\s*'(.*)?'/", $config_file, $matches);
+                                        break;
+                                case 'DB_USER':
+                                        preg_match("/'DB_USER',\s*'(.*)?'/", $config_file, $matches);
+                                        break;
+                                case 'DB_PASSWORD':
+                                        preg_match("/'DB_PASSWORD',\s*'(.*)?'/", $config_file, $matches);
+                                        break;
+                                case 'DB_HOST':
+                                        preg_match("/'DB_HOST',\s*'(.*)?'/", $config_file, $matches);
+                                        break;
+                        }
+                        return $matches[1];
                 }
-                return $matches[1];
+                
+                return '';
+                
         }
 }

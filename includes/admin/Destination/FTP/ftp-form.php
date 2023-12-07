@@ -61,10 +61,10 @@ $wp_db_backup_destination_ftp = wp_db_filter_data( get_option( 'wp_db_backup_des
 if ( true === isset( $_POST[ $hidden_field_name3 ] ) && 'Y' === $_POST[ $hidden_field_name3 ] ) {
 	// Validate that the contents of the form request came from the current site and not somewhere else added 21-08-15 V.3.4.
 	if ( ! isset( $_POST['wpdbbackup_update_setting'] ) ) {
-		die( '<br><br>Invalid form data. form request came from the somewhere else not current site!' );
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
-	if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpdbbackup_update_setting'] ) ), 'wpdbbackup-update-setting' ) ) {
-		die( '<br><br>Invalid form data. form request came from the somewhere else not current site! ' );
+	if ( ! wp_verify_nonce( $_POST['wpdbbackup_update_setting'] , 'wpdbbackup-update-setting' ) ) {
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
 	// Read their posted value.
 	if ( true === isset( $_POST[ $data_field_name6 ] ) ) {
@@ -72,7 +72,7 @@ if ( true === isset( $_POST[ $hidden_field_name3 ] ) && 'Y' === $_POST[ $hidden_
 	}
 	// Save the posted value in the database.
 	if ( true === isset( $_POST[ $opt_val6 ] ) ) {
-		update_option( $opt_name6, wp_db_filter_data( sanitize_text_field( $opt_val6 ) ) );
+		update_option( $opt_name6, wp_db_filter_data( sanitize_text_field( $opt_val6 ) ) , false);
 	}
 	// Put a "settings updated" message on the screen.
 	?>
@@ -84,10 +84,10 @@ if ( true === isset( $_POST[ $hidden_field_name3 ] ) && 'Y' === $_POST[ $hidden_
 if ( isset( $_POST[ $hidden_field_name ] ) && 'Y' === $_POST[ $hidden_field_name ] ) {
 	// Validate that the contents of the form request came from the current site and not somewhere else added 21-08-15 V.3.4.
 	if ( ! isset( $_POST['wpdbbackup_update_setting'] ) ) {
-		die( '<br><br>Invalid form data. form request came from the somewhere else not current site! ' );
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
-	if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpdbbackup_update_setting'] ) ), 'wpdbbackup-update-setting' ) ) {
-		die( '<br><br>Invalid form data. form request came from the somewhere else not current site! ' );
+	if ( ! wp_verify_nonce(  $_POST['wpdbbackup_update_setting'] , 'wpdbbackup-update-setting' ) ) {
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
 	// Read their posted value.
 	if ( isset( $_POST[ $data_field_name ] ) ) {
@@ -110,24 +110,24 @@ if ( isset( $_POST[ $hidden_field_name ] ) && 'Y' === $_POST[ $hidden_field_name
 	}
 
 	// Save the posted value in the database.
-	update_option( $opt_name, wp_db_filter_data( sanitize_text_field( $opt_val ) ) );
-	update_option( $opt_name2, wp_db_filter_data( sanitize_text_field( $opt_val2 ) ) );
-	update_option( $opt_name3, wp_db_filter_data( sanitize_text_field( $opt_val3 ) ) );
-	update_option( $opt_name4, wp_db_filter_data( sanitize_text_field( $opt_val4 ) ) );
+	update_option( $opt_name, wp_db_filter_data( sanitize_text_field( $opt_val ) ) , false);
+	update_option( $opt_name2, wp_db_filter_data( sanitize_text_field( $opt_val2 ) ) , false);
+	update_option( $opt_name3, wp_db_filter_data( sanitize_text_field( $opt_val3 ) ), false );
+	update_option( $opt_name4, wp_db_filter_data( sanitize_text_field( $opt_val4 ) ) , false);
 	if ( isset( $_POST['wp_db_backup_destination_FTP'] ) ) {
-		update_option( 'wp_db_backup_destination_FTP', 1 );
+		update_option( 'wp_db_backup_destination_FTP', 1 , false);
 	} else {
-		update_option( 'wp_db_backup_destination_FTP', 0 );
+		update_option( 'wp_db_backup_destination_FTP', 0, false );
 	}
 	$wp_db_backup_destination_ftp = wp_db_filter_data( get_option( 'wp_db_backup_destination_FTP' ) );
 	if ( isset( $_POST[ $data_field_name5 ] ) ) {
-		update_option( $opt_name5, wp_db_filter_data( sanitize_text_field( $opt_val5 ) ) );
+		update_option( $opt_name5, wp_db_filter_data( sanitize_text_field( $opt_val5 ) ) , false);
 	}
-	update_option( $opt_name9, wp_db_filter_data( sanitize_text_field( $opt_val9 ) ) );
+	update_option( $opt_name9, wp_db_filter_data( sanitize_text_field( $opt_val9 ) ) , false);
 
 	// Put a "settings updated" message on the screen.
 	?>
-	<div class="updated"><p><strong><?php esc_attr_e( 'Your FTP details have been saved.', 'backupbreeze-menu' ); ?></strong></p></div>
+	<div class="updated"><p><strong><?php esc_html_e( 'Your FTP details have been saved.', 'wpdbbkp'  ); ?></strong></p></div>
 	<?php
 } // end if.
 
@@ -135,10 +135,10 @@ if ( isset( $_POST[ $hidden_field_name ] ) && 'Y' === $_POST[ $hidden_field_name
 if ( isset( $_POST[ $hidden_field_name ] ) && 'Test Connection' === $_POST[ $hidden_field_name ] ) {
 	// Validate that the contents of the form request came from the current site and not somewhere else added 21-08-15 V.3.4.
 	if ( ! isset( $_POST['wpdbbackup_update_setting'] ) ) {
-		die( '<br><br>Invalid form data. form request came from the somewhere else not current site! ' );
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
-	if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['wpdbbackup_update_setting'] ) ), 'wpdbbackup-update-setting' ) ) {
-		die( '<br><br>Invalid form data. form request came from the somewhere else not current site! ' );
+	if ( ! wp_verify_nonce( $_POST['wpdbbackup_update_setting'] , 'wpdbbackup-update-setting' ) ) {
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
 	include plugin_dir_path( __FILE__ ) . 'test-ftp.php';
 	// update all options while we're at it.
@@ -152,14 +152,14 @@ if ( isset( $_POST[ $hidden_field_name ] ) && 'Test Connection' === $_POST[ $hid
 	$opt_val9 = sanitize_text_field( wp_unslash( $_POST[ $data_field_name9 ] ) );
 
 	// Save the posted value in the database.
-	update_option( $opt_name, wp_db_filter_data( sanitize_text_field( $opt_val ) ) );
-	update_option( $opt_name2, wp_db_filter_data( sanitize_text_field( $opt_val2 ) ) );
-	update_option( $opt_name3, wp_db_filter_data( sanitize_text_field( $opt_val3 ) ) );
-	update_option( $opt_name4, wp_db_filter_data( sanitize_text_field( $opt_val4 ) ) );
+	update_option( $opt_name, wp_db_filter_data( sanitize_text_field( $opt_val ) ) , false);
+	update_option( $opt_name2, wp_db_filter_data( sanitize_text_field( $opt_val2 ) ), false );
+	update_option( $opt_name3, wp_db_filter_data( sanitize_text_field( $opt_val3 ) ) , false);
+	update_option( $opt_name4, wp_db_filter_data( sanitize_text_field( $opt_val4 ) ) , false);
 	if ( isset( $_POST[ $data_field_name5 ] ) ) {
-		update_option( $opt_name5, wp_db_filter_data( sanitize_text_field( $opt_val5 ) ) );
+		update_option( $opt_name5, wp_db_filter_data( sanitize_text_field( $opt_val5 ) ) , false);
 	}
-	update_option( $opt_name9, wp_db_filter_data( sanitize_text_field( $opt_val9 ) ) );
+	update_option( $opt_name9, wp_db_filter_data( sanitize_text_field( $opt_val9 ) ) , false);
 	$result = backupbreeze_test_ftp();
 
 	if ( 'OK' !== $result ) {
@@ -231,7 +231,7 @@ if ( isset( $_POST[ $hidden_field_name ] ) && 'Test Connection' === $_POST[ $hid
 		</div>
 	</div>
 
-	<p><input type="submit" name="Submit" class="btn btn-primary" value="<?php esc_attr_e( 'Save' ); ?>" />&nbsp;
+	<p><input type="submit" name="Submit" class="btn btn-primary" value="<?php esc_attr_e( 'Save' , 'wpdbbkp' ); ?>" />&nbsp;
 		<input type="submit" name="<?php echo esc_html( $hidden_field_name ); ?>" class="btn btn-secondary" value="Test Connection" />
 
 		<br />

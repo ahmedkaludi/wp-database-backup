@@ -113,7 +113,7 @@ class Google_MediaFileUpload {
 
     if (self::UPLOAD_RESUMABLE_TYPE == $uploadType) {
       $payload['content-type'] = $mimeType;
-      $payload['postBody'] = is_string($meta) ? $meta : json_encode($meta);
+      $payload['postBody'] = is_string($meta) ? $meta : wp_json_encode($meta);
 
     } elseif (self::UPLOAD_MEDIA_TYPE == $uploadType) {
       // This is a simple media upload.
@@ -128,7 +128,7 @@ class Google_MediaFileUpload {
       $payload['content-type'] = 'multipart/related; boundary=' . $boundary;
       $related = "--$boundary\r\n";
       $related .= "Content-Type: application/json; charset=UTF-8\r\n";
-      $related .= "\r\n" . json_encode($meta) . "\r\n";
+      $related .= "\r\n" . wp_json_encode($meta) . "\r\n";
       $related .= "--$boundary\r\n";
       $related .= "Content-Type: $mimeType\r\n";
       $related .= "Content-Transfer-Encoding: base64\r\n";

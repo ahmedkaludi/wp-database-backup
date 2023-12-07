@@ -1196,7 +1196,7 @@ class S3
 	*/
 	public static function getSignedPolicyURL($policy)
 	{
-		$data = json_encode($policy);
+		$data = wp_json_encode($policy);
 		$signature = '';
 		if (!openssl_sign($data, $signature, self::$__signingKeyResource)) return false;
 
@@ -1274,7 +1274,7 @@ class S3
 			array_push($policy->conditions, $obj);
 		}
 		array_push($policy->conditions, array('content-length-range', 0, $maxFileSize));
-		$policy = base64_encode(str_replace('\/', '/', json_encode($policy)));
+		$policy = base64_encode(str_replace('\/', '/', wp_json_encode($policy)));
 
 		// Create parameters
 		$params = new stdClass;

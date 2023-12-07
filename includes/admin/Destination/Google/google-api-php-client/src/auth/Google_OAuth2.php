@@ -168,7 +168,7 @@ class Google_OAuth2 extends Google_Auth {
   }
 
   public function getAccessToken() {
-    return json_encode($this->token);
+    return wp_json_encode($this->token);
   }
 
   public function setDeveloperKey($developerKey) {

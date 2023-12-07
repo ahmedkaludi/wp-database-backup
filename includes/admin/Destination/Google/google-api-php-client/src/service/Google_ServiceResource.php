@@ -90,7 +90,7 @@ class Google_ServiceResource {
       }
 
       $postBody = is_array($parameters['postBody']) || is_object($parameters['postBody'])
-          ? json_encode($parameters['postBody'])
+          ? wp_json_encode($parameters['postBody'])
           : $parameters['postBody'];
       unset($parameters['postBody']);
 

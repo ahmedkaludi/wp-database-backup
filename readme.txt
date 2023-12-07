@@ -4,8 +4,8 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: Database backup, db backup, backup, database, WordPress Database Backup, WP db backup, wp database backup, wp backup, wordpress backup, mysql backup, automatically database backup, website backup, website database backup, restore database backup, Store database backup on dropbox, backup on google drive, backup on amazon s3,ftp, file, file backup,  files backup, backup file, WP file backup,email notification.
 Requires at least: 3.1+
-Tested up to: 6.3
-Stable tag: 6.6
+Tested up to: 6.4
+Stable tag: 6.7
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -13,7 +13,7 @@ Create & Restore Database Backup easily on single click. Manual or automated bac
 
 WP Database Backup plugin helps you to create Database Backup and Restore Database Backup easily on single click. Manual or Automated Database Backups And also store database backup on safe place- Dropbox,FTP,Email,Google drive, Amazon S3
 
-= Features =
+== Features ==
 <ul>
 <li>Create Database Backup
 WP Database Backup plugin helps you to create Database Backup easily on single click.</li>
@@ -42,7 +42,7 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 <li>Documentation</li>
 </ul>
 
-= Upgrade to PRO =
+== Upgrade to PRO ==
 <ul>
 <li>With <a target="_blank" href="https://backupforwp.com/pricing/#price">Backup For WP PRO</a> You will get access to more professional Settings, options .</li>
 <li>*New - Data Anonymization </li>
@@ -51,8 +51,14 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 
 </ul>
 
-= Support =
-* <a target="_blank" href="https://backupforwp.com/support">https://backupforwp.com/support</a>
+== Support ==
+
+We try our best to provide support on WordPress.org forums. However, We have a special [team support](https://magazine3.company/contact/) where you can ask us questions and get help. Delivering a good user experience means a lot to us and so we try our best to reply each and every question that gets asked.
+
+== Bug Reports ==
+
+Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/ahmedkaludi/wp-database-backup). Please note GitHub is not a support forum, and issues that aren't properly qualified as bugs will be closed.
+
 
 == Installation ==
 1. Download the plugin file, unzip and place it in your wp-content/plugins/ folder. You can alternatively upload it via the WordPress plugin backend.
@@ -69,6 +75,16 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 4. screenshot-4.png
 
 == Changelog ==
+
+= 6.7 =
+* 07-12-2023
+* Added: Option to delete all the Backup lists at once #70
+* Added: Support for database backup using SFTP #64
+* Fixed: 1-click unsubscribe for email notification #24
+* Compatibility: Tested with WordPress 6.4 #72
+* Fixed: Auto Backup is not working for DropBox #58
+* Fixed: Plugin is not being deactivated in multisite #74
+* Improvement: readme txt improvements #22 #28
 
 = 6.6 =
 * 22-09-2023

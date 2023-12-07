@@ -14,9 +14,15 @@ if( !defined( 'ABSPATH' ) )
  * @return bool
  */
 function wpdbbkp_is_plugins_page() {
-    global $pagenow;
-
-    return ( 'plugins.php' === $pagenow );
+    if(function_exists('get_current_screen')){
+        $screen = get_current_screen();
+            if(is_object($screen)){
+                if($screen->id == 'plugins' || $screen->id == 'plugins-network'){
+                    return true;
+                }
+            }
+    }
+    return false;
 }
 
 function wpdbbkp_get_current_url(){
@@ -115,7 +121,7 @@ function wpdbbkp_send_feedback() {
 
     $success = wp_mail( 'team@magazine3.in', $subject, $text, $headers );
 
-    die();
+    wp_die();
 }
 add_action( 'wp_ajax_wpdbbkp_send_feedback', 'wpdbbkp_send_feedback' );
  
@@ -129,25 +135,13 @@ function wpdbbkp_enqueue_makebetter_email_js(){
         return;
     }
 
-    wp_enqueue_script( 'wpdbbkp-make-better-js', WPDB_PLUGIN_URL . '/assets/js/make-better-admin.js', array( 'jquery' ), WPDB_VERSION);
 
-    wp_enqueue_style( 'wpdbbkp-make-better-css', WPDB_PLUGIN_URL . '/assets/css/make-better-admin.css', false , WPDB_VERSION);
+    wp_register_script( 'wpdbbkp-make-better-js', WPDB_PLUGIN_URL . '/assets/js/make-better-admin.js', array( 'jquery' ), WPDB_VERSION);
     wp_localize_script('wpdbbkp-make-better-js', 'wpdbbkp_pub_script_vars', array(
-        'nonce' => wp_create_nonce( 'wpdbbkp-pub-nonce' ),
-    )
+        'nonce' => wp_create_nonce( 'wpdbbkp-pub-nonce' ),)
     );
+    wp_enqueue_script( 'wpdbbkp-make-better-js');
+    wp_enqueue_style( 'wpdbbkp-make-better-css', WPDB_PLUGIN_URL . '/assets/css/make-better-admin.css', false , WPDB_VERSION);
 }
 
-if( is_admin() && wpdbbkp_is_plugins_page()) {
     add_filter('admin_footer', 'wpdbbkp_add_deactivation_feedback_modal');
-}
-
-function wpdbbkp_is_pro_active()
-{
-    $check_status = false;
-    $pluginPath = 'wp-database-backup-pro/wp-all-backup.php';
-    if (is_plugin_active( $pluginPath )) {
-        $check_status = true;
-    }
-    return $check_status;
-}

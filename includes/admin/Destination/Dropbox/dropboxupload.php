@@ -18,21 +18,21 @@ if ( isset( $_GET['action'] ) && 'deleteauth' === $_GET['action'] ) {
 	} catch ( Exception $e ) {
 		echo '<div id="message" class="error"><p> Dropbox API: ' . esc_attr( $e->getMessage() ) . ' </p></div>';
 	}
-	update_option( 'wpdb_dropboxtoken', '' );
+	update_option( 'wpdb_dropboxtoken', '' , false);
 	wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=deleteauth' );
 
 }
 
 $dropbox          = new WPDBBackup_Destination_Dropbox_API( 'dropbox' );
 $dropbox_auth_url = $dropbox->oAuthAuthorize();
-if ( true === isset( $_POST['_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ), 'wp-database-backup' ) ) {
+if ( true === isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'] , 'wp-database-backup' ) ) {
 	if ( isset( $_POST['wpdb_dropbbox_code'] ) && ! empty( $_POST['wpdb_dropbbox_code'] ) ) {
 		$dropboxtoken = $dropbox->oAuthToken( sanitize_text_field( wp_unslash( $_POST['wpdb_dropbbox_code'] ) ) );
-		$dropboxtoken = update_option( 'wpdb_dropboxtoken', maybe_serialize( $dropboxtoken ) );
+		$dropboxtoken = update_option( 'wpdb_dropboxtoken', maybe_serialize( $dropboxtoken ) , false);
 	}
 
 	if ( isset( $_POST['wpdb_dropbbox_dir'] ) ) {
-		$dropboxtoken = update_option( 'wpdb_dropbbox_dir', sanitize_text_field( wp_unslash( $_POST['wpdb_dropbbox_dir'] ) ) );
+		$dropboxtoken = update_option( 'wpdb_dropbbox_dir', sanitize_text_field( wp_unslash( $_POST['wpdb_dropbbox_dir'] ) ), false );
 	}
 }
 
@@ -110,5 +110,5 @@ $dropboxtoken      = ! empty( $wpdb_dropboxtoken ) ? maybe_unserialize( $wpdb_dr
 	<input name="wpdbbackup_update_setting" type="hidden" value="<?php echo esc_attr( wp_create_nonce( 'wpdbbackup-update-setting' ) ); ?>"/>
 	<?php wp_nonce_field( 'wp-database-backup' ); ?>
 
-	<input type="submit" name="Submit" class="btn btn-primary" value="<?php esc_attr_e( 'Save' ); ?>"/>&nbsp;
+	<input type="submit" name="Submit" class="btn btn-primary" value="<?php esc_attr_e( 'Save' , 'wpdbbkp' ); ?>"/>&nbsp;
 </form>

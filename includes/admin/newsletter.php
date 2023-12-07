@@ -29,28 +29,28 @@ class wpdbbkp_ads_newsletter {
                 if( ! current_user_can( 'manage_options' ) ) { 
                    return;
                 }
-                                
-	        $name    = sanitize_text_field($_POST['name']);
-                $email   = sanitize_email($_POST['email']);
-                $website = sanitize_text_field($_POST['website']);
-                
-                if($email){
+
+                if(isset($_POST['email'])){
                         
                     $api_url = 'http://magazine3.company/wp-json/api/central/email/subscribe';
 
 		    $api_params = array(
-		        'name'    => $name,
-		        'email'   => $email,
-		        'website' => $website,
+		        'name'    => sanitize_text_field($_POST['name']),
+		        'email'   => sanitize_email($_POST['email']),
+		        'website' => sanitize_text_field($_POST['website']),
 		        'type'    => 'wpdbbkp'
                     );
                     
 		    $response = wp_remote_post( $api_url, array( 'timeout' => 15, 'sslverify' => false, 'body' => $api_params ) );
-                    $response = wp_remote_retrieve_body( $response );                    
-		    echo $response;
+                    if ( ! is_wp_error( $response ) ) {
+                        $response = wp_remote_retrieve_body( $response );                    
+                        echo $response;
+                    }else{
+                        echo esc_html__('Unable to submit form, please try again','wpdbbkp') ;
+                    }
 
                 }else{
-                        echo 'Email id required';//wpdbbkp_t_string('Email id required');                        
+                        echo esc_html__('Email id required','wpdbbkp');                        
                 }                        
 
                 wp_die();
@@ -79,7 +79,7 @@ class wpdbbkp_ads_newsletter {
                         $object['current_user_email'] = $current_user->user_email;                
                         $object['current_user_name']  = $current_user->display_name;        
 			$object['displayID']          = '#menu-settings';                        
-                        $object['button1']            = 'No Thanks';//wpdbbkp_t_string('No Thanks');
+                        $object['button1']            = esc_html('No Thanks','wpdbbkp');
                         $object['button2']            = false;
                         $object['function_name']      = '';                        
 		}

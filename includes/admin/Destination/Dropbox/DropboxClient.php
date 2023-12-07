@@ -78,8 +78,13 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 			if ( empty( $this->oauth_app_key ) || empty( $this->oauth_app_secret ) ) {
 				throw new WPDBBackup_Destination_Dropbox_API_Exception( 'No App key or App Secret specified.' );
 			}
-
-			$this->job_object = $job_object;
+			$default =[
+				'step_working' => '',
+				'steps_data'=> array(),
+				'job'=>array(),
+			 ];
+			
+			$this->job_object = $job_object?$job_object:json_decode(wp_json_encode($default));
 		}
 
 		// Helper methods.
@@ -126,19 +131,23 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 		 */
 		public function upload( $file, $path = '', $overwrite = true ) {
 			$file = str_replace( '\\', '/', $file );
-
+			$output ='';
 			if ( ! is_readable( $file ) ) {
 				throw new WPDBBackup_Destination_Dropbox_API_Exception( "Error: File \"$file\" is not readable or doesn't exist." );
 			}
 
 			if ( filesize( $file ) < 5242880 ) { // chunk transfer on bigger uploads
-				$output = $this->filesUpload(
-					array(
-						'contents' => file_get_contents( $file ),
-						'path'     => $path,
-						'mode'     => ( $overwrite ) ? 'overwrite' : 'add',
-					)
-				);
+				$file_content = file_get_contents( $file );
+				if($file_content){
+					$output = $this->filesUpload(
+						array(
+							'contents' => $file_content,
+							'path'     => $path,
+							'mode'     => ( $overwrite ) ? 'overwrite' : 'add',
+						)
+					);
+				}
+				
 			} else {
 				$output = $this->multipartUpload( $file, $path, $overwrite );
 			}
@@ -168,27 +177,27 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				throw new WPDBBackup_Destination_Dropbox_API_Exception( 'Can not open source file for transfer.' );
 			}
 
-			if ( ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['uploadid'] ) ) {
+			if ( isset($this->job_object->step_working) && ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['uploadid'] ) ) {
 				// $this->job_object->log(__('Beginning new file upload session', 'backwpup'));
 				$session = $this->filesUploadSessionStart();
 				$this->job_object->steps_data[ $this->job_object->step_working ]['uploadid'] = $session['session_id'];
 			}
-			if ( ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] ) ) {
+			if ( isset($this->job_object->step_working) && ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] ) ) {
 				$this->job_object->steps_data[ $this->job_object->step_working ]['offset'] = 0;
 			}
-			if ( ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] ) ) {
+			if ( isset($this->job_object->step_working) && ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] ) ) {
 				$this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] = 0;
 			}
 
 			// seek to current position
-			if ( $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] > 0 ) {
+			if ( isset($this->job_object->step_working) && $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] > 0 ) {
 				fseek( $file_handel, $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] );
 			}
 
 			while ( $data = fread( $file_handel, $chunk_size ) ) {
 				$chunk_upload_start = microtime( true );
 
-				if ( method_exists($this->job_object,'is_debug') && method_exists($this->job_object,'log') && $this->job_object->is_debug() ) {
+				if ( $this->job_object && method_exists($this->job_object,'is_debug') && method_exists($this->job_object,'log') && $this->job_object->is_debug() ) {
 					$this->job_object->log( sprintf( __( 'Uploading %s of data', 'backwpup' ), size_format( strlen( $data ) ) ) );
 				}
 
@@ -538,7 +547,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 					break;
 			}
 
-			if ( $this->job_object && method_exists($this->job_object,'is_debug')&& method_exists($this->job_object,'log') &&$this->job_object->is_debug() && $endpointFormat != 'oauth' ) {
+			if ( $this->job_object && method_exists($this->job_object,'is_debug')&& method_exists($this->job_object,'log') && $this->job_object->is_debug() && $endpointFormat != 'oauth' ) {
 				$message    = 'Call to ' . $endpoint;
 				$parameters = $args;
 				if ( isset( $parameters['contents'] ) ) {
@@ -546,15 +555,10 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 					unset( $parameters['contents'] );
 				}
 				if ( ! empty( $parameters ) ) {
-					$message .= ', with parameters: ' . json_encode( $parameters );
+					$message .= ', with parameters: ' . wp_json_encode( $parameters );
 				}
 				$this->job_object->log( $message );
 			}
-
-			// Build cURL Request
-			// $ch = curl_init();
-			// curl_setopt($ch, CURLOPT_URL, $url);
-			// curl_setopt($ch, CURLOPT_POST, true);
 
 			$headers['Expect'] = '';
 
@@ -564,7 +568,6 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 
 			if ( $endpointFormat == 'oauth' ) {
 				$POSTFIELDS = http_build_query( $args, null, '&' );
-				// curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($args, null, '&'));
 				$headers['Content-Type'] = 'application/x-www-form-urlencoded';
 			} elseif ( $endpointFormat == 'rpc' ) {
 				if ( ! empty( $args ) ) {
@@ -582,30 +585,16 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				}
 				$headers['Content-Type'] = 'application/octet-stream';
 				if ( ! empty( $args ) ) {
-					$headers['Dropbox-API-Arg'] = json_encode( $args );
+					$headers['Dropbox-API-Arg'] = wp_json_encode( $args );
 				} else {
 					$headers['Dropbox-API-Arg'] = '{}';
 				}
 			} else {
-				// curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-				$headers['Dropbox-API-Arg'] = json_encode( $args );
+				
+				$headers['Dropbox-API-Arg'] = wp_json_encode( $args );
 			}
 			$Agent = 'WP-Database-Backup/V.4.5.1; WordPress/4.8.2; ' . home_url();
-			// curl_setopt($ch, CURLOPT_USERAGENT, $Agent);
-			// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			// curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-			// curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 			$output = '';
-			if ( $echo ) {
-				// echo curl_exec($ch);
-			} else {
-				// curl_setopt($ch, CURLOPT_HEADER, true);
-				// $responce = explode("\r\n\r\n", curl_exec($ch), 2);
-				// if (!empty($responce[1])) {
-					// $output = json_decode($responce[1], true);
-				// }
-			}
-			// $status = curl_getinfo($ch);
 
 			$request  = new WP_Http();
 			$result   = $request->request(
@@ -639,14 +628,10 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				}
 
 				// redo request
-				return $this->request( $url, $args, $endpointFormat, $data, $echo );
+				return $this->request( $url, $args, $endpointFormat, $echo );
 			} // We can't really handle anything else, so throw it back to the caller
 			elseif ( isset( $output['error'] ) || wp_remote_retrieve_response_code( $result ) >= 400 ) {
 				$code = wp_remote_retrieve_response_code( $result );
-				// if (curl_errno($ch) != 0) {
-				 // $message = '(' . curl_errno($ch) . ') ' . curl_error($ch);
-				   // $code = 0;
-				// } else
 				if ( wp_remote_retrieve_response_code( $result ) == 400 ) {
 					$message = '(400) Bad input parameter: ' . strip_tags( $responce[1] );
 				} elseif ( wp_remote_retrieve_response_code( $result ) == 401 ) {
@@ -661,9 +646,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				if ( $this->job_object && method_exists($this->job_object,'log') && method_exists($this->job_object,'is_debug') && $this->job_object->is_debug() ) {
 					$this->job_object->log( 'Response with header: ' . $responce[0] );
 				}
-				// throw new WPDBBackup_Destination_Dropbox_API_Request_Exception($message, $code, null, isset($output['error']) ? $output['error'] : null);
 			} else {
-				// curl_close($ch);
 				if ( ! is_array( $output ) ) {
 					return $responce[1];
 				} else {

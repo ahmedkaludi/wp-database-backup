@@ -33,28 +33,28 @@ if($wpdbbkp_local_enabled==1 && !empty($wpdbbkp_local_path))
 							echo '<p>';
 							$ischecked = ( isset( $wp_db_local_backup ) && 1 === (int) $wp_db_local_backup ) ? 'checked' : '';
 							echo '<div class="row form-group">
-                                <label class="col-sm-2" for="wp_db_local_backup_path">Enable Local Backup:</label>
+                                <label class="col-sm-2" for="wp_db_local_backup_path">'.esc_html__('Enable Local Backup','wpdbbkp').':</label>
                                 <div class="col-sm-6">
                                     <input type="checkbox" ' . esc_attr( $ischecked ) . ' id="wp_db_local_backup_path" name="wp_db_local_backup">
                                 </div>
                             </div>';
-							echo '<div class="row form-group"><label class="col-sm-2" for="wp_db_backup_email_id">Local Backup Path</label>';
-							echo '<div class="col-sm-6"><input type="text" id="wp_db_backup_email_id" class="form-control" name="wp_db_local_backup_path" value="' . esc_html( $wp_db_local_backup_path ) . '" placeholder="Directory Path"></div>';
-							echo '<div class="col-sm-4">Leave blank if you don\'t want use this feature or Disable Local Backup</div></div>';
+							echo '<div class="row form-group"><label class="col-sm-2" for="wp_db_backup_email_id">'.esc_html__('Local Backup Path','wpdbbkp').'</label>';
+							echo '<div class="col-sm-6"><input type="text" id="wp_db_backup_email_id" class="form-control" name="wp_db_local_backup_path" value="' . esc_url( $wp_db_local_backup_path ) . '" placeholder="'.esc_attr__('Directory Path','wpdbbkp').'"></div>';
+							echo '<div class="col-sm-4">'.esc_html__('Leave blank if you don\'t want use this feature or Disable Local Backup','wpdbbkp').'</div></div>';
 							echo '<div class="row form-group">';
 							echo '<div class="col-sm-12">';
 							if ( false === empty( $wp_db_local_backup_path ) && false === file_exists( $wp_db_local_backup_path ) ) {
 								echo '<div class="alert alert-warning alert-dismissible fade in" role="alert">
                                       <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>';
-								esc_attr_e( 'Invalid Local Backup Path : ', 'wpdbbkp' );
-								echo esc_attr( $wp_db_local_backup_path );
+								esc_html_e( 'Invalid Local Backup Path : ', 'wpdbbkp' );
+								echo esc_url( $wp_db_local_backup_path );
 								echo '</div>';
 							}
-							esc_attr_e( 'Backups outside from the public_html directory or inside public_html directory but diffrent location (without using FTP).', 'wpdbbkp' );
-							esc_attr_e( 'Ex.: C:/xampp/htdocs', 'wpdbbkp' );
+							esc_html_e( 'Backups outside from the public_html directory or inside public_html directory but diffrent location (without using FTP).', 'wpdbbkp' );
+							esc_html_e( 'Ex.: C:/xampp/htdocs', 'wpdbbkp' );
 							echo '</div>';
 							echo '<div class="col-sm-12 submit">';
-							echo '<input type="submit" name="local_backup_submit" class="btn btn-primary" value="Save Settings" />';
+							echo '<input type="submit" name="local_backup_submit" class="btn btn-primary" value="'.esc_attr__('Save Settings','wpdbbkp').'" />';
 							echo '</div>';
 							echo '</form>';
 							?>

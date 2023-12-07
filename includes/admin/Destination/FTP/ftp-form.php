@@ -127,7 +127,7 @@ if ( isset( $_POST[ $hidden_field_name ] ) && 'Y' === $_POST[ $hidden_field_name
 
 	// Put a "settings updated" message on the screen.
 	?>
-	<div class="updated"><p><strong><?php esc_attr_e( 'Your FTP details have been saved.', 'wpdbbkp'  ); ?></strong></p></div>
+	<div class="updated"><p><strong><?php esc_html_e( 'Your FTP details have been saved.', 'wpdbbkp'  ); ?></strong></p></div>
 	<?php
 } // end if.
 

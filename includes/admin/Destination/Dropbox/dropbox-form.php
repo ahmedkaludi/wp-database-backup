@@ -15,7 +15,7 @@ if(!empty($wpdb_dropboxtoken))
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapseIII">
-				<h2>Dropbox <?php echo $wpdbbkp_dropbox_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
+				<h2><?php esc_html_e('Dropbox','wpdbbkp');?> <?php echo $wpdbbkp_dropbox_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
 			</a>
 		</h4>
 	</div>

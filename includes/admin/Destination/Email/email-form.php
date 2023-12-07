@@ -24,7 +24,7 @@ if ( isset( $_POST[ 'email_notification_submit' ] ) && 'Save Settings' === $_POS
 	}
 
 	if ( isset( $_POST['wp_db_backup_email_attachment'] ) ) {
-		update_option( 'wp_db_backup_email_attachment', $_POST['wp_db_backup_email_attachment'] , false);
+		update_option( 'wp_db_backup_email_attachment', sanitize_text_field($_POST['wp_db_backup_email_attachment']) , false);
 	} 
 
 	if ( isset( $_POST['wp_db_backup_email_id'] ) ) {

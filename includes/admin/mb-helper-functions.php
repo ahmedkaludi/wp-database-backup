@@ -145,12 +145,3 @@ function wpdbbkp_enqueue_makebetter_email_js(){
 }
 
     add_filter('admin_footer', 'wpdbbkp_add_deactivation_feedback_modal');
-
-function wpdbbkp_is_pro_active()
-{
-    $check_status = false;
-    if (function_exists( 'bkpforwp_pro_tab_content' )) {
-        $check_status = true;
-    }
-    return $check_status;
-}

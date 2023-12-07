@@ -96,9 +96,9 @@ function wpdbbkp_check_fullbackup_stat(){
 add_action('wp_ajax_wpdbbkp_start_cron_manual', 'wpdbbkp_start_cron_manual');
 
 function wpdbbkp_start_cron_manual(){
-	$wpdbbkp_cron_manual=['status'=>'fail','msg'=>'Invalid Action'];
+	$wpdbbkp_cron_manual=['status'=>esc_html__('fail','wpdbbkp'),'msg'=>esc_html__('Invalid Action','wpdbbkp')];
 	if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce')){
-	$wpdbbkp_cron_manual=['status'=>'success','msg'=>'Cron Started'];
+	$wpdbbkp_cron_manual=['status'=>esc_html__('success','wpdbbkp'),'msg'=>esc_html__('Cron Started','wpdbbkp')];
 	$token=wpdbbkp_token_gen();
 	update_option('wpdbbkp_api_token',$token, false);
 	$rest_route = get_rest_url(null,'wpdbbkp/v1/cron_backup/'.$token);
@@ -130,13 +130,13 @@ function wpdbbkp_start_cron_manual(){
 
 add_action('wp_ajax_wpdbbkp_get_progress', 'wpdbbkp_get_progress');
 function wpdbbkp_get_progress(){
-	$wpdbbkp_progress=['status'=>'fail','msg'=>'Unable to track progress, try reloading the page'];
+	$wpdbbkp_progress=['status'=>esc_html__('fail','wpdbbkp'),'msg'=>esc_html__('Unable to track progress, try reloading the page','wpdbbkp')];
 	if(isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce') && current_user_can( 'manage_options' )){
-		$wpdbbkp_progress['backupcron_status']=esc_attr(get_option('wpdbbkp_backupcron_status',false));
-		$wpdbbkp_progress['backupcron_step']=esc_attr(get_option('wpdbbkp_backupcron_step',false));
-		$wpdbbkp_progress['backupcron_current']=esc_attr(get_option('wpdbbkp_backupcron_current',false));
-		$wpdbbkp_progress['backupcron_progress']=esc_attr(get_option('wpdbbkp_backupcron_progress',false));
-		$wpdbbkp_progress['status']=esc_attr('success');
+		$wpdbbkp_progress['backupcron_status']=esc_html(get_option('wpdbbkp_backupcron_status',false));
+		$wpdbbkp_progress['backupcron_step']=esc_html(get_option('wpdbbkp_backupcron_step',false));
+		$wpdbbkp_progress['backupcron_current']=esc_html(get_option('wpdbbkp_backupcron_current',false));
+		$wpdbbkp_progress['backupcron_progress']=esc_html(get_option('wpdbbkp_backupcron_progress',false));
+		$wpdbbkp_progress['status']=esc_html('success');
 		$wpdbbkp_progress['redirect_url'] = esc_url(site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=create&_wpnonce='.wp_create_nonce( 'wp-database-backup' ));
 	}
 	echo wp_json_encode($wpdbbkp_progress);
@@ -804,18 +804,20 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 }
 
 function wpdbbkp_backup_completed_notification($args){
+			$to = get_option( 'admin_email' ,'');
+			if(!empty($to)){
+				$to                     = sanitize_email( $to );
+				$subject                = 'Full Website Backup (' . get_bloginfo( 'name' ) . ')';
+				$filename               = esc_html($args[0]);
+				$filesize                =  esc_html($args[3]);
+				$site_url               = site_url();
+				$log_message_attachment = '';
+				$message                = '';
 
-			$to                     = sanitize_email( get_option( 'admin_email' ) );
-			$subject                = 'Full Website Backup (' . get_bloginfo( 'name' ) . ')';
-			$filename               = $args[0];
-			$filesize                = $args[3];
-			$site_url               = site_url();
-			$log_message_attachment = '';
-			$message                = '';
-
-			require_once( WPDB_PATH.'includes/admin/Destination/Email/template-email-notification-bg.php' );
-			$headers                = array( 'Content-Type: text/html; charset=UTF-8' );
-			wp_mail( $to, $subject, $message, $headers );
+				require_once( WPDB_PATH.'includes/admin/Destination/Email/template-email-notification-bg.php' );
+				$headers                = array( 'Content-Type: text/html; charset=UTF-8' );
+				wp_mail( $to, $subject, $message, $headers );
+			}
 }
 
  function wpdbbkp_fullbackup_log(&$args) {
@@ -828,17 +830,8 @@ function wpdbbkp_backup_completed_notification($args){
 
             foreach ($options as $option) {
                 if ($option['filename'] == $args[0]) {
-                        $newoptions[] = array(
-                        'date' => $option['date'],
-                        'filename' => $option['filename'],
-                        'url' =>$option['url'],
-                        'dir' => $option['dir'],
-                        'log' =>$option['log'],
-                        'destination' =>  $args[4],
-                        'type' => $option['type'],
-                        'size' => $option['size']
-                    );
-                
+					$newoptions[] = $option;
+                    $newoptions['destination'] = esc_html( $args[4]);            
                 }else{
                         $newoptions[] = $option;
                 }

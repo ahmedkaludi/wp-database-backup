@@ -13,16 +13,8 @@ class WPDBFullBackupLog {
 
             foreach ($options as $option) {
                 if ($option['filename'] == $args[0]) {
-                        $newoptions[] = array(
-                        'date' => $option['date'],
-                        'filename' => $option['filename'],
-                        'url' =>$option['url'],
-                        'dir' => $option['dir'],
-                        'log' =>$option['log'],
-                        'destination' =>  $args[4],
-                        'type' => $option['type'],
-                        'size' => $option['size']
-                    );
+                    $newoptions[] = $option;
+                    $newoptions['destination'] = esc_html($args[4]);
                 }else{
                         $newoptions[] = $option;
                 }

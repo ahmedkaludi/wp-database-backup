@@ -1,11 +1,12 @@
 === WP Database Backup - Unlimited Database & Files Backup by Backup for WP ===
-Contributors: walkeprashant, databasebackup
+Contributors: databasebackup
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: Database backup, db backup, backup, database, WordPress Database Backup, WP db backup, wp database backup, wp backup, wordpress backup, mysql backup, automatically database backup, website backup, website database backup, restore database backup, Store database backup on dropbox, backup on google drive, backup on amazon s3,ftp, file, file backup,  files backup, backup file, WP file backup,email notification.
 Requires at least: 3.1+
 Tested up to: 6.4
-Stable tag: 6.7
+Requires PHP: 5.6.20
+Stable tag: 6.8
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -75,6 +76,11 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 4. screenshot-4.png
 
 == Changelog ==
+
+= 6.8 =
+* 17-02-2024
+* Fixed: Setting in the email notification is not being saved. #78
+* Improvement: PHP version compatibility and other readme changes #76
 
 = 6.7 =
 * 07-12-2023

@@ -1537,10 +1537,9 @@ class Wpdb_Admin {
 						</div>
 						<hr>
 						<div class="input-group">
-						<label><input type="checkbox" <?php echo esc_attr( $remove_on_uninstall ); ?> name="wp_db_remove_on_uninstall"> <?php echo esc_html__('Delete Data and options on uninstall', 'wpdbbkp') ?></label>
+						<label><input type="checkbox" <?php echo esc_attr( $remove_on_uninstall ); ?> name="wp_db_remove_on_uninstall"> <?php echo esc_html__('Delete Setting and options on uninstall', 'wpdbbkp') ?></label>
 							<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-							<?php echo esc_html__('If Checked then it will delete all backup files and options when plugin is uninstalled', 'wpdbbkp') ?>
-						
+							<?php echo esc_html__('If Checked then it will  delete all settings when plugin is uninstalled', 'wpdbbkp') ?>
 							</p>
 						</div>
 						<hr>

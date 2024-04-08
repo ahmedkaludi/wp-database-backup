@@ -204,6 +204,11 @@ class Wpdb_Admin {
 						} else {
 							update_option( 'wp_db_log', 0 , false);
 						}
+						if ( isset( $_POST['wp_db_remove_on_uninstall'] ) ) {
+							update_option( 'wp_db_remove_on_uninstall', 1 , false);
+						} else {
+							update_option( 'wp_db_remove_on_uninstall', 0 , false);
+						}
 						if ( isset( $_POST['wp_db_remove_local_backup'] ) ) {
 							update_option( 'wp_db_remove_local_backup', 1 , false);
 						} else {
@@ -1485,10 +1490,16 @@ class Wpdb_Admin {
 						$checked = '';
 					}
 					$wp_db_remove_local_backup = get_option( 'wp_db_remove_local_backup' );
+					$wp_db_remove_on_uninstall = get_option( 'wp_db_remove_on_uninstall');
 					if ( 1 === (int) $wp_db_remove_local_backup ) {
 						$remove_local_backup = 'checked';
 					} else {
 						$remove_local_backup = '';
+					}
+					if ( 1 === (int) $wp_db_remove_on_uninstall ) {
+						$remove_on_uninstall = 'checked';
+					} else {
+						$remove_on_uninstall = '';
 					}
 					?>
 					<form action="" method="post">
@@ -1522,6 +1533,14 @@ class Wpdb_Admin {
 							<?php echo esc_html__('If Checked then it will remove local backup.', 'wpdbbkp') ?>
 								<br><?php echo esc_html__('Use this option only when you have set any destination.', 'wpdbbkp') ?>
 								<br><?php echo esc_html__('If somesites you need only external backup.', 'wpdbbkp') ?>
+							</p>
+						</div>
+						<hr>
+						<div class="input-group">
+						<label><input type="checkbox" <?php echo esc_attr( $remove_on_uninstall ); ?> name="wp_db_remove_on_uninstall"> <?php echo esc_html__('Delete Data and options on uninstall', 'wpdbbkp') ?></label>
+							<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+							<?php echo esc_html__('If Checked then it will delete all backup files and options when plugin is uninstalled', 'wpdbbkp') ?>
+						
 							</p>
 						</div>
 						<hr>

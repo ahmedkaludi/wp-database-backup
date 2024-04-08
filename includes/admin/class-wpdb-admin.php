@@ -1320,7 +1320,7 @@ class Wpdb_Admin {
 											echo '<tr' . esc_attr( $style ) . '>';
 											echo '<td>' . esc_attr( number_format_i18n( $no ) ) . '</td>';
 											echo '<td>' . esc_attr( $tablestatus_arr['Name'] ) . '</td>';
-											echo '<td>' . esc_attr( number_format_i18n( $tablestatus_arr['Rows'] ) ) . '</td>';
+											echo '<td>' . esc_attr( number_format_i18n( isset($tablestatus_arr['Rows'])?$tablestatus_arr['Rows']:0 ) ) . '</td>';
 
 											$row_usage += $tablestatus_arr['Rows'];
 
@@ -1537,9 +1537,10 @@ class Wpdb_Admin {
 						</div>
 						<hr>
 						<div class="input-group">
-						<label><input type="checkbox" <?php echo esc_attr( $remove_on_uninstall ); ?> name="wp_db_remove_on_uninstall"> <?php echo esc_html__('Delete Setting and options on uninstall', 'wpdbbkp') ?></label>
+						<label><input type="checkbox" <?php echo esc_attr( $remove_on_uninstall ); ?> name="wp_db_remove_on_uninstall"> <?php echo esc_html__('Delete Data and options on uninstall', 'wpdbbkp') ?></label>
 							<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-							<?php echo esc_html__('If Checked then it will  delete all settings when plugin is uninstalled', 'wpdbbkp') ?>
+							<?php echo esc_html__('If Checked then it will delete all backup files and options when plugin is uninstalled', 'wpdbbkp') ?>
+						
 							</p>
 						</div>
 						<hr>
@@ -1586,7 +1587,7 @@ class Wpdb_Admin {
 												echo '<tr' . esc_attr( $style ) . '>';
 												echo '<td>' . esc_attr( number_format_i18n( $no ) ) . '</td>';
 												echo '<td>' . esc_attr( $tablestatus_arr['Name'] ) . '</td>';
-												echo '<td>' . esc_attr( number_format_i18n( $tablestatus_arr['Rows'] ) ) . '</td>';
+												echo '<td>' . esc_attr( number_format_i18n( isset($tablestatus_arr['Rows'])?$tablestatus_arr['Rows']:0 ) ) . '</td>';
 												if ( false === empty( $wp_db_exclude_table ) && in_array( $tablestatus_arr['Name'], $wp_db_exclude_table, true ) ) {
 													$checked = 'checked';
 												} else {

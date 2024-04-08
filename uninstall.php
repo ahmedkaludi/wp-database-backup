@@ -24,33 +24,4 @@ if($wp_db_remove_on_uninstall){
         delete_option($option);
     }
 
-    // Remove backup files
-    $default_dir = WP_CONTENT_DIR . '/uploads/db-backup';
-    $custom_dir = $wp_db_backup_backups_dir;
-    
-    // remove our default / temporay directory
-    if (is_dir($default_dir)) {
-        $files = scandir($backup_dir);
-        foreach ($files as $file) {
-            $file_path = $backup_dir . '/' . $file;
-            if (is_file($file_path)) {
-                unlink($file_path);
-            }
-        }
-        // Remove the directory itself
-        rmdir($backup_dir);
-    }
- // remove custom directory if any  
-    if (is_dir($custom_dir)) {
-        $files = scandir($backup_dir);
-        foreach ($files as $file) {
-            $file_path = $backup_dir . '/' . $file;
-            if (is_file($file_path)) {
-                unlink($file_path);
-            }
-        }
-        // Remove the directory itself
-        rmdir($backup_dir);
-    }
-
 }

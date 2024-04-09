@@ -265,7 +265,7 @@ if(!function_exists('wpdbbkp_wp_cron_config_path')){
 	 RewriteCond %{HTTP_COOKIE} !^.*can_download.*$ [NC]
 	 RewriteRule . - [R=403,L]");
 	        fclose($f);
-	        $siteName = preg_replace('/[^A-Za-z0-9\_]/', '_', get_bloginfo('name')); //added in v2.1 for Backup zip labeled with the site name(Help when backing up multiple sites).
+	        $siteName = preg_replace('/[^\p{L}\p{M}]+/u', '_', get_bloginfo('name')); //added in v2.1 for Backup zip labeled with the site name(Help when backing up multiple sites).
 	        $FileName = $siteName . '_' . Date("Y_m_d") . '_' . Time() .'_'. substr(md5(AUTH_KEY), 0, 7).'_wpall';
 	        $WPDBFileName = $FileName . '.zip';
 	        $wp_all_backup_type = get_option('wp_db_backup_backup_type');

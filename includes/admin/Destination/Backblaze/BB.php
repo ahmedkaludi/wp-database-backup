@@ -33,7 +33,6 @@ try {
         return "<br> Upload Database Backup on s3 bucket " . $result['ObjectURL'] . "\n";
     } catch (MultipartUploadException $e) {
         $uploader->abort();
-        error_log('b');
         return "Error during upload: " . $e->getMessage() . "\n";
     }
 

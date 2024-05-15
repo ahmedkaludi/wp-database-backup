@@ -39,12 +39,16 @@ class WPDatabaseBackupS3 {
 					define( 'AWSSECRETKEY', get_option( 'wpdb_dest_amazon_s3_bucket_secret' ) );
 				}
 
+				if ( ! defined( 'AWSHOST' ) ) {
+					define( 'AWSHOST', get_option( 'wpdb_dest_amazon_s3_bucket_host' ) );
+				}
+
 				// Check for CURL.
 				if ( ! extension_loaded( 'curl' ) && ! dl( 'so' === PHP_SHLIB_SUFFIX ? 'curl.so' : 'php_curl.dll' ) ) { // phpcs:ignore
 					$message_error = 'No Curl';
 				}
 
-				$s3          = new S3( AWSACCESSKEY, AWSSECRETKEY );
+				$s3          = new S3( AWSACCESSKEY, AWSSECRETKEY ,false ,'');
 				$bucket_name = get_option( 'wpdb_dest_amazon_s3_bucket' );
 				$result      = $s3->listBuckets();
 				if ( get_option( 'wpdb_dest_amazon_s3_bucket' ) ) {

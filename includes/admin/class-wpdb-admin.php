@@ -700,6 +700,7 @@ class Wpdb_Admin {
 							'S3'         => 'glyphicon glyphicon-cloud-upload',
 							'Drive'      => 'glyphicon glyphicon-hdd',
 							'DropBox'    => 'glyphicon glyphicon-inbox',
+							'Backblaze'  => 'glyphicon glyphicon-cloud-upload',
 						);
 						foreach ( $options as $option ) {
 							$str_class = ( 0 === (int) $option['size'] ) ? 'text-danger' : 'wpdb_download';

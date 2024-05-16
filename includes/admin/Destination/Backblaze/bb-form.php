@@ -122,7 +122,7 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 				<input name="wpdbbackup_update_bb_setting" type="hidden" value="<?php echo esc_attr( wp_create_nonce( 'wpdbbackup-update-bb-setting' ) ); ?>" />
 				<?php wp_nonce_field( 'wp-database-backup' ); ?>
 				<div class="row form-group">
-					<label class="col-sm-2" for="wpdb_dest_bb_s3_bucket"><?php echo esc_html__('Bucket Name:', 'wpdbbkp') ?></label>
+					<label class="col-sm-2" for="wpdb_dest_bb_s3_bucket"><?php echo esc_html__('Bucket Endpoint:', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 
 						<input type="text" id="wpdb_dest_bb_s3_bucket_host" class="form-control" name="wpdb_dest_bb_s3_bucket_host" value="<?php echo esc_html( get_option( 'wpdb_dest_bb_s3_bucket_host' ) ); ?>" size="25" placeholder="Endpoint : https://s3.us-west-002.backblazeb2.com">

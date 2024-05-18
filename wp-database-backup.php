@@ -134,6 +134,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			add_option('wp_db_backup_backup_type','complete',false);
 			add_option('wp_db_backup_exclude_dir',"wp-content/backupwordpress-728d36f682-backups|.git|db-backup",false);
 			add_option('wp_db_backup_backups_dir','db-backup',false);
+			add_option('bb_last_backup_timestamp',0,false);
 			if($flag!=2){
 				add_option( 'wpdbbkp_activation_redirect', true,false);
 			}

@@ -116,14 +116,6 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 						<a href="http://docs.aws.amazon.com/AmazonS3/latest/gsg/CreatingABucket.html" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 					</div>
 				</div>
-				<div class="row form-group">
-					<label class="col-sm-2" for="wpdb_dest_amazon_s3_bucket"><?php echo esc_html__('Bucket Name:', 'wpdbbkp') ?></label>
-					<div class="col-sm-6">
-
-						<input type="text" id="wpdb_dest_amazon_s3_bucket" class="form-control" name="wpdb_dest_amazon_s3_bucket" value="<?php echo esc_html( get_option( 'wpdb_dest_amazon_s3_bucket' ) ); ?>" size="25" placeholder="Buket name">
-						<a href="http://docs.aws.amazon.com/AmazonS3/latest/gsg/CreatingABucket.html" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
-					</div>
-				</div>
 
 				<div class="row form-group">
 					<label class="col-sm-2" for="wpdb_dest_amazon_s3_bucket_key"><?php echo esc_html__('Key:', 'wpdbbkp') ?></label>

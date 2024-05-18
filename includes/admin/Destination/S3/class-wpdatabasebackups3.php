@@ -58,6 +58,7 @@ class WPDatabaseBackupS3 {
 						} else {
 							$args[2] = $args[2] . '<br>Failed to upload Database Backup on s3 bucket ' . $bucket_name;
 						}
+						$args[4] = $args[4] .= 'S3, ';
 					} else {
 						$args[2] = $args[2] . '<br>Invalid bucket name or AWS details';
 						$args[4] = $args[4] .= 'S3, ';

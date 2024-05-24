@@ -1,3 +1,7 @@
+= 6.10 =
+* 24-05-2024
+* Improvement: Unable to translate the language using Loco Traslate #31
+
 = 6.9 =
 * 08-04-2024
 * Improvement: Make an option to delete all plugin data on uninstall #77

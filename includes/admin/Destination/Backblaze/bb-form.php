@@ -9,9 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-require 'vendor/autoload.php';
-use Aws\S3\S3Client;
-
 $update_msg = '';
 if ( true === isset( $_POST['wpdb_bb_s3'] ) && 'Y' === $_POST['wpdb_bb_s3'] ) {
 	// Validate that the contents of the form request came from the current site and not somewhere else added 21-08-15 V.3.4.
@@ -85,21 +82,26 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 						echo "ERROR: CURL extension not loaded\n\n";
 					}
 			
-					preg_match('/s3\.([a-zA-Z0-9-]+)\.backblazeb2\.com/', $wpdb_dest_bb_s3_bucket_host, $matches);
-					if (isset($matches[1])) {
-						$region = $matches[1];
-					} 
-					$s3Client = new S3Client([
-						'version' => 'latest',
-						'region'  => $region,
-						'endpoint' => $wpdb_dest_bb_s3_bucket_host, // Adjust based on your B2 endpoint
-						'credentials' => [
-							'key'    => $wpdb_dest_bb_s3_bucket_key,
-							'secret' => $wpdb_dest_bb_s3_bucket_secret,
-						],
-					]);
-					if(empty($s3Client)){
-						echo '<span class="label label-warning">Invalid bucket name or AWS details</span>';
+					 
+						$b2_authorize_url = "https://api.backblazeb2.com/b2api/v2/b2_authorize_account";
+						$credentials = base64_encode($wpdb_dest_bb_s3_bucket_key . ":" . $wpdb_dest_bb_s3_bucket_secret);
+
+						// Authorize account
+						$response = wp_remote_get($b2_authorize_url, array(
+							'headers' => array(
+								'Authorization' => 'Basic ' . $credentials
+							),
+							'timeout' => 60 // Extend timeout
+						));
+
+						if(!is_wp_error($response)){
+							$body = wp_remote_retrieve_body($response);
+							$data = json_decode($body);
+						}
+					
+						
+					if(is_wp_error($response) || empty($data->authorizationToken)){
+						echo '<span class="label label-warning">Invalid bucket name or Backblaze details</span>';
 					}
 					
 				} catch ( Exception $e ) {

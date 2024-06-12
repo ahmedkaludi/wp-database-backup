@@ -147,7 +147,6 @@ public static function upload_backup_incremental($file_path, $file_name) {
 			try {
 		
                 $ret = WPDatabaseBackupBB::upload_backup_incremental($args[1], $args[1]);
-                error_log(json_encode($ret));
 				$args[2] = $args[2] .$ret['message'];
                 if ($ret['success']) {
                     $args[4] = $args[4] .= 'Backblaze, ';

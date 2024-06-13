@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // If user pressed this button, this hidden field will be set to 'Y'.
 if ( isset( $_POST[ 'sftp_submit' ] ) && 'Save' === $_POST[ 'sftp_submit' ] ) {
-	$sftp_details = $_POST['wp_db_backup_sftp_details'];
+	$sftp_details = wp_unslash($_POST['wp_db_backup_sftp_details']);
 	// Validate that the contents of the form request came from the current site and not somewhere else added 21-08-15 V.3.4.
 	if ( ! isset( $_POST['wpdbbackup_update_setting'] ) ) {
 		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
@@ -23,40 +23,40 @@ if ( isset( $_POST[ 'sftp_submit' ] ) && 'Save' === $_POST[ 'sftp_submit' ] ) {
 
 	$option_to_save =array();
 	if ( isset( $sftp_details[ 'host' ] ) ) {
-		$option_to_save['host'] = sanitize_text_field( wp_unslash( $sftp_details[ 'host' ] ) );
+		$option_to_save['host'] = sanitize_text_field(  $sftp_details[ 'host' ]  );
 	}
 	if ( isset( $sftp_details[ 'port' ] ) ) {
-		$option_to_save['port'] = sanitize_text_field( wp_unslash( $sftp_details['port'] ) );
+		$option_to_save['port'] = sanitize_text_field(  $sftp_details['port']  );
 	}else{
 		$option_to_save['port'] = 22;
 	}
 
 	if ( isset( $sftp_details[ 'username' ] ) ) {
-		$option_to_save['username'] = sanitize_text_field( wp_unslash( $sftp_details['username'] ) );
+		$option_to_save['username'] = sanitize_text_field( $sftp_details['username']  );
 	}
 
-	$wpdbbkp_auth_type_ = isset($sftp_details[ 'auth_type' ])?sanitize_text_field( wp_unslash($sftp_details[ 'auth_type' ])):'password';
+	$wpdbbkp_auth_type_ = isset($sftp_details[ 'auth_type' ])?sanitize_text_field( $sftp_details[ 'auth_type' ]):'password';
 
 	$option_to_save['auth_type'] = $wpdbbkp_auth_type_;
 
 	if($wpdbbkp_auth_type_ == 'password'){
 		if ( isset( $sftp_details[ 'password' ] ) ) {
-			$option_to_save['password'] = sanitize_text_field( wp_unslash( $sftp_details['password'] ) );
+			$option_to_save['password'] = sanitize_text_field(  $sftp_details['password']  );
 		}
 	}
 
 	if($wpdbbkp_auth_type_ == 'key'){
 
 		if ( isset( $sftp_details[ 'sftp_key' ] )) {
-			$option_to_save['sftp_key'] = sanitize_text_field( wp_unslash( $sftp_details['sftp_key'] ) );
+			$option_to_save['sftp_key'] = sanitize_text_field(  $sftp_details['sftp_key']  );
 		}
 		if ( isset( $sftp_details[ 'key_password' ] ) ) {
-			$option_to_save['key_password'] = sanitize_text_field( wp_unslash( $sftp_details['key_password'] ) );
+			$option_to_save['key_password'] = sanitize_text_field(  $sftp_details['key_password']  );
 		}
 	}
 	
 	if ( isset( $sftp_details[ 'directory' ] ) ) {
-		$option_to_save['directory'] = sanitize_text_field( wp_unslash( $sftp_details['directory'] ) );
+		$option_to_save['directory'] = sanitize_text_field(  $sftp_details['directory']   );
 	}
 
 	// Save the posted value in the database.

@@ -1,3 +1,7 @@
+= 6.11 =
+* 13-06-2024
+* Improvement: Added support for backblaze. #85
+
 = 6.10 =
 * 24-05-2024
 * Improvement: Unable to translate the language using Loco Traslate #31

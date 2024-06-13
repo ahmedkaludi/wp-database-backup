@@ -79,7 +79,7 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 
 = 6.11 =
 * 13-06-2024
-* Improvement: Added support for backblaze. #85
+* Added: Support for backblaze S2 Storage. #85
 
 = 6.10 =
 * 24-05-2024

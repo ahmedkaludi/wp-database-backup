@@ -50,7 +50,7 @@ $wpdbbkp_bb_s3_status			=	'<label><b>Status</b>: Not Configured </label> ';
 
 if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empty($wpdb_dest_bb_s3_bucket_key) && !empty($wpdb_dest_bb_s3_bucket_secret) && !empty($wpdb_dest_bb_s3_bucket_host))
 {
-	$wpdbbkp_bb_s3_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span> </label> ';
+	$wpdbbkp_bb_s3_status='<label><b>'.esc_html__('Status', 'wpdbbkp').'</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="'.esc_attr__('Destination enabled', 'wpdbbkp').'"></span><span class="configured">'.esc_html__('Configured', 'wpdbbkp').' </span> </label> ';
 }
 
 ?>
@@ -79,7 +79,7 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 
 					// Check for CURL.
 					if ( ! extension_loaded( 'curl' ) && ! @dl( 'so' === PHP_SHLIB_SUFFIX ? 'curl.so' : 'php_curl.dll' ) ) { // phpcs:ignore
-						echo "ERROR: CURL extension not loaded\n\n";
+						echo esc_html__("ERROR: CURL extension not loaded\n\n", 'wpdbbkp');
 					}
 			
 					 
@@ -101,11 +101,11 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 					
 						
 					if(is_wp_error($response) || empty($data->authorizationToken)){
-						echo '<span class="label label-warning">Invalid bucket name or Backblaze details</span>';
+						echo '<span class="label label-warning">'.esc_html__( 'Invalid bucket name or Backblaze details' ,'wpdbbkp').'</span>';
 					}
 					
 				} catch ( Exception $e ) {
-					echo '<span class="label label-warning">Invalid  details</span>';
+					echo '<span class="label label-warning">'.esc_html__( 'Invalid  details' ,'wpdbbkp').'</span>';
 				}
 			}
 			?>
@@ -135,7 +135,7 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 					<label class="col-sm-2" for="wpdb_dest_bb_s3_bucket"><?php echo esc_html__('Bucket ID:', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 
-						<input type="text" id="wpdb_dest_bb_s3_bucket" class="form-control" name="wpdb_dest_bb_s3_bucket" value="<?php echo esc_html( get_option( 'wpdb_dest_bb_s3_bucket' ) ); ?>" size="25" placeholder="Bucket name">
+						<input type="text" id="wpdb_dest_bb_s3_bucket" class="form-control" name="wpdb_dest_bb_s3_bucket" value="<?php echo esc_html( get_option( 'wpdb_dest_bb_s3_bucket' ) ); ?>" size="25" placeholder="<?php esc_attr__('Bucket ID', 'wpdbbkp');?>">
 						<a href="https://www.backblaze.com/apidocs/introduction-to-the-s3-compatible-api" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 					</div>
 				</div>
@@ -143,7 +143,7 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 				<div class="row form-group">
 					<label class="col-sm-2" for="wpdb_dest_bb_s3_bucket_key"><?php echo esc_html__('Key:', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
-						<input type="text" id="wpdb_dest_bb_s3_bucket_key" class="form-control" name="wpdb_dest_bb_s3_bucket_key" value="<?php echo esc_html( get_option( 'wpdb_dest_bb_s3_bucket_key' ) ); ?>" size="25" placeholder="your access key id">
+						<input type="text" id="wpdb_dest_bb_s3_bucket_key" class="form-control" name="wpdb_dest_bb_s3_bucket_key" value="<?php echo esc_html( get_option( 'wpdb_dest_bb_s3_bucket_key' ) ); ?>" size="25" placeholder="<?php esc_attr__('your access key id', 'wpdbbkp');?>">
 						<a href="https://www.backblaze.com/apidocs/introduction-to-the-s3-compatible-api" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 					</div>
 				</div>
@@ -151,7 +151,7 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 				<div class="row form-group">
 					<label class="col-sm-2" for="wpdb_dest_bb_s3_bucket_secret"><?php echo esc_html__('Secret:', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
-						<input type="text" id="wpdb_dest_bb_s3_bucket_secret" class="form-control" name="wpdb_dest_bb_s3_bucket_secret" value="<?php echo esc_html( get_option( 'wpdb_dest_bb_s3_bucket_secret' ) ); ?>" size="25" placeholder="your secret access key">
+						<input type="text" id="wpdb_dest_bb_s3_bucket_secret" class="form-control" name="wpdb_dest_bb_s3_bucket_secret" value="<?php echo esc_html( get_option( 'wpdb_dest_bb_s3_bucket_secret' ) ); ?>" size="25" placeholder="<?php esc_attr__('your secret access key', 'wpdbbkp');?>">
 						<a href="https://www.backblaze.com/apidocs/introduction-to-the-s3-compatible-api" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 					</div>
 				</div>

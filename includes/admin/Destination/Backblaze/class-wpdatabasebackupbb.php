@@ -22,7 +22,7 @@ add_action( 'wp_db_backup_completed', array( 'WPDatabaseBackupBB', 'wp_db_backup
 class WPDatabaseBackupBB {
 
 // Function to upload files to Backblaze B2
-public static function upload_backup_incremental($file_path, $file_name) {
+public static function upload_backup_to_backblaze($file_path, $file_name) {
     $s3_token = get_transient('b2_authorization_token');
     $api_url = get_transient('b2_api_url');
     $bucket_id = get_option('wpdb_dest_bb_s3_bucket') ? get_option('wpdb_dest_bb_s3_bucket') : '';
@@ -42,14 +42,14 @@ public static function upload_backup_incremental($file_path, $file_name) {
         ));
 
         if (is_wp_error($response)) {
-            return array('success' => false, 'message' => 'Authorization request failed: ' . $response->get_error_message());
+            return array('success' => false, 'message' => esc_html__('Authorization request failed: ', 'wpdbbkp'). $response->get_error_message());
         }
 
         $body = wp_remote_retrieve_body($response);
         $data = json_decode($body);
 
         if (empty($data->authorizationToken)) {
-            return array('success' => false, 'message' => 'Failed to authorize with Backblaze.');
+            return array('success' => false, 'message' => esc_html__('Failed to authorize with Backblaze.', 'wpdbbkp'));
         }
 
         $auth_token = $data->authorizationToken;
@@ -65,7 +65,7 @@ public static function upload_backup_incremental($file_path, $file_name) {
 
     // Get upload URL
     $response = wp_remote_post($upload_url, array(
-        'body' => json_encode(array('bucketId' => $bucket_id)),
+        'body' => wp_json_encode(array('bucketId' => $bucket_id)),
         'headers' => array(
             'Authorization' => $auth_token,
             'Content-Type' => 'application/json'
@@ -74,34 +74,34 @@ public static function upload_backup_incremental($file_path, $file_name) {
     ));
 
     if (is_wp_error($response)) {
-        return array('success' => false, 'message' => 'Failed to get upload URL: ' . $response->get_error_message());
+        return array('success' => false, 'message' =>  esc_html__('Failed to get upload URL: ', 'wpdbbkp'). $response->get_error_message());
     }
 
     $body = wp_remote_retrieve_body($response);
     $data = json_decode($body);
 
-    if (isset($data->status) && $data->status != 200) return array('success' => false, 'message' => 'Failed to get upload URL: ' . $data->message);
+    if (isset($data->status) && $data->status != 200) return array('success' => false, 'message' =>  esc_html__('Failed to get upload URL: ' , 'wpdbbkp'). $data->message);
 
     if (empty($data->uploadUrl)) {
-        return array('success' => false, 'message' => 'Failed to get upload URL from Backblaze.');
+        return array('success' => false, 'message' => esc_html__('Failed to get upload URL from Backblaze.', 'wpdbbkp'));
     }
 
     $upload_url = $data->uploadUrl;
     $upload_auth_token = $data->authorizationToken;
 
     if (!file_exists($file_path)) {
-        return array('success' => false, 'message' => 'File does not exist: ' . $file_path);
+        return array('success' => false, 'message' => esc_html__('File does not exist: ' , 'wpdbbkp'). $file_path);
     }
 
     $file_size = filesize($file_path);
     $file = fopen($file_path, 'r');
     if ($file === false) {
-        return array('success' => false, 'message' => 'Failed to open file: ' . $file_path);
+        return array('success' => false, 'message' => esc_html__('Failed to open file: ' , 'wpdbbkp') . $file_path);
     }
 
     $file_contents = file_get_contents($file_path);
     if ($file_contents === false) {
-        return array('success' => false, 'message' => 'Failed to read file: ' . $file_path);
+        return array('success' => false, 'message' => esc_html__('Failed to read file: ', 'wpdbbkp') . $file_path);
     }
 
     $sha1_of_file_data = sha1($file_contents);
@@ -121,16 +121,16 @@ public static function upload_backup_incremental($file_path, $file_name) {
     ));
 
     if (is_wp_error($response)) {
-        return array('success' => false, 'message' => 'Upload request failed: ' . $response->get_error_message());
+        return array('success' => false, 'message' => esc_html__('Upload request failed: ', 'wpdbbkp') . $response->get_error_message());
     }
 
     $response_code = wp_remote_retrieve_response_code($response);
     if ($response_code != 200) {
         $response_body = wp_remote_retrieve_body($response);
-        return array('success' => false, 'message' => 'Failed to upload ' . $file_name . ' to Backblaze. Response: ' . $response_body);
+        return array('success' => false, 'message' => esc_html__('Failed to upload ' , 'wpdbbkp'). $file_name . ' to Backblaze. Response: ' . $response_body);
     }
 
-    return array('success' => true, 'message' => 'File ' . $file_name . ' uploaded successfully to Backblaze.');
+    return array('success' => true, 'message' => 'File ' . $file_name . esc_html__(' uploaded successfully to Backblaze.', 'wpdbbkp'));
 }
 
 
@@ -146,13 +146,13 @@ public static function upload_backup_incremental($file_path, $file_name) {
 			
 			try {
 		
-                $ret = WPDatabaseBackupBB::upload_backup_incremental($args[1], $args[1]);
+                $ret = WPDatabaseBackupBB::upload_backup_to_backblaze($args[1], $args[1]);
 				$args[2] = $args[2] .$ret['message'];
                 if ($ret['success']) {
                     $args[4] = $args[4] .= 'Backblaze, ';
                 }	
 			} catch ( Exception $e ) {
-				$args[2] = $args[2] . "<br>Failed to upload Database Backup on s3 bucket";
+				$args[2] = $args[2] . "<br>".esc_html__("Failed to upload Database Backup on s3 bucket", 'wpdbbkp');
 			}
 		}
 	}

@@ -22,7 +22,7 @@ abstract class Integer implements \JsonSerializable
     /**
      * JSON Serialize
      *
-     * Will be called, automatically, when json_encode() is called on a BigInteger object.
+     * Will be called, automatically, when wp_json_encode() is called on a BigInteger object.
      *
      * PHP Serialize isn't supported because unserializing would require the factory be
      * serialized as well and that just sounds like too much

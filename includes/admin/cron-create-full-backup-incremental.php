@@ -105,7 +105,7 @@ function wpdbbkp_start_cron_manual(){
 	
 	  $response = wp_remote_get(esc_url($rest_route),
 			array(
-				'timeout'     => 3,
+				'timeout'     => 9,
 				'httpversion' => '1.1',
 			)
 		);
@@ -137,7 +137,7 @@ function wpdbbkp_get_progress(){
 		$wpdbbkp_progress['backupcron_current']=esc_html(get_option('wpdbbkp_backupcron_current',false));
 		$wpdbbkp_progress['backupcron_progress']=esc_html(get_option('wpdbbkp_backupcron_progress',false));
 		$wpdbbkp_progress['status']=esc_html('success');
-		$wpdbbkp_progress['redirect_url'] = esc_url(site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=create&_wpnonce='.wp_create_nonce( 'wp-database-backup' ));
+		$wpdbbkp_progress['redirect_url'] = site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=create&_wpnonce='.esc_attr(wp_create_nonce( 'wp-database-backup' ));
 	}
 	echo wp_json_encode($wpdbbkp_progress);
 	wp_die();
@@ -150,7 +150,6 @@ function wpdbbkp_get_progress(){
 
  function wpdbbkp_cron_backup(){
 		// make sure only one backup process is started
-
 		$cron_condition = apply_filters('wpdbbkp_fullback_cron_condition',true);
 
 		if(!$cron_condition){
@@ -199,45 +198,34 @@ function wpdbbkp_get_progress(){
 			wpdbbkp_cron_create_mysql_backup($common_args);
 			sleep(1);
 		}
-	
-
-		update_option('wp_db_backup_backups',$options_backup, false);
-		update_option('wp_db_backup_options',$settings_backup, false);
-		update_option('wpdbbkp_backupcron_current','DB Backed Up', false);
-	}
-
-		$method_zip = wpdbbkp_cron_method_zip($common_args);
-		if(isset($method_zip['status']) && $method_zip['status']=='success'){
-
-			if($method_zip['ZipArchive']){
-
-			update_option('wpdbbkp_backupcron_step','Creating Backup', false);
-			update_option('wpdbbkp_backupcron_current','Starting File Backup', false);
-			$backup_info=wpdbbkp_cron_get_backup_files($common_args);
-			if(isset($backup_info['status']) && $backup_info['status']=='success' && isset($backup_info['chunk_count']) && $backup_info['chunk_count'] > 0){
-				
-				$total_chunk=$backup_info['chunk_count']+1;
-				update_option('wpdbbkp_backupcron_current','0 of '.$total_chunk.' parts done', false );
-				update_option('wpdbbkp_total_chunk_cnt',$total_chunk, false);
-				update_option('wpdbbkp_current_chunk_cnt',0, false);
-				update_option('wpdbbkp_current_chunk_args',$common_args, false);
-				backup_files_cron_with_resume();
+		$path_info = wp_upload_dir();
+		
+		$sql_filename = isset($common_args['FileName'])? $path_info['basedir'] . '/db-backup/' . $common_args['FileName'].'.sql':null;
+		
+		if($sql_filename){
+				$return_status = WPDatabaseBackupBB::upload_backup_to_backblaze($sql_filename, $common_args['FileName'].'.sql');
+			if( $return_status['success'] ){
+				update_option('wpdbbkp_backupcron_current','DB Backed Up', false);
 			}
-			else{
-				error_log('No files were found to backup');
-			}
-		}
-		else{
-			update_option('wpdbbkp_backupcron_step','Creating Backup', false);
-			update_option('wpdbbkp_backupcron_current','File Backup Started', false);
-			wpdbbkp_cron_execute_file_backup_else($common_args);
-			update_option('wpdbbkp_backupcron_current','File Backup Complete', false);
-			update_option('wpdbbkp_backupcron_progress',100, false);
-			wpdbbkp_cron_backup_event_process($method_zip['update_backup_info']);
 		}
 		
+		update_option('wp_db_backup_backups',$options_backup, false);
+		update_option('wp_db_backup_options',$settings_backup, false);
 		}
+		update_option('wpdbbkp_current_chunk_args',$common_args, false);
+		backup_files_cron_with_resume();
  }
+
+// Function to backup files
+
+
+// Function to upload a batch of files to Backblaze B2
+function wpdbbkp_upload_batch_to_server($batch) {
+    foreach ($batch as $file_info) {
+		return WPDatabaseBackupBB::upload_backup_to_backblaze($file_info['file_path'], $file_info['file_path']);
+    }
+}
+
 
  /*********************************************
  * Fetch config and initialize backup process
@@ -331,18 +319,14 @@ if(!function_exists('wpdbbkp_cron_mysqldump')){
 if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 	function wpdbbkp_cron_create_mysql_backup($args)
 	{
-		
+		global $wpdb;
 			if((isset($args['logFile']) && !empty($args['logFile'])) && (isset($args['tableName']) && !empty($args['tableName'])) && (isset($args['FileName']) && !empty($args['FileName']))){
 				$logFile = sanitize_text_field($args['logFile']);
 				$table = sanitize_text_field($args['tableName']);
 				$FileName = sanitize_text_field($args['FileName']);
 				$filename = $FileName . '.sql';
 				$path_info = wp_upload_dir();
-
-				$wpdbbkp_admin_class_obj = new Wpdb_Admin();
 				
-
-				global $wpdb;
 		        $wp_db_exclude_table = array();
 		        $wp_db_exclude_table = get_option('wp_db_exclude_table');
 		        $logMessage = "\n#--------------------------------------------------------\n";
@@ -461,7 +445,7 @@ if(!function_exists('wpdbbkp_cron_method_zip')){
 				$method_zip_array['update_backup_info'] = $update_backup_info;
 				$method_zip_array['status'] = 'success';
 				$method_zip_array['logMessage'] = $log_msg;
-				$method_zip_array['ZipArchive'] = class_exists('ZipArchive');
+				$method_zip_array['ZipArchive'] = class_exists('ZipArchive');;
 			}
 		return $method_zip_array;
 	}
@@ -623,69 +607,6 @@ if(!function_exists('wpdbbkp_cron_files_backup')){
 	}
 }
 
- /**********************************************
- * Alternative method for adding  files to ZIP
- ***********************************************/
-if(!function_exists('wpdbbkp_cron_execute_file_backup_else')){
-	function wpdbbkp_cron_execute_file_backup_else($args) {
-		$return_data_array = array();
-		$return_data_array['status'] = 'failure';
-		require_once WPDB_PATH.'includes/admin/class-wpdb-admin.php';
-		$wpdbbkp_admin_class_obj = new Wpdb_Admin();
-			if((isset($args['FileName']) && !empty($args['FileName'])) && (isset($args['logFile']) && !empty($args['logFile']))){
-				$FileName = sanitize_text_field($args['FileName']);
-				$logFile = sanitize_text_field($args['logFile']);
-				$WPDBFileName = $FileName . '.zip';
-				$path_info = wp_upload_dir();
-				$logMessage = '';
-
-		        $logMessage .= "\n Zip method: pclzip \n";
-		        // set maximum execution time go non stop                        
-		        // Include the PclZip library
-		        require_once( WPDB_PATH.'includes/admin/lib/class-pclzip.php' );
-
-		        // Set the arhive filename
-		        $arcname = $path_info['basedir'] . '/db-backup/' . $WPDBFileName;
-		        $archive = new PclZip($arcname);
-
-		        $wp_all_backup_exclude_dir = get_option('wp_db_backup_exclude_dir');
-		        if (empty($wp_all_backup_exclude_dir)) {
-		            $excludes = WPDB_BACKUPS_DIR;
-		        } else {
-		            $excludes = WPDB_BACKUPS_DIR . '|' . $wp_all_backup_exclude_dir;
-		        }
-		        $logMessage.="\n Exclude Folders and Files : $excludes";
-
-		        // Set the dir to archive
-		        if (get_option('wp_db_backup_backup_type') == 'Database') {
-		            $filename = $FileName . '.sql';
-		            $v_dir = $path_info['basedir'] . '/db-backup/' . $filename;
-
-		            $v_remove = $wpdbbkp_admin_class_obj->wp_db_backup_wp_config_path();
-
-		            // Create the archive
-		            $v_list = $archive->create($v_dir, PCLZIP_OPT_REMOVE_PATH, $v_remove);
-		            if ($v_list == 0) {
-		                error_log("ERROR : '" . $archive->errorInfo(true) . "'");
-		            }
-		        } else {
-		            $v_dir = $wpdbbkp_admin_class_obj->wp_db_backup_wp_config_path();
-		            $v_remove = $v_dir;
-		            // Create the archive
-					update_option('wpdbbkp_backupcron_current','Backing up files', false);
-		            $v_list = $archive->create($v_dir, PCLZIP_OPT_REMOVE_PATH, $v_remove);
-		            if ($v_list == 0) {
-		                error_log("Error : " . $archive->errorInfo(true));
-		            }
-		        }
-		        $update_backup_info = $wpdbbkp_admin_class_obj->wpdbbkp_update_backup_info($FileName, $logFile, $logMessage);
-				$return_data_array['status'] = 'success';
-				$return_data_array['update_backup_info'] = $update_backup_info;
-		
-	    }
-	    return $return_data_array;
-	}
-}
 
 if(!function_exists('conform_dir')){
 	function conform_dir($dir, $recursive = false) {
@@ -715,6 +636,7 @@ if(!function_exists('conform_dir')){
 
 if(!function_exists('wpdbbkp_cron_backup_event_process')){
 	function wpdbbkp_cron_backup_event_process($args) {
+	
 			$details = array();
 			$details['filename'] = isset($args['filename'])?sanitize_text_field($args['filename']):'';
 			$details['dir'] = isset($args['dir'])?sanitize_text_field($args['dir']):'';
@@ -767,9 +689,8 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 
 			$options = get_option('wp_db_backup_backups');
 
-	        $Destination.="Local, ";
-			$path_info = wp_upload_dir();
-			$filesize = @filesize($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/' . $details['filename']);
+	        $Destination.="";
+			$filesize = @filesize($details['size']);
 	        $options[] = array(
 	            'date' => time(),
 	            'filename' => $details['filename'],
@@ -783,21 +704,13 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 	        update_option('wp_db_backup_backups', $options, false);
 						
 			$args2 = array($details['filename'], $details['dir'], $logMessage, $filesize,$Destination,$details['logfile']);
-			
-			WPDBBackupLocal::wp_db_backup_completed($args2);
-			WPDBBackupFTP::wp_db_backup_completed($args2);
-			WPDBBackupEmail::wp_db_backup_completed($args2);
-			WPDBBackupGoogle::wp_db_backup_completed($args2);
-			WPDBBackupDropbox::wp_db_backup_completed($args2);
-			WPDatabaseBackupS3::wp_db_backup_completed($args2);
-			WPDBBackupSFTP::wp_db_backup_completed($args2);
-			WPDatabaseBackupBB::wp_db_backup_completed($args2);
 			wpdbbkp_fullbackup_log($args2);
 			wpdbbkp_backup_completed_notification($args2);
 			update_option('wpdbbkp_dashboard_notify','create', false);
 			update_option('wpdbbkp_backupcron_status','inactive', false);
 			update_option('wpdbbkp_backupcron_progress',100, false);
 			update_option('wpdbbkp_backupcron_current','Backup Completed', false);
+			update_option('wpdbbkp_current_chunk_cnt',0, false);
 			delete_transient('wpdbbkp_backup_status');
 		}
 	
@@ -822,21 +735,21 @@ function wpdbbkp_backup_completed_notification($args){
 
  function wpdbbkp_fullbackup_log(&$args) {
         
-        $options = get_option('wp_db_backup_backups');
-        $newoptions = array();
+	$options = get_option('wp_db_backup_backups');
+	$newoptions = array();
 
-        if(!empty($options) && is_array($options)){
+	if(!empty($options) && is_array($options)){
 
-            foreach ($options as $option) {
-                if ($option['filename'] == $args[0]) {
-                    $option['destination'] = wp_kses( $args[4] , wp_kses_allowed_html('post'));  
+		foreach ($options as $option) {
+			if ($option['filename'] == $args[0]) {
+				$option['destination'] = wp_kses( $args[4] , wp_kses_allowed_html('post'));  
+				$newoptions[] = $option;
+			}else{
 					$newoptions[] = $option;
-                }else{
-                        $newoptions[] = $option;
-                }
-            } 
+			}
+		} 
 
-        }
+	}
                                 
         update_option('wp_db_backup_backups', $newoptions, false);
 
@@ -865,20 +778,39 @@ function wpdbbkp_token_gen($length_of_string = 16)
 }
 
 function backup_files_cron_with_resume(){
-
+	
 	$trasient_lock = get_transient( 'wpdbbkp_backup_status' );
 	$status_lock = get_option( 'wpdbbkp_backupcron_status','inactive');
-	if($status_lock!='active' || ((!$trasient_lock && $status_lock!='active')|| ($trasient_lock!='active' && $status_lock!='active'))){
+	$last_update 	= get_option('wpdbbkp_last_update',false);
+	$last_backup_timestamp = get_option('wp_db_last_backup_timestamp' , 0);
+	$start_time = time();
+	if($status_lock!='active' || $trasient_lock=='active' || ((!$trasient_lock && $status_lock!='active')|| ($trasient_lock!='active' && $status_lock!='active'))){
 		wp_die();
 	}
 	ignore_user_abort(true);
 	set_time_limit(0);
+
+	$root_path = ABSPATH;
+	// exclude directories
+	$exclude_dir = get_option('wp_db_backup_exclude_dir');
+	$exclude_dir = explode('|', $exclude_dir);
+    $iterator  = new RecursiveDirectoryIterator($root_path, RecursiveDirectoryIterator::SKIP_DOTS);
+    $filter = new wpdbbkpExcludeFilter($iterator , $exclude_dir);
+	$files = new RecursiveIteratorIterator($filter, RecursiveIteratorIterator::SELF_FIRST);
+
+	$total_files = iterator_count($files);
+    $batch = [];
+    $batch_limit = 10; // no file to process at one time
+
 	
-	$total_chunk 	= get_option( 'wpdbbkp_total_chunk_cnt',false );
-	$current_chunk  = get_option( 'wpdbbkp_current_chunk_cnt',0 );
-	$current_args 	= get_option( 'wpdbbkp_current_chunk_args',false );
-	$progress 		= get_option('wpdbbkp_backupcron_progress',30);
-	$last_update 	= get_option('wpdbbkp_last_update',false);
+	$total_chunk 	= $total_files;
+	$current_chunk  = get_option( 'wpdbbkp_current_chunk_cnt', 0);
+	$current_args 	= get_option( 'wpdbbkp_current_chunk_args', false);
+	$progress 		= 30;
+	$single_chunk_percent = number_format(((1/$total_files)*64),2,".","");
+
+	$current_args['total_chunk_cnt'] = $total_chunk;
+	$chunk_count=$current_chunk+1;
 
 	if($last_update)
 	{
@@ -893,26 +825,48 @@ function backup_files_cron_with_resume(){
 	if(!$total_chunk || !$current_args){
 		wp_die();
 	}
-	$single_chunk_percent = number_format(((1/$total_chunk)*64),2,".","");
-	$current_args['total_chunk_cnt'] = $total_chunk;
-	$chunk_count=$current_chunk+1;
-	for($i=$current_chunk;$i<$total_chunk;$i++){
-		$current_args['chunk_count']=$chunk_count;
-		wpdbbkp_cron_files_backup($current_args);
-		update_option('wpdbbkp_backupcron_current',$chunk_count.' of '.$total_chunk.' parts done' , false);
-		$progress = $progress+$single_chunk_percent;
-		update_option('wpdbbkp_backupcron_progress',intval($progress), false);
-		update_option('wpdbbkp_last_update',time(), false);
-		update_option('wpdbbkp_current_chunk_cnt',$chunk_count, false);
-		update_option('wpdbbkp_current_chunk_args',$current_args, false);
-		$chunk_count++;
-		sleep(1);
+
+	$total_size = 0;
+	update_option('wpdbbkp_backupcron_step','Backing up Files',false);
+	update_option('wpdbbkp_backupcron_current','Scanning Directories' , false);
+	foreach($files as $key=>$file){
+			$file_path = $file->getPathname();
+			$trasient_lock = get_transient( 'wpdbbkp_backup_status' );
+			$status_lock = get_option( 'wpdbbkp_backupcron_status','inactive');
+		if (($trasient_lock =='active' || $status_lock =='active' ) && $file->isFile() && $file->getMTime() > $last_backup_timestamp && !wpdbbkp_is_file_processed($file_path,$file->getMTime())) {
+			$batch[] = ['file_path' => $file->getPathname(), 'file_name' => $file->getFilename()];
+			$total_size += $file->getSize();
+			$current_chunk++;
+			$progress = $progress+$single_chunk_percent;
+			update_option('wpdbbkp_backupcron_progress',intval($progress), false);
+			update_option('wpdbbkp_current_chunk_cnt',$current_chunk, false);
+			update_option('wpdbbkp_backupcron_current',$chunk_count.' of '.$total_chunk.' files done' , false);
+			$return_params  = wpdbbkp_upload_batch_to_server($batch);
+			$batch = [];
+			if($chunk_count%10==0){
+				sleep(1);
+				set_transient('wpdbbkp_backup_status','active',600);
+			}
+			$chunk_count++;
+			if(isset($return_params['success']) && $return_params['success']){
+				wpdbbkp_add_processed_file($file_path);
+			}
+	  }
+	  update_option('wpdbbkp_current_chunk_args',$current_args, false);
+	 
 	}
-	if($chunk_count==($total_chunk+1)){
-		$wpdbbkp_admin_class_obj = new Wpdb_Admin();
-		$wpdbbkp_update_backup_info =$wpdbbkp_admin_class_obj->wpdbbkp_update_backup_info($current_args['FileName'],$current_args['logFile'],'');
+
+	if($chunk_count>=($total_chunk+1)){
+
+		$wpdbbkp_update_backup_info = ['filename' =>$current_args['fileName'],'dir' => '','url' => '','size' => $total_size,'type' => get_option('wp_db_backup_backup_type')];
+		$wpdbbkp_update_backup_info['logfile'] = $current_args['logFile'];
+		$wpdbbkp_update_backup_info['logfileDir'] = $current_args['logFile'];
+		$wpdbbkp_update_backup_info['logMessage'] = $current_args['logMessage'];
 		wpdbbkp_cron_backup_event_process($wpdbbkp_update_backup_info);
+		update_option('wp_db_last_backup_timestamp' , $start_time);
 	}
+
+	
 }
 
 /************************************************
@@ -930,12 +884,111 @@ function backup_files_cron_with_resume(){
 		update_option('wpdbbkp_backupcron_current','Fetching Config',false);
 		update_option('wpdbbkp_current_chunk_cnt','0',false);
 		update_option('wpdbbkp_backupcron_progress','0',false);
-		delete_transient( 'wpdbbkp_backup_status' );
-		
-		$wpdbbkp_cron_manual=['status'=>esc_html('success'),'msg'=>esc_html__('Cron Stopped','wpdbbkp')];
+		set_transient('wpdbbkp_backup_status','inactive',600);
 	 }
-	 
+	 $wpdbbkp_cron_manual=['status'=>esc_html('success'),'msg'=>esc_html__('Cron Stopped','wpdbbkp')];
 	 echo wp_json_encode($wpdbbkp_cron_manual);
 	 wp_die();
 	
  }
+
+/*
+ * Function to add backup files to db
+*/
+function wpdbbkp_add_processed_file($file_path) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'wpdbbkp_processed_files';
+    // Check if the file path already exists
+    $exists = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE file_path = %s", $file_path));
+
+    if ($exists == 0) {
+        // Insert the file path if it doesn't exist
+        $wpdb->insert(
+            $table_name,
+            [
+                'file_path' => $file_path,
+				'status' => 'added'
+            ],
+            [
+                '%s',
+
+				'%s'
+            ]
+        );
+    }else{
+		// Update the processed_at timestamp if it exists
+		
+
+	 $wpdb->update(
+			$table_name,
+			[
+				'status' => 'updated'
+			],
+			[
+				'file_path' => $file_path
+			],
+			[
+				'%s'
+			],
+			[
+				'%s'
+			]
+		);
+	
+	}
+}
+
+/*
+ * Function to to check whether file is processed or not
+*/
+function wpdbbkp_is_file_processed($file_path = null, $timestamp = 0) {
+    if (!$file_path) {
+        return false;
+    }
+    if (!$timestamp) {
+        $timestamp = current_time('timestamp');
+    }
+
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'wpdbbkp_processed_files';
+
+    $query = $wpdb->prepare(
+        "SELECT COUNT(*) FROM $table_name WHERE file_path = %s AND processed_at >= %d",
+        $file_path,
+        $timestamp
+    );
+
+    $result = $wpdb->get_var($query);
+
+    return $result > 0;
+}
+
+
+
+class wpdbbkpExcludeFilter extends RecursiveFilterIterator {
+    private $excluded;
+
+    public function __construct(RecursiveIterator $iterator, array $excluded) {
+        parent::__construct($iterator);
+        $this->excluded = $excluded;
+    }
+
+	#[\ReturnTypeWillChange]
+    public function accept() {
+        $current = $this->current();
+        $pathname = $current->getPathname();
+
+        foreach ($this->excluded as $exclude) {
+            if (fnmatch($exclude, $pathname)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+	#[\ReturnTypeWillChange]
+    public function getChildren() {
+        return new self($this->getInnerIterator()->getChildren(), $this->excluded);
+    }
+}

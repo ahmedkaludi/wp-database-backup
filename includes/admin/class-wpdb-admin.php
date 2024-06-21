@@ -209,6 +209,11 @@ class Wpdb_Admin {
 						} else {
 							update_option( 'wp_db_remove_on_uninstall', 0 , false);
 						}
+						if ( isset( $_POST['wp_db_incremental_backup'] ) ) {
+							update_option( 'wp_db_incremental_backup', 1 , false);
+						} else {
+							update_option( 'wp_db_incremental_backup', 0 , false);
+						}
 						if ( isset( $_POST['wp_db_remove_local_backup'] ) ) {
 							update_option( 'wp_db_remove_local_backup', 1 , false);
 						} else {
@@ -1492,6 +1497,8 @@ class Wpdb_Admin {
 					}
 					$wp_db_remove_local_backup = get_option( 'wp_db_remove_local_backup' );
 					$wp_db_remove_on_uninstall = get_option( 'wp_db_remove_on_uninstall');
+					$wp_db_incremental_backup = get_option( 'wp_db_incremental_backup');
+					
 					if ( 1 === (int) $wp_db_remove_local_backup ) {
 						$remove_local_backup = 'checked';
 					} else {
@@ -1501,6 +1508,11 @@ class Wpdb_Admin {
 						$remove_on_uninstall = 'checked';
 					} else {
 						$remove_on_uninstall = '';
+					}
+					if ( 1 === (int) $wp_db_incremental_backup ) {
+						$incremental_backup = 'checked';
+					} else {
+						$incremental_backup = '';
 					}
 					?>
 					<form action="" method="post">
@@ -1541,6 +1553,14 @@ class Wpdb_Admin {
 						<label><input type="checkbox" <?php echo esc_attr( $remove_on_uninstall ); ?> name="wp_db_remove_on_uninstall"> <?php echo esc_html__('Delete Data and options on uninstall', 'wpdbbkp') ?></label>
 							<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
 							<?php echo esc_html__('If Checked then it will delete all backup files and options when plugin is uninstalled', 'wpdbbkp') ?>
+						
+							</p>
+						</div>
+						<hr>
+						<div class="input-group">
+						<label><input type="checkbox" <?php echo esc_attr( $incremental_backup ); ?> name="wp_db_incremental_backup"> <?php echo esc_html__('Enable Incremental backup', 'wpdbbkp') ?></label>
+							<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+							<?php echo esc_html__('Only updated files will be backedup after first backup is complete. This feature is currently available for  Blackblaze S3 backup method', 'wpdbbkp') ?>
 						
 							</p>
 						</div>

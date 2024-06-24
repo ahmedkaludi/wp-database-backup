@@ -88,7 +88,6 @@ public static function upload_backup_to_backblaze($file_path, $file_name) {
 
     $upload_url = $data->uploadUrl;
     $upload_auth_token = $data->authorizationToken;
-	error_log($file_path);
     if (!file_exists($file_path)) {
         return array('success' => false, 'message' => esc_html__('File does not exist: ' , 'wpdbbkp'). $file_path);
     }

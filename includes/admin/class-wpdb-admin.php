@@ -557,6 +557,7 @@ class Wpdb_Admin {
 		
 		$options  = get_option( 'wp_db_backup_backups' );
 		$settings = get_option( 'wp_db_backup_options' ); 
+		$incremental_backup =  get_option( 'wp_db_incremental_backup' ,false); 
 		$wp_db_log = get_option( 'wp_db_log' ); ?>
 		<div class="bootstrap-wrapper">
 		<?php
@@ -709,6 +710,9 @@ class Wpdb_Admin {
 						);
 						foreach ( $options as $option ) {
 							$str_class = ( 0 === (int) $option['size'] ) ? 'text-danger' : 'wpdb_download';
+							if($incremental_backup) {
+								$str_class = 'wpdb_download';
+							}
 							echo '<tr class="' . ( ( 0 === ( $count % 2 ) ) ? esc_attr( $str_class ) . ' alternate' : esc_attr( $str_class ) ) . '">';
 							echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
 							$curr_date = new DateTime(date( 'Y-m-d H:i:s', $option['date'] ));
@@ -750,9 +754,18 @@ class Wpdb_Admin {
 								echo '<td>Database</td>';
 							}
 							echo '<td>';
-							echo '<a class="btn btn-default" href="' . esc_url( $option['url'] ) . '" style="color: #21759B;border-color:#337ab7;">';
+							if($incremental_backup){
+								echo '<a class="btn btn-default" href="' . esc_url( 'https://secure.backblaze.com/b2_buckets.htm' ) . '" style="color: #21759B;border-color:#337ab7;">';
+							}else{
+								echo '<a class="btn btn-default" href="' . esc_url( $option['url'] ) . '" style="color: #21759B;border-color:#337ab7;">';
+							}
+							
 							echo '<span class="glyphicon glyphicon-download-alt"></span> Download</a></td>';
+
 							echo '<td>' . esc_attr( $this->wp_db_backup_format_bytes( $option['size'] ) ) . '</td>';
+							
+							
+
 							$remove_backup_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=removebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
 							echo '<td><a title="Remove Database Backup" onclick="return confirm(\'Are you sure you want to delete database backup?\')" href="' . $remove_backup_href . '" class="btn btn-default"><span style="color:red" class="glyphicon glyphicon-trash"></span> Remove <a/> ';
 							if ( isset( $option['search_replace'] ) && 1 === (int) $option['search_replace'] ) {
@@ -765,7 +778,10 @@ class Wpdb_Admin {
 									}
 									
 								}
-								echo '<a title="Restore Database Backup" onclick="wpdbbkp_restore_backup(this);" href="javascript:void(0);"  data-msg="Are you sure you want to restore database backup? It will overwrite all data /files with the respective backup and all recent changes would be lost. Are you sure you want to continue?"  data-title="Restore Backup" data-href="'.$restore_url_href.'" class="btn btn-default"><span class="glyphicon glyphicon-refresh" style="color:blue"></span> Restore <a/>';
+								if(!$incremental_backup){
+									echo '<a title="Restore Database Backup" onclick="wpdbbkp_restore_backup(this);" href="javascript:void(0);"  data-msg="Are you sure you want to restore database backup? It will overwrite all data /files with the respective backup and all recent changes would be lost. Are you sure you want to continue?"  data-title="Restore Backup" data-href="'.$restore_url_href.'" class="btn btn-default"><span class="glyphicon glyphicon-refresh" style="color:blue"></span> Restore <a/>';
+								}
+								
 							}
 							echo '</td></tr>';
 							$count++;

@@ -641,7 +641,7 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 			$details['filename'] = isset($args['filename'])?sanitize_text_field($args['filename']):'';
 			$details['dir'] = isset($args['dir'])?sanitize_text_field($args['dir']):'';
 			$details['url'] = isset($args['url'])?sanitize_url($args['url']):'';
-			$details['size'] = isset($args['size'])?intval($args['size']):'';
+			$details['size'] = isset($args['size'])?intval($args['size']):wpdbbkp_get_foldersize(ABSPATH);
 			$details['type'] = isset($args['type'])?sanitize_text_field($args['type']):'';
 			$details['logfile'] = isset($args['logfile'])?$args['logfile']:'';
 			$details['logfileDir'] = isset($args['logfileDir'])?sanitize_text_field($args['logfileDir']):'';
@@ -689,8 +689,7 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 
 			$options = get_option('wp_db_backup_backups');
 
-	        $Destination.="";
-			$filesize = @filesize($details['size']);
+	        $Destination.="Backblaze,";
 	        $options[] = array(
 	            'date' => time(),
 	            'filename' => $details['filename'],
@@ -699,11 +698,11 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 	            'log' => $details['logfile'],
 	            'destination' => $Destination,
 	            'type' => $details['type'],
-	            'size' => $filesize
+	            'size' => $details['size']
 	        );
 	        update_option('wp_db_backup_backups', $options, false);
 						
-			$args2 = array($details['filename'], $details['dir'], $logMessage, $filesize,$Destination,$details['logfile']);
+			$args2 = array($details['filename'], $details['dir'], $logMessage, $details['size'],$Destination,$details['logfile']);
 			wpdbbkp_fullbackup_log($args2);
 			wpdbbkp_backup_completed_notification($args2);
 			update_option('wpdbbkp_dashboard_notify','create', false);
@@ -797,8 +796,16 @@ function backup_files_cron_with_resume(){
     $iterator  = new RecursiveDirectoryIterator($root_path, RecursiveDirectoryIterator::SKIP_DOTS);
     $filter = new wpdbbkpExcludeFilter($iterator , $exclude_dir);
 	$files = new RecursiveIteratorIterator($filter, RecursiveIteratorIterator::SELF_FIRST);
+	$total_files = 0;
 
-	$total_files = iterator_count($files);
+	foreach($files as $key=>$file){
+		$file_path = $file->getPathname();
+		if ($file->isFile() && !wpdbbkp_is_file_processed($file_path,$file->getMTime())) {
+			$total_files++;
+		}
+  	}
+
+	
     $batch = [];
     $batch_limit = 10; // no file to process at one time
 
@@ -833,7 +840,7 @@ function backup_files_cron_with_resume(){
 			$file_path = $file->getPathname();
 			$trasient_lock = get_transient( 'wpdbbkp_backup_status' );
 			$status_lock = get_option( 'wpdbbkp_backupcron_status','inactive');
-		if (($trasient_lock =='active' || $status_lock =='active' ) && $file->isFile() && $file->getMTime() > $last_backup_timestamp && !wpdbbkp_is_file_processed($file_path,$file->getMTime())) {
+		if (($trasient_lock =='active' || $status_lock =='active' ) && $file->isFile() && !wpdbbkp_is_file_processed($file_path,$file->getMTime())) {
 			$batch[] = ['file_path' => $file->getPathname(), 'file_name' => $file->getFilename()];
 			$total_size += $file->getSize();
 			$current_chunk++;
@@ -856,9 +863,9 @@ function backup_files_cron_with_resume(){
 	 
 	}
 
-	if($chunk_count>=($total_chunk+1)){
+	if($current_chunk>=$total_chunk){
 
-		$wpdbbkp_update_backup_info = ['filename' =>$current_args['fileName'],'dir' => '','url' => '','size' => $total_size,'type' => get_option('wp_db_backup_backup_type')];
+		$wpdbbkp_update_backup_info = ['filename' =>$current_args['fileName'],'dir' => '','url' => '','size' => wpdbbkp_get_foldersize(ABSPATH),'type' => get_option('wp_db_backup_backup_type')];
 		$wpdbbkp_update_backup_info['logfile'] = $current_args['logFile'];
 		$wpdbbkp_update_backup_info['logfileDir'] = $current_args['logFile'];
 		$wpdbbkp_update_backup_info['logMessage'] = $current_args['logMessage'];
@@ -991,4 +998,15 @@ class wpdbbkpExcludeFilter extends RecursiveFilterIterator {
     public function getChildren() {
         return new self($this->getInnerIterator()->getChildren(), $this->excluded);
     }
+}
+
+ function wpdbbkp_get_foldersize ($dir)
+{
+	$size = 0;
+
+	foreach (glob(rtrim($dir, '/').'/*', GLOB_NOSORT) as $each) {
+		$size += is_file($each) ? filesize($each) : wpdbbkp_get_foldersize($each);
+	}
+
+	return $size;
 }

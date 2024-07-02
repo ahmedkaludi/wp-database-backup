@@ -205,6 +205,7 @@ function wpdbbkp_get_progress(){
 		if($sql_filename){
 				$return_status = WPDatabaseBackupBB::upload_backup_to_backblaze($sql_filename, $common_args['FileName'].'.sql');
 			if( $return_status['success'] ){
+				@unlink($sql_filename);
 				update_option('wpdbbkp_backupcron_current','DB Backed Up', false);
 			}
 		}
@@ -905,8 +906,9 @@ function backup_files_cron_with_resume(){
 function wpdbbkp_add_processed_file($file_path) {
     global $wpdb;
     $table_name = $wpdb->prefix . 'wpdbbkp_processed_files';
+	$prep_query = $wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE file_path = %s", $file_path);
     // Check if the file path already exists
-    $exists = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE file_path = %s", $file_path));
+    $exists = $wpdb->get_var($prep_query);
 
     if ($exists == 0) {
         // Insert the file path if it doesn't exist
@@ -926,7 +928,7 @@ function wpdbbkp_add_processed_file($file_path) {
 		// Update the processed_at timestamp if it exists
 		
 
-	 $wpdb->update(
+	 $op = $wpdb->update(
 			$table_name,
 			[
 				'status' => 'updated'
@@ -955,19 +957,24 @@ function wpdbbkp_is_file_processed($file_path = null, $timestamp = 0) {
     if (!$timestamp) {
         $timestamp = current_time('timestamp');
     }
-
     global $wpdb;
     $table_name = $wpdb->prefix . 'wpdbbkp_processed_files';
-
     $query = $wpdb->prepare(
-        "SELECT COUNT(*) FROM $table_name WHERE file_path = %s AND processed_at >= %d",
-        $file_path,
-        $timestamp
+		"SELECT processed_at FROM $table_name WHERE file_path = %s",
+        $file_path
     );
 
-    $result = $wpdb->get_var($query);
-
-    return $result > 0;
+    $result = $wpdb->get_row($query);
+	if($result && isset($result->processed_at)){
+		$processed_at = strtotime($result->processed_at);
+		if($timestamp >= $processed_at){
+			return false;
+		}else{
+		  return true;
+		}
+	}
+	
+	return false;
 }
 
 

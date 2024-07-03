@@ -855,9 +855,10 @@ function backup_files_cron_with_resume(){
 				sleep(1);
 				set_transient('wpdbbkp_backup_status','active',600);
 			}
-			$chunk_count++;
+			
 			if(isset($return_params['success']) && $return_params['success']){
 				wpdbbkp_add_processed_file($file_path);
+				$chunk_count++;
 			}
 	  }
 	  update_option('wpdbbkp_current_chunk_args',$current_args, false);

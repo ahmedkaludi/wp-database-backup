@@ -10,12 +10,12 @@ add_action( 'init','wp_db_fullbackup_scheduler_activation');
  function wp_db_fullbackup_scheduler_activation() {
 	$options = get_option( 'wp_db_backup_options' );
 	if ( ( ! wp_next_scheduled( 'wpdbkup_event_fullbackup' ) ) && ( true === isset( $options['enable_autobackups'] ) ) ) {
-		if(isset($options['full_autobackup_frequency']) && $options['full_autobackup_frequency'] != 'disabled'){
+		if(isset($options['autobackup_frequency']) && $options['autobackup_frequency'] != 'disabled' && isset($options['autobackup_type']) && ($options['autobackup_type'] == 'full' || $options['autobackup_type'] == 'files')){
 			if(isset($options['autobackup_full_time']) && !empty($options['autobackup_full_time'])){
 				wp_schedule_event( time(), 'thirty_minutes', 'wpdbkup_event_fullbackup' );
 			}
 			else{
-				wp_schedule_event( time(), $options['full_autobackup_frequency'], 'wpdbkup_event_fullbackup' );
+				wp_schedule_event( time(), $options['autobackup_frequency'], 'wpdbkup_event_fullbackup' );
 			}
 		  
 		}
@@ -42,8 +42,35 @@ function wp_db_fullbackup_add_cron_schedules($schedules){
 }
 
 add_filter('cron_schedules','wp_db_fullbackup_add_cron_schedules');
+
 if ( ! wp_next_scheduled( 'backup_files_cron_new' ) ) {
-    wp_schedule_event( time(), 'ten_minutes', 'backup_files_cron_new' );
+
+	$trasient_lock 	= get_transient( 'wpdbbkp_backup_status' );
+	$status_lock 	= get_option( 'wpdbbkp_backupcron_status','inactive');
+	$total_chunk 	= get_option( 'wpdbbkp_total_chunk_cnt',false );
+	$current_args 	= get_option( 'wpdbbkp_current_chunk_args',false );
+	$last_update 	= get_option('wpdbbkp_last_update',false);
+
+
+    $should_run_backup = ($status_lock == 'active');
+	
+    if ( !$should_run_backup && $trasient_lock ) {
+        $time_diff = time() - intval( $last_update );
+        if ( $time_diff <= 600 ) { // 10 minutes * 60 seconds
+            $should_run_backup = false;
+        }
+    }
+
+   
+    if ( !$total_chunks || !$current_chunk_args ) {
+        $should_run_backup = false;
+    }
+
+    
+    if ( $should_run_backup ) {
+        wp_schedule_event( time(), 'ten_minutes', 'backup_files_cron_new' );
+    }
+
 }
 
 /*************************************************
@@ -871,8 +898,7 @@ function backup_files_cron_with_resume(){
 	if($status_lock!='active' || ((!$trasient_lock && $status_lock!='active')|| ($trasient_lock!='active' && $status_lock!='active'))){
 		wp_die();
 	}
-	ignore_user_abort(true);
-	set_time_limit(0);
+	
 	
 	$total_chunk 	= get_option( 'wpdbbkp_total_chunk_cnt',false );
 	$current_chunk  = get_option( 'wpdbbkp_current_chunk_cnt',0 );
@@ -893,6 +919,10 @@ function backup_files_cron_with_resume(){
 	if(!$total_chunk || !$current_args){
 		wp_die();
 	}
+
+	ignore_user_abort(true);
+	set_time_limit(0);
+
 	$single_chunk_percent = number_format(((1/$total_chunk)*64),2,".","");
 	$current_args['total_chunk_cnt'] = $total_chunk;
 	$chunk_count=$current_chunk+1;

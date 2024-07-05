@@ -811,10 +811,6 @@ class Wpdb_Admin {
 					if ( isset( $settings['autobackup_frequency'] ) ) {
 						$autobackup_frequency = $settings['autobackup_frequency'];
 					}
-					$full_autobackup_frequency = 'disabled'; 
-					if ( isset( $settings['full_autobackup_frequency'] ) ) {
-						$full_autobackup_frequency = $settings['full_autobackup_frequency'];
-					}
 					$autobackup_type = ''; 
 					if ( isset( $settings['autobackup_type'] ) ) {
 						$autobackup_type = $settings['autobackup_type'];
@@ -2452,7 +2448,10 @@ class Wpdb_Admin {
 		$options = get_option( 'wp_db_backup_options' );
 		if ( ( ! wp_next_scheduled( 'wp_db_backup_event' ) ) && ( true === isset( $options['enable_autobackups'] ) ) ) {
 			$cron_freq = apply_filters( 'wpdbbkp_dbback_cron_frequency',$options['autobackup_frequency']);
-			wp_schedule_event( time(), $cron_freq, 'wp_db_backup_event' );
+			if(isset($options['autobackup_type']) && $options['autobackup_type'] == 'db')
+			{
+				wp_schedule_event( time(), $cron_freq, 'wp_db_backup_event' );
+			}
 		}
 	}
 

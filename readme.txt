@@ -6,7 +6,7 @@ Tags: Database backup, db backup, cloud backup, files backup, wordpress backup.
 Requires at least: 3.1+
 Tested up to: 6.5
 Requires PHP: 5.6.20
-Stable tag: 6.11
+Stable tag: 6.12
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -77,6 +77,11 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 
 == Changelog ==
 
+= 6.12 =
+* 05-07-2024
+* Added: Incremental backup support for backblaze S2 Storage. #85
+* Fixed: Issue where backup is creating after every 10 min #89
+
 = 6.11 =
 * 13-06-2024
 * Added: Support for backblaze S2 Storage. #85
@@ -146,10 +151,6 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 * Fixed: When we configued the email backup, then local backup is getting unconfigued. #37
 * Fixed: Escaping is missing #40
 * Fixed: Fatal error: Uncaught TypeError: ftp_quit(): Argument #1 ($ftp) must be of type FTP\Connection, bool given #41
-
-= 6.1 =
-* 21-01-2023
-* Added Feature - Added full backup files and database
 
 Full changelog available [ at changelog.txt](https://plugins.svn.wordpress.org/wp-database-backup/trunk/changelog.txt)
 

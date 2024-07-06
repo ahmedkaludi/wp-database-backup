@@ -28,7 +28,7 @@ class Wpdb_Admin {
 		add_action( 'admin_init', array( $this, 'admin_scripts_style' ) );
 		add_action( 'admin_menu', array( $this, 'admin_menu' ), 9 );
 		add_filter( 'cron_schedules', array( $this, 'wp_db_backup_cron_schedules' ) );
-		add_action( 'wp_db_backup_event', array( $this, 'wp_db_backup_event_process' ) );
+		add_action( 'wpdbbkp_db_backup_event', array( $this, 'wp_db_backup_event_process' ) );
 		add_action( 'init', array( $this, 'wp_db_backup_scheduler_activation' ) );
 		add_action( 'wp_logout', array( $this, 'wp_db_cookie_expiration' ) ); // Fixed Vulnerability 22-06-2016 for prevent direct download.
 		add_action( 'wp_db_backup_completed', array( $this, 'wp_db_backup_completed_local' ), 12 );

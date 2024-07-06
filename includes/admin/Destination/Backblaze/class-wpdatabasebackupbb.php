@@ -149,7 +149,7 @@ public static function upload_backup_to_backblaze($file_path, $file_name) {
                 $ret = WPDatabaseBackupBB::upload_backup_to_backblaze($args[1], $args[1]);
 				$args[2] = $args[2] .$ret['message'];
                 if ($ret['success']) {
-                    $args[4] = $args[4] .= 'Backblaze, ';
+                    $args[4] .= 'Backblaze, ';
                 }	
 			} catch ( Exception $e ) {
 				$args[2] = $args[2] . "<br>".esc_html__("Failed to upload Database Backup on s3 bucket", 'wpdbbkp');

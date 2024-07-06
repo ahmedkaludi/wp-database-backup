@@ -5,9 +5,7 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
 }
 
 // Function to delete options for a specific site
-function wp_db_delete_options_for_site($site_id) {
-    switch_to_blog($site_id);
-
+function wp_db_delete_options_for_site() {
     $wp_db_remove_on_uninstall = get_option('wp_db_remove_on_uninstall', false);
 
     if ($wp_db_remove_on_uninstall) { 
@@ -26,25 +24,28 @@ function wp_db_delete_options_for_site($site_id) {
             'wpdb_dest_bb_s3_bucket',
             'wpdb_dest_bb_s3_bucket_key',
             'wpdb_dest_bb_s3_bucket_secret',
-            'wpdb_dest_bb_s3_bucket_host'
-
+            'wpdb_dest_bb_s3_bucket_host',
+            'wp_db_backup_destination_bb',
+            'wp_db_backup_backups',
+            'wp_db_backup_options'
         );
 
         foreach ($options_to_remove as $option) {
             delete_option($option);
         }
     }
-
-    restore_current_blog();
 }
 
 if (is_multisite()) {
     // Get all sites in the network
     $sites = get_sites();
     foreach ($sites as $site) {
-        wp_db_delete_options_for_site($site->blog_id);
+        switch_to_blog($site->blog_id);
+        wp_db_delete_options_for_site();
+        restore_current_blog();
     }
+
 } else {
     // Single site
-    wp_db_delete_options_for_site(get_current_blog_id());
+    wp_db_delete_options_for_site();
 }

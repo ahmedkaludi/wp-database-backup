@@ -319,13 +319,16 @@ class Wpdb_Admin {
 									Fix for when you try to delete a file thats in a folder 
 									higher in the hierarchy to your working directory */
 									chdir($file_directory);
-									if ( file_exists( $options[ $index ]['filename'] ) ) {
+									if ( isset($options[ $index ]['filename']) && file_exists( $options[ $index ]['filename'] ) ) {
 									unlink( $options[ $index ]['filename'] );
 									}
-									$file_sql = explode( '.', $options[ $index ]['filename'] );
-									if ( file_exists( $file_sql[0] . '.sql' ) ) {
-										unlink( $file_sql[0] . '.sql' );
+									if(isset($options[ $index ]['filename'])){
+										$file_sql = explode( '.', $options[ $index ]['filename'] );
+										if ( file_exists( $file_sql[0] . '.sql' ) ) {
+											unlink( $file_sql[0] . '.sql' );
+										}
 									}
+									
 									chdir($actual_working_directory);
 									update_option( 'wp_db_backup_backups', $newoptions , false);
 									$nonce = wp_create_nonce( 'wp-database-backup' );

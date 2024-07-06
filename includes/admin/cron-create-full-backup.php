@@ -161,7 +161,7 @@ function wpdbbkp_start_cron_manual(){
 		}
 	}
 
-	wp_json_send($wpdbbkp_cron_manual);
+	wp_send_json($wpdbbkp_cron_manual);
 }
 
 /************************************************
@@ -985,6 +985,6 @@ function wpdbbkp_backup_files_cron_with_resume(){
 		update_option('wpdbbkp_backupcron_current','Fetching Config',false);
 	 }
 	 $wpdbbkp_cron_manual=['status'=>esc_html('fail'),'msg'=>esc_html__('Cron Stopped','wpdbbkp')];
-	wp_send_json($wpdbbkp_cron_manual);
+	 wp_send_json($wpdbbkp_cron_manual);
 	
  }

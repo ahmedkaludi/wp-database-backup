@@ -954,6 +954,10 @@ function wpdbbkp_backup_files_cron_with_resume(){
 	$current_args['total_chunk_cnt'] = $total_chunk;
 	$chunk_count=$current_chunk+1;
 	for($i=$current_chunk;$i<$total_chunk;$i++){
+		$status_lock = get_option( 'wpdbbkp_backupcron_status','inactive');
+		if($status_lock == 'inactive'){
+			break;
+		}
 		$current_args['chunk_count']=$chunk_count;
 		wpdbbkp_cron_files_backup($current_args);
 		update_option('wpdbbkp_backupcron_current',$chunk_count.' of '.$total_chunk.' parts done' , false);
@@ -985,6 +989,7 @@ function wpdbbkp_backup_files_cron_with_resume(){
 		update_option('wpdbbkp_backup_status','inactive',false);
 		update_option('wpdbbkp_backupcron_step','Initialization',false);
 		update_option('wpdbbkp_backupcron_current','Fetching Config',false);
+		delete_transient('wpdbbkp_backup_status');
 		$wpdbbkp_cron_manual=['status'=>esc_html('success'),'msg'=>esc_html__('Cron Stopped','wpdbbkp')];
 	 }
 	

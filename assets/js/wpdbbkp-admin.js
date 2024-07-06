@@ -279,3 +279,11 @@ document.querySelector('#wpdbbkp_sftp_sshkey').addEventListener('input', functio
       console.log(fr.error);
     }
   })
+
+if(jQuery("#create_backup")){
+    jQuery("#create_backup").click(function(event) {
+        jQuery(".wpdbbkp_notification").hide();
+        jQuery("#backup_process").show();
+        jQuery("#create_backup").attr("disabled", true);
+    });
+}

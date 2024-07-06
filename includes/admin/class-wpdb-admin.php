@@ -652,12 +652,6 @@ class Wpdb_Admin {
 								order: [[0, "desc"]],
 							});
 							$j(".popoverid").popover();
-							$j("#create_backup").click(function() {
-								$j(".wpdbbkp_notification").hide();
-								$j("#backup_process").show();
-								$j("#create_backup").attr("disabled", true);
-								
-							});
 						});
 
 						function excludetableall(){

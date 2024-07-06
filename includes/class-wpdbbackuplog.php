@@ -30,7 +30,7 @@ class WPDBBackupLog {
 				if(!is_array($option )){
 					continue;
 				}
-				if (isset($args[0]) && $option['filename'] === sanitize_text_field($args[0])) {
+				if (isset($args[0]) && $option['filename'] === $args[0]) {
 					$option['destination'] = wp_kses($args[4], wp_kses_allowed_html('post'));
 					$option['log']         = wp_kses($args[2] , wp_kses_allowed_html('post'));
 					$newoptions[]          = $option;

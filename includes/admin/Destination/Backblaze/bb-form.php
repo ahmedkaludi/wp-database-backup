@@ -46,7 +46,7 @@ $wpdb_dest_bb_s3_bucket = get_option( 'wpdb_dest_bb_s3_bucket',null);
 $wpdb_dest_bb_s3_bucket_key = get_option( 'wpdb_dest_bb_s3_bucket_key',null);
 $wpdb_dest_bb_s3_bucket_secret = get_option( 'wpdb_dest_bb_s3_bucket_secret',null);
 
-$wpdbbkp_bb_s3_status			=	'<label><b>Status</b>: Not Configured </label> ';
+$wpdbbkp_bb_s3_status			=	'<label><b>'.esc_html__('Status', 'wpdbbkp').'</b>: '.esc_html__('Not Configured', 'wpdbbkp').' </label> ';
 
 if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empty($wpdb_dest_bb_s3_bucket_key) && !empty($wpdb_dest_bb_s3_bucket_secret) && !empty($wpdb_dest_bb_s3_bucket_host))
 {

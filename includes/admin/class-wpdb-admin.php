@@ -704,6 +704,7 @@ class Wpdb_Admin {
 							'Backblaze'  => 'glyphicon glyphicon-cloud-upload'
 						);
 						foreach ( $options as $option ) {
+							$size = isset( $option['size'])? $option['size'] : '';
 							$str_class = ( 0 === (int) $option['size'] ) ? 'text-danger' : 'wpdb_download';
 							echo '<tr class="' . ( ( 0 === ( $count % 2 ) ) ? esc_attr( $str_class ) . ' alternate' : esc_attr( $str_class ) ) . '">';
 							echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
@@ -1061,12 +1062,12 @@ class Wpdb_Admin {
 									$du = $this->wp_db_backup_format_bytes( $du );
 									$dt = $this->wp_db_backup_format_bytes( $dt );
 									}
-									$du=$dp=$df=$dt='NA';
+									
 									?>
 									<div class="col-md-1"><a href="" target="_blank" title="Help"><span
 												class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 									</div>
-									<div class="col-md-3">Disk Space</div>
+									<div class="col-md-12">Disk Space</div>
 									<div class="col-md-5">
 										<div class="progress">
 											<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="<?php echo esc_attr( trim( $dp ) ); ?>" aria-valuemin="0" aria-valuemax="100" style="width:<?php echo esc_attr( trim( $dp ) ); ?>%"> <?php echo esc_attr( $dp ); ?>%

@@ -17,6 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Wpdb_Admin {
 
 	public $mysqldump_command_path;
+	public $root;
+	public $files;
 
 	/**
 	 * Construct.

@@ -267,7 +267,20 @@ class Wpdb_Admin {
 					}
 
 					if ( isset( $_POST['wp_db_backup_options'] ) ) {
-						update_option( 'wp_db_backup_options', $_POST['wp_db_backup_options'], false);
+						$option_to_save = [];
+						if ( isset( $_POST['wp_db_backup_options']['enable_autobackups'] ) ) {
+							$option_to_save['enable_autobackups'] = sanitize_text_field( wp_unslash( $_POST['wp_db_backup_options']['enable_autobackups'] ) );
+						}
+						if ( isset( $_POST['wp_db_backup_options']['autobackup_type'] ) ) {
+							$option_to_save['autobackup_type'] = sanitize_text_field( wp_unslash( $_POST['wp_db_backup_options']['autobackup_type'] ) );
+						}
+						if ( isset( $_POST['wp_db_backup_options']['autobackup_frequency'] ) ) {
+							$option_to_save['autobackup_frequency'] = sanitize_text_field( wp_unslash( $_POST['wp_db_backup_options']['autobackup_frequency'] ) );
+						}
+						if(!empty($option_to_save)) {
+							update_option( 'wp_db_backup_options', $option_to_save, false);
+						}
+						
 					}
 					
 					do_action('wpdbbkp_save_pro_options');

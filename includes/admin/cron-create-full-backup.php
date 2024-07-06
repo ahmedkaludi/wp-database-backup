@@ -126,8 +126,7 @@ function wpdbbkp_check_fullbackup_stat(){
 		$wpdbbkp_fullbackup_stat['status']=esc_html__('active','wpdbbkp'); 
 	 }
 	}
-	echo wp_json_encode($wpdbbkp_fullbackup_stat);
-	wp_die();
+	echo wp_json_send($wpdbbkp_fullbackup_stat);
 
 }
 
@@ -227,7 +226,12 @@ function wpdbbkp_get_progress(){
 		$progress = $progress+4;
 		update_option('wpdbbkp_backupcron_progress',intval($progress), false);
 		$tables= wpdbbkp_cron_mysqldump($config);
-		$count_tables = count($tables['tables']);
+		$count_tables = 1;
+		if(isset($tables['tables'])){
+			$count_tables = count($tables['tables']);
+			$count_tables =  intval($count_tables);
+		}
+		$count_tables = ($count_tables==0)?1:$count_tables;
 		$single_item_percent = number_format(((1/$count_tables)*30),2,".","");
 		$options_backup  = get_option( 'wp_db_backup_backups' );
 		$settings_backup = get_option( 'wp_db_backup_options' );
@@ -915,7 +919,7 @@ function wpdbbkp_backup_files_cron_with_resume(){
 	$trasient_lock = get_transient( 'wpdbbkp_backup_status' );
 	$status_lock = get_option( 'wpdbbkp_backupcron_status','inactive');
 	if($status_lock!='active' || ((!$trasient_lock && $status_lock!='active')|| ($trasient_lock!='active' && $status_lock!='active'))){
-		wp_die();
+		return false;
 	}
 	ignore_user_abort(true);
 	set_time_limit(0);
@@ -931,14 +935,21 @@ function wpdbbkp_backup_files_cron_with_resume(){
 		if($trasient_lock=='active'){
 			$diff = time()-intval($last_update);
 			if($diff<600){
-				wp_die();
+				return false;
 			}
 		}
 	}
 	
 	if(!$total_chunk || !$current_args){
-		wp_die();
+		return false;
 	}
+	
+	if($total_chunk){
+		$total_chunk =  intval($total_chunk);
+	}else{
+		$total_chunk = 1;
+	}
+	$total_chunk = ($total_chunk==0)?1:$total_chunk;
 	$single_chunk_percent = number_format(((1/$total_chunk)*64),2,".","");
 	$current_args['total_chunk_cnt'] = $total_chunk;
 	$chunk_count=$current_chunk+1;
@@ -976,7 +987,6 @@ function wpdbbkp_backup_files_cron_with_resume(){
 		update_option('wpdbbkp_backupcron_current','Fetching Config',false);
 	 }
 	 $wpdbbkp_cron_manual=['status'=>esc_html('fail'),'msg'=>esc_html__('Cron Stopped','wpdbbkp')];
-	 echo wp_json_encode($wpdbbkp_cron_manual);
-	 wp_die();
+	 echo wp_send_json($wpdbbkp_cron_manual);
 	
  }

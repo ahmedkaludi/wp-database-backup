@@ -306,12 +306,15 @@ class Wpdb_Admin {
 									$options    = get_option( 'wp_db_backup_backups' );
 									$newoptions = array();
 									$count      = 0;
-									foreach ( $options as $option ) {
-										if ( $count !== $index ) {
-											$newoptions[] = $option;
+									if(!empty($options) && is_array($options)){
+										foreach ( $options as $option ) {
+											if ( $count !== $index ) {
+												$newoptions[] = $option;
+											}
+											$count++;
 										}
-										$count++;
 									}
+									
 									$upload_dir = wp_upload_dir();
 									$actual_working_directory = getcwd();
 									$file_directory = $upload_dir['basedir'].'/db-backup/';
@@ -320,11 +323,11 @@ class Wpdb_Admin {
 									higher in the hierarchy to your working directory */
 									chdir($file_directory);
 									if ( isset($options[ $index ]['filename']) && file_exists( $options[ $index ]['filename'] ) ) {
-									unlink( $options[ $index ]['filename'] );
+										unlink( $options[ $index ]['filename'] );
 									}
 									if(isset($options[ $index ]['filename'])){
 										$file_sql = explode( '.', $options[ $index ]['filename'] );
-										if ( file_exists( $file_sql[0] . '.sql' ) ) {
+										if ( isset($file_sql[0]) && file_exists( $file_sql[0] . '.sql' ) ) {
 											unlink( $file_sql[0] . '.sql' );
 										}
 									}
@@ -369,6 +372,9 @@ class Wpdb_Admin {
 								$backup_check_list = array( '.htaccess', 'index.php' );
 								$delete_message    = 'WPDB : Deleted Files:';
 								foreach ( $options as $option ) {
+									if(!is_array($option)){
+										continue;
+									}
 									$backup_check_list[] = $option['filename'];
 								}
 								$path_info         = wp_upload_dir();
@@ -393,7 +399,7 @@ class Wpdb_Admin {
 								exit;
 								break;
 							case 'restorebackup':
-								$index      = (int) $_GET['index'];
+								$index      = isset($_GET['index'])?(int) $_GET['index']:0;
 								$options    = get_option( 'wp_db_backup_backups' );
 								$restore_limit = get_option( 'wp_db_restore_limit');
 								$newoptions = array();
@@ -417,9 +423,12 @@ class Wpdb_Admin {
 								if ( isset( $options[ $index ]['sqlfile'] ) ) { // Added for extract zip file V.3.3.0.
 									$database_file = ( $options[ $index ]['sqlfile'] );
 								} else {
-									$database_file = ( $options[ $index ]['dir'] );
-									$file_sql      = explode( '.', $options[ $index ]['dir'] );
-									$database_file = ( $file_sql[0] . '.sql' );
+									$database_file = isset($options[ $index ]['dir']) ? $options[ $index ]['dir'] : '';
+									$file_sql      = explode( '.', $database_file );
+									if(isset($file_sql[0])){
+										$database_file = ( $file_sql[0] . '.sql' );
+									}
+									
 								}
 								$database_name     = $this->wp_backup_get_config_db_name();
 								$database_user     = $this->wp_backup_get_config_data( 'DB_USER' );
@@ -523,10 +532,16 @@ class Wpdb_Admin {
 		                        if (get_option('wp_db_log') == 1) {
 		                            $options = get_option('wp_db_backup_backups');
 		                            $path_info = wp_upload_dir();
-		                            $logFileName = explode(".", $options[$index]['filename']);
-		                            $logfile = $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/' . $logFileName[0] . '.txt';
-		                            $message = "\n\n Restore Backup at " . date("Y-m-d h:i:sa");
-		                            $this->write_log($logfile, $message);
+									if(isset($options[$index]['filename'])){
+										$logFileName = explode(".", $options[$index]['filename']);
+										if(isset($logFileName[0])){
+											$logfile = $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/' . $logFileName[0] . '.txt';
+											$message = "\n\n Restore Backup at " . date("Y-m-d h:i:sa");
+											$this->write_log($logfile, $message);
+										}
+										
+									}
+		                           
 		                        }
 		                        $nonce = wp_create_nonce( 'wp-database-backup' );
 		                        wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=restore&_wpnonce=' . $nonce );
@@ -650,7 +665,7 @@ class Wpdb_Admin {
 					include_once 'admin-header-notification.php'; ?>
 
 					<?php
-					if ( $options ) {
+					if ( !empty($options) ) {
 
 						echo ' <script>
 						var $j = jQuery.noConflict();
@@ -1752,52 +1767,56 @@ class Wpdb_Admin {
 		$wp_db_exclude_table = get_option( 'wp_db_exclude_table' );
 		$tables              = $wpdb->get_col( 'SHOW TABLES' ); // phpcs:ignore
 		$output              = '';
-		foreach ( $tables as $table ) {
-			if ( empty( $wp_db_exclude_table ) || ( ! ( in_array( $table, $wp_db_exclude_table, true ) ) ) ) {
-
-				$check_count      = $wpdb->get_var( "SELECT count(*) FROM {$table}"); // phpcs:ignore
-				$check_count = intval($check_count);
-				$sub_limit =500;
-				if(isset($check_count) && $check_count>$sub_limit){
-					$result =array();
-					$t_sub_queries= ceil($check_count/$sub_limit);
-					for($sub_i=0;$sub_i<$t_sub_queries;$sub_i++)
-					{
-						$sub_offset = $sub_i*$sub_limit;
-						$sub_result = $wpdb->get_results( $wpdb->prepare("SELECT * FROM %i LIMIT %d OFFSET %d",array($table,$sub_limit,$sub_offset)), ARRAY_A  );
-						if($sub_result){
-							$result = array_merge($result,$sub_result);
+		if(!empty($tables) && !is_array($tables)){
+			foreach ( $tables as $table ) {
+				if ( empty( $wp_db_exclude_table ) || ( ! ( in_array( $table, $wp_db_exclude_table, true ) ) ) ) {
+	
+					$check_count      = $wpdb->get_var( "SELECT count(*) FROM {$table}"); // phpcs:ignore
+					$check_count = intval($check_count);
+					$sub_limit =500;
+					if(isset($check_count) && $check_count>$sub_limit){
+						$result =array();
+						$t_sub_queries= ceil($check_count/$sub_limit);
+						for($sub_i=0;$sub_i<$t_sub_queries;$sub_i++)
+						{
+							$sub_offset = $sub_i*$sub_limit;
+							$sub_result = $wpdb->get_results( $wpdb->prepare("SELECT * FROM %i LIMIT %d OFFSET %d",array($table,$sub_limit,$sub_offset)), ARRAY_A  );
+							if($sub_result){
+								$result = array_merge($result,$sub_result);
+							}
+							sleep(1);
 						}
-						sleep(1);
 					}
-				}
-				else{
-					$result       = $wpdb->get_results( $wpdb->prepare("SELECT * FROM %i",array($table)), ARRAY_A  ); // phpcs:ignore
-				}
-				
-
-				$row2         = $wpdb->get_row( 'SHOW CREATE TABLE ' . $table, ARRAY_N ); // phpcs:ignore
-				$output      .= "\n\n" . $row2[1] . ";\n\n";
-				$result_count = count( $result );
-				for ( $i = 0; $i < $result_count; $i++ ) {
-					$row            = $result[ $i ];
-					$output        .= 'INSERT INTO ' . $table . ' VALUES(';
-					$result_o_index = count( $result[0] );
-					$j=0;
-					foreach ($row as $key => $value) {
-						$row[ $key] = $wpdb->_real_escape( apply_filters( 'wpdbbkp_process_db_fields', $row[$key],$table,$key) );
-						$output   .= ( isset( $row[ $key ] ) ) ? '"' . $row[ $key ] . '"' : '""';
-						if ( $j < ( $result_o_index - 1 ) ) {
-							$output .= ',';
+					else{
+						$result       = $wpdb->get_results( $wpdb->prepare("SELECT * FROM %i",array($table)), ARRAY_A  ); // phpcs:ignore
+					}
+					
+	
+					$row2         = $wpdb->get_row( 'SHOW CREATE TABLE ' . $table, ARRAY_N ); // phpcs:ignore
+					$output      .= "\n\n" . $row2[1] . ";\n\n";
+					$result_count = count( $result );
+					for ( $i = 0; $i < $result_count; $i++ ) {
+						$row            = $result[ $i ];
+						$output        .= 'INSERT INTO ' . $table . ' VALUES(';
+						$result_o_index = count( $result[0] );
+						$j=0;
+						foreach ($row as $key => $value) {
+							$row[ $key] = $wpdb->_real_escape( apply_filters( 'wpdbbkp_process_db_fields', $row[$key],$table,$key) );
+							$output   .= ( isset( $row[ $key ] ) ) ? '"' . $row[ $key ] . '"' : '""';
+							if ( $j < ( $result_o_index - 1 ) ) {
+								$output .= ',';
+							}
+							$j++;
 						}
-						$j++;
+						$output .= ");\n";
 					}
-					$output .= ");\n";
+					$output .= "\n";
 				}
-				$output .= "\n";
+				sleep(1);
 			}
-			sleep(1);
+
 		}
+		
 		$wpdb->flush();
 		/* BEGIN : Prevent saving backup plugin settings in the database dump */
 		add_option( 'wp_db_backup_backups', $options_backup );
@@ -2295,11 +2314,11 @@ class Wpdb_Admin {
 				$diff = $number_of_existing_backups - $number_of_backups_from_user;
 				for ( $i = 0; $i <= $diff; $i++ ) {
 					$index = $i;
-					if ( file_exists( $options[ $index ]['dir'] ) ) {
+					if ( isset($options[ $index ]['dir']) && file_exists( $options[ $index ]['dir'] ) ) {
 						unlink( $options[ $index ]['dir'] );
 					}
 					$file_sql = explode( '.', $options[ $index ]['dir'] );
-					if ( file_exists( $file_sql[0] . '.sql' ) ) {
+					if ( isset($file_sql[0]) && file_exists( $file_sql[0] . '.sql' ) ) {
 						unlink( $file_sql[0] . '.sql' );
 					}
 				}

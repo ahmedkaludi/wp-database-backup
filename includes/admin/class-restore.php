@@ -28,13 +28,16 @@ class Wpbp_Restore {
 
 
         public function start( $id ) {      
-                $options = get_option('wp_db_backup_backups'); 
-                $this->type = $options[$id]['type'];
-                $this->path = $options[$id]['dir'];
-                error_log("Restore Backup");
-                error_log($this->type);   
-                error_log($this->path);   
-                $this->restore();
+                $options = get_option('wp_db_backup_backups');
+                if($id && isset($options[$id]['type']) && isset($options[$id]['dir'])){
+                        $this->type = $options[$id]['type'];
+                        $this->path = $options[$id]['dir'];
+                        error_log("Restore Backup");
+                        error_log($this->type);   
+                        error_log($this->path);   
+                        $this->restore();
+                } 
+               
         }
 
         public function restore() {

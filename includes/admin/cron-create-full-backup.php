@@ -235,17 +235,23 @@ function wpdbbkp_get_progress(){
 		$single_item_percent = number_format(((1/$count_tables)*30),2,".","");
 		$options_backup  = get_option( 'wp_db_backup_backups' );
 		$settings_backup = get_option( 'wp_db_backup_options' );
-		delete_option( 'wp_db_backup_backups' );
-		delete_option( 'wp_db_backup_options' );
-		foreach($tables['tables'] as $table){
-			$common_args['tableName']= $table;
-			update_option('wpdbbkp_backupcron_current',$table, false);
-			$progress = $progress+$single_item_percent;
-			update_option('wpdbbkp_backupcron_progress',intval($progress), false);
-			set_transient('wpdbbkp_backup_status','active',600);
-			wpdbbkp_cron_create_mysql_backup($common_args);
-			sleep(1);
+		$wp_db_save_settings_in_backup = get_option( 'wp_db_save_settings_in_backup',1);
+		if($wp_db_save_settings_in_backup){
+			delete_option( 'wp_db_backup_backups' );
+			delete_option( 'wp_db_backup_options' );
 		}
+		if(!empty($tables['tables']) && is_array($tables['tables'])){
+			foreach($tables['tables'] as $table){
+				$common_args['tableName']= $table;
+				update_option('wpdbbkp_backupcron_current',$table, false);
+				$progress = $progress+$single_item_percent;
+				update_option('wpdbbkp_backupcron_progress',intval($progress), false);
+				set_transient('wpdbbkp_backup_status','active',600);
+				wpdbbkp_cron_create_mysql_backup($common_args);
+				sleep(1);
+			}
+		}
+		
 	
 
 		update_option('wp_db_backup_backups',$options_backup, false);
@@ -789,11 +795,11 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 					$diff = $number_of_existing_backups - $number_of_backups_from_user;
 					for ( $i = 0; $i <= $diff; $i++ ) {
 						$index = $i;
-						if ( file_exists( $options[ $index ]['dir'] ) ) {
+						if ( isset($options[ $index ]['dir']) && file_exists( $options[ $index ]['dir'] ) ) {
 							unlink( $options[ $index ]['dir'] );
 						}
 						$file_sql = explode( '.', $options[ $index ]['dir'] );
-						if ( file_exists( $file_sql[0] . '.sql' ) ) {
+						if ( isset($file_sql[0]) && file_exists( $file_sql[0] . '.sql' ) ) {
 							unlink( $file_sql[0] . '.sql' );
 						}
 					}
@@ -877,6 +883,9 @@ function wpdbbkp_backup_completed_notification($args){
         if(!empty($options) && is_array($options)){
 
             foreach ($options as $option) {
+				if(!is_array($option)){
+					continue;
+				}
                 if ($option['filename'] == $args[0]) {
 					$newoptions[] = $option;
                     $newoptions['destination'] = wp_kses( $args[4] , wp_kses_allowed_html('post'));            

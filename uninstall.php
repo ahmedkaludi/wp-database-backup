@@ -39,10 +39,12 @@ function wp_db_delete_options_for_site() {
 if (is_multisite()) {
     // Get all sites in the network
     $sites = get_sites();
-    foreach ($sites as $site) {
-        switch_to_blog($site->blog_id);
-        wp_db_delete_options_for_site();
-        restore_current_blog();
+    if(!empty($sites) && is_array($sites)) {
+        foreach ($sites as $site) {
+            switch_to_blog($site->blog_id);
+            wp_db_delete_options_for_site();
+            restore_current_blog();
+        }
     }
 
 } else {

@@ -12,6 +12,9 @@ class WPDBFullBackupLog {
         if(!empty($options) && is_array($options)){
 
             foreach ($options as $option) {
+                if (!is_array($option)) {
+                    continue;
+                }
                 if ($option['filename'] == $args[0]) {
                     $newoptions[] = $option;
                     $newoptions['destination'] = wp_kses($args[4], wp_kses_allowed_html('post'));

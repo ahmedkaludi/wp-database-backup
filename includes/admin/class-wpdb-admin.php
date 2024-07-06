@@ -353,11 +353,13 @@ class Wpdb_Admin {
 										$files = glob($file_directory.'/db-backup'.'/*');  
    
 										// Deleting all the files in the list 
-										foreach($files as $file) { 
-											if(is_file($file)){
-												unlink($file);
-											}  
-										} 
+										if(!empty($files)){
+											foreach($files as $file) { 
+												if(is_file($file)){
+													unlink($file);
+												}  
+											} 
+										}
 										chdir($actual_working_directory);
 										update_option( 'wp_db_backup_backups', array() , false);
 										$nonce = wp_create_nonce( 'wp-database-backup' );
@@ -371,11 +373,13 @@ class Wpdb_Admin {
 								$newoptions        = array();
 								$backup_check_list = array( '.htaccess', 'index.php' );
 								$delete_message    = 'WPDB : Deleted Files:';
-								foreach ( $options as $option ) {
-									if(!is_array($option)){
-										continue;
+								if(!empty($options) && is_array($options)){
+									foreach ( $options as $option ) {
+										if(!is_array($option)){
+											continue;
+										}
+										$backup_check_list[] = $option['filename'];
 									}
-									$backup_check_list[] = $option['filename'];
 								}
 								$path_info         = wp_upload_dir();
 								$wp_db_backup_path = $path_info['basedir'] . '/db-backup';
@@ -404,11 +408,13 @@ class Wpdb_Admin {
 								$restore_limit = get_option( 'wp_db_restore_limit');
 								$newoptions = array();
 								$count      = 0;
-								foreach ( $options as $option ) {
-									if ( $count !== $index ) {
-										$newoptions[] = $option;
+								if(!empty($options) && is_array($options)){
+									foreach ( $options as $option ) {
+										if ( $count !== $index ) {
+											$newoptions[] = $option;
+										}
+										$count++;
 									}
-									$count++;
 								}
 								if ( isset( $options[ $index ]['restore_limit'] ) && $options[ $index ]['restore_limit']==1) {
 									include_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -721,73 +727,79 @@ class Wpdb_Admin {
 							'DropBox'    => 'glyphicon glyphicon-inbox',
 							'Backblaze'  => 'glyphicon glyphicon-cloud-upload'
 						);
-						foreach ( $options as $option ) {
-							if(!is_array($option)){
-								continue;
-							}
-							$size = isset( $option['size'])? $option['size'] : 0;
-							$str_class = ( 0 === (int) $size  ) ? 'text-danger' : 'wpdb_download';
-							echo '<tr class="' . ( ( 0 === ( $count % 2 ) ) ? esc_attr( $str_class ) . ' alternate' : esc_attr( $str_class ) ) . '">';
-							echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
-							$curr_date = new DateTime(date( 'Y-m-d H:i:s', $option['date'] ));
-							$curr_date->setTimezone(new DateTimeZone(wp_timezone_string()));
-							echo '<td><span style="display:none">' . esc_attr( $curr_date->format('Y-m-d H:i:s') ) . '</span><span title="'.esc_attr( $curr_date->format('jS, F Y h:i:s A') ) .'">' .$this->wpdbbkp_get_timeago($option['date']).'</span>';
-							echo '</td>';
-							if($wp_db_log==1){
-								echo '<td class="wpdb_log" align="center">';
-							if (!empty($option['log'])) {
-								if(isset($option['type']) && ($option['type'] == 'complete' || $option['type'] == 'database')){
-							echo '<a href="' . $option['log'] . '" target="_blank" class="label label-warning" title="There might be partial backup. Please check Log File for verify backup.">';
-                            echo  '<span class="glyphicon glyphicon-list-alt"></span>';
-                            echo '</a>';
-								}else{
-									echo '<a class="popoverid btn" role="button" data-toggle="popover" data-html="true" title="There might be partial backup. Please check Log file to verify backup." data-content="' . wp_kses_post( $option['log'] ) . '"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';
+						if(!empty($options) && is_array($options)){
+							foreach ( $options as $option ) {
+								if(!is_array($option)){
+									continue;
 								}
-							}
-							echo '</td>';
-							}
-							echo '<td>';
-							if ( ! empty( $option['destination'] ) ) {
-								$destination = ( explode( ',', $option['destination'] ) );
-								foreach ( $destination as $dest ) {
-									$key = trim( $dest );
-									if ( ! empty( $dest ) && array_key_exists( $key, $destination_icon ) ) {
-										echo '<span class="' . esc_attr( $destination_icon[ $key ] ) . '" title="' . esc_attr( $dest ) . '"></span> ';
+								$size = isset( $option['size'])? $option['size'] : 0;
+								$str_class = ( 0 === (int) $size  ) ? 'text-danger' : 'wpdb_download';
+								echo '<tr class="' . ( ( 0 === ( $count % 2 ) ) ? esc_attr( $str_class ) . ' alternate' : esc_attr( $str_class ) ) . '">';
+								echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
+								$curr_date = new DateTime(date( 'Y-m-d H:i:s', $option['date'] ));
+								$curr_date->setTimezone(new DateTimeZone(wp_timezone_string()));
+								echo '<td><span style="display:none">' . esc_attr( $curr_date->format('Y-m-d H:i:s') ) . '</span><span title="'.esc_attr( $curr_date->format('jS, F Y h:i:s A') ) .'">' .$this->wpdbbkp_get_timeago($option['date']).'</span>';
+								echo '</td>';
+								if($wp_db_log==1){
+									echo '<td class="wpdb_log" align="center">';
+								if (!empty($option['log'])) {
+									if(isset($option['type']) && ($option['type'] == 'complete' || $option['type'] == 'database')){
+								echo '<a href="' . $option['log'] . '" target="_blank" class="label label-warning" title="There might be partial backup. Please check Log File for verify backup.">';
+								echo  '<span class="glyphicon glyphicon-list-alt"></span>';
+								echo '</a>';
+									}else{
+										echo '<a class="popoverid btn" role="button" data-toggle="popover" data-html="true" title="There might be partial backup. Please check Log file to verify backup." data-content="' . wp_kses_post( $option['log'] ) . '"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></a>';
 									}
 								}
-							}
-							echo '</td>';
-							if(isset($option['type']) && !empty($option['type'])){
-								if($option['type'] == 'complete'){
-									echo '<td>'.esc_html__('Full Backup', 'wpdbbkp').'</td>';	
+								echo '</td>';
 								}
-								if($option['type'] == 'database'){
-									echo '<td>'.esc_html__('Database', 'wpdbbkp').'</td>';	
-								}
-							}else{
-								echo '<td>Database</td>';
-							}
-							echo '<td>';
-							echo '<a class="btn btn-default" href="' . esc_url( $option['url'] ) . '" style="color: #21759B;border-color:#337ab7;">';
-							echo '<span class="glyphicon glyphicon-download-alt"></span> Download</a></td>';
-							echo '<td>' . esc_attr( $this->wp_db_backup_format_bytes( $option['size'] ) ) . '</td>';
-							$remove_backup_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=removebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
-							echo '<td><a title="Remove Database Backup" onclick="return confirm(\'Are you sure you want to delete database backup?\')" href="' . $remove_backup_href . '" class="btn btn-default"><span style="color:red" class="glyphicon glyphicon-trash"></span> Remove <a/> ';
-							if ( isset( $option['search_replace'] ) && 1 === (int) $option['search_replace'] ) {
-								echo '<span style="margin-left:15px" title="' . esc_html( $option['log'] ) . '" class="glyphicon glyphicon-search"></span>';
-							} else {
-								$restore_url_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=restorebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
-								if(isset($option['type']) && !empty($option['type'])){
-									if($option['type'] == 'complete'){
-										$restore_url_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=wpdbbkrestorefullbackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
+								echo '<td>';
+								if ( ! empty( $option['destination'] ) ) {
+									$destination = ( explode( ',', $option['destination'] ) );
+									if(!empty($destination) && is_array($destination)){
+										foreach ( $destination as $dest ) {
+											$key = trim( $dest );
+											if ( ! empty( $dest ) && array_key_exists( $key, $destination_icon ) ) {
+												echo '<span class="' . esc_attr( $destination_icon[ $key ] ) . '" title="' . esc_attr( $dest ) . '"></span> ';
+											}
+										}
 									}
 									
 								}
-								echo '<a title="Restore Database Backup" onclick="wpdbbkp_restore_backup(this);" href="javascript:void(0);"  data-msg="Are you sure you want to restore database backup? It will overwrite all data /files with the respective backup and all recent changes would be lost. Are you sure you want to continue?"  data-title="Restore Backup" data-href="'.$restore_url_href.'" class="btn btn-default"><span class="glyphicon glyphicon-refresh" style="color:blue"></span> Restore <a/>';
+								echo '</td>';
+								if(isset($option['type']) && !empty($option['type'])){
+									if($option['type'] == 'complete'){
+										echo '<td>'.esc_html__('Full Backup', 'wpdbbkp').'</td>';	
+									}
+									if($option['type'] == 'database'){
+										echo '<td>'.esc_html__('Database', 'wpdbbkp').'</td>';	
+									}
+								}else{
+									echo '<td>Database</td>';
+								}
+								echo '<td>';
+								echo '<a class="btn btn-default" href="' . esc_url( $option['url'] ) . '" style="color: #21759B;border-color:#337ab7;">';
+								echo '<span class="glyphicon glyphicon-download-alt"></span> Download</a></td>';
+								echo '<td>' . esc_attr( $this->wp_db_backup_format_bytes( $option['size'] ) ) . '</td>';
+								$remove_backup_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=removebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
+								echo '<td><a title="Remove Database Backup" onclick="return confirm(\'Are you sure you want to delete database backup?\')" href="' . $remove_backup_href . '" class="btn btn-default"><span style="color:red" class="glyphicon glyphicon-trash"></span> Remove <a/> ';
+								if ( isset( $option['search_replace'] ) && 1 === (int) $option['search_replace'] ) {
+									echo '<span style="margin-left:15px" title="' . esc_html( $option['log'] ) . '" class="glyphicon glyphicon-search"></span>';
+								} else {
+									$restore_url_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=restorebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
+									if(isset($option['type']) && !empty($option['type'])){
+										if($option['type'] == 'complete'){
+											$restore_url_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=wpdbbkrestorefullbackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
+										}
+										
+									}
+									echo '<a title="Restore Database Backup" onclick="wpdbbkp_restore_backup(this);" href="javascript:void(0);"  data-msg="Are you sure you want to restore database backup? It will overwrite all data /files with the respective backup and all recent changes would be lost. Are you sure you want to continue?"  data-title="Restore Backup" data-href="'.$restore_url_href.'" class="btn btn-default"><span class="glyphicon glyphicon-refresh" style="color:blue"></span> Restore <a/>';
+								}
+								echo '</td></tr>';
+								$count++;
 							}
-							echo '</td></tr>';
-							$count++;
 						}
+						
 						echo '</tbody>';
 
 						echo ' </table>
@@ -1423,12 +1435,15 @@ class Wpdb_Admin {
 									</tr>
 									<?php
 									$plugins = get_plugins();
-									foreach ( $plugins as $plugin ) {
-										echo '<tr>
-                                           <td>' . esc_attr( $plugin['Name'] ) . '</td>
-                                           <td>' . esc_attr( $plugin['Version'] ) . '</td>
-                                        </tr>';
+									if(!empty($plugins) && is_array($plugins)){
+										foreach ( $plugins as $plugin ) {
+											echo '<tr>
+											   <td>' . esc_attr( $plugin['Name'] ) . '</td>
+											   <td>' . esc_attr( $plugin['Version'] ) . '</td>
+											</tr>';
+										}
 									}
+									
 									?>
 								</table>
 								<table class="table table-condensed">
@@ -1796,19 +1811,22 @@ class Wpdb_Admin {
 					$output      .= "\n\n" . $row2[1] . ";\n\n";
 					$result_count = count( $result );
 					for ( $i = 0; $i < $result_count; $i++ ) {
-						$row            = $result[ $i ];
-						$output        .= 'INSERT INTO ' . $table . ' VALUES(';
-						$result_o_index = count( $result[0] );
-						$j=0;
-						foreach ($row as $key => $value) {
-							$row[ $key] = $wpdb->_real_escape( apply_filters( 'wpdbbkp_process_db_fields', $row[$key],$table,$key) );
-							$output   .= ( isset( $row[ $key ] ) ) ? '"' . $row[ $key ] . '"' : '""';
-							if ( $j < ( $result_o_index - 1 ) ) {
-								$output .= ',';
+						if(isset($result[ $i ])){
+							$row            = $result[ $i ];
+							$output        .= 'INSERT INTO ' . $table . ' VALUES(';
+							$result_o_index = count( $result[0] );
+							$j=0;
+							foreach ($row as $key => $value) {
+								$row[ $key] = $wpdb->_real_escape( apply_filters( 'wpdbbkp_process_db_fields', $row[$key],$table,$key) );
+								$output   .= ( isset( $row[ $key ] ) ) ? '"' . $row[ $key ] . '"' : '""';
+								if ( $j < ( $result_o_index - 1 ) ) {
+									$output .= ',';
+								}
+								$j++;
 							}
-							$j++;
+							$output .= ");\n";
 						}
-						$output .= ");\n";
+						
 					}
 					$output .= "\n";
 				}
@@ -2529,6 +2547,9 @@ class Wpdb_Admin {
 	 * @return mixed
 	 */
 	public function recursive_sanitize_text_field( $array ) {
+		if( ! is_array( $array ) ) {
+			return sanitize_text_field( $array );
+		}
 		foreach ( $array as $key => &$value ) {
 			if ( is_array( $value ) ) {
 				$value = $this->recursive_sanitize_text_field( $value );
@@ -2912,53 +2933,56 @@ class Wpdb_Admin {
 	        }
 
 	        $excludes = explode("|", $excludes);
-	        foreach ($excludes as $key => &$rule) {
+			if(!empty($excludes) && is_array($excludes)){
+				foreach ($excludes as $key => &$rule) {
 
-	            $file = $absolute = $fragment = false;
-
-	            // Files don't end with /
-	            if (!in_array(substr($rule, -1), array('\\', '/')))
-	                $file = true;
-
-	            // If rule starts with a / then treat as absolute path
-	            elseif (in_array(substr($rule, 0, 1), array('\\', '/')))
-	                $absolute = true;
-
-	            // Otherwise treat as dir fragment
-	            else
-	                $fragment = true;
-
-	            // Strip $this->root and conform
-	            $rule = str_ireplace($this->get_root(), '', untrailingslashit(self::conform_dir($rule)));
-
-	            // Strip the preceeding slash
-	            if (in_array(substr($rule, 0, 1), array('\\', '/')))
-	                $rule = substr($rule, 1);
-
-	            // Escape string for regex
-	            if ($context === 'regex')
-	                $rule = str_replace('.', '\.', $rule);
-
-	            // Convert any existing wildcards
-	            if ($wildcard !== '*' && strpos($rule, '*') !== false)
-	                $rule = str_replace('*', $wildcard, $rule);
-
-	            // Wrap directory fragments and files in wildcards for zip
-	            if ($context === 'zip' && ( $fragment || $file ))
-	                $rule = $wildcard . $rule . $wildcard;
-
-	            // Add a wildcard to the end of absolute url for zips
-	            if ($context === 'zip' && $absolute)
-	                $rule .= $wildcard;
-
-	            // Add and end carrot to files for pclzip but only if it doesn't end in a wildcard
-	            if ($file && $context === 'regex')
-	                $rule .= '$';
-
-	            // Add a start carrot to absolute urls for pclzip
-	            if ($absolute && $context === 'regex')
-	                $rule = '^' . $rule;
-	        }
+					$file = $absolute = $fragment = false;
+	
+					// Files don't end with /
+					if (!in_array(substr($rule, -1), array('\\', '/')))
+						$file = true;
+	
+					// If rule starts with a / then treat as absolute path
+					elseif (in_array(substr($rule, 0, 1), array('\\', '/')))
+						$absolute = true;
+	
+					// Otherwise treat as dir fragment
+					else
+						$fragment = true;
+	
+					// Strip $this->root and conform
+					$rule = str_ireplace($this->get_root(), '', untrailingslashit(self::conform_dir($rule)));
+	
+					// Strip the preceeding slash
+					if (in_array(substr($rule, 0, 1), array('\\', '/')))
+						$rule = substr($rule, 1);
+	
+					// Escape string for regex
+					if ($context === 'regex')
+						$rule = str_replace('.', '\.', $rule);
+	
+					// Convert any existing wildcards
+					if ($wildcard !== '*' && strpos($rule, '*') !== false)
+						$rule = str_replace('*', $wildcard, $rule);
+	
+					// Wrap directory fragments and files in wildcards for zip
+					if ($context === 'zip' && ( $fragment || $file ))
+						$rule = $wildcard . $rule . $wildcard;
+	
+					// Add a wildcard to the end of absolute url for zips
+					if ($context === 'zip' && $absolute)
+						$rule .= $wildcard;
+	
+					// Add and end carrot to files for pclzip but only if it doesn't end in a wildcard
+					if ($file && $context === 'regex')
+						$rule .= '$';
+	
+					// Add a start carrot to absolute urls for pclzip
+					if ($absolute && $context === 'regex')
+						$rule = '^' . $rule;
+				}
+			}
+	        
 
 	        // Escape shell args for zip command
 	        if ($context === 'zip')

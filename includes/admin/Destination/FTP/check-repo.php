@@ -51,9 +51,12 @@ $contents = ftp_nlist( $conn_id, "$subdir/*.tar" );
 <ol></em>
 
 <?php
-foreach ( $contents as $key => $value ) {
-	echo '<li>' . esc_attr( substr( $value, ( strlen( $subdir ) ) ) ) . '</li>';
+if(!empty($contents) && is_array($contents)){
+	foreach ( $contents as $key => $value ) {
+		echo '<li>' . esc_attr( substr( $value, ( strlen( $subdir ) ) ) ) . '</li>';
+	}
 }
+
 ?>
 </ol>
 <p><br />

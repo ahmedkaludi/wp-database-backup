@@ -434,20 +434,23 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 					$result_count=count($result);
 
 					for ( $i = 0; $i < $result_count; $i++ ) {
-						$row            = $result[ $i ];
-						$output        .= 'INSERT INTO ' . $table . ' VALUES(';
-						$result_o_index = count( $result[0] );
-						$j=0;
-						foreach ($row as $key => $value) {
-							$row[ $key] = $wpdb->_real_escape( apply_filters( 'wpdbbkp_process_db_fields', $row[$key],$table,$key) );
-							$output   .= ( isset( $row[ $key ] ) ) ? '"' . $row[ $key ] . '"' : '""';
-							if ( $j < ( $result_o_index - 1 ) ) {
-								$output .= ',';
+						if(isset($result[ $i ])){
+							$row            = $result[ $i ];
+							$output        .= 'INSERT INTO ' . $table . ' VALUES(';
+							$result_o_index = count( $result[0] );
+							$j=0;
+							foreach ($row as $key => $value) {
+								$row[ $key] = $wpdb->_real_escape( apply_filters( 'wpdbbkp_process_db_fields', $row[$key],$table,$key) );
+								$output   .= ( isset( $row[ $key ] ) ) ? '"' . $row[ $key ] . '"' : '""';
+								if ( $j < ( $result_o_index - 1 ) ) {
+									$output .= ',';
+								}
+								$j++;
+		
 							}
-							$j++;
-	
+							$output .= ");\n";
 						}
-						$output .= ");\n";
+						
 					}
 		            $output .= "\n";
 		        }
@@ -612,23 +615,26 @@ if(!function_exists('wpdbbkp_cron_files_backup')){
 	                }
 	                $file_end_offset = $file_start_offset + 2000;
 	                $file_loop_cnt = 1;
-	                foreach ($wp_backup_files as $file) { 
-	                	if($file_loop_cnt < $file_start_offset){
-	                		$file_loop_cnt++;
-	                		continue;
-	                	}
-	                	if($file_start_offset >=  $file_loop_cnt && $file_loop_cnt < $file_end_offset){
-	                		if(!empty($file->getPathname())){
-	                			$file_object[] = $file;
-	                		}
-	                		$file_start_offset++;
-	                	}else{
-	                		if($file_loop_cnt > $file_end_offset){
-	                			break;
-	                		}
-	                	}
-	                	$file_loop_cnt++;
-	                }
+					if(!empty($wp_backup_files) && is_array($wp_backup_files)){
+						foreach ($wp_backup_files as $file) { 
+							if($file_loop_cnt < $file_start_offset){
+								$file_loop_cnt++;
+								continue;
+							}
+							if($file_start_offset >=  $file_loop_cnt && $file_loop_cnt < $file_end_offset){
+								if(!empty($file->getPathname())){
+									$file_object[] = $file;
+								}
+								$file_start_offset++;
+							}else{
+								if($file_loop_cnt > $file_end_offset){
+									break;
+								}
+							}
+							$file_loop_cnt++;
+						}
+					}
+	              
 
 
 		            if(!empty($file_object)){

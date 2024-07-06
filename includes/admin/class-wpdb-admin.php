@@ -704,8 +704,11 @@ class Wpdb_Admin {
 							'Backblaze'  => 'glyphicon glyphicon-cloud-upload'
 						);
 						foreach ( $options as $option ) {
-							$size = isset( $option['size'])? $option['size'] : '';
-							$str_class = ( 0 === (int) $option['size'] ) ? 'text-danger' : 'wpdb_download';
+							if(!is_array($option)){
+								continue;
+							}
+							$size = isset( $option['size'])? $option['size'] : 0;
+							$str_class = ( 0 === (int) $size  ) ? 'text-danger' : 'wpdb_download';
 							echo '<tr class="' . ( ( 0 === ( $count % 2 ) ) ? esc_attr( $str_class ) . ' alternate' : esc_attr( $str_class ) ) . '">';
 							echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
 							$curr_date = new DateTime(date( 'Y-m-d H:i:s', $option['date'] ));

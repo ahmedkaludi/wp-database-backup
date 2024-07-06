@@ -171,7 +171,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 					processed_at TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 					status ENUM('added', 'updated', 'deleted') DEFAULT 'added' NOT NULL,
 					PRIMARY KEY  (id),
-					UNIQUE (file_path(255))
+					UNIQUE (file_path(250))
 				) $charset_collate;";
 		
 				require_once(ABSPATH . 'wp-admin/includes/upgrade.php');

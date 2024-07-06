@@ -2421,7 +2421,7 @@ class Wpdb_Admin {
 				wp_schedule_event( time(), $cron_freq, 'wpdbbkp_db_backup_event' );
 			}
 		}else{
-			if( ( false === isset( $options['enable_autobackups'] ) ) || ( true === isset( $options['enable_autobackups'] ) ) && isset($options['autobackup_type']) && $options['autobackup_type'] == 'db')
+			if( ( false === isset( $options['enable_autobackups'] ) ) || ( true === isset( $options['enable_autobackups'] ) ) && isset($options['autobackup_type']) && $options['autobackup_type'] != 'db')
 			{
 				wp_clear_scheduled_hook( 'wpdbbkp_db_backup_event' );
 			}

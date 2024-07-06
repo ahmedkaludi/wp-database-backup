@@ -56,8 +56,8 @@ if ( ! wp_next_scheduled( 'wpdbbkp_backup_files_cron' ) ) {
 
 	$trasient_lock 	= get_transient( 'wpdbbkp_backup_status' );
 	$status_lock 	= get_option( 'wpdbbkp_backupcron_status','inactive');
-	$total_chunk 	= get_option( 'wpdbbkp_total_chunk_cnt',false );
-	$current_args 	= get_option( 'wpdbbkp_current_chunk_args',false );
+	$total_chunks 	= get_option( 'wpdbbkp_total_chunk_cnt',false );
+	$current_chunk_args 	= get_option( 'wpdbbkp_current_chunk_args',false );
 	$last_update 	= get_option('wpdbbkp_last_update',false);
 
 

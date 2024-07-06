@@ -10,6 +10,7 @@ jQuery(document).ready(function($){
 			url: wpdbbkp_localize_admin_data.ajax_url,
 			data: {action: 'wpdbbkp_start_cron_manual', wpdbbkp_admin_security_nonce:wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce},
 			success: function(response){
+				response = JSON.parse(response);
 				if(response.status=='success'){
 				 setTimeout(wpdbbkp_show_progress, 3000);
 				 $('#wpdbbkp-stop-full-backup').show();
@@ -31,6 +32,7 @@ jQuery(document).ready(function($){
 			url: wpdbbkp_localize_admin_data.ajax_url,
 			data: {action: 'wpdbbkp_stop_cron_manual', wpdbbkp_admin_security_nonce:wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce},
 			success: function(response){
+				response = JSON.parse(response);
 				if(response.status=='success'){
 					window.location.reload();
 				}else {
@@ -46,7 +48,7 @@ jQuery(document).ready(function($){
 			url: wpdbbkp_localize_admin_data.ajax_url,
 			data: {action: 'wpdbbkp_check_fullbackup_stat', wpdbbkp_admin_security_nonce:wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce},
 			success: function(response){
-				//response = JSON.parse(response);
+				response = JSON.parse(response);
 				if(response.status=='active'){
 					$('#wpdbbkp-create-full-backup').attr('disabled', true);
 					$('#wpdb-backup-process').show();
@@ -66,6 +68,7 @@ function wpdbbkp_show_progress(){
 		url: wpdbbkp_localize_admin_data.ajax_url,
 		data: {action: 'wpdbbkp_get_progress', wpdbbkp_admin_security_nonce:wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce},
 		success: function(response){
+			response = JSON.parse(response);
 			if(response.status=='success'){
 			var status = response.backupcron_step+' : '+response.backupcron_current;
 			var progress = response.backupcron_progress;

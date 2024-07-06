@@ -1545,9 +1545,9 @@ class Wpdb_Admin {
 						</div>
 						<hr>
 						<div class="input-group">
-						<label><input type="checkbox" <?php echo esc_attr( $save_on_backup ); ?> name="wp_db_save_settings_in_backup"> <?php echo esc_html__('Remove plugin settings from database backup', 'wpdbbkp') ?></label>
+						<label><input type="checkbox" <?php echo esc_attr( $save_on_backup ); ?> name="wp_db_save_settings_in_backup"> <?php echo esc_html__('Skip Backup for WP login settings from database backup file', 'wpdbbkp') ?></label>
 							<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-							<?php echo esc_html__('If Checked then it will remove plugins settings in the DB backup.', 'wpdbbkp') ?>
+							<?php echo esc_html__('If Checked then it will skip  Backup for WP plugin settings in the DB backup file .', 'wpdbbkp') ?>
 							</p>
 						</div>
 						<hr>

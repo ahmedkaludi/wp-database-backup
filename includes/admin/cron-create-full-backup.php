@@ -25,7 +25,7 @@ add_action( 'init','wp_db_fullbackup_scheduler_activation');
 }
 add_action( 'wpdbkup_event_fullbackup', 'wpdbbkp_cron_backup' );
 
-add_action( 'backup_files_cron_new', 'backup_files_cron_with_resume' );
+add_action( 'wpdbbkp_backup_files_cron', 'wpdbbkp_backup_files_cron_with_resume' );
 
 function wp_db_fullbackup_add_cron_schedules($schedules){
     if(!isset($schedules["ten_minutes"])){
@@ -42,10 +42,44 @@ function wp_db_fullbackup_add_cron_schedules($schedules){
 }
 
 add_filter('cron_schedules','wp_db_fullbackup_add_cron_schedules');
-if ( ! wp_next_scheduled( 'backup_files_cron_new' ) ) {
-    wp_schedule_event( time(), 'ten_minutes', 'backup_files_cron_new' );
-}
 
+if ( ! wp_next_scheduled( 'wpdbbkp_backup_files_cron' ) ) {
+
+	$trasient_lock 	= get_transient( 'wpdbbkp_backup_status' );
+	$status_lock 	= get_option( 'wpdbbkp_backupcron_status','inactive');
+	$total_chunk 	= get_option( 'wpdbbkp_total_chunk_cnt',false );
+	$current_args 	= get_option( 'wpdbbkp_current_chunk_args',false );
+	$last_update 	= get_option('wpdbbkp_last_update',false);
+
+
+    $should_run_backup = ($status_lock == 'active');
+	
+    if ( !$should_run_backup && $trasient_lock ) {
+        $time_diff = time() - intval( $last_update );
+        if ( $time_diff <= 600 ) { // 10 minutes * 60 seconds
+            $should_run_backup = false;
+        }
+    }
+
+   
+    if ( !$total_chunks || !$current_chunk_args ) {
+        $should_run_backup = false;
+    }
+
+    
+    if ( $should_run_backup ) {
+        wp_schedule_event( time(), 'ten_minutes', 'wpdbbkp_backup_files_cron' );
+    }
+
+}else{
+	$timestamp = wp_next_scheduled('wpdbbkp_backup_files_cron');
+	// Optionally, if your event has arguments, specify them as well.
+	$args = array( );
+
+	if ($timestamp) {
+		wp_unschedule_event($timestamp, 'wpdbbkp_backup_files_cron', $args);
+	}
+}
 /*************************************************
  * Create custom enpoint for running cron backup
  *************************************************/
@@ -221,7 +255,7 @@ function wpdbbkp_get_progress(){
 				update_option('wpdbbkp_total_chunk_cnt',$total_chunk, false);
 				update_option('wpdbbkp_current_chunk_cnt',0, false);
 				update_option('wpdbbkp_current_chunk_args',$common_args, false);
-				backup_files_cron_with_resume();
+				wpdbbkp_backup_files_cron_with_resume();
 			}
 			else{
 				error_log('No files were found to backup');
@@ -867,7 +901,7 @@ function wpdbbkp_token_gen($length_of_string = 16)
     return substr(str_shuffle($str_result),0, $length_of_string);
 }
 
-function backup_files_cron_with_resume(){
+function wpdbbkp_backup_files_cron_with_resume(){
 
 	$trasient_lock = get_transient( 'wpdbbkp_backup_status' );
 	$status_lock = get_option( 'wpdbbkp_backupcron_status','inactive');

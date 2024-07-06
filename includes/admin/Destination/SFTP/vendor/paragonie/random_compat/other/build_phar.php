@@ -32,7 +32,7 @@ if ($argc > 1) {
         echo 'Could not read the private key file:', $argv[1], "\n";
         exit(255);
     }
-    $pkeyFile = file_get_contents($argv[1]);
+    $pkeyFile = @file_get_contents($argv[1]);
     
     $private = openssl_get_privatekey($pkeyFile);
     if ($private !== false) {

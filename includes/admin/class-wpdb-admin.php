@@ -509,7 +509,7 @@ class Wpdb_Admin {
 										/* BEGIN: Restore Database Content */
 										if ( isset( $database_file ) ) {
 											if ( file_exists( $database_file ) ) {
-												$sql_file = file_get_contents( $database_file, true );
+												$sql_file = @file_get_contents( $database_file, true );
 												if($sql_file){
 													$sql_queries       = explode( ";\n", $sql_file );
 													$sql_queries_count = count( $sql_queries );
@@ -532,12 +532,19 @@ class Wpdb_Admin {
 										unlink( $options[ $index ]['sqlfile'] );
 									}
 								} else {
-									$database_file = ( $options[ $index ]['dir'] );
-									$file_sql      = explode( '.', $options[ $index ]['dir'] );
-									$database_file = ( $file_sql[0] . '.sql' );
-									if ( file_exists( $database_file ) ) {
-										unlink( $database_file );
+									$database_file = isset($options[ $index ]['dir'] )?$options[ $index ]['dir']:'';
+									if(!empty($database_file)){
+										$file_sql      = explode( '.', $database_file );
+										if(isset($file_sql[0])){
+											$database_file = ( $file_sql[0] . '.sql' );
+												if ( file_exists( $database_file ) ) {
+													unlink( $database_file );
+												}
+
+										}
+										
 									}
+									
 								}
 								wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=restore&_wpnonce=' . $nonce );
 								exit;
@@ -2516,7 +2523,7 @@ class Wpdb_Admin {
 	 */
 	public function wp_backup_get_config_data( $key ) {
 		$filepath    = get_home_path() . '/wp-config.php';
-		$config_file = file_get_contents( "$filepath", true );
+		$config_file = @file_get_contents( "$filepath", true );
 		if($config_file){
 			switch ( $key ) {
 				case 'DB_NAME':
@@ -2544,7 +2551,7 @@ class Wpdb_Admin {
 	 */
 	public function wp_backup_get_config_db_name() {
 		$filepath    = get_home_path() . '/wp-config.php';
-		$config_file = file_get_contents( "$filepath", true );
+		$config_file = @file_get_contents( "$filepath", true );
 		if($config_file){
 			preg_match( "/'DB_NAME',\s*'(.*)?'/", $config_file, $matches );
 			return $matches[1];

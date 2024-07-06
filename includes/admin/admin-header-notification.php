@@ -15,7 +15,7 @@ if (true === isset($_GET['notification']) && true === isset($_GET['_wpnonce']) &
 		<h4 class="text-success"><?php if ((isset($_GET['notification']) && 'create' === $_GET['notification']) || $wpdbbkp_bg_notify=='create') {
 							$backup_list = get_option('wp_db_backup_backups');
 							$download_backup = end($backup_list);
-							if($download_backup && !empty($download_backup))
+							if($download_backup && !empty($download_backup) && isset($download_backup['url']))
 							{ $backup_link = '<a href="' . esc_url($download_backup['url']) . '" style="color: #21759B;">' . __('Click Here to Download Backup.', 'wpdbbkp') . '</a>';}
 							update_option('wpdbbkp_dashboard_notify',false);
 							esc_html_e('Backup Created Successfully. ', 'wpdbbkp');

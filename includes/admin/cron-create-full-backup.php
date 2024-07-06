@@ -9,18 +9,27 @@ add_action( 'init','wp_db_fullbackup_scheduler_activation');
 
  function wp_db_fullbackup_scheduler_activation() {
 	$options = get_option( 'wp_db_backup_options' );
-	if ( ( ! wp_next_scheduled( 'wpdbkup_event_fullbackup' ) ) && ( true === isset( $options['enable_autobackups'] ) ) ) {
-		if(isset($options['full_autobackup_frequency']) && $options['full_autobackup_frequency'] != 'disabled'){
-			if(isset($options['autobackup_full_time']) && !empty($options['autobackup_full_time'])){
-				wp_schedule_event( time(), 'thirty_minutes', 'wpdbkup_event_fullbackup' );
+	if ( ! wp_next_scheduled( 'wpdbkup_event_fullbackup' )) {
+		if(true === isset( $options['enable_autobackups'] ) ){
+			if(isset($options['autobackup_frequency']) && $options['autobackup_frequency'] != 'disabled' && isset($options['autobackup_type']) && ($options['autobackup_type'] == 'full' || $options['autobackup_type'] == 'files')){
+				if(isset($options['autobackup_full_time']) && !empty($options['autobackup_full_time'])){
+					wp_schedule_event( time(), 'thirty_minutes', 'wpdbkup_event_fullbackup' );
+				}
+				else{
+					wp_schedule_event( time(), $options['autobackup_frequency'], 'wpdbkup_event_fullbackup' );
+				}
+			
 			}
-			else{
-				wp_schedule_event( time(), $options['full_autobackup_frequency'], 'wpdbkup_event_fullbackup' );
-			}
-		  
 		}
+	}else{
+
+		if((false === isset( $options['enable_autobackups'] )) || (true === isset( $options['enable_autobackups'] )) && isset($options['autobackup_type']) && ($options['autobackup_type'] != 'full' || $options['autobackup_type'] != 'files'))
+		{
+			wp_clear_scheduled_hook('wpdbkup_event_fullbackup');
+		}
+
 	}
-	
+
 
 }
 add_action( 'wpdbkup_event_fullbackup', 'wpdbbkp_cron_backup' );

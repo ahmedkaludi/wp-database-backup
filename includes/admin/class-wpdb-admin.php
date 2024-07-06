@@ -216,6 +216,11 @@ class Wpdb_Admin {
 						} else {
 							update_option( 'wp_db_remove_local_backup', 0 , false);
 						}
+						if ( isset( $_POST['wp_db_save_settings_in_backup'] ) ) {
+							update_option( 'wp_db_save_settings_in_backup', 1 , false);
+						} else {
+							update_option( 'wp_db_save_settings_in_backup', 0 , false);
+						}
 						if ( isset( $_POST['wp_db_backup_enable_auto_upgrade'] ) ) {
 							update_option( 'wp_db_backup_enable_auto_upgrade', 1 , false);
 						} else {
@@ -1488,6 +1493,7 @@ class Wpdb_Admin {
 					}
 					$wp_db_remove_local_backup = get_option( 'wp_db_remove_local_backup' );
 					$wp_db_remove_on_uninstall = get_option( 'wp_db_remove_on_uninstall');
+					$wp_db_save_settings_in_backup = get_option( 'wp_db_save_settings_in_backup',1);
 					if ( 1 === (int) $wp_db_remove_local_backup ) {
 						$remove_local_backup = 'checked';
 					} else {
@@ -1497,6 +1503,11 @@ class Wpdb_Admin {
 						$remove_on_uninstall = 'checked';
 					} else {
 						$remove_on_uninstall = '';
+					}
+					if ( 1 === (int) $wp_db_save_settings_in_backup ) {
+						$save_on_backup = 'checked';
+					} else {
+						$save_on_backup = '';
 					}
 					?>
 					<form action="" method="post">
@@ -1530,6 +1541,13 @@ class Wpdb_Admin {
 							<?php echo esc_html__('If Checked then it will remove local backup.', 'wpdbbkp') ?>
 								<br><?php echo esc_html__('Use this option only when you have set any destination.', 'wpdbbkp') ?>
 								<br><?php echo esc_html__('If somesites you need only external backup.', 'wpdbbkp') ?>
+							</p>
+						</div>
+						<hr>
+						<div class="input-group">
+						<label><input type="checkbox" <?php echo esc_attr( $save_on_backup ); ?> name="wp_db_save_settings_in_backup"> <?php echo esc_html__('Remove plugin settings from database backup', 'wpdbbkp') ?></label>
+							<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+							<?php echo esc_html__('If Checked then it will remove plugins settings in the DB backup.', 'wpdbbkp') ?>
 							</p>
 						</div>
 						<hr>
@@ -1714,8 +1732,11 @@ class Wpdb_Admin {
 		/* BEGIN : Prevent saving backup plugin settings in the database dump */
 		$options_backup  = get_option( 'wp_db_backup_backups' );
 		$settings_backup = get_option( 'wp_db_backup_options' );
-		delete_option( 'wp_db_backup_backups' );
-		delete_option( 'wp_db_backup_options' );
+		$wp_db_save_settings_in_backup = get_option( 'wp_db_save_settings_in_backup',1);
+		if($wp_db_save_settings_in_backup){
+			delete_option( 'wp_db_backup_backups' );
+			delete_option( 'wp_db_backup_options' );
+		}
 		/* END : Prevent saving backup plugin settings in the database dump */
 		$wp_db_exclude_table = array();
 		$wp_db_exclude_table = get_option( 'wp_db_exclude_table' );
@@ -2166,8 +2187,11 @@ class Wpdb_Admin {
 			/* BEGIN : Prevent saving backup plugin settings in the database dump */
 			$options_backup  = get_option( 'wp_db_backup_backups' );
 			$settings_backup = get_option( 'wp_db_backup_options' );
-			delete_option( 'wp_db_backup_backups' );
-			delete_option( 'wp_db_backup_options' );
+			$wp_db_save_settings_in_backup = get_option( 'wp_db_save_settings_in_backup',1);
+			if($wp_db_save_settings_in_backup){
+				delete_option( 'wp_db_backup_backups' );
+				delete_option( 'wp_db_backup_options' );
+			}
 			/* END : Prevent saving backup plugin settings in the database dump */
 			global $wpdb;
 			$tables              = $wpdb->get_col( 'SHOW TABLES' );
@@ -2314,7 +2338,7 @@ class Wpdb_Admin {
 
 		$cron_condition = apply_filters('wpdbbkp_dbback_cron_condition',true );
 		if(wp_doing_cron() && !$cron_condition){
-			wp_die();
+			return false;
 		}
 
 		set_time_limit( 0 );

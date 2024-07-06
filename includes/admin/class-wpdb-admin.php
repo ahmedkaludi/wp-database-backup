@@ -1545,9 +1545,9 @@ class Wpdb_Admin {
 						</div>
 						<hr>
 						<div class="input-group">
-						<label><input type="checkbox" <?php echo esc_attr( $save_on_backup ); ?> name="wp_db_save_settings_in_backup"> <?php echo esc_html__('Skip Backup for WP login settings from database backup file', 'wpdbbkp') ?></label>
+						<label><input type="checkbox" <?php echo esc_attr( $save_on_backup ); ?> name="wp_db_save_settings_in_backup"> <?php echo esc_html__('Skip plugin settings from database backup', 'wpdbbkp') ?></label>
 							<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-							<?php echo esc_html__('If Checked then it will skip  Backup for WP plugin settings in the DB backup file .', 'wpdbbkp') ?>
+							<?php echo esc_html__('If Checked then it will skip  Backup for WP plugin settings from the DB backup file .', 'wpdbbkp') ?>
 							</p>
 						</div>
 						<hr>
@@ -1564,7 +1564,10 @@ class Wpdb_Admin {
 
 						<div class="input-group">
 						<a title="Remove Database Backup" onclick="return confirm('Are you sure you want to delete all the backups? Deleted backups can not be recovered.')" href="<?php echo esc_url($remove_backup_href)?>" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> <?php esc_html_e('Delete all Backups', 'wpdbbkp')?></a>
-							<br><?php echo esc_html__('Warning :This is will delete all the backups on the website. Once deleted backups can not be recovered.', 'wpdbbkp') ?>
+						<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+						<?php echo esc_html__('Warning :This is will delete all the backups on the website. Once deleted backups can not be recovered.', 'wpdbbkp') ?>
+						</p>
+							
 
 						</div>
 						<hr>

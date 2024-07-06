@@ -162,7 +162,8 @@ function wpdbbkp_start_cron_manual(){
 		}
 	}
 
-	wp_send_json($wpdbbkp_cron_manual);
+	echo wp_json_encode($wpdbbkp_cron_manual);
+	wp_die();
 }
 
 /************************************************

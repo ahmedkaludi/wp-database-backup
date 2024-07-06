@@ -99,7 +99,7 @@ public static function upload_backup_to_backblaze($file_path, $file_name) {
         return array('success' => false, 'message' => esc_html__('Failed to open file: ' , 'wpdbbkp') . $file_path);
     }
 
-    $file_contents = file_get_contents($file_path);
+    $file_contents = @file_get_contents($file_path);
     if ($file_contents === false) {
         return array('success' => false, 'message' => esc_html__('Failed to read file: ', 'wpdbbkp') . $file_path);
     }

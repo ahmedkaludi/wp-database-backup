@@ -55,18 +55,18 @@ if ( isset( $_POST[ 'email_notification_submit' ] ) && 'Save Settings' === $_POS
 							$wp_db_backup_email_attachment  = get_option( 'wp_db_backup_email_attachment' );
 							$wp_db_backup_destination_email = get_option( 'wp_db_backup_destination_Email' );
 							echo '<p>';
-							echo '<span class="glyphicon glyphicon-envelope"></span> Send Email Notification</br></p>';
+							echo '<span class="glyphicon glyphicon-envelope"></span> '.esc_html__('Send Email Notification', 'wpdbbkp').'</br></p>';
 							$ischecked = ( true === isset( $wp_db_backup_destination_email ) && 1 === (int) $wp_db_backup_destination_email ) ? 'checked' : '';
 							echo '<div class="row form-group">
-                                <label class="col-sm-2" for="wp_db_backup_destination_Email">Enable Email Notification:</label>
+                                <label class="col-sm-2" for="wp_db_backup_destination_Email">'.esc_html__('Enable Email Notification:', 'wpdbbkp').'</label>
                                 <div class="col-sm-6">
                                     <input type="checkbox" ' . esc_attr( $ischecked ) . ' id="wp_db_backup_destination_Email" name="wp_db_backup_destination_Email">
                                 </div>
                             </div>';
-							echo '<div class="row form-group"><label class="col-sm-2" for="wp_db_backup_email_id">Email Id</label>';
-							echo '<div class="col-sm-6"><input type="text" id="wp_db_backup_email_id" class="form-control" name="wp_db_backup_email_id" value="' . esc_attr( $wp_db_backup_email_id ) . '" placeholder="Your Email Id"></div>';
-							echo '<div class="col-sm-4">Leave blank if you don\'t want use this feature or Disable Email Notification</div></div>';
-							echo '<div class="row form-group"><label class="col-sm-2" for="lead-theme">Attach backup file </label> ';
+							echo '<div class="row form-group"><label class="col-sm-2" for="wp_db_backup_email_id">'.esc_html__('Email Id', 'wpdbbkp').'</label>';
+							echo '<div class="col-sm-6"><input type="text" id="wp_db_backup_email_id" class="form-control" name="wp_db_backup_email_id" value="' . esc_attr( $wp_db_backup_email_id ) . '" placeholder="'.esc_attr__('Your Email Id', 'wpdbbkp').'"></div>';
+							echo '<div class="col-sm-4">'.esc_html__('Leave blank if you don\'t want use this feature or Disable Email Notification', 'wpdbbkp').'</div></div>';
+							echo '<div class="row form-group"><label class="col-sm-2" for="lead-theme">'.esc_html__('Attach backup file', 'wpdbbkp').' </label> ';
 							$selected_option = get_option( 'wp_db_backup_email_attachment' );
 
 							if ( 'yes' === $selected_option ) {
@@ -80,18 +80,18 @@ if ( isset( $_POST[ 'email_notification_submit' ] ) && 'Save Settings' === $_POS
 								$selected_no = '';
 							}
 							echo '<div class="col-sm-2"><select id="lead-theme" class="form-control" name="wp_db_backup_email_attachment">';
-							echo '<option value="none">Select</option>';
+							echo '<option value="none">'.esc_html__('Select', 'wpdbbkp').'</option>';
 
-							echo '<option  value="yes"' . esc_attr( $selected_yes ) . '>Yes</option>';
-							echo '<option  value="no" ' . esc_attr( $selected_no ) . '>No</option>';
+							echo '<option  value="yes"' . esc_attr( $selected_yes ) . '>'.esc_html__('Yes', 'wpdbbkp').'</option>';
+							echo '<option  value="no" ' . esc_attr( $selected_no ) . '>'.esc_html__('No', 'wpdbbkp').'</option>';
 
 							echo '</select></div>';
 
-							echo '<div class="col-sm-8">If you want attache backup file to email then select "yes" (File attached only when backup file size <=25MB)</div>';
+							echo '<div class="col-sm-8">'.esc_html__('If you want attache backup file to email then select "yes" (File attached only when backup file size <=25MB)', 'wpdbbkp').'</div>';
 
 							echo '</div>';
 							echo '<p class="submit">';
-							echo '<input type="submit" name="email_notification_submit" class="btn btn-primary" value="Save Settings" />';
+							echo '<input type="submit" name="email_notification_submit" class="btn btn-primary" value="'.esc_attr__('Save Settings', 'wpdbbkp').'" />';
 							echo '</p>';
 							echo '</form>';
 							?>

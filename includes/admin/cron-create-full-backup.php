@@ -126,7 +126,7 @@ function wpdbbkp_check_fullbackup_stat(){
 		$wpdbbkp_fullbackup_stat['status']=esc_html__('active','wpdbbkp'); 
 	 }
 	}
-	echo wp_json_send($wpdbbkp_fullbackup_stat);
+    wp_send_json($wpdbbkp_fullbackup_stat);
 
 }
 
@@ -987,6 +987,6 @@ function wpdbbkp_backup_files_cron_with_resume(){
 		update_option('wpdbbkp_backupcron_current','Fetching Config',false);
 	 }
 	 $wpdbbkp_cron_manual=['status'=>esc_html('fail'),'msg'=>esc_html__('Cron Stopped','wpdbbkp')];
-	 echo wp_send_json($wpdbbkp_cron_manual);
+	wp_send_json($wpdbbkp_cron_manual);
 	
  }

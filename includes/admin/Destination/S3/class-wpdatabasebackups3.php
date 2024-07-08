@@ -50,12 +50,12 @@ class WPDatabaseBackupS3 {
 				if ( get_option( 'wpdb_dest_amazon_s3_bucket' ) ) {
 					if ( true === in_array( get_option( 'wpdb_dest_amazon_s3_bucket' ), $result ) ) { // phpcs:ignore
 						if ( $s3->putObjectFile( $args[1], $bucket_name, baseName( $args[1] ), S3::ACL_PUBLIC_READ ) ) {
-							$args[2] = $args[2] . '<br> Upload Database Backup on s3 bucket ' . $bucket_name;
+							$args[2] = $args[2] . '<br> '.esc_html__('Upload Database Backup on s3 bucket','wpdbbkp') . $bucket_name;
 						} else {
-							$args[2] = $args[2] . '<br>Failed to upload Database Backup on s3 bucket ' . $bucket_name;
+							$args[2] = $args[2] . '<br>'.esc_html__('Failed to upload Database Backup on s3 bucket','wpdbbkp') . $bucket_name;
 						}
 					} else {
-						$args[2] = $args[2] . '<br>Invalid bucket name or AWS details';
+						$args[2] = $args[2] . '<br>'.esc_html__('Invalid bucket name or AWS details','wpdbbkp');
 						$args[4] = $args[4] .= 'S3, ';
 					}
 				}

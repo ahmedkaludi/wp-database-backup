@@ -18,7 +18,7 @@ if ( ! current_user_can( 'manage_options' ) ) {
 }
 
 ?>
-<p><strong>Here's a list of BackupBreeze in your repository:</strong></p>
+<p><strong><?php esc_html_e('Here\'s a list of BackupBreeze in your repository:' , 'wpdbbkp');?> </strong></p>
 <?php
 /**
  * Set up variables

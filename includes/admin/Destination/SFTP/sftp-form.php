@@ -70,7 +70,7 @@ if ( isset( $_POST[ 'sftp_submit' ] ) && 'Save' === $_POST[ 'sftp_submit' ] ) {
 	
 	// Put a "settings updated" message on the screen.
 	?>
-	<div class="updated"><p><strong><?php esc_attr_e( 'Your SFTP details have been saved.', 'wpdbbkp' ); ?></strong></p></div>
+	<div class="updated"><p><strong><?php esc_html_e( 'Your SFTP details have been saved.', 'wpdbbkp' ); ?></strong></p></div>
 	<?php
 } // end if.
 
@@ -135,7 +135,7 @@ if ( isset( $_POST[ 'sftp_test'  ] ) && 'Test Connection' === $_POST[ 'sftp_test
 		</div>
 	<?php } else { ?>
 
-		<div class="updated"><p><strong><?php echo esc_html__('Connected to ', 'wpdbbkp') ?><?php echo esc_attr( $option_to_save['host']); ?>, <?php echo esc_html__('for user', 'wpdbbkp') ?> <?php echo esc_attr( $option_to_save['username']); ?></strong></p></div>
+		<div class="updated"><p><strong><?php echo esc_html__('Connected to ', 'wpdbbkp') ?><?php echo esc_html( $option_to_save['host']); ?>, <?php echo esc_html__('for user', 'wpdbbkp') ?> <?php echo esc_html( $option_to_save['username']); ?></strong></p></div>
 		<?php
 	} // end if.
 } // end if.
@@ -164,7 +164,7 @@ $wpdbbkp_sftp_authtype = isset($wpdbbkp_sftp_details['auth_type'])?$wpdbbkp_sftp
 	<div class="row form-group">
 		<label class="col-sm-2" for="wpdbbkp_sftp_host"><?php echo esc_html__('SFTP Host:', 'wpdbbkp') ?></label>
 		<div class="col-sm-6">
-			<input type="text" id="wpdbbkp_sftp_host" class="form-control" name="wp_db_backup_sftp_details[host]" value="<?php echo esc_attr( isset($wpdbbkp_sftp_details['host'])?$wpdbbkp_sftp_details['host']:''); ?>" size="25" placeholder="e.g. sftp.yoursite.com">
+			<input type="text" id="wpdbbkp_sftp_host" class="form-control" name="wp_db_backup_sftp_details[host]" value="<?php echo esc_attr( isset($wpdbbkp_sftp_details['host'])?$wpdbbkp_sftp_details['host']:''); ?>" size="25" placeholder="<?php esc_attr_e('e.g. sftp.yoursite.com','wpdbbkp');?>">
 		</div>
 	</div>
 
@@ -226,7 +226,7 @@ $wpdbbkp_sftp_authtype = isset($wpdbbkp_sftp_details['auth_type'])?$wpdbbkp_sftp
 	<div class="row form-group">
 		<label class="col-sm-2" for="wpdbbkp_sftp_directory"><?php echo esc_html__('Subdirectory:', 'wpdbbkp') ?></label>
 		<div class="col-sm-4">
-			<input type="text" id="wpdbbkp_sftp_directory" placeholder="e.g. /httpdocs/backups" class="form-control" name="wp_db_backup_sftp_details[directory]" value="<?php echo esc_attr( isset($wpdbbkp_sftp_details['directory'])?$wpdbbkp_sftp_details['directory']:''); ?>" size="25">
+			<input type="text" id="wpdbbkp_sftp_directory" placeholder="<?php esc_attr_e('e.g. /httpdocs/backups','wpdbbkp');?>" class="form-control" name="wp_db_backup_sftp_details[directory]" value="<?php echo esc_attr( isset($wpdbbkp_sftp_details['directory'])?$wpdbbkp_sftp_details['directory']:''); ?>" size="25">
 		</div>
 		<div class="col-sm-4"> 
 			<em><?php echo esc_html__('e.g. /httpdocs/backups or leave blank', 'wpdbbkp') ?></em> 

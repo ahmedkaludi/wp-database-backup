@@ -34,8 +34,8 @@ class WPDBBackupLocal {
 			$filesze                 = $args[3];
 
 			if ( true === copy( $file, $wp_db_local_backup_file ) ) {
-				$args[2] = $args[2] . ' <br>' . __( 'Upload Database Backup on ', 'wp-database-backup' ) . $wp_db_local_backup_path;
-				$args[4] = $args[4] .= 'Local Path, ';
+				$args[2] = $args[2] . ' <br>' . __( 'Upload Database Backup on ', 'wpdbbkp' ) . $wp_db_local_backup_path;
+				$args[4] .= 'Local Path, ';
 			}
 		}
 	}

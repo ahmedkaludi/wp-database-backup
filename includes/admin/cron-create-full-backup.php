@@ -12,7 +12,7 @@ add_action( 'init','wp_db_fullbackup_scheduler_activation');
 	if ( ! wp_next_scheduled( 'wpdbkup_event_fullbackup' )) {
 		if(true === isset( $options['enable_autobackups'] ) ){
 			if(isset($options['autobackup_frequency']) && $options['autobackup_frequency'] != 'disabled' && isset($options['autobackup_type']) && ($options['autobackup_type'] == 'full' || $options['autobackup_type'] == 'files')){
-				$timestamp = strtotime('tomorrow midnight'); // Start at the next midnight
+				$timestamp = strtotime(''); // Start at the next midnight
 				if(isset($options['autobackup_full_time']) && !empty($options['autobackup_full_time'])){
 
 					wp_schedule_event( $timestamp, 'thirty_minutes', 'wpdbkup_event_fullbackup' );
@@ -79,7 +79,7 @@ if ( ! wp_next_scheduled( 'wpdbbkp_backup_files_cron' ) ) {
 
     
     if ( $should_run_backup ) {
-        wp_schedule_event( time(), 'ten_minutes', 'wpdbbkp_backup_files_cron' );
+        wp_schedule_event( strtotime('today 23:59'), 'ten_minutes', 'wpdbbkp_backup_files_cron' );
     }
 
 }else{
@@ -823,7 +823,7 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 
 	        //Email
 	      
-	        if (get_option('wp_db_log') == 1) {
+	        if (get_option('wp_db_log') == 1 && !empty($details['logfileDir'])) {
 	            wpdbbkp_write_log($details['logfileDir'], $logMessage);
 	        }   
 
@@ -908,7 +908,7 @@ function wpdbbkp_backup_completed_notification($args){
         update_option('wp_db_backup_backups', $newoptions, false);
 
         if (get_option('wp_db_log') == 1) {
-            if(isset($args[4]) && !empty($args[4]))
+            if(!empty($args[5]) && !empty($args[2]))
             {
                 if (is_writable($args[5]) || !file_exists($args[5])) {
 

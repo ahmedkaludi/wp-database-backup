@@ -74,7 +74,7 @@ class WPDBBackupGoogle {
 			}
 			fclose($handle);
 
-			$args[2]      = $args[2] . '<br> Upload Database Backup on google drive';
+			$args[2]      = $args[2] . '<br>'.esc_html__('Upload Database Backup on google drive','wpdbbkp');
 			$args[4]      = $args[4] .= 'Drive, ';
 			// Process response here.
 		}

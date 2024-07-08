@@ -80,11 +80,11 @@ if ( isset( $_GET['code'] ) ) {
 $wpdb_dest_google_auth_code  = get_option( 'wpdb_dest_google_authCode' );
 $wpdb_dest_google_client_key = get_option( 'wpdb_dest_google_client_key' );
 $wpdb_dest_google_secret_key = get_option( 'wpdb_dest_google_secret_key' );
-$wpdbbkp_gdrive_status			=	'<label><b>Status</b>: Not Configured </label> ';
+$wpdbbkp_gdrive_status			=	'<label><b>'.esc_html__('Status','wpdbbkp').'</b>: '.esc_html__('Not Configured','wpdbbkp').' </label> ';
 
 if(!empty($wpdb_dest_google_auth_code) && !empty($wpdb_dest_google_client_key) && !empty($wpdb_dest_google_secret_key))
 {
-	$wpdbbkp_gdrive_status='<label><b>'.esc_html__('Status', 'wpdbbkp').'</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">'.esc_html__('Configured', 'wpdbbkp').' </span> </label> ';
+	$wpdbbkp_gdrive_status='<label><b>'.esc_html__('Status','wpdbbkp').'</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="'.esc_attr__('Destination enabled','wpdbbkp').'"></span><span class="configured">'.esc_html__('Configured','wpdbbkp').' </span> </label> ';
 }
 ?>
 <div class="panel panel-default">
@@ -120,14 +120,14 @@ if(!empty($wpdb_dest_google_auth_code) && !empty($wpdb_dest_google_client_key) &
 					<div class="row form-group">
 						<label class="col-sm-2" for="wpdb_dest_google_client_key"><?php echo esc_html__('Client ID', 'wpdbbkp') ?></label>
 						<div class="col-sm-6">
-							<input type="text" id="wpdb_dest_google_client_key" class="form-control" name="wpdb_dest_google_client_key" value="<?php echo esc_html( get_option( 'wpdb_dest_google_client_key' ) ); ?>" size="25" placeholder="your client id">
+							<input type="text" id="wpdb_dest_google_client_key" class="form-control" name="wpdb_dest_google_client_key" value="<?php echo esc_html( get_option( 'wpdb_dest_google_client_key' ) ); ?>" size="25" placeholder="<?php esc_attr_e('your client id','wpdbbkp');?>">
 						</div>
 					</div>
 
 					<div class="row form-group">
 						<label class="col-sm-2" for="wpdb_dest_google_secret_key"><?php echo esc_html__('Client secret:', 'wpdbbkp') ?></label>
 						<div class="col-sm-6">
-							<input type="text" id="wpdb_dest_google_secret_key" class="form-control" name="wpdb_dest_google_secret_key" value="<?php echo esc_html( get_option( 'wpdb_dest_google_secret_key' ) ); ?>" size="25" placeholder="your client secret key">
+							<input type="text" id="wpdb_dest_google_secret_key" class="form-control" name="wpdb_dest_google_secret_key" value="<?php echo esc_html( get_option( 'wpdb_dest_google_secret_key' ) ); ?>" size="25" placeholder="<?php esc_attr_e('your client secret key','wpdbbkp');?>">
 						</div>
 					</div>
 

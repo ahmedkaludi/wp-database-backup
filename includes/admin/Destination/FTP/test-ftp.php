@@ -44,19 +44,19 @@ function backupbreeze_test_ftp() {
 	}
 
 	if ( ! $conn ) {
-		$trouble = 'I could not connect to your FTP server.<br />Please check your FTP Host and try again.';
+		$trouble = esc_html__('I could not connect to your FTP server.','wpdbbkp').'<br />'.esc_html__('Please check your FTP Host and try again.','wpdbbkp');
 		return $trouble;
 	}
 
 	$result = ftp_login( $conn, $user, $pass );
 	if ( ! $result ) {
-		$trouble = 'I could connect to the FTP server but I could not log in.<br />Please check your credentials and try again.';
+		$trouble = esc_html__('I could connect to the FTP server but I could not log in.','wpdbbkp').''.esc_html__('Please check your credentials and try again.','wpdbbkp');
 		return $trouble;
 	}
 
 	$success = ftp_chdir( $conn, $subdir );
 	if ( ! $success ) {
-		$trouble = 'I can connect to the FTP server, but I cannot change into the FTP subdirectory you specified. <br />Is the path correct? Does the directory exist? Is it wrritable?<br />Please check using an FTP client like FileZilla.';
+		$trouble = esc_html__('I can connect to the FTP server, but I cannot change into the FTP subdirectory you specified.','wpdbbkp').'<br />'.esc_html__('Is the path correct? Does the directory exist? Is it writable?','wpdbbkp').'<br />'.esc_html__('Please check using an FTP client like FileZilla.','wpdbbkp');
 		return $trouble;
 	}
 

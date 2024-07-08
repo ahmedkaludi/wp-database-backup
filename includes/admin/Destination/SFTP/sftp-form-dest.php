@@ -7,11 +7,11 @@
 
 $wpdbbkp_sftp_enabled	=	get_option( 'wp_db_backup_destination_SFTP',false);
 $wpdbbkp_sftp_details	=	get_option( 'wp_db_backup_sftp_details',null );
-$wpdbbkp_sftp_status		=	'<label><b>Status</b>: Not Configured </label> ';
+$wpdbbkp_sftp_status		='<label><b>'.esc_html__('Status','wpdbbkp').'</b>: '.esc_html__('Not Configured','wpdbbkp').' </label> ';
 
 if($wpdbbkp_sftp_enabled==1 && !empty($wpdbbkp_sftp_details) && isset($wpdbbkp_sftp_details['host']) && isset($wpdbbkp_sftp_details['username']) && (isset($wpdbbkp_sftp_details['password']) ||(isset($wpdbbkp_sftp_details['sftp_key']) && isset($wpdbbkp_sftp_details['key_password']))))
 {
-	$wpdbbkp_sftp_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span> </label> ';
+	$wpdbbkp_sftp_status='<label><b>'.esc_html__('Status','wpdbbkp').'</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="'.esc_attr__('Destination enabled','wpdbbkp').'"></span><span class="configured">'.esc_html__('Configured','wpdbbkp').' </span> </label> ';
 }
 
 ?>

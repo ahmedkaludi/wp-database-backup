@@ -620,8 +620,8 @@ class Wpdb_Admin {
 			echo '<div class="alert alert-warning alert-dismissible fade in" role="alert">
                       <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
                       <a href="#db_destination" data-toggle="tab">';
-			esc_attr_e( 'Invalid Local Backup Path : ', 'wp-database-backup' );
-			echo esc_attr( $wp_db_local_backup_path );
+			esc_html_e( 'Invalid Local Backup Path : ', 'wpdbbkp' );
+			echo esc_html( $wp_db_local_backup_path );
 			echo '</a></div>';
 		}
 
@@ -637,9 +637,9 @@ class Wpdb_Admin {
 					<div class="alert alert-danger alert-dismissible fade in" role="alert">
 						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 							<span aria-hidden="true">×</span></button>
-						<h4>WP Database Backup</h4>
-						<p>Error: Permission denied, make sure you have write permission for <?php echo esc_attr( $dir ); ?>
-							folder</p>
+						<h4><?php esc_html_e( 'WP Database Backup', 'wpdbbkp' ); ?></h4>
+						<p><?php esc_html_e( 'Error: Permission denied, make sure you have write permission for', 'wpdbbkp' ); ?> <?php echo esc_attr( $dir ); ?>
+						<?php esc_html_e( 'folder', 'wpdbbkp' ); ?></p>
 					</div>
 					</button>
 				</div>
@@ -1064,14 +1064,14 @@ class Wpdb_Admin {
 						                  <label class="wpdbbkp-support-label"> <?php echo esc_html__('Email', 'wpdbbkp') ?> <span class="wpdbbkp-star-mark">*</span>
 						                  </label>
 						                  <div class="support-input">
-						                    <input type="text" id="wpdbbkp_query_email" name="wpdbbkp_query_email" size="47" placeholder="Enter your Email" required="">
+						                    <input type="text" id="wpdbbkp_query_email" name="wpdbbkp_query_email" size="47" placeholder="<?php esc_attr_e('Enter your Email','wpdbbkp');?>" required="">
 						                  </div>
 						                </li>
 						                <li>
 						                  <label class="wpdbbkp-support-label"> <?php echo esc_html__('Query', 'wpdbbkp') ?> <span class="wpdbbkp-star-mark">*</span>
 						                  </label>
 						                  <div class="support-input">
-						                    <textarea rows="5" cols="50" id="wpdbbkp_query_message" name="wpdbbkp_query_message" placeholder="Write your query"></textarea>
+						                    <textarea rows="5" cols="50" id="wpdbbkp_query_message" name="wpdbbkp_query_message" placeholder="<?php esc_attr_e('Write your query','wpdbbkp');?>"></textarea>
 						                  </div>
 						                </li>
 						                <li>
@@ -1580,7 +1580,7 @@ class Wpdb_Admin {
 						<?php wp_nonce_field( 'wp-database-backup' ); ?>
 						<div class="input-group">
 							<span class="input-group-addon" id="sizing-addon2"><?php echo esc_html__('Maximum Local Backups', 'wpdbbkp') ?></span>
-							<input type="number" name="wp_local_db_backup_count" value="<?php echo esc_html( $wp_local_db_backup_count ); ?>" class="form-control" placeholder="Maximum Local Backups" aria-describedby="sizing-addon2">
+							<input type="number" name="wp_local_db_backup_count" value="<?php echo esc_html( $wp_local_db_backup_count ); ?>" class="form-control" placeholder="<?php esc_attr_e('Maximum Local Backups','wpdbbkp');?>" aria-describedby="sizing-addon2">
 
 						</div>
 						<div class="alert alert-default" role="alert">
@@ -1719,13 +1719,13 @@ class Wpdb_Admin {
 								<br>
 								<div class="input-group">
 									<span class="input-group-addon" id="wp_db_backup_search_text"><?php echo esc_html__('Search For', 'wpdbbkp') ?></span>
-									<input type="text" name="wp_db_backup_search_text" value="<?php echo esc_html( $wp_db_backup_search_text ); ?>" class="form-control" placeholder="http://localhost/wordpress" aria-describedby="wp_db_backup_search_text">
+									<input type="text" name="wp_db_backup_search_text" value="<?php echo esc_html( $wp_db_backup_search_text ); ?>" class="form-control" placeholder="<?php esc_attr_e('http://localhost/wordpress','wpdbbkp');?>" aria-describedby="wp_db_backup_search_text">
 
 								</div>
 								<br>
 								<div class="input-group">
 									<span class="input-group-addon" id="wp_db_backup_replace_text"><?php echo esc_html__('Replace With', 'wpdbbkp') ?></span>
-									<input type="text" name="wp_db_backup_replace_text" value="<?php echo esc_html( $wp_db_backup_replace_text ); ?>" class="form-control" placeholder="http://site.com" aria-describedby="wp_db_backup_replace_text">
+									<input type="text" name="wp_db_backup_replace_text" value="<?php echo esc_html( $wp_db_backup_replace_text ); ?>" class="form-control" placeholder="<?php esc_attr_e('http://site.com','wpdbbkp');?>" aria-describedby="wp_db_backup_replace_text">
 
 								</div>
 
@@ -2514,7 +2514,7 @@ class Wpdb_Admin {
 			$cron_freq = apply_filters( 'wpdbbkp_dbback_cron_frequency',$options['autobackup_frequency']);
 			if(isset($options['autobackup_type']) && $options['autobackup_type'] == 'db')
 			{
-				$timestamp = strtotime('tomorrow midnight'); // Start at the next midnight
+				$timestamp = strtotime('today 23:59'); // Start at the next midnight
 				wp_schedule_event( $timestamp , $cron_freq, 'wpdbbkp_db_backup_event' );
 
 			}

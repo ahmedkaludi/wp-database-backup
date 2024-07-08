@@ -31,8 +31,8 @@ if ( isset( $host ) && ! empty( $host ) && isset( $user ) && ! empty( $user ) &&
 			// Upload file.
 			$success = ftp_put( $conn, $remotefile, $localfile, FTP_BINARY );
 			if ( $success ) {
-				$args[2] = $args[2] . '<br> Upload Database Backup on FTP ' . $host;
-				$args[4] = $args[4] .= 'FTP, ';
+				$args[2] = $args[2] . '<br> '.esc_html__('Upload Database Backup on FTP ','wpdbbkp'). $host;
+				$args[4] .= 'FTP, ';
 			}
 		}
 	}

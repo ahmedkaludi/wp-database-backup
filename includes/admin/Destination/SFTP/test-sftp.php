@@ -53,7 +53,7 @@ function wpdbbkp_test_sftp() {
 	}
 
 	if ( ! $sftp ) {
-		$trouble = 'Could not connect to  SFTP server.<br />Please check your SFTP Host and try again.';
+		$trouble = esc_html__('Could not connect to  SFTP server.<br />Please check your SFTP Host and try again.', 'wpdbbkp');
 		return $trouble;
 	}
 
@@ -64,7 +64,7 @@ function wpdbbkp_test_sftp() {
 		$result = $sftp->login($user, $pass);
 	}
 	if ( ! $result ) {
-		$trouble = 'Connected to the SFTP server but could not log in.<br />Please check your credentials and try again.';
+		$trouble = esc_html__('Connected to the SFTP server but could not log in.<br />Please check your credentials and try again.', 'wpdbbkp');
 		return $trouble;
 	}
 

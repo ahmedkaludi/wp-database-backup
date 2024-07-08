@@ -47,7 +47,7 @@ class WPDBBackupEmail {
 				$attachments = '';
 			}
 			if ( wp_mail( $to, $subject, $message, $headers, $attachments ) ) {
-				$args[4] = $args[4] .= 'Email, ';
+				$args[4] .= 'Email, ';
 			}
 			$log_message               = '<b>Send Backup Mail to</b>:' . $to;
 			$log_message              .= $log_message_attachment;

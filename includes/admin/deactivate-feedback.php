@@ -3,13 +3,13 @@ $reasons = array(
     	1 => '<li><label><input type="radio" name="wpdbbkp_disable_reason" value="temporary"/>' . esc_html__('It is only temporary', 'wpdbbkp') . '</label></li>',
 		2 => '<li><label><input type="radio" name="wpdbbkp_disable_reason" value="stopped"/>' . esc_html__('I stopped using WP Database Backup on my site', 'wpdbbkp') . '</label></li>',
 		3 => '<li><label><input type="radio" name="wpdbbkp_disable_reason" value="missing"/>' . esc_html__('I miss a feature', 'wpdbbkp') . '</label></li>
-		<li><input type="text" class="mb-box missing" name="wpdbbkp_disable_text[]" value="" placeholder="'. esc_attr_e('Please describe the feature','wpdbbkp').'"/></li>',
+		<li><input type="text" class="mb-box missing" name="wpdbbkp_disable_text[]" value="" placeholder="'. esc_attr__('Please describe the feature','wpdbbkp').'"/></li>',
 		4 => '<li><label><input type="radio" name="wpdbbkp_disable_reason" value="technical"/>' . esc_html__('Technical Issue', 'wpdbbkp') . '</label></li>
-		<li><textarea  class="mb-box technical" name="wpdbbkp_disable_text[]" placeholder="'. esc_attr_e('' . esc_html__('How Can we help? Please describe your problem', 'wpdbbkp') . '','wpdbbkp').'"></textarea></li>',
+		<li><textarea  class="mb-box technical" name="wpdbbkp_disable_text[]" placeholder="'. esc_attr__('' . esc_html__('How Can we help? Please describe your problem', 'wpdbbkp') . '','wpdbbkp').'"></textarea></li>',
 		5 => '<li><label><input type="radio" name="wpdbbkp_disable_reason" value="another"/>' . esc_html__('I switched to another plugin', 'wpdbbkp') .  '</label></li>
-		<li><input type="text"  class="mb-box another" name="wpdbbkp_disable_text[]" value="" placeholder="'. esc_attr_e('Name of the plugin','wpdbbkp').'"/></li>',
+		<li><input type="text"  class="mb-box another" name="wpdbbkp_disable_text[]" value="" placeholder="'. esc_attr__('Name of the plugin','wpdbbkp').'"/></li>',
 		6 => '<li><label><input type="radio" name="wpdbbkp_disable_reason" value="other"/>' . esc_html__('Other reason', 'wpdbbkp') . '</label></li>
-		<li><textarea  class="mb-box other" name="wpdbbkp_disable_text[]" placeholder="'. esc_attr_e('' . esc_html__('Please specify, if possible', 'wpdbbkp') . '','wpdbbkp').'"></textarea></li>',
+		<li><textarea  class="mb-box other" name="wpdbbkp_disable_text[]" placeholder="'. esc_attr__('' . esc_html__('Please specify, if possible', 'wpdbbkp') . '','wpdbbkp').'"></textarea></li>',
     );
 shuffle($reasons);
 ?>

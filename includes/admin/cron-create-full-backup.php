@@ -10,11 +10,12 @@ add_action( 'init','wp_db_fullbackup_scheduler_activation');
  function wp_db_fullbackup_scheduler_activation() {
 	$options = get_option( 'wp_db_backup_options' );
 	if ( ! wp_next_scheduled( 'wpdbkup_event_fullbackup' )) {
-		if(true === isset( $options['enable_autobackups'] ) ){
+		if(  true === isset( $options['enable_autobackups'] ) ){
 			if(isset($options['autobackup_frequency']) && $options['autobackup_frequency'] != 'disabled' && isset($options['autobackup_type']) && ($options['autobackup_type'] == 'full' || $options['autobackup_type'] == 'files')){
-				$timestamp = strtotime(''); // Start at the next midnight
+				$timestamp = strtotime('today 22:59'); 
+				
 				if(isset($options['autobackup_full_time']) && !empty($options['autobackup_full_time'])){
-
+					
 					wp_schedule_event( $timestamp, 'thirty_minutes', 'wpdbkup_event_fullbackup' );
 				}
 				else{
@@ -24,8 +25,7 @@ add_action( 'init','wp_db_fullbackup_scheduler_activation');
 			}
 		}
 	}else{
-
-		if((false === isset( $options['enable_autobackups'] )) || (true === isset( $options['enable_autobackups'] )) && isset($options['autobackup_type']) && ($options['autobackup_type'] != 'full' || $options['autobackup_type'] != 'files'))
+		if((true === isset( $options['enable_autobackups'] )) && isset($options['autobackup_type']) && (!in_array($options['autobackup_type'], array('full','files'))))
 		{
 			wp_clear_scheduled_hook('wpdbkup_event_fullbackup');
 		}
@@ -56,39 +56,13 @@ add_filter('cron_schedules','wp_db_fullbackup_add_cron_schedules');
 
 if ( ! wp_next_scheduled( 'wpdbbkp_backup_files_cron' ) ) {
 
-	$trasient_lock 	= get_transient( 'wpdbbkp_backup_status' );
-	$status_lock 	= get_option( 'wpdbbkp_backupcron_status','inactive');
-	$total_chunks 	= get_option( 'wpdbbkp_total_chunk_cnt',false );
-	$current_chunk_args 	= get_option( 'wpdbbkp_current_chunk_args',false );
-	$last_update 	= get_option('wpdbbkp_last_update',false);
-
-
-    $should_run_backup = ($status_lock == 'active');
-	
-    if ( !$should_run_backup && $trasient_lock ) {
-        $time_diff = time() - intval( $last_update );
-        if ( $time_diff <= 600 ) { // 10 minutes * 60 seconds
-            $should_run_backup = false;
-        }
-    }
-
-   
-    if ( !$total_chunks || !$current_chunk_args ) {
-        $should_run_backup = false;
-    }
-
-    
-    if ( $should_run_backup ) {
-        wp_schedule_event( strtotime('today 23:59'), 'ten_minutes', 'wpdbbkp_backup_files_cron' );
+    if ( wpdbbkp_should_bg_cron_run() ) {
+        wp_schedule_event( time(), 'ten_minutes', 'wpdbbkp_backup_files_cron' );
     }
 
 }else{
-	$timestamp = wp_next_scheduled('wpdbbkp_backup_files_cron');
-	// Optionally, if your event has arguments, specify them as well.
-	$args = array( );
-
-	if ($timestamp) {
-		wp_unschedule_event($timestamp, 'wpdbbkp_backup_files_cron', $args);
+	if(!wpdbbkp_should_bg_cron_run()){
+		wp_clear_scheduled_hook('wpdbbkp_backup_files_cron');
 	}
 }
 /*************************************************
@@ -597,7 +571,6 @@ if(!function_exists('wpdbbkp_cron_files_backup')){
 				$WPDBFileName = $FileName . '.zip';
 				$path_info = wp_upload_dir();
 				$total_chunk_cnt = intval($args['total_chunk_cnt']);
-
 	            $zip = new ZipArchive;
 	            $zip->open($path_info['basedir'] . '/db-backup/' . $WPDBFileName, ZipArchive::CREATE);
 	            if (get_option('wp_db_backup_backup_type') == 'File' || get_option('wp_db_backup_backup_type') == 'complete') {
@@ -611,6 +584,7 @@ if(!function_exists('wpdbbkp_cron_files_backup')){
 	                $file_object = array();
 	                $wp_backup_files = '';
 	                $wp_backup_files = $wpdbbkp_admin_class_obj->get_files();
+					$wp_backup_files = iterator_to_array($wp_backup_files, false);
 	                $file_start_offset = 1;
 	                if($bkp_chunk_cnt > 1){
 	                	$file_start_offset = ($bkp_chunk_cnt - 1) * 2000;
@@ -618,7 +592,7 @@ if(!function_exists('wpdbbkp_cron_files_backup')){
 	                $file_end_offset = $file_start_offset + 2000;
 	                $file_loop_cnt = 1;
 					if(!empty($wp_backup_files) && is_array($wp_backup_files)){
-						foreach ($wp_backup_files as $file) { 
+						foreach ($wp_backup_files as $file) {
 							if($file_loop_cnt < $file_start_offset){
 								$file_loop_cnt++;
 								continue;
@@ -895,16 +869,16 @@ function wpdbbkp_backup_completed_notification($args){
 					continue;
 				}
                 if ($option['filename'] == $args[0]) {
-					$newoptions[] = $option;
-                    $newoptions['destination'] = wp_kses( $args[4] , wp_kses_allowed_html('post'));            
+					$option['destination'] = wp_kses( $args[4] , wp_kses_allowed_html('post'));   
+					$newoptions[] = $option;      
                 }else{
-                        $newoptions[] = $option;
+                        $newoptions[]= $option;
                 }
                 $count++;
             } 
 
         }
-                                
+
         update_option('wp_db_backup_backups', $newoptions, false);
 
         if (get_option('wp_db_log') == 1) {
@@ -935,7 +909,7 @@ function wpdbbkp_backup_files_cron_with_resume(){
 
 	$trasient_lock = get_transient( 'wpdbbkp_backup_status' );
 	$status_lock = get_option( 'wpdbbkp_backupcron_status','inactive');
-	if($status_lock!='active' || ((!$trasient_lock && $status_lock!='active')|| ($trasient_lock!='active' && $status_lock!='active'))){
+	if(!wpdbbkp_should_bg_cron_run()){
 		return false;
 	}
 	ignore_user_abort(true);
@@ -945,21 +919,6 @@ function wpdbbkp_backup_files_cron_with_resume(){
 	$current_chunk  = get_option( 'wpdbbkp_current_chunk_cnt',0 );
 	$current_args 	= get_option( 'wpdbbkp_current_chunk_args',false );
 	$progress 		= get_option('wpdbbkp_backupcron_progress',30);
-	$last_update 	= get_option('wpdbbkp_last_update',false);
-
-	if($last_update)
-	{
-		if($trasient_lock=='active'){
-			$diff = time()-intval($last_update);
-			if($diff<600){
-				return false;
-			}
-		}
-	}
-	
-	if(!$total_chunk || !$current_args){
-		return false;
-	}
 	
 	if($total_chunk){
 		$total_chunk =  intval($total_chunk);
@@ -1013,4 +972,29 @@ function wpdbbkp_backup_files_cron_with_resume(){
 	 echo wp_json_encode($wpdbbkp_cron_manual);
 	 wp_die();
 	
+ }
+
+ function wpdbbkp_should_bg_cron_run(){
+	$trasient_lock 	= get_transient( 'wpdbbkp_backup_status' );
+	$status_lock 	= get_option( 'wpdbbkp_backupcron_status','inactive');
+	$total_chunks 	= get_option( 'wpdbbkp_total_chunk_cnt',false );
+	$current_chunk_args 	= get_option( 'wpdbbkp_current_chunk_args',false );
+	$last_update 	= get_option('wpdbbkp_last_update',false);
+
+
+    $should_run_backup = ($status_lock == 'active');
+	
+    if ( !$should_run_backup && $trasient_lock ) {
+        $time_diff = time() - intval( $last_update );
+        if ( $time_diff <= 600 ) { // 10 minutes * 60 seconds
+            $should_run_backup = false;
+        }
+    }
+
+   
+    if ( !$total_chunks || !$current_chunk_args ) {
+        $should_run_backup = false;
+    }
+
+	return $should_run_backup;
  }

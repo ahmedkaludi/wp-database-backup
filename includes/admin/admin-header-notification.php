@@ -42,7 +42,7 @@ if (true === isset($_GET['notification']) && true === isset($_GET['_wpnonce']) &
 							esc_html_e('Backup Setting Saved Successfully', 'wpdbbkp');
 						}
 			?></h4>
-			<?php if (isset($_GET['notification']) && 'create' === $_GET['notification']) { ?>
+			<?php if (isset($_GET['notification']) && 'create' === $_GET['notification'] && isset($backup_link)) { ?>
 		<h5 class="text-success"><strong><?php echo wp_kses_post($backup_link); ?> </strong></h5>
 		<?php } ?>
 	</div>

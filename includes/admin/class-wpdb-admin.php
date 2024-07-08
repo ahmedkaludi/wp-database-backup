@@ -287,7 +287,10 @@ class Wpdb_Admin {
 							$option_to_save['autobackup_full_date'] = sanitize_text_field( wp_unslash( $_POST['wp_db_backup_options']['autobackup_full_date'] ) );
 						}
 						if(!empty($option_to_save)) {
-							update_option( 'wp_db_backup_options', $option_to_save, false);
+							if(update_option( 'wp_db_backup_options', $option_to_save, false)){
+								wp_clear_scheduled_hook( 'wpdbbkp_db_backup_event' );
+								wp_clear_scheduled_hook( 'wpdbkup_event_fullbackup' );
+							}
 						}
 						
 					}
@@ -1582,16 +1585,21 @@ class Wpdb_Admin {
 							<span class="input-group-addon" id="sizing-addon2"><?php echo esc_html__('Maximum Local Backups', 'wpdbbkp') ?></span>
 							<input type="number" name="wp_local_db_backup_count" value="<?php echo esc_html( $wp_local_db_backup_count ); ?>" class="form-control" placeholder="<?php esc_attr_e('Maximum Local Backups','wpdbbkp');?>" aria-describedby="sizing-addon2">
 
-						</div>
-						<div class="alert alert-default" role="alert">
-							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span><?php echo esc_html__(' The maximum
+						</div><br>
+						<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span><?php echo esc_html__(' The maximum
 							number of Local Database Backups that should be kept, regardless of their size.', 'wpdbbkp') ?></br>
 							<?php echo esc_html__('Leave blank for keep unlimited database backups.', 'wpdbbkp') ?>
-						</div>
+							</p>
+	
 						<hr>
 						<div class="input-group">
 							<label><input type="checkbox" <?php echo esc_attr( $checked ); ?> name="wp_db_log"> <?php echo esc_html__('Enable Log', 'wpdbbkp') ?></label>
 						</div>
+						<br>
+						<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+						<?php echo esc_html__(' Create a log file to record details of each backup operation. ', 'wpdbbkp') ?>
+					</p>
+	
 						<hr>
 						<div class="input-group">
 						<label><input type="checkbox" <?php echo esc_attr( $wp_db_backup_enable_auto_upgrade_checked ); ?> name="wp_db_backup_enable_auto_upgrade"> <?php echo esc_html__('Enable Auto Backups Before Upgrade', 'wpdbbkp') ?></label>
@@ -1605,8 +1613,8 @@ class Wpdb_Admin {
 						<label><input type="checkbox" <?php echo esc_attr( $remove_local_backup ); ?> name="wp_db_remove_local_backup"> <?php echo esc_html__('Remove local backup', 'wpdbbkp') ?></label>
 							<p><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
 							<?php echo esc_html__('If Checked then it will remove local backup.', 'wpdbbkp') ?>
-								<br><?php echo esc_html__('Use this option only when you have set any destination.', 'wpdbbkp') ?>
-								<br><?php echo esc_html__('If somesites you need only external backup.', 'wpdbbkp') ?>
+								<?php echo esc_html__('Use this option only when you have set any destination.', 'wpdbbkp') ?>
+								<?php echo esc_html__('If somesites you need only external backup.', 'wpdbbkp') ?>
 							</p>
 						</div>
 						<hr>

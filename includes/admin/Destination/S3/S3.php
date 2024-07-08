@@ -338,7 +338,7 @@ class S3
 	{
 		self::$__signingKeyPairId = $keyPairId;
 		if ((self::$__signingKeyResource = openssl_pkey_get_private($isFile ?
-		file_get_contents($signingKey) : $signingKey)) !== false) return true;
+		@file_get_contents($signingKey) : $signingKey)) !== false) return true;
 		self::__triggerError('S3::setSigningKey(): Unable to open load private key: '.$signingKey, __FILE__, __LINE__);
 		return false;
 	}

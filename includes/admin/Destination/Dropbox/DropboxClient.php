@@ -137,7 +137,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 			}
 
 			if ( filesize( $file ) < 5242880 ) { // chunk transfer on bigger uploads
-				$file_content = file_get_contents( $file );
+				$file_content = @file_get_contents( $file );
 				if($file_content){
 					$output = $this->filesUpload(
 						array(

@@ -562,7 +562,7 @@ class Wpdb_Admin {
 							case 'wpdbbkrestorefullbackup':
 		                        $index = (int) $_GET['index'];
 		                        require_once( 'class-restore.php' );
-		                        $restore = new Wpbp_Restore();
+		                        $restore = new Wpdbbkp_Restore();
 		                        $restore->start($index);
 		                        if (get_option('wp_db_log') == 1) {
 		                            $options = get_option('wp_db_backup_backups');

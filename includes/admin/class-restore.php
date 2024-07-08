@@ -5,7 +5,7 @@
  *
  * @version 1.0
  */
-class Wpbp_Restore {
+class Wpdbbkp_Restore {
         /**
          * The path where the backup file is stored
          *
@@ -135,7 +135,7 @@ class Wpbp_Restore {
                                 if ( isset( $database_file ) ) {
                                         $database_file = $database_file;
                                         if ( file_exists( $database_file ) ) {
-                                                $sql_file = file_get_contents( $database_file, true );
+                                                $sql_file = @file_get_contents( $database_file, true );
                                                 if($sql_file){
                                                         $sql_queries       = explode( ";\n", $sql_file );
                                                         $sql_queries_count = count( $sql_queries );

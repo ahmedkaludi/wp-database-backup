@@ -12,11 +12,13 @@ add_action( 'init','wp_db_fullbackup_scheduler_activation');
 	if ( ! wp_next_scheduled( 'wpdbkup_event_fullbackup' )) {
 		if(true === isset( $options['enable_autobackups'] ) ){
 			if(isset($options['autobackup_frequency']) && $options['autobackup_frequency'] != 'disabled' && isset($options['autobackup_type']) && ($options['autobackup_type'] == 'full' || $options['autobackup_type'] == 'files')){
+				$timestamp = strtotime('tomorrow midnight'); // Start at the next midnight
 				if(isset($options['autobackup_full_time']) && !empty($options['autobackup_full_time'])){
-					wp_schedule_event( time(), 'thirty_minutes', 'wpdbkup_event_fullbackup' );
+
+					wp_schedule_event( $timestamp, 'thirty_minutes', 'wpdbkup_event_fullbackup' );
 				}
 				else{
-					wp_schedule_event( time(), $options['autobackup_frequency'], 'wpdbkup_event_fullbackup' );
+					wp_schedule_event( $timestamp, $options['autobackup_frequency'], 'wpdbkup_event_fullbackup' );
 				}
 			
 			}

@@ -2514,10 +2514,12 @@ class Wpdb_Admin {
 			$cron_freq = apply_filters( 'wpdbbkp_dbback_cron_frequency',$options['autobackup_frequency']);
 			if(isset($options['autobackup_type']) && $options['autobackup_type'] == 'db')
 			{
-				wp_schedule_event( time(), $cron_freq, 'wpdbbkp_db_backup_event' );
+				$timestamp = strtotime('tomorrow midnight'); // Start at the next midnight
+				wp_schedule_event( $timestamp , $cron_freq, 'wpdbbkp_db_backup_event' );
+
 			}
 		}else{
-			if( ( false === isset( $options['enable_autobackups'] ) ) || ( true === isset( $options['enable_autobackups'] ) ) && isset($options['autobackup_type']) && $options['autobackup_type'] != 'db')
+			if( !empty($options) &&  ( false === isset( $options['enable_autobackups'] ) ) || ( true === isset( $options['enable_autobackups'] ) ) && isset($options['autobackup_type']) && $options['autobackup_type'] != 'db')
 			{
 				wp_clear_scheduled_hook( 'wpdbbkp_db_backup_event' );
 			}

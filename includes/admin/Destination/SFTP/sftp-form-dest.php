@@ -19,7 +19,7 @@ if($wpdbbkp_sftp_enabled==1 && !empty($wpdbbkp_sftp_details) && isset($wpdbbkp_s
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapsesftp">
-				<h2><?php echo esc_html__('SSH/sFTP', 'wpdbbkp') ?> <?php echo $wpdbbkp_sftp_status;?> <span class="dashicons dashicons-admin-generic"></span></h2> 
+				<h2><?php echo esc_html__('SSH/sFTP', 'wpdbbkp') ?> <?php echo wp_kses_post($wpdbbkp_sftp_status);?> <span class="dashicons dashicons-admin-generic"></span></h2> 
 			</a>
 		</h4>
 	</div>

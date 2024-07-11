@@ -871,7 +871,7 @@ function wpdbbkp_backup_completed_notification($args){
 					continue;
 				}
                 if ($option['filename'] == $args[0]) {
-					$option['destination'] = wp_kses( $args[4] , wp_kses_allowed_html('post'));   
+					$option['destination'] = wp_kses_post( $args[4]);   
 					$newoptions[] = $option;      
                 }else{
                         $newoptions[]= $option;

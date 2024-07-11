@@ -212,7 +212,7 @@
     // ----- Tests the zlib
     if (!function_exists('gzopen'))
     {
-      wp_die(esc_html__('Abort','wpdbbkp').basename(__FILE__).esc_html__(' : Missing zlib extensions','wpdbbkp'));
+      wp_die(esc_html__('Abort','wpdbbkp').esc_html(basename(__FILE__)).esc_html__(' : Missing zlib extensions','wpdbbkp'));
     }
 
     // ----- Set the attributes
@@ -4068,7 +4068,8 @@
           $v_buffer = @fread($this->zip_fd, $p_entry['compressed_size']);
 
           // ----- Send the file to the output
-          echo $v_buffer;
+          // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+          echo $v_buffer; // This does not need to be escaped , since it is binary data
           unset($v_buffer);
         }
         else {
@@ -4081,7 +4082,8 @@
           unset($v_buffer);
 
           // ----- Send the file to the output
-          echo $v_file_content;
+          // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+          echo $v_file_content; // This does not need to be escaped , since it is file buffered output
           unset($v_file_content);
         }
       }

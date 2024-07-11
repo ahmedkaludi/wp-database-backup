@@ -50,7 +50,7 @@ $wpdbbkp_bb_s3_status			=	'<label><b>'.esc_html__('Status', 'wpdbbkp').'</b>: '.
 
 if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empty($wpdb_dest_bb_s3_bucket_key) && !empty($wpdb_dest_bb_s3_bucket_secret) && !empty($wpdb_dest_bb_s3_bucket_host))
 {
-	$wpdbbkp_bb_s3_status='<label><b>'.esc_html__('Status', 'wpdbbkp').'</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="'.esc_attr__('Destination enabled', 'wpdbbkp').'"></span><span class="configured">'.esc_html__('Configured', 'wpdbbkp').' </span> </label> ';
+	$wpdbbkp_bb_s3_status ='<label><b>'.esc_html__('Status', 'wpdbbkp').'</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="'.esc_attr__('Destination enabled', 'wpdbbkp').'"></span><span class="configured">'.esc_html__('Configured', 'wpdbbkp').' </span> </label> ';
 }
 
 ?>
@@ -58,7 +58,7 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapsebb">
-				<h2><?php echo esc_html__('Blackblaze S3', 'wpdbbkp') ?> <?php echo $wpdbbkp_bb_s3_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
+				<h2><?php echo esc_html__('Blackblaze S3', 'wpdbbkp') ?> <?php echo wp_kses_post($wpdbbkp_bb_s3_status);?> <span class="dashicons dashicons-admin-generic"></span></h2>
 
 			</a>
 		</h4>

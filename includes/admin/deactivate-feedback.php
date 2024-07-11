@@ -5,11 +5,11 @@ $reasons = array(
 		3 => '<li><label><input type="radio" name="wpdbbkp_disable_reason" value="missing"/>' . esc_html__('I miss a feature', 'wpdbbkp') . '</label></li>
 		<li><input type="text" class="mb-box missing" name="wpdbbkp_disable_text[]" value="" placeholder="'. esc_attr__('Please describe the feature','wpdbbkp').'"/></li>',
 		4 => '<li><label><input type="radio" name="wpdbbkp_disable_reason" value="technical"/>' . esc_html__('Technical Issue', 'wpdbbkp') . '</label></li>
-		<li><textarea  class="mb-box technical" name="wpdbbkp_disable_text[]" placeholder="'. esc_attr__('' . esc_html__('How Can we help? Please describe your problem', 'wpdbbkp') . '','wpdbbkp').'"></textarea></li>',
+		<li><textarea  class="mb-box technical" name="wpdbbkp_disable_text[]" placeholder="'. esc_attr__('How Can we help? Please describe your problem', 'wpdbbkp').'"></textarea></li>',
 		5 => '<li><label><input type="radio" name="wpdbbkp_disable_reason" value="another"/>' . esc_html__('I switched to another plugin', 'wpdbbkp') .  '</label></li>
 		<li><input type="text"  class="mb-box another" name="wpdbbkp_disable_text[]" value="" placeholder="'. esc_attr__('Name of the plugin','wpdbbkp').'"/></li>',
 		6 => '<li><label><input type="radio" name="wpdbbkp_disable_reason" value="other"/>' . esc_html__('Other reason', 'wpdbbkp') . '</label></li>
-		<li><textarea  class="mb-box other" name="wpdbbkp_disable_text[]" placeholder="'. esc_attr__('' . esc_html__('Please specify, if possible', 'wpdbbkp') . '','wpdbbkp').'"></textarea></li>',
+		<li><textarea  class="mb-box other" name="wpdbbkp_disable_text[]" placeholder="'. esc_attr__('Please specify, if possible', 'wpdbbkp').'"></textarea></li>',
     );
 shuffle($reasons);
 ?>
@@ -22,12 +22,12 @@ shuffle($reasons);
 	    <ul>
                 <?php 
                 foreach ($reasons as $reason){
-                    echo $reason;
+                    echo wp_kses_post($reason);
                 }
                 ?>
 	    </ul>
 	    <?php if ($email) : ?>
-    	    <input type="hidden" name="wpdbbkp_disable_from" value="<?php echo $email; ?>"/>
+    	    <input type="hidden" name="wpdbbkp_disable_from" value="<?php echo esc_attr($email); ?>"/>
 	    <?php endif; ?>
 	    <input id="wpdbbkp-feedback-submit" class="button button-primary" type="submit" name="wpdbbkp_disable_submit" value="<?php echo esc_html__('Submit & Deactivate', 'wpdbbkp'); ?>"/>
 	    <a class="button"><?php echo esc_html__('Only Deactivate', 'wpdbbkp'); ?></a>

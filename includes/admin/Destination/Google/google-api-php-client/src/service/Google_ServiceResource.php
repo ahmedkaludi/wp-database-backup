@@ -68,7 +68,7 @@ class Google_ServiceResource {
    */
   public function __call($name, $arguments) {
     if (! isset($this->methods[$name])) {
-      throw new Google_Exception("Unknown function: {$this->serviceName}->{$this->resourceName}->{$name}()");
+      throw new Google_Exception("Unknown function: ".esc_html($this->serviceName)."->".esc_html($this->resourceName)."->".esc_html($name)."()");
     }
     $method = $this->methods[$name];
     $parameters = $arguments[0];
@@ -108,13 +108,13 @@ class Google_ServiceResource {
     $method['parameters'] = array_merge($method['parameters'], $this->stackParameters);
     foreach ($parameters as $key => $val) {
       if ($key != 'postBody' && ! isset($method['parameters'][$key])) {
-        throw new Google_Exception("($name) unknown parameter: '$key'");
+        throw new Google_Exception("(".esc_html($name).") unknown parameter: ".esc_html($key));
       }
     }
     if (isset($method['parameters'])) {
       foreach ($method['parameters'] as $paramName => $paramSpec) {
         if (isset($paramSpec['required']) && $paramSpec['required'] && ! isset($parameters[$paramName])) {
-          throw new Google_Exception("($name) missing required param: '$paramName'");
+          throw new Google_Exception("(".esc_html($name).") missing required param: ".esc_html($paramName));
         }
         if (isset($parameters[$paramName])) {
           $value = $parameters[$paramName];

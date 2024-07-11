@@ -37,7 +37,7 @@ if ( isset( $_POST[ 'email_notification_submit' ] ) && 'Save Settings' === $_POS
 					<div class="panel-heading">
 						<h4 class="panel-title">
 							<a data-toggle="collapse" data-parent="#accordion" href="#collapseII">
-								<h2><?php echo esc_html__('Email Notification', 'wpdbbkp') ?> <?php echo $wpdbbkp_email_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
+								<h2><?php echo esc_html__('Email Notification', 'wpdbbkp') ?> <?php echo wp_kses_post($wpdbbkp_email_status);?> <span class="dashicons dashicons-admin-generic"></span></h2>
 
 							</a>
 						</h4>

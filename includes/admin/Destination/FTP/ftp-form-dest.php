@@ -20,7 +20,7 @@ if($wpdbbkp_ftp_enabled==1 && !empty($wpdbbkp_ftp_host) && !empty($wpdbbkp_ftp_u
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapseI">
-				<h2><?php echo esc_html__('FTP/FTPS', 'wpdbbkp') ?> <?php echo $wpdbbkp_ftp_status;?> <span class="dashicons dashicons-admin-generic"></span></h2> 
+				<h2><?php echo esc_html__('FTP/FTPS', 'wpdbbkp') ?> <?php echo wp_kses_post($wpdbbkp_ftp_status);?> <span class="dashicons dashicons-admin-generic"></span></h2> 
 			</a>
 		</h4>
 	</div>

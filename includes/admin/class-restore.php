@@ -68,92 +68,100 @@ class Wpdbbkp_Restore {
                 $this->restore_database( $file_path );
         }
 
-        public function restore_database( $file = null ) {
-               error_log("Inside restore_database");
-               global $wpdb;
-
-                if ( ! $file ) {
-
-                        $archive = new PclZip( $this->path );
-
-                        $filename = basename( $this->path, '.zip' ) . '.sql';
-                        $path_info = wp_upload_dir(); 
-                        $dir = $path_info['basedir'].'/'.WPDB_BACKUPS_DIR.'/';       
-                        $file_path = $dir .$filename;
-
-                        if ( ! $archive->extract( PCLZIP_OPT_PATH, $dir ) ){
-                                wp_die( esc_html__('Unable to extract zip file. Please check that zlib php extension is enabled.','wpdbbkp').'<button onclick="history.go(-1);">'.esc_html__('Go Back','wpdbbkp').'</button>', esc_html__('ZIP Error','wpdbbkp') );
-                        }
+        public function restore_database($file = null) {
+                global $wpdb, $wp_filesystem;
+            
+                if (!$file) {
+                    $archive = new PclZip($this->path);
+                    $filename = basename($this->path, '.zip') . '.sql';
+                    $path_info = wp_upload_dir();
+                    $dir = $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/';
+                    $file_path = $dir . $filename;
+            
+                    if (!$archive->extract(PCLZIP_OPT_PATH, $dir)) {
+                        wp_die(
+                            esc_html__('Unable to extract zip file. Please check that zlib php extension is enabled.', 'wpdbbkp') . 
+                            '<button onclick="history.go(-1);">' . esc_html__('Go Back', 'wpdbbkp') . '</button>', 
+                            esc_html__('ZIP Error', 'wpdbbkp')
+                        );
+                    }
                 } else {
-                        $file_path = $file;
+                    $file_path = $file;
                 }
-
-                $database_file =  $file_path ;
-                $database_name=$this->wp_backup_get_config_db_name();
-                $database_user=$this->wp_backup_get_config_data('DB_USER');                             
-                $datadase_password=$this->wp_backup_get_config_data('DB_PASSWORD');
-                $database_host=$this->wp_backup_get_config_data('DB_HOST');
-                
-                ini_set("max_execution_time", "5000"); 
-                ini_set("max_input_time",     "5000");
+            
+                $database_file = $file_path;
+                $database_name = $this->wp_backup_get_config_db_name();
+                $database_user = $this->wp_backup_get_config_data('DB_USER');
+                $database_password = $this->wp_backup_get_config_data('DB_PASSWORD');
+                $database_host = $this->wp_backup_get_config_data('DB_HOST');
+            
+                ini_set("max_execution_time", "5000");
+                ini_set("max_input_time", "5000");
                 ini_set('memory_limit', '1000M');
                 set_time_limit(0);
                 ignore_user_abort(true);
+            
+                if ('' !== trim($database_name) && '' !== trim($database_user) && '' !== trim($database_host)) {
+                    $wpdb->db_connect();
+                    $wpdb->select($database_name);
+            
+                    // Check if database exists
+                    $db_exists = $wpdb->get_var($wpdb->prepare(
+                        "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s",
+                        $database_name
+                    ));
+            
+                    if (!$db_exists) {
+                        $wpdb->query($wpdb->prepare("CREATE DATABASE IF NOT EXISTS `%s`", $database_name));
+                        $wpdb->select($database_name);
+                    }
+            
+                    $tables = $wpdb->get_col($wpdb->prepare("SHOW TABLES FROM `%s`", $database_name));
 
-                if ( '' !== ( trim( (string) $database_name ) ) && '' !== ( trim( (string) $database_user ) ) && '' !== ( trim( (string) $database_host ) ) ) {
-                        $conn = mysqli_connect( (string) $database_host, (string) $database_user, (string) $datadase_password ); // phpcs:ignore
-                        if ( $conn ) {
-
-                                /*BEGIN: Select the Database*/
-                                if(!mysqli_select_db($conn, (string)$database_name)) {
-                                        $sql = "CREATE DATABASE IF NOT EXISTS `".(string)$database_name."`";
-                                        mysqli_query($conn, $sql);
-                                        mysqli_select_db($conn, (string)$database_name);
-                                }
-                                /*END: Select the Database*/
-
-                                /* BEGIN: Remove All Tables from the Database */
-                                $found_tables = null;
-                                $result       = mysqli_query( $conn, 'SHOW TABLES FROM `' . (string) $database_name . '`' ); // phpcs:ignore
-
-                                if ( $result ) {
-                                        // $row = mysqli_fetch_row( $result ); // phpcs:ignore
-                                        while ($row = mysqli_fetch_row($result)) {
-                                                $found_tables[] = $row[0];
-                                        }
-
-                                        if ( count( $found_tables ) > 0 ) {
-                                                foreach ( $found_tables as $table_name ) {
-                                                        mysqli_query( $conn, "DROP TABLE " . (string) $database_name . ".".$table_name ); // phpcs:ignore
-                                                }
-                                        }
-                                }
-
-                                /* END: Remove All Tables from the Database */
-
-                                /* BEGIN: Restore Database Content */
-                                if ( isset( $database_file ) ) {
-                                        $database_file = $database_file;
-                                        if ( file_exists( $database_file ) ) {
-                                                $sql_file = @file_get_contents( $database_file, true );
-                                                if($sql_file){
-                                                        $sql_queries       = explode( ";\n", $sql_file );
-                                                        $sql_queries_count = count( $sql_queries );
-
-                                                        mysqli_query($conn, "SET sql_mode = ''");
-
-                                                        for ( $i = 0; $i < $sql_queries_count; $i++ ) {
-                                                                $sql_query_=apply_filters( 'wpdbbkp_sql_query_restore', $sql_queries[ $i ] );
-                                                                mysqli_query($conn, $sql_query_ ); // phpcs:ignore
-                                                        }
-                                                }
-                                        }
-                                }
-                                /* END: Restore Database Content */
+              
+                if (!empty($tables)) {
+                        foreach ($tables as $table_name) {
+                                $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS `%s`", $table_name));
                         }
                 }
-                @unlink( $file_path );
-        }
+            
+                    // Restore database content
+                    if (file_exists($database_file)) {
+                        if ( ! function_exists( 'WP_Filesystem' ) ) {
+                                require_once ABSPATH . '/wp-admin/includes/file.php';
+                            }
+
+                            WP_Filesystem();
+                            if ( $wp_filesystem ) {
+                                $sql_file = $wp_filesystem->get_contents( $database_file );
+                                if ( $sql_file !== false ) {
+                                        $sql_queries = explode(";\n", $sql_file);
+                                        $wpdb->query("SET sql_mode = ''");
+                        
+                                        foreach ($sql_queries as $query) {
+                                            $query = apply_filters('wpdbbkp_sql_query_restore', $query);
+                                            if (!empty(trim($query))) {
+
+                                                /* Since $query is a dynqmic sql query from the backup file, we can't use $wpdb->prepare
+                                                * as we don't know the number / types of arguments in the query. So, we are using $wpdb->query
+                                                * directly to execute the query.*/
+                                                
+                                                $wpdb->query($query); //phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                                            }
+                                        }
+
+                                } else {
+                                        error_log("Failed to Open file :".esc_html($database_file));
+                                }
+                            } else {
+                                error_log("Failed to initialize WP_Filesystem");
+                            }
+                    }
+                }
+            
+                @unlink($file_path);
+            }
+            
 
         public function restore_files( $file = null ) {
                 error_log("Inside restore_files");

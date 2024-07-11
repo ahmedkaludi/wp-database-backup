@@ -369,9 +369,9 @@ class S3
 	private static function __triggerError($message, $file, $line, $code = 0)
 	{
 		if (self::$useExceptions)
-			throw new S3Exception($message, $file, $line, $code);
+			throw new S3Exception(esc_html($message),esc_html( $file), esc_html($line), esc_html($code));
 		else
-			trigger_error($message, E_USER_WARNING);
+			trigger_error(esc_html($message), E_USER_WARNING);
 	}
 
 
@@ -1545,7 +1545,7 @@ class S3
 		if ($rest->error !== false)
 		{
 			trigger_error(sprintf("S3::listOriginAccessIdentities(): [%s] %s",
-			$rest->error['code'], $rest->error['message']), E_USER_WARNING);
+			esc_html($rest->error['code']), esc_html($rest->error['message'])), E_USER_WARNING);
 			return false;
 		}
 
@@ -1591,8 +1591,8 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			trigger_error(sprintf("S3::invalidate('{$distributionId}',{$paths}): [%s] %s",
-			$rest->error['code'], $rest->error['message']), E_USER_WARNING);
+			trigger_error(sprintf("S3::invalidate(".esc_html($distributionId.",".esc_html($paths)."): [%s] %s",
+			esc_html($rest->error['code']), esc_html($rest->error['message'])), esc_html(E_USER_WARNING)));
 			return false;
 		}
 		return true;
@@ -1656,8 +1656,8 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			trigger_error(sprintf("S3::getDistributionInvalidationList('{$distributionId}'): [%s]",
-			$rest->error['code'], $rest->error['message']), E_USER_WARNING);
+			trigger_error(sprintf("S3::getDistributionInvalidationList('".esc_html($distributionId)."'): [%s]",
+			esc_html($rest->error['code']), esc_html($rest->error['message'])), esc_html(E_USER_WARNING));
 			return false;
 		}
 		elseif ($rest->body instanceof SimpleXMLElement && isset($rest->body->InvalidationSummary))

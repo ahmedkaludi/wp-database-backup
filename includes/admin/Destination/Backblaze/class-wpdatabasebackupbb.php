@@ -23,6 +23,13 @@ class WPDatabaseBackupBB {
 
 // Function to upload files to Backblaze B2
 public static function upload_backup_to_backblaze($file_path, $file_name) {
+
+    global $wp_filesystem;
+    if(!function_exists('WP_Filesystem')){
+    require_once ( ABSPATH . '/wp-admin/includes/file.php' );
+    }
+    WP_Filesystem();
+
     $s3_token = get_transient('b2_authorization_token');
     $api_url = get_transient('b2_api_url');
     $bucket_id = get_option('wpdb_dest_bb_s3_bucket') ? get_option('wpdb_dest_bb_s3_bucket') : '';
@@ -89,17 +96,18 @@ public static function upload_backup_to_backblaze($file_path, $file_name) {
     $upload_url = $data->uploadUrl;
     $upload_auth_token = $data->authorizationToken;
 
-    if (!file_exists($file_path)) {
+    if (!$wp_filesystem) {
+        return array('success' => false, 'message' => esc_html__('Unable to initialize wp_filesystem : ' , 'wpdbbkp'). $file_path);
+    }
+
+    if (!$wp_filesystem->file_exists($file_path)) {
         return array('success' => false, 'message' => esc_html__('File does not exist: ' , 'wpdbbkp'). $file_path);
     }
 
     $file_size = filesize($file_path);
-    $file = fopen($file_path, 'r');
-    if ($file === false) {
-        return array('success' => false, 'message' => esc_html__('Failed to open file: ' , 'wpdbbkp') . $file_path);
-    }
 
-    $file_contents = @file_get_contents($file_path);
+    $file_contents = $wp_filesystem->get_contents( $file_path );
+
     if ($file_contents === false) {
         return array('success' => false, 'message' => esc_html__('Failed to read file: ', 'wpdbbkp') . $file_path);
     }

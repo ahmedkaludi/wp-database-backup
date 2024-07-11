@@ -31,8 +31,8 @@ class WPDBBackupLog {
 					continue;
 				}
 				if (isset($args[0]) && $option['filename'] === $args[0]) {
-					$option['destination'] = wp_kses($args[4], wp_kses_allowed_html('post'));
-					$option['log']         = wp_kses($args[2] , wp_kses_allowed_html('post'));
+					$option['destination'] = wp_kses_post($args[4]);
+					$option['log']         = wp_kses_post($args[2]);
 					$newoptions[]          = $option;
 				} else {
 					$newoptions[] = $option;

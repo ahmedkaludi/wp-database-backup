@@ -12,7 +12,7 @@ if($wpdbbkp_local_enabled==1 && !empty($wpdbbkp_local_path))
 					<div class="panel-heading">
 						<h4 class="panel-title">
 							<a data-toggle="collapse" data-parent="#accordion" href="#collapseLocal">
-								<h2><?php echo esc_html__('Local Backup', 'wpdbbkp') ?> <?php echo $wpdbbkp_local_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
+								<h2><?php echo esc_html__('Local Backup', 'wpdbbkp') ?> <?php echo wp_kses_post($wpdbbkp_local_status);?> <span class="dashicons dashicons-admin-generic"></span></h2>
 
 							</a>
 						</h4>

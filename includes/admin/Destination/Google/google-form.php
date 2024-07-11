@@ -91,7 +91,7 @@ if(!empty($wpdb_dest_google_auth_code) && !empty($wpdb_dest_google_client_key) &
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapsegoogle">
-				<h2><?php echo esc_html__('Google drive', 'wpdbbkp'); ?><?php echo $wpdbbkp_gdrive_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
+				<h2><?php echo esc_html__('Google drive', 'wpdbbkp'); ?><?php echo wp_kses_post($wpdbbkp_gdrive_status);?> <span class="dashicons dashicons-admin-generic"></span></h2>
 			</a>
 		</h4>
 	</div>

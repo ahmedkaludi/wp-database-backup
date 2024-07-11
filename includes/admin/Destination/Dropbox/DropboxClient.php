@@ -133,7 +133,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 			$file = str_replace( '\\', '/', $file );
 			$output ='';
 			if ( ! is_readable( $file ) ) {
-				throw new WPDBBackup_Destination_Dropbox_API_Exception( "Error: File \"$file\" is not readable or doesn't exist." );
+				throw new WPDBBackup_Destination_Dropbox_API_Exception( "Error: File ".esc_url($file)." is not readable or doesn't exist." );
 			}
 
 			if ( filesize( $file ) < 5242880 ) { // chunk transfer on bigger uploads
@@ -167,7 +167,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 			$file = str_replace( '\\', '/', $file );
 
 			if ( ! is_readable( $file ) ) {
-				throw new WPDBBackup_Destination_Dropbox_API_Exception( "Error: File \"$file\" is not readable or doesn't exist." );
+				throw new WPDBBackup_Destination_Dropbox_API_Exception( "Error: File ".esc_url($file)." is not readable or doesn't exist." );
 			}
 
 			$chunk_size = 4194304; // 4194304 = 4MB
@@ -621,7 +621,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				}
 				// only wait if we get a retry-after header.
 				if ( ! empty( $wait ) ) {
-					trigger_error( sprintf( '(429) Your app is making too many requests and is being rate limited. Error 429 can be triggered on a per-app or per-user basis. Wait for %d seconds.', $wait ), E_USER_WARNING );
+  					trigger_error( sprintf( '(429) Your app is making too many requests and is being rate limited. Error 429 can be triggered on a per-app or per-user basis. Wait for %d seconds.', esc_html($wait) ), E_USER_WARNING );
 					sleep( $wait );
 				} else {
 					throw new WPDBBackup_Destination_Dropbox_API_Exception( '(429) This indicates a transient server error.' );
@@ -805,7 +805,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				case 'incorrect_offset':
 					trigger_error(
 						'Incorrect offset given. Correct offset is ' .
-						$error['correct_offset'] . '.',
+						esc_html($error['correct_offset']) . '.',
 						E_USER_WARNING
 					);
 					break;
@@ -880,7 +880,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 					break;
 			}
 
-			trigger_error( $message, E_USER_WARNING );
+			trigger_error( esc_html($message), E_USER_WARNING );
 		}
 
 	}

@@ -207,7 +207,7 @@ $wpdbbkp_sftp_authtype = isset($wpdbbkp_sftp_details['auth_type'])?$wpdbbkp_sftp
 		<label class="col-sm-2" for="wpdbbkp_sftp_sshkey"><?php echo esc_html__('SSH Key', 'wpdbbkp') ?></label>
 		<div class="col-sm-4">
 			<input type="file" id="wpdbbkp_sftp_sshkey" class="form-control"  size="25">
-			<input type="hidden" name="wp_db_backup_sftp_details[sftp_key]" id="wp_db_backup_sftp_key" value="<?php echo isset($wpdbbkp_sftp_details['sftp_key'])?$wpdbbkp_sftp_details['sftp_key']:'';?>">
+			<input type="hidden" name="wp_db_backup_sftp_details[sftp_key]" id="wp_db_backup_sftp_key" value="<?php echo isset($wpdbbkp_sftp_details['sftp_key'])?esc_attr($wpdbbkp_sftp_details['sftp_key']):'';?>">
 		</div>
 		<div class="col-sm-4">
 		<em style="color:green"><?php if(!empty($wpdbbkp_sftp_details['sftp_key'])){ esc_html_e('(Key Already exists. To change please upload new key)', 'wpdbbkp'); } ?></em>

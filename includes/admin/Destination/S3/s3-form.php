@@ -52,7 +52,7 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapseAmazon">
-				<h2><?php echo esc_html__('Amazon S3', 'wpdbbkp') ?> <?php echo $wpdbbkp_amazon_s3_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
+				<h2><?php echo esc_html__('Amazon S3', 'wpdbbkp') ?> <?php echo wp_kses_post($wpdbbkp_amazon_s3_status);?> <span class="dashicons dashicons-admin-generic"></span></h2>
 
 			</a>
 		</h4>

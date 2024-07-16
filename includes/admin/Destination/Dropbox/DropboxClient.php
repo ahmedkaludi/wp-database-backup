@@ -164,21 +164,28 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 		 * @throws WPDBBackup_Destination_Dropbox_API_Exception
 		 */
 		public function multipartUpload( $file, $path = '', $overwrite = true ) {
+			global $wp_filesystem;
+		
+			// Initialize the WordPress filesystem
+			if (empty($wp_filesystem)) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+				WP_Filesystem();
+			}
+		
 			$file = str_replace( '\\', '/', $file );
-
-			if ( ! is_readable( $file ) ) {
+		
+			if ( ! $wp_filesystem->exists( $file ) || ! $wp_filesystem->is_readable( $file ) ) {
 				throw new WPDBBackup_Destination_Dropbox_API_Exception( "Error: File ".esc_url($file)." is not readable or doesn't exist." );
 			}
-
+		
 			$chunk_size = 4194304; // 4194304 = 4MB
-
-			$file_handel = fopen( $file, 'rb' );
-			if ( ! $file_handel ) {
+		
+			$file_handle = $wp_filesystem->get_contents( $file );
+			if ( ! $file_handle ) {
 				throw new WPDBBackup_Destination_Dropbox_API_Exception( 'Can not open source file for transfer.' );
 			}
-
+		
 			if ( isset($this->job_object->step_working) && ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['uploadid'] ) ) {
-				// $this->job_object->log(__('Beginning new file upload session', 'backwpup'));
 				$session = $this->filesUploadSessionStart();
 				$this->job_object->steps_data[ $this->job_object->step_working ]['uploadid'] = $session['session_id'];
 			}
@@ -188,38 +195,41 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 			if ( isset($this->job_object->step_working) && ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] ) ) {
 				$this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] = 0;
 			}
-
-			// seek to current position
-			if ( isset($this->job_object->step_working) && $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] > 0 ) {
-				fseek( $file_handel, $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] );
-			}
-
-			while ( $data = fread( $file_handel, $chunk_size ) ) {
+		
+			$offset = $this->job_object->steps_data[ $this->job_object->step_working ]['offset'];
+		
+			// Seek to current position
+			$file_handle = substr($file_handle, $offset);
+		
+			while ( $offset < strlen($file_handle) ) {
+				$chunk = substr($file_handle, $offset, $chunk_size);
 				$chunk_upload_start = microtime( true );
-
+		
 				if ( $this->job_object && method_exists($this->job_object,'is_debug') && method_exists($this->job_object,'log') && $this->job_object->is_debug() ) {
-					$this->job_object->log( sprintf( __( 'Uploading %s of data', 'backwpup' ), size_format( strlen( $data ) ) ) );
+					/* translators: %s: chunk of data being uploaded */
+					$this->job_object->log( sprintf( __( 'Uploading %s of data', 'backwpup' ), size_format( strlen( $chunk ) ) ) );
 				}
-
+		
 				$this->filesUploadSessionAppendV2(
 					array(
-						'contents' => $data,
+						'contents' => $chunk,
 						'cursor'   => array(
 							'session_id' => $this->job_object->steps_data[ $this->job_object->step_working ]['uploadid'],
-							'offset'     => $this->job_object->steps_data[ $this->job_object->step_working ]['offset'],
+							'offset'     => $offset,
 						),
 					)
 				);
+		
 				$chunk_upload_time = microtime( true ) - $chunk_upload_start;
-				$this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] += strlen( $data );
-
-				// args for next chunk
-				$this->job_object->steps_data[ $this->job_object->step_working ]['offset'] += $chunk_size;
+				$this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] += strlen( $chunk );
+		
+				$offset += strlen($chunk);
+				$this->job_object->steps_data[ $this->job_object->step_working ]['offset'] = $offset;
+		
 				if ( $this->job_object->job['backuptype'] === 'archive' ) {
 					$this->job_object->substeps_done = $this->job_object->steps_data[ $this->job_object->step_working ]['offset'];
-					if ( strlen( $data ) == $chunk_size ) {
+					if ( strlen( $chunk ) == $chunk_size ) {
 						$time_remaining = $this->job_object->do_restart_time();
-						// calc next chunk
 						if ( $time_remaining < $chunk_upload_time ) {
 							$chunk_size = floor( $chunk_size / $chunk_upload_time * ( $time_remaining - 3 ) );
 							if ( $chunk_size < 0 ) {
@@ -234,12 +244,10 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				if(property_exists($this->job_object,'update_working_data')){
 					$this->job_object->update_working_data();
 				}
-				// correct position
-				fseek( $file_handel, $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] );
 			}
-
-			fclose( $file_handel );
+		
 			if(method_exists($this->job_object,'log')){
+				/* translators: %s: total size of data uploaded  */
 				$this->job_object->log( sprintf( __( 'Finishing upload session with a total of %s uploaded', 'backwpup' ), size_format( $this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] ) ) );
 			}
 			$response = $this->filesUploadSessionFinish(
@@ -254,12 +262,12 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 					),
 				)
 			);
-
+		
 			unset( $this->job_object->steps_data[ $this->job_object->step_working ]['uploadid'] );
 			unset( $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] );
-
+		
 			return $response;
-		}
+		}		
 
 		// Authentication
 

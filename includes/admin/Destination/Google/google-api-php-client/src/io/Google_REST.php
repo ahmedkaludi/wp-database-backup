@@ -63,7 +63,7 @@ class Google_REST {
         $err .= ": ($code) $body";
       }
 
-      throw new Google_ServiceException(esc_html($err), esc_html($code), null, $decoded['error']['errors']);
+      throw new Google_ServiceException(esc_html($err), esc_html($code), null, esc_html($decoded['error']['errors']));
     }
     
     // Only attempt to decode the response, if the response code wasn't (204) 'no content'

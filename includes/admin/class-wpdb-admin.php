@@ -783,7 +783,7 @@ class Wpdb_Admin {
 								echo '<td style="text-align: center;">' . esc_attr( $count ) . '</td>';
 								$curr_date = new DateTime(gmdate( 'Y-m-d H:i:s', $option['date'] ));
 								$curr_date->setTimezone(new DateTimeZone(wp_timezone_string()));
-								echo '<td><span style="display:none">' . esc_attr( $curr_date->format('Y-m-d H:i:s') ) . '</span><span title="'.esc_attr( $curr_date->format('jS, F Y h:i:s A') ) .'">' .esc_html__($this->wpdbbkp_get_timeago($option['date']),'wpdbbkp').'</span>';
+								echo '<td><span style="display:none">' . esc_attr( $curr_date->format('Y-m-d H:i:s') ) . '</span><span title="'.esc_attr( $curr_date->format('jS, F Y h:i:s A') ) .'">' .esc_html($this->wpdbbkp_get_timeago($option['date'])).'</span>';
 								echo '</td>';
 								if($wp_db_log==1){
 									echo '<td class="wpdb_log" align="center">';

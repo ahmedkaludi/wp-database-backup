@@ -33,7 +33,7 @@ $message = '<div bgcolor="#e3e3e3" style="font-family:Arial;color:#707070;font-s
    ' . esc_html__('Database Backup Created Successfully on','wpdbbkp')  . esc_url($site_url) . '.
 
     <br><br>
-     ' . esc_html__($remove_local_backup_message,'wpdbbkp') . '.
+     ' . esc_html($remove_local_backup_message) . '.
     <br><br>
             <h3 style="font-family:Arial;font-size:14px;font-weight:bold;margin:0 0 5px 5px;padding:0px">'.esc_html__('Details as follow','wpdbbkp').'</h3>
 

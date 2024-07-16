@@ -4068,7 +4068,7 @@
           $v_buffer = @fread($this->zip_fd, $p_entry['compressed_size']);
 
           // ----- Send the file to the output
-          // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+          // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
           echo $v_buffer; // This does not need to be escaped , since it is binary data
           unset($v_buffer);
         }
@@ -4078,11 +4078,12 @@
           $v_buffer = @fread($this->zip_fd, $p_entry['compressed_size']);
 
           // ----- Decompress the file
+          //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped	-- Reason : This does not need to be escaped , since it is binary data
           $v_file_content = gzinflate($v_buffer);
           unset($v_buffer);
 
           // ----- Send the file to the output
-          // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+          //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped	-- Reason : This does not need to be escaped , since it is binary data
           echo $v_file_content; // This does not need to be escaped , since it is file buffered output
           unset($v_file_content);
         }

@@ -283,22 +283,21 @@ if(!function_exists('wpdbbkp_wp_cron_config_path')){
 
 	        wp_mkdir_p($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR);
 	        wp_mkdir_p($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log');
-	        fclose(fopen($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/index.php', 'w'));
-	        fclose(fopen($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/index.php', 'w'));
+			wpdbbkp_write_file_contents($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/index.php','');
+			wpdbbkp_write_file_contents($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/index.php','');
 	        //added htaccess file 08-05-2015 for prevent directory listing
 	        //Fixed Vulnerability 22-06-2016 for prevent direct download
-	        //fclose(fopen($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR .'/.htaccess', $htassesText));
-	        $f = fopen($path_info['basedir']  . '/' . WPDB_BACKUPS_DIR . '/.htaccess', "w");
-	        fwrite($f, "#These next two lines will already exist in your .htaccess file
-	 RewriteEngine On
-	 RewriteBase /
-	 # Add these lines right after the preceding two
-	 RewriteCond %{REQUEST_FILENAME} ^.*(.zip)$
-	 RewriteCond %{HTTP_COOKIE} !^.*can_download.*$ [NC]
-	 RewriteRule . - [R=403,L]");
-	        fclose($f);
+	        $htaccess_content = "#These next two lines will already exist in your .htaccess file
+			RewriteEngine On
+			RewriteBase /
+			# Add these lines right after the preceding two
+			RewriteCond %{REQUEST_FILENAME} ^.*(.zip)$
+			RewriteCond %{HTTP_COOKIE} !^.*can_download.*$ [NC]
+			RewriteRule . - [R=403,L]";
+			wpdbbkp_write_file_contents($path_info['basedir']  . '/' . WPDB_BACKUPS_DIR . '/.htaccess',$htaccess_content);
+
 	        $siteName = preg_replace('/[^\p{L}\p{M}]+/u', '_', get_bloginfo('name')); //added in v2.1 for Backup zip labeled with the site name(Help when backing up multiple sites).
-	        $FileName = $siteName . '_' . Date("Y_m_d") . '_' . Time() .'_'. substr(md5(AUTH_KEY), 0, 7).'_wpall';
+	        $FileName = $siteName . '_' . gmdate("Y_m_d") . '_' . Time() .'_'. substr(md5(AUTH_KEY), 0, 7).'_wpall';
 	        $WPDBFileName = $FileName . '.zip';
 	        $wp_all_backup_type = get_option('wp_db_backup_backup_type');
 	        $logFile = $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/' . $FileName . '.txt';
@@ -397,7 +396,7 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 						for($sub_i=0;$sub_i<$t_sub_queries;$sub_i++)
 						{
 							$sub_offset = $sub_i*$sub_limit;
-							$sub_result = $wpdb->get_results( $wpdb->prepare("SELECT * FROM %i LIMIT %d OFFSET %d",array($table,$sub_limit,$sub_offset)), ARRAY_A  );
+							$sub_result = $wpdb->get_results( $wpdb->prepare("SELECT * FROM {$table} LIMIT %d OFFSET %d",array($sub_limit,$sub_offset)), ARRAY_A  );
 							if($sub_result){
 								$result = array_merge($result,$sub_result);
 							}
@@ -407,7 +406,7 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 					else{
 						$result       = $wpdb->get_results( $wpdb->prepare("SELECT * FROM %i",array($table)), ARRAY_A  ); // phpcs:ignore
 					}
-		            $row2 = $wpdb->get_row('SHOW CREATE TABLE ' . $table, ARRAY_N);
+		            $row2 = $wpdb->get_row($wpdb->prepare('SHOW CREATE TABLE {$table}'), ARRAY_N);
 		            $output .= "\n\n" . $row2[1] . ";\n\n";
 		            $logMessage .= "(" . count($result) . ")";
 					$result_count=count($result);
@@ -441,9 +440,7 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 		        } else {
 		            $upload_path['logfile'] = "";
 		        }
-				$handle = fopen($path_info['basedir'] . '/db-backup/' . $filename, 'a');
-		        fwrite($handle, $output);
-				fclose($handle);
+				wpdbbkp_write_file_contents($path_info['basedir'] . '/db-backup/' . $filename, $output, true);
 
 				$logMessage = "\n# Database dump method: PHP\n";
 				if (get_option('wp_db_log') == 1) {

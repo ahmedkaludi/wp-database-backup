@@ -369,10 +369,6 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 				$FileName = sanitize_text_field($args['FileName']);
 				$filename = $FileName . '.sql';
 				$path_info = wp_upload_dir();
-
-				$wpdbbkp_admin_class_obj = new Wpdb_Admin();
-				
-
 				global $wpdb;
 		        $wp_db_exclude_table = array();
 		        $wp_db_exclude_table = get_option('wp_db_exclude_table');
@@ -406,7 +402,7 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 					else{
 						$result       = $wpdb->get_results( $wpdb->prepare("SELECT * FROM %i",array($table)), ARRAY_A  ); // phpcs:ignore
 					}
-		            $row2 = $wpdb->get_row($wpdb->prepare('SHOW CREATE TABLE {$table}'), ARRAY_N);
+		            $row2 = $wpdb->get_row($wpdb->prepare("SHOW CREATE TABLE {$table}"), ARRAY_N);
 		            $output .= "\n\n" . $row2[1] . ";\n\n";
 		            $logMessage .= "(" . count($result) . ")";
 					$result_count=count($result);
@@ -427,6 +423,7 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 		
 							}
 							$output .= ");\n";
+
 						}
 						
 					}

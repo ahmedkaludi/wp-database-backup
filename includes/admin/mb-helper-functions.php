@@ -175,7 +175,7 @@ function wpdbbkp_read_file_contents($file_path) {
  *
  * @param string $filename The path to the file to write data to.
  * @param string $data The data to write.
- * @param bool $append Whether to append the data to the file (default: true).
+ * @param bool $append Whether to append the data to the file (default: false).
  */
 function wpdbbkp_write_file_contents( $filename, $data, $append = false ) {
     global $wp_filesystem;

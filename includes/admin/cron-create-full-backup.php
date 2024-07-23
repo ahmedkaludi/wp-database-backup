@@ -457,16 +457,8 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 if(!function_exists('wpdbbkp_write_log')){
 	function wpdbbkp_write_log($logFile, $logMessage) {
 	    // Actually write the log file
-	    if (is_writable($logFile) || !file_exists($logFile)) {
-
-	        if (!$handle = @fopen($logFile, 'a'))
-	            return;
-
-	        if (!fwrite($handle, $logMessage))
-	            return;
-
-	        fclose($handle);
-
+	    if (wpdbbkp_is_writable($logFile) || !wpdbbkp_file_exists($logFile)) {
+			wpdbbkp_write_file_contents( $logFile, $logMessage, true );
 	        return true;
 	    }
 	}

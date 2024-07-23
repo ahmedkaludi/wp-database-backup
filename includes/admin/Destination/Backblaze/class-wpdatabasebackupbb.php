@@ -100,7 +100,7 @@ public static function upload_backup_to_backblaze($file_path, $file_name) {
         return array('success' => false, 'message' => esc_html__('Unable to initialize wp_filesystem : ' , 'wpdbbkp'). $file_path);
     }
 
-    if (!$wp_filesystem->file_exists($file_path)) {
+    if (!$wp_filesystem->exists($file_path)) {
         return array('success' => false, 'message' => esc_html__('File does not exist: ' , 'wpdbbkp'). $file_path);
     }
 

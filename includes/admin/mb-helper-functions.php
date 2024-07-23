@@ -136,7 +136,7 @@ function wpdbbkp_enqueue_makebetter_email_js(){
     }
 
 
-    wp_register_script( 'wpdbbkp-make-better-js', WPDB_PLUGIN_URL . '/assets/js/make-better-admin.js', array( 'jquery' ), WPDB_VERSION);
+    wp_register_script( 'wpdbbkp-make-better-js', WPDB_PLUGIN_URL . '/assets/js/make-better-admin.js', array( 'jquery' ), WPDB_VERSION , true);
     wp_localize_script('wpdbbkp-make-better-js', 'wpdbbkp_pub_script_vars', array(
         'nonce' => wp_create_nonce( 'wpdbbkp-pub-nonce' ),)
     );
@@ -210,12 +210,15 @@ function wpdbbkp_write_file_contents( $filename, $data, $append = false ) {
         // Write the new data.
         $wp_filesystem->put_contents( $filename, $current_content . $data, FS_CHMOD_FILE );
     } else {
-        // Use native PHP functions for large files.
+        // Use native PHP functions for very large files.
         $mode = $append ? 'a' : 'w';
+        //phpcs:ignore -- using native PHP functions for large files.
         $file = fopen( $filename, $mode );
 
         if ( $file ) {
+            //phpcs:ignore -- using native PHP functions for large files.
             fwrite( $file, $data );
+            //phpcs:ignore -- using native PHP functions for large files.
             fclose( $file );
         } else {
             error_log( "Failed to open file for writing: $filename" );

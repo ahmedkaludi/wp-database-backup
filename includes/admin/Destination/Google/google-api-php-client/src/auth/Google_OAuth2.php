@@ -88,7 +88,9 @@ class Google_OAuth2 extends Google_Auth {
    * @return string
    */
   public function authenticate($service, $code = null) {
+    //phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verification is not required here.
     if (!$code && isset($_GET['code'])) {
+      //phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verification is not required here.
       $code = $_GET['code'];
     }
 

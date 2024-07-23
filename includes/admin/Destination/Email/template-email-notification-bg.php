@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 $unsub_token = get_option('wpdbbkp_unsubscribe_token',false);
 if(!$unsub_token){
-    $unsub_token = hash("sha256", mt_rand(999,99999999));
+    $unsub_token = hash("sha256", wp_rand(999,99999999));
     update_option('wpdbbkp_unsubscribe_token',$unsub_token ,false);
 }
 $message = '<div bgcolor="#e3e3e3" style="font-family:Arial;color:#707070;font-size:12px;background-color:#e3e3e3;margin:0;padding:0px">

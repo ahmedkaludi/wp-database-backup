@@ -17,6 +17,10 @@ if($wpdbbkp_email_enabled==1 && !empty($wpdbbkp_email_id))
 // If user pressed this button, this hidden field will be set to 'Y'.
 if ( isset( $_POST[ 'email_notification_submit' ] ) && 'Save Settings' === $_POST[ 'email_notification_submit' ] ) {
 
+	// This is a hidden field used to validate the form.
+	if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'wp-database-backup' ) ) {
+		return;
+	}
 	if ( isset( $_POST['wp_db_backup_destination_Email'] ) ) {
 		update_option( 'wp_db_backup_destination_Email', 1 , false);
 	} else {

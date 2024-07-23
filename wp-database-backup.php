@@ -11,7 +11,7 @@
  *
  *  This plugin helps you to create Database Backup easily.
  *
- *  License: GPL v3
+ *  License: GPL v2
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -125,20 +125,20 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		 * Installation setting at time of activation.
 		 */
 		public function installation($flag=1) {
-			add_option( 'wp_db_backup_destination_SFTP', 0 ,false);
-			add_option( 'wp_db_backup_destination_FTP', 0 ,false);
-			add_option( 'wp_db_backup_destination_Email', 0,false);
-			add_option( 'wp_db_backup_destination_s3', 0 ,false);
-			add_option( 'wp_db_remove_local_backup', 0 ,false);
-			add_option( 'wp_db_remove_on_uninstall', 0 ,false);
-			add_option('wp_db_backup_backup_type','complete',false);
-			add_option('wp_db_backup_exclude_dir',"wp-content/backupwordpress-728d36f682-backups|.git|db-backup",false);
-			add_option('wp_db_backup_backups_dir','db-backup',false);
-			add_option('bb_last_backup_timestamp',0,false);
-			add_option('wp_db_backup_sftp_details',null,false);
+			add_option( 'wp_db_backup_destination_SFTP', 0 , '' , false );
+			add_option( 'wp_db_backup_destination_FTP', 0 , '' , false );
+			add_option( 'wp_db_backup_destination_Email',0 , '' , false );
+			add_option( 'wp_db_backup_destination_s3', 0 , '' , false );
+			add_option( 'wp_db_remove_local_backup', 0 , '' , false );
+			add_option( 'wp_db_remove_on_uninstall', 0 , '' , false );
+			add_option('wp_db_backup_backup_type','complete', '' , false );
+			add_option('wp_db_backup_exclude_dir',"wp-content/backupwordpress-728d36f682-backups|.git|db-backup", '' , false );
+			add_option('wp_db_backup_backups_dir','db-backup', '' , false );
+			add_option('bb_last_backup_timestamp',0, '' , false );
+			add_option('wp_db_backup_sftp_details',null, '' , false );
 			
 			if($flag!=2){
-				add_option( 'wpdbbkp_activation_redirect', true,false);
+				add_option( 'wpdbbkp_activation_redirect', true, '' , false );
 			}
 		}
 

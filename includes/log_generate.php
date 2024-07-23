@@ -1,50 +1,61 @@
 <?php
-add_action('wpdbbkp_backup_completed', array('WPDBFullBackupLog', 'wpdbbkp_backup_completed'), 11);
+add_action( 'wpdbbkp_backup_completed', array( 'WPDBFullBackupLog', 'wpdbbkp_backup_completed' ), 11 );
 
+/**
+ * Class WPDBFullBackupLog
+ *
+ * Handles logging and updating backup completion details.
+ */
 class WPDBFullBackupLog {
 
-    public static function wpdbbkp_backup_completed(&$args) {
-        
-        $options = get_option('wp_db_backup_backups');
-        $newoptions = array();
-        $count = 0;
+    /**
+     * Processes backup completion details and updates options.
+     *
+     * @param array $args Backup completion arguments.
+     */
+    public static function wpdbbkp_backup_completed( &$args ) {
+        global $wp_filesystem;
 
-        if(!empty($options) && is_array($options)){
+        // Ensure WP Filesystem is loaded
+        if ( ! function_exists( 'WP_Filesystem' ) ) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+        WP_Filesystem();
 
-            foreach ($options as $option) {
-                if (!is_array($option)) {
+        // Retrieve existing options
+        $options = get_option( 'wp_db_backup_backups' );
+        $new_options = array();
+
+        if ( ! empty( $options ) && is_array( $options ) ) {
+            foreach ( $options as $option ) {
+                if ( ! is_array( $option ) ) {
                     continue;
                 }
-                if ($option['filename'] == $args[0]) {
-                    $newoptions[] = $option;
-                    $newoptions['destination'] = wp_kses($args[4], wp_kses_allowed_html('post'));
-                }else{
-                        $newoptions[] = $option;
+                if ( $option['filename'] === $args[0] ) {
+                    $option['destination'] = wp_kses( $args[4], wp_kses_allowed_html( 'post' ) );
                 }
-                $count++;
-            } 
-
+                $new_options[] = $option;
+            }
         }
-                                
-        update_option('wp_db_backup_backups', $newoptions, false);
 
-        if (get_option('wp_db_log') == 1) {
-            if(isset($args[4]) && !empty($args[4]))
-            {
-                if (is_writable($args[5]) || !file_exists($args[5])) {
+        // Update the options
+        update_option( 'wp_db_backup_backups', $new_options, false );
 
-                    if (!$handle = @fopen($args[5], 'a'))
-                        return;
+        // Log to file if logging is enabled
+        if ( get_option( 'wp_db_log' ) == 1 ) {
+            if ( isset( $args[5] ) && ! empty( $args[5] ) ) {
+                if ( $wp_filesystem->is_writable( $args[5] ) || ! $wp_filesystem->exists( $args[5] ) ) {
+                    $log_content = str_replace( '<br>', "\n", $args[2] );
 
-                    if (!fwrite($handle,  str_replace("<br>", "\n", $args[2])))
-                        return;
-
-                    fclose($handle);
+                    // Append to the log file
+                    if ( false === $wp_filesystem->put_contents( $args[5], $log_content, FS_APPEND ) ) {
+                        // Handle the error if needed
+                        return false;
+                    }
 
                     return true;
                 }
             }
         }
     }
-
 }

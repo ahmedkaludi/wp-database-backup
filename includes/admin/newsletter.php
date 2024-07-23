@@ -70,7 +70,8 @@ class wpdbbkp_ads_newsletter {
                         
                 global $current_user;                
 		$tour     = array ();
-                $tab      = isset($_GET['tab']) ? esc_attr($_GET['tab']) : '';                   
+                //phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verification is not required here.
+                $tab      = isset($_GET['tab']) ? esc_attr(wp_unslash($_GET['tab'])) : '';                   
                 
                 if (!array_key_exists($tab, $tour)) {                
 			                                           			            	

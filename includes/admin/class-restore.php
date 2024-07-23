@@ -106,21 +106,24 @@ class Wpdbbkp_Restore {
                     $wpdb->select($database_name);
             
                     // Check if database exists
+                    //phpcs:ignore -- check if database exists
                     $db_exists = $wpdb->get_var($wpdb->prepare(
                         "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s",
                         $database_name
                     ));
             
                     if (!$db_exists) {
+                        //phpcs:ignore -- create database if it doesn't exist
                         $wpdb->query($wpdb->prepare("CREATE DATABASE IF NOT EXISTS `%s`", $database_name));
                         $wpdb->select($database_name);
                     }
-            
+                    //phpcs:ignore -- get all tables in the database
                     $tables = $wpdb->get_col($wpdb->prepare("SHOW TABLES FROM `%s`", $database_name));
 
               
                 if (!empty($tables)) {
                         foreach ($tables as $table_name) {
+                                //phpcs:ignore -- drop all tables in the database before restore
                                 $wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS `%s`", $table_name));
                         }
                 }
@@ -136,6 +139,7 @@ class Wpdbbkp_Restore {
                                 $sql_file = $wp_filesystem->get_contents( $database_file );
                                 if ( $sql_file !== false ) {
                                         $sql_queries = explode(";\n", $sql_file);
+                                        //phpcs:ignore -- set sql_mode to empty to avoid sql_mode errors
                                         $wpdb->query("SET sql_mode = ''");
                         
                                         foreach ($sql_queries as $query) {
@@ -145,8 +149,9 @@ class Wpdbbkp_Restore {
                                                 /* Since $query is a dynqmic sql query from the backup file, we can't use $wpdb->prepare
                                                 * as we don't know the number / types of arguments in the query. So, we are using $wpdb->query
                                                 * directly to execute the query.*/
-                                                
-                                                $wpdb->query($query); //phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+
+                                                //phpcs:ignore -- execute the query
+                                                $wpdb->query($query);
                                             }
                                         }
 

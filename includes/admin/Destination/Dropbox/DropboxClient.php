@@ -137,7 +137,20 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 			}
 
 			if ( filesize( $file ) < 5242880 ) { // chunk transfer on bigger uploads
-				$file_content = @file_get_contents( $file );
+				global $wp_filesystem;
+
+				// Initialize the WordPress filesystem if it hasn't been initialized yet.
+				if ( ! function_exists( 'WP_Filesystem' ) ) {
+					require_once ABSPATH . 'wp-admin/includes/file.php';
+				}
+
+				WP_Filesystem();
+
+				$file_content = '';
+				if ( $wp_filesystem->exists( $file ) ) {
+					$file_content = $wp_filesystem->get_contents( $file );
+				}
+
 				if($file_content){
 					$output = $this->filesUpload(
 						array(
@@ -641,7 +654,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 			elseif ( isset( $output['error'] ) || wp_remote_retrieve_response_code( $result ) >= 400 ) {
 				$code = wp_remote_retrieve_response_code( $result );
 				if ( wp_remote_retrieve_response_code( $result ) == 400 ) {
-					$message = '(400) Bad input parameter: ' . strip_tags( $responce[1] );
+					$message = '(400) Bad input parameter: ' . wp_strip_all_tags( $responce[1] );
 				} elseif ( wp_remote_retrieve_response_code( $result ) == 401 ) {
 					$message = '(401) Bad or expired token. This can happen if the user or Dropbox revoked or expired an access token. To fix, you should re-authenticate the user.';
 				} elseif ( wp_remote_retrieve_response_code( $result ) == 409 ) {

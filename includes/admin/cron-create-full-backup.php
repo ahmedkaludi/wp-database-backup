@@ -344,6 +344,7 @@ if(!function_exists('wpdbbkp_cron_mysqldump')){
 		            $mySqlDump = 1;
 		            if ($mySqlDump == 1) {
 		            	 global $wpdb;
+						//phpcs:ignore  -- get all tables name
 		                $tables = $wpdb->get_col('SHOW TABLES');
 		                $all_db_tables['status'] = 'success';
 		                $all_db_tables['tables'] = $tables;
@@ -392,6 +393,7 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 						for($sub_i=0;$sub_i<$t_sub_queries;$sub_i++)
 						{
 							$sub_offset = $sub_i*$sub_limit;
+							//phpcs:ignore  -- custom query to get data
 							$sub_result = $wpdb->get_results( $wpdb->prepare("SELECT * FROM {$table} LIMIT %d OFFSET %d",array($sub_limit,$sub_offset)), ARRAY_A  );
 							if($sub_result){
 								$result = array_merge($result,$sub_result);
@@ -402,6 +404,7 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 					else{
 						$result       = $wpdb->get_results( $wpdb->prepare("SELECT * FROM %i",array($table)), ARRAY_A  ); // phpcs:ignore
 					}
+					//phpcs:ignore  --  Need to get table structure for backup without cache
 		            $row2 = $wpdb->get_row($wpdb->prepare("SHOW CREATE TABLE {$table}"), ARRAY_N);
 		            $output .= "\n\n" . $row2[1] . ";\n\n";
 		            $logMessage .= "(" . count($result) . ")";
@@ -844,49 +847,54 @@ function wpdbbkp_backup_completed_notification($args){
 			}
 }
 
- function wpdbbkp_fullbackup_log(&$args) {
-        
-        $options = get_option('wp_db_backup_backups');
-        $newoptions = array();
-        $count = 0;
+/**
+ * Log full backup details.
+ *
+ * @param array $args Arguments for logging the backup.
+ *
+ * @return bool True if log is written successfully, false otherwise.
+ */
+function wpdbbkp_fullbackup_log( &$args ) {
+    global $wp_filesystem;
 
-        if(!empty($options) && is_array($options)){
+    // Initialize the WordPress filesystem if it hasn't been initialized yet.
+    if ( ! function_exists( 'WP_Filesystem' ) ) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+    }
 
-            foreach ($options as $option) {
-				if(!is_array($option)){
-					continue;
-				}
-                if ($option['filename'] == $args[0]) {
-					$option['destination'] = wp_kses_post( $args[4]);   
-					$newoptions[] = $option;      
-                }else{
-                        $newoptions[]= $option;
-                }
-                $count++;
-            } 
+    WP_Filesystem();
 
+    $options     = get_option( 'wp_db_backup_backups' );
+    $new_options = array();
+
+    if ( ! empty( $options ) && is_array( $options ) ) {
+        foreach ( $options as $option ) {
+            if ( ! is_array( $option ) ) {
+                continue;
+            }
+            if ( $option['filename'] === $args[0] ) {
+                $option['destination'] = wp_kses_post( $args[4] );
+            }
+            $new_options[] = $option;
         }
+    }
 
-        update_option('wp_db_backup_backups', $newoptions, false);
+    update_option( 'wp_db_backup_backups', $new_options, false );
 
-        if (get_option('wp_db_log') == 1) {
-            if(!empty($args[5]) && !empty($args[2]))
-            {
-                if (is_writable($args[5]) || !file_exists($args[5])) {
-
-                    if (!$handle = @fopen($args[5], 'a'))
-                        return;
-
-                    if (!fwrite($handle,  str_replace("<br>", "\n", $args[2])))
-                        return;
-
-                    fclose($handle);
-
-                    return true;
+    if ( get_option( 'wp_db_log' ) === '1' ) {
+        if ( ! empty( $args[5] ) && ! empty( $args[2] ) ) {
+            if ( $wp_filesystem->is_writable( $args[5] ) || ! $wp_filesystem->exists( $args[5] ) ) {
+                if ( ! $wp_filesystem->put_contents( $args[5], str_replace( '<br>', "\n", $args[2] ), FS_CHMOD_FILE ) ) {
+                    return false;
                 }
+                return true;
             }
         }
     }
+
+    return false;
+}
+
 function wpdbbkp_token_gen($length_of_string = 16)
 {
     $str_result = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';

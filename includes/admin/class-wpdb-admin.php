@@ -493,22 +493,24 @@ class Wpdb_Admin {
 									$wpdb->db_connect();
 									$wpdb->select($database_name);
 							
-									// Check if database exists
+									//phpcs:ignore -- Check if database exists
 									$db_exists = $wpdb->get_var($wpdb->prepare(
 										"SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s",
 										$database_name
 									));
 							
 									if (!$db_exists) {
+										//phpcs:ignore -- Create DB if it doesn't exist
 										$wpdb->query($wpdb->prepare("CREATE DATABASE IF NOT EXISTS `%s`", $database_name));
 										$wpdb->select($database_name);
 									}
-							
+									//phpcs:ignore -- Show tables from database
 									$tables = $wpdb->get_col($wpdb->prepare("SHOW TABLES FROM `%s`", $database_name));
 				
 							  
 								if (!empty($tables)) {
 										foreach ($tables as $table_name) {
+												//phpcs:ignore -- delete tables before restore
 												$wpdb->query($wpdb->prepare("DROP TABLE IF EXISTS `%s`", $table_name));
 										}
 								}
@@ -524,6 +526,7 @@ class Wpdb_Admin {
 												$sql_file = $wp_filesystem->get_contents( $database_file );
 												if ( $sql_file !== false ) {
 														$sql_queries = explode(";\n", $sql_file);
+														//phpcs:ignore -- Set sql_mode to empty
 														$wpdb->query("SET sql_mode = ''");
 										
 														foreach ($sql_queries as $query) {
@@ -533,8 +536,8 @@ class Wpdb_Admin {
 																/* Since $query is a dynqmic sql query from the backup file, we can't use $wpdb->prepare
 																* as we don't know the number / types of arguments in the query. So, we are using $wpdb->query
 																* directly to execute the query.*/
-
-																$wpdb->query($query); //phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+															    //phpcs:ignore																
+																$wpdb->query($query);
 															}
 														}
 				
@@ -1850,12 +1853,10 @@ class Wpdb_Admin {
 						for($sub_i=0;$sub_i<$t_sub_queries;$sub_i++)
 						{
 							$sub_offset = $sub_i*$sub_limit;
-							//$cache_key = 'wpdbbkp_' . md5($table . $sub_limit . $sub_offset);
-							//$sub_result = wp_cache_get($cache_key, 'wpdbbkp_query');
 							$sub_result = false;
 							if ( false === $sub_result ) {
-								$sub_result = $wpdb->get_results( $wpdb->prepare("SELECT * FROM `$table` LIMIT %d OFFSET %d",array($sub_limit,$sub_offset)), ARRAY_A  );
-								//wp_cache_set($cache_key, $sub_result, 'wpdbbkp_query', 3600);
+								// phpcs:ignore -- using direct query  to get the data of table in chunks.
+								$sub_result = $wpdb->get_results( $wpdb->prepare("SELECT * FROM {$table} LIMIT %d OFFSET %d",array($sub_limit,$sub_offset)), ARRAY_A  );
 							}
 	
 							if($sub_result){
@@ -1865,7 +1866,7 @@ class Wpdb_Admin {
 						}
 					}
 					else{
-						$result       = $wpdb->get_results( $wpdb->prepare("SELECT * FROM `$table`",), ARRAY_A  ); // phpcs:ignore
+						$result       = $wpdb->get_results( $wpdb->prepare("SELECT * FROM {$table}",), ARRAY_A  ); // phpcs:ignore
 					}
 					
 	
@@ -1921,6 +1922,7 @@ class Wpdb_Admin {
 			for($sub_i=0;$sub_i<$t_sub_queries;$sub_i++)
 			{
 				$sub_offset = $sub_i*$sub_limit;
+				//phpcs:ignore -- using direct query  to get the data of table in chunks.
 				$sub_result = $wpdb->get_results( $wpdb->prepare("SELECT * FROM `$table` LIMIT %d OFFSET %d",array($sub_limit,$sub_offset)), ARRAY_A  ); 
 				if($sub_result){
 					$result = array_merge($result,$sub_result);
@@ -2315,7 +2317,7 @@ class Wpdb_Admin {
 				delete_option( 'wp_db_backup_options' );
 			}
 			/* END : Prevent saving backup plugin settings in the database dump */
-
+			//phpcs:ignore -- using direct query get all tables name to be backedup.
 			$tables              = $wpdb->get_col( 'SHOW TABLES' );
 			$wp_db_exclude_table = get_option( 'wp_db_exclude_table',array());
 			if(!empty($tables)){
@@ -2709,8 +2711,10 @@ class Wpdb_Admin {
 			}
 	
 			$post_id = get_the_ID();
+			//phpcs:ignore 	WordPress.Security.NonceVerification.Recommended -- no form submission
 			if(isset($_GET['tag_ID'])){
-					$post_id = intval($_GET['tag_ID']);
+				//phpcs:ignore 	WordPress.Security.NonceVerification.Recommended -- no form submission
+				$post_id = intval($_GET['tag_ID']);
 			}
 	
 			

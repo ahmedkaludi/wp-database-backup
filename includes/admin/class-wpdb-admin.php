@@ -1128,6 +1128,7 @@ class Wpdb_Admin {
 
 								<div class="row list-group-item">
 									<?php
+									$df = $dt = $dp = $du = 'NA';
 									if(function_exists('disk_free_space')){
 									/* get disk space free (in bytes) */
 									$df = disk_free_space( WPDB_ROOTPATH );
@@ -1748,7 +1749,7 @@ class Wpdb_Admin {
 								<br>
 								<div class="input-group">
 									<span class="input-group-addon" id="wp_db_backup_search_text"><?php echo esc_html__('Search For', 'wpdbbkp') ?></span>
-									<input type="text" name="wp_db_backup_search_text" value="<?php echo esc_html( $wp_db_backup_search_text ); ?>" class="form-control" placeholder="<?php esc_attr_e('http://localhost/wordpress','wpdbbkp');?>" aria-describedby="wp_db_backup_search_text">
+									<input type="text" name="wp_db_backup_search_text" value="<?php echo esc_html( $wp_db_backup_search_text ); ?>" class="form-control" placeholder="<?php esc_attr_e('http://localhost/wordpress','wpdbbkp'); //phpcs:ignore ?>" aria-describedby="wp_db_backup_search_text">
 
 								</div>
 								<br>
@@ -1763,8 +1764,8 @@ class Wpdb_Admin {
 									<?php echo esc_html__("Leave blank those fields if you don't want use this feature and want only regular Database backup.", 'wpdbbkp') ?>
 									<br>
 									<?php echo esc_html__('Ex:', 'wpdbbkp') ?>
-									<br><?php echo esc_html__('Search For:', 'wpdbbkp') ?> http://localhost/wordpress/
-									<br><?php echo esc_html__('Replace With:', 'wpdbbkp') ?> http://domain.com/
+									<br><?php echo esc_html__('Search For:', 'wpdbbkp') ?> <?php echo esc_url('http://localhost/wordpress/', 'wpdbbkp'); //phpcs:ignore ?>
+									<br><?php echo esc_html__('Replace With:', 'wpdbbkp') ?> <?php echo esc_url('http://domain.com/', 'wpdbbkp') ?>
 
 									<br><br>
 									<?php echo esc_html__('Note - This is Search & Replace data in your WordPress Database Backup File not in current Database installation.', 'wpdbbkp') ?>

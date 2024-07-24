@@ -927,7 +927,6 @@ function wpdbbkp_backup_files_cron_with_resume(){
 	$chunk_count=$current_chunk+1;
 	for($i=$current_chunk;$i<$total_chunk;$i++){
 		$status_lock = get_option( 'wpdbbkp_backupcron_status','inactive');
-		error_log('Chunk Count : '.$chunk_count.'# Status :'.$status_lock);
 		if($status_lock == 'inactive'){
 			break;
 		}

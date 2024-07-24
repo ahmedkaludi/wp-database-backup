@@ -424,11 +424,11 @@ class Google_OAuth2 extends Google_Auth {
       $exp = $payload["exp"];
     }
     if (!$exp) {
-      throw new Google_AuthException("No expiration time in token:".esc_html($json_body);
+      throw new Google_AuthException("No expiration time in token:".esc_html($json_body));
     }
     if ($exp >= $now + self::MAX_TOKEN_LIFETIME_SECS) {
       throw new Google_AuthException(
-          "Expiration time too far in future:".esc_html($json_body);
+          "Expiration time too far in future:".esc_html($json_body));
     }
 
     $latest = $exp + self::CLOCK_SKEW_SECS;

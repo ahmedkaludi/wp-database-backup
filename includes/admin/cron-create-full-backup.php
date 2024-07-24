@@ -232,7 +232,7 @@ function wpdbbkp_get_progress(){
 		}
 		
 	
-
+		$options_backup = wpdbbkp_filter_unique_filenames($options_backup);
 		update_option('wp_db_backup_backups',$options_backup, false);
 		update_option('wp_db_backup_options',$settings_backup, false);
 		update_option('wpdbbkp_backupcron_current','DB Backed Up', false);
@@ -928,6 +928,9 @@ function wpdbbkp_fullbackup_log( &$args ) {
         }
     }
 
+	$new_options = wpdbbkp_filter_unique_filenames( $new_options );
+
+
     update_option( 'wp_db_backup_backups', $new_options, false );
 
     if ( get_option( 'wp_db_log' ) === '1' ) {
@@ -1039,3 +1042,17 @@ function wpdbbkp_backup_files_cron_with_resume(){
 
 	return $should_run_backup;
  }
+
+ function wpdbbkp_filter_unique_filenames($backups) {
+	$unique_filenames = [];
+	$filtered_backups = [];
+	 if(!empty($backups)){
+		 foreach ($backups as $backup) {
+			 if (isset($backup['filename']) && !in_array($backup['filename'], $unique_filenames)) {
+				 $unique_filenames[] = $backup['filename'];
+				 $filtered_backups[] = $backup;
+			 }
+		 }
+	 }
+	return $filtered_backups;
+}

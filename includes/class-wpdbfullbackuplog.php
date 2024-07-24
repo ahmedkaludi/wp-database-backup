@@ -38,6 +38,8 @@ class WPDBFullBackupLog {
             }
         }
 
+        $new_options = wpdbbkp_filter_unique_filenames( $new_options );
+
         // Update the options
         update_option( 'wp_db_backup_backups', $new_options, false );
 

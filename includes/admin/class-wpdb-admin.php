@@ -358,6 +358,7 @@ class Wpdb_Admin {
 									}
 									
 									chdir($actual_working_directory);
+									$newoptions = wpdbbkp_filter_unique_filenames( $newoptions );
 									update_option( 'wp_db_backup_backups', $newoptions , false);
 									$nonce = wp_create_nonce( 'wp-database-backup' );
 									wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=delete&_wpnonce=' . $nonce );
@@ -630,7 +631,7 @@ class Wpdb_Admin {
 		WP_Filesystem();
 
 		$options  = get_option( 'wp_db_backup_backups' );
-		$options = $this->wpdbbkp_filter_unique_filenames( $options );
+		$options = wpdbbkp_filter_unique_filenames( $options );
 		$settings = get_option( 'wp_db_backup_options' ); 
 		$wp_db_log = get_option( 'wp_db_log' ); ?>
 		<div class="bootstrap-wrapper">
@@ -1902,6 +1903,7 @@ class Wpdb_Admin {
 		
 		$wpdb->flush();
 		/* BEGIN : Prevent saving backup plugin settings in the database dump */
+		$options_backup = wpdbbkp_filter_unique_filenames( $options_backup );
 		add_option( 'wp_db_backup_backups', $options_backup );
 		add_option( 'wp_db_backup_options', $settings_backup );
 		/* END : Prevent saving backup plugin settings in the database dump */
@@ -2407,6 +2409,7 @@ class Wpdb_Admin {
 
 		 }
 			/* BEGIN : Prevent saving backup plugin settings in the database dump */
+			$options_backup = wpdbbkp_filter_unique_filenames( $options_backup );
 			add_option( 'wp_db_backup_backups', $options_backup );
 			add_option( 'wp_db_backup_options', $settings_backup );
 			/* END : Prevent saving backup plugin settings in the database dump */
@@ -2498,6 +2501,7 @@ class Wpdb_Admin {
 
 					$newoptions[] = $options[ $index ];
 				}
+				$newoptions = wpdbbkp_filter_unique_filenames( $newoptions );
 
 				update_option( 'wp_db_backup_backups', $newoptions , false);
 			}
@@ -2587,6 +2591,7 @@ class Wpdb_Admin {
 			'destination'    => $args[4]
 		);
 		if ( 1 !== (int) $wp_db_remove_local_backup ) {
+			$options = wpdbbkp_filter_unique_filenames( $options );
 			update_option( 'wp_db_backup_backups', $options , false);
 		}
 		if(isset($details['log_dir']) && !empty($details['log_dir']))
@@ -3250,20 +3255,6 @@ class Wpdb_Admin {
 		
 			return false;
 		}
-
-		private function wpdbbkp_filter_unique_filenames($backups) {
-		   $unique_filenames = [];
-		   $filtered_backups = [];
-			if(!empty($backups)){
-				foreach ($backups as $backup) {
-					if (isset($backup['filename']) && !in_array($backup['filename'], $unique_filenames)) {
-						$unique_filenames[] = $backup['filename'];
-						$filtered_backups[] = $backup;
-					}
-				}
-			}
-		   return $filtered_backups;
-	   }
 
 	}
 

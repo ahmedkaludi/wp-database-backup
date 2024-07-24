@@ -227,4 +227,3 @@ Also Please make sure that you have write permission to Backup folder and also c
 4. === phpFileTree ===
    - Author: Cory S.N. LaViska's
    - URL: https://www.abeautifulsite.net/blog/2007/06/php-file-tree/
-   - License: License GNU/LGPL

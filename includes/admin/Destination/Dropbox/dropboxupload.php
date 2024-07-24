@@ -8,7 +8,7 @@
 ?>
 <?php
 
-require plugin_dir_path( __FILE__ ) . 'DropboxClient.php';
+require plugin_dir_path( __FILE__ ) . 'class-wpdbbackup-destination-dropbox-api.php';
 if ( isset( $_GET['action'] ) && 'deleteauth' === $_GET['action'] ) {
 	// disable token on dropbox.
 	try {

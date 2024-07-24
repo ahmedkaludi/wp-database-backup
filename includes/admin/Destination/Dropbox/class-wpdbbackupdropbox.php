@@ -20,7 +20,7 @@ class WPDBBackupDropbox {
 	 */
 	public static function wp_db_backup_completed( &$args ) {
 		
-		include plugin_dir_path( __FILE__ ) . 'DropboxClient.php';
+		include plugin_dir_path( __FILE__ ) . 'class-wpdbbackup-destination-dropbox-api.php';
 		$dropbox           = new WPDBBackup_Destination_Dropbox_API( 'dropbox' );
 		$wpdb_dropboxtoken = get_option( 'wpdb_dropboxtoken' );
 		$dropboxtoken      = ( ! empty( $wpdb_dropboxtoken ) ) ? maybe_unserialize( $wpdb_dropboxtoken ) : array();

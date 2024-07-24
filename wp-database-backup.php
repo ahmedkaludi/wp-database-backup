@@ -1,4 +1,4 @@
-<?php // phpcs:ignore
+<?php
 /**
  * Plugin Name: Backup For WP
  * Plugin URI:https://wordpress.org/plugins/wp-database-backup

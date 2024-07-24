@@ -8,7 +8,7 @@
 ?>
 <?php
 
-require plugin_dir_path( __FILE__ ) . 'DropboxClient.php';
+require plugin_dir_path( __FILE__ ) . 'class-wpdbbackup-destination-dropbox-api.php';
 if ( isset( $_GET['action'] ) && 'deleteauth' === $_GET['action'] ) {
 	// disable token on dropbox.
 	try {
@@ -71,22 +71,20 @@ $dropboxtoken      = ! empty( $wpdb_dropboxtoken ) ? maybe_unserialize( $wpdb_dr
 					?>
 					<br><br>
 					<a class="button secondary" href="<?php echo esc_url( site_url() . '/wp-admin/admin.php?page=wp-database-backup&action=deleteauth&_wpnonce=' . $nonce ); ?> " title="<?php esc_html_e( 'Unlink Dropbox Account', 'wpdbbkp' ); ?>"><?php esc_html_e( 'Unlink Dropbox Account', 'wpdbbkp' ); ?></a>
-					<p>Unlink Dropbox Account for local backups.</p>
+					<p><?php echo esc_html__('Unlink Dropbox Account for local backups.', 'wpdbbkp'); ?></p>
 				<?php } ?>
 			</td>
 		</tr>
 
 		<?php if ( empty( $dropboxtoken['access_token'] ) ) { ?>
 			<tr>
-				<th scope="row"><label
-						for="id_dropbbox_code"><?php esc_html_e( 'Access to Dropbox', 'wpdbbkp' ); ?></label></th>
+				<th scope="row"><label for="id_dropbbox_code"><?php esc_html_e( 'Access to Dropbox', 'wpdbbkp' ); ?></label></th>
 				<td>
 					<input id="id_dropbbox_code" name="wpdb_dropbbox_code" type="text" value="" class="regular-text code"/>&nbsp;
 					<a class="button secondary" href="<?php echo esc_attr( $dropbox_auth_url ); ?>" target="_blank"><?php esc_html_e( 'Get Dropbox auth code ', 'wpdbbkp' ); ?></a>
-					<p>In order to use Dropbox destination you will need to Get Dropbox auth code with your Dropbox
-						account on click 'Get Dropbox auth code' button</p>
-					<p>Enter Dropbox auth code in text box and save changes</p>
-					<p>For local backup leave the setting as it is</p>
+					<p><?php echo esc_html__('In order to use Dropbox destination you will need to Get Dropbox auth code with your Dropbox account on click', 'wpdbbkp'); ?> <strong><?php echo esc_html__('Get Dropbox auth code', 'wpdbbkp'); ?></strong> <?php echo esc_html__('button', 'wpdbbkp'); ?></p>
+					<p><?php echo esc_html__('Enter Dropbox auth code in text box and save changes', 'wpdbbkp'); ?></p>
+					<p><?php echo esc_html__('For local backup leave the setting as it is', 'wpdbbkp'); ?></p>
 				</td>
 			</tr>
 		<?php } ?>
@@ -97,16 +95,16 @@ $dropboxtoken      = ! empty( $wpdb_dropboxtoken ) ? maybe_unserialize( $wpdb_dr
 		<tr>
 			<th scope="row"><label for="iddropboxdir"><?php esc_html_e( 'Destination Folder', 'wpdbbkp' ); ?></label></th>
 			<td>
-				<input id="wpdb_dropbbox_dir" name="wpdb_dropbbox_dir" type="text" value="<?php echo esc_html( get_option( 'wpdb_dropbbox_dir' ) ); ?>" class="regular-text"/>
+				<input id="wpdb_dropbbox_dir" name="wpdb_dropbbox_dir" type="text" value="<?php echo esc_attr( get_option( 'wpdb_dropbbox_dir' ) ); ?>" class="regular-text"/>
 				<p class="description">
-					<?php esc_attr_e( 'Specify a subfolder where your backup archives will be stored. It will be created at the Apps › WP-Database-Backup of your Dropbox. Already exisiting folders with the same name will not be overriden.', 'wpdbbkp' ); ?>
+					<?php esc_html_e( 'Specify a subfolder where your backup archives will be stored. It will be created at the Apps › WP-Database-Backup of your Dropbox. Already exisiting folders with the same name will not be overriden.', 'wpdbbkp' ); ?>
 
 				</p>
-				<p>E.g. backup</p>
+				<p><?php echo esc_html__('E.g. backup', 'wpdbbkp'); ?></p>
 			</td>
 		</tr>
 	</table>
-	<input type="hidden" name="<?php echo esc_html( $hidden_field_name ); ?>" value="Y">
+	<input type="hidden" name="<?php echo esc_attr( $hidden_field_name ); ?>" value="Y">
 	<input name="wpdbbackup_update_setting" type="hidden" value="<?php echo esc_attr( wp_create_nonce( 'wpdbbackup-update-setting' ) ); ?>"/>
 	<?php wp_nonce_field( 'wp-database-backup' ); ?>
 

@@ -108,8 +108,8 @@ class Google_Model {
    */
   public function assertIsArray($obj, $type, $method) {
     if ($obj && !is_array($obj)) {
-      throw new Google_Exception("Incorrect parameter type passed to $method(), expected an"
-          . " array containing items of type $type.");
+      throw new Google_Exception("Incorrect parameter type passed to ".esc_html($method)."(), expected an"
+          . " array containing items of type ".esc_html($type));
     }
   }
 }

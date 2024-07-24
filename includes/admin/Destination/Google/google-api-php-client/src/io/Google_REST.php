@@ -63,14 +63,14 @@ class Google_REST {
         $err .= ": ($code) $body";
       }
 
-      throw new Google_ServiceException($err, $code, null, $decoded['error']['errors']);
+      throw new Google_ServiceException(esc_html($err), esc_html($code), null, esc_html($decoded['error']['errors']));
     }
     
     // Only attempt to decode the response, if the response code wasn't (204) 'no content'
     if ($code != '204') {
       $decoded = json_decode($body, true);
       if ($decoded === null || $decoded === "") {
-        throw new Google_ServiceException("Invalid json in service response: $body");
+        throw new Google_ServiceException("Invalid json in service response: ".esc_html($body));
       }
     }
     return $decoded;

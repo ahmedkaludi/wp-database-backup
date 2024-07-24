@@ -77,7 +77,10 @@ function wpdbbkp_show_progress(){
 			jQuery('#wpdbbkp_progressbar').text(progress+'%');
 			jQuery('#wpdbbkp_progressbar').css('width',progress+'%');
 			if(progress==100){
-				location.href=response.redirect_url;
+				let redirect_url = response.redirect_url;
+				redirect_url = redirect_url.replaceAll('&#038;','&');
+				redirect_url = redirect_url.replaceAll('#038;','&');
+				location.href=redirect_url;
 			}
 			setTimeout(wpdbbkp_show_progress, 5000);
 			}

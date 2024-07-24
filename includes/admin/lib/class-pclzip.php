@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile -- third party library
 // --------------------------------------------------------------------------------
 // PhpConcept Library - Zip Module 2.8.2
 // --------------------------------------------------------------------------------
@@ -212,7 +213,7 @@
     // ----- Tests the zlib
     if (!function_exists('gzopen'))
     {
-      wp_die(esc_html__('Abort','wpdbbkp').basename(__FILE__).esc_html__(' : Missing zlib extensions','wpdbbkp'));
+      wp_die(esc_html__('Abort','wpdbbkp').esc_html(basename(__FILE__)).esc_html__(' : Missing zlib extensions','wpdbbkp'));
     }
 
     // ----- Set the attributes
@@ -4068,7 +4069,8 @@
           $v_buffer = @fread($this->zip_fd, $p_entry['compressed_size']);
 
           // ----- Send the file to the output
-          echo $v_buffer;
+          // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+          echo $v_buffer; // This does not need to be escaped , since it is binary data
           unset($v_buffer);
         }
         else {
@@ -4077,11 +4079,13 @@
           $v_buffer = @fread($this->zip_fd, $p_entry['compressed_size']);
 
           // ----- Decompress the file
+          //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped	-- Reason : This does not need to be escaped , since it is binary data
           $v_file_content = gzinflate($v_buffer);
           unset($v_buffer);
 
           // ----- Send the file to the output
-          echo $v_file_content;
+          //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped	-- Reason : This does not need to be escaped , since it is binary data
+          echo $v_file_content; // This does not need to be escaped , since it is file buffered output
           unset($v_file_content);
         }
       }

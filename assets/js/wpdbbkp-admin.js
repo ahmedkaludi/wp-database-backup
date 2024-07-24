@@ -133,12 +133,29 @@ function wpdbbkp_schduler_switch(){
   if(db_backups){
 		if(db_backups.checked){
             document.querySelector('.autobackup_type').style.display="block";
+            let autobackup_frequency = jQuery('#autobackup_frequency').val();
+        if(autobackup_frequency){
+            jQuery('.autobackup_frequency').show();
+            if(autobackup_frequency=='daily'){
+                jQuery('.autobackup_daily_lite').show();
+                jQuery('.autobackup_daily_lite').parent().show();
+            }else if(autobackup_frequency=='weekly'){
+                jQuery('.autobackup_weekly_lite').show();
+                jQuery('.autobackup_weekly_lite').parent().show();
+            }
+            else if(autobackup_frequency=='monthly'){
+                jQuery('.autobackup_monthly_lite').show();
+                jQuery('.autobackup_monthly_lite').parent().show();
+            }
+        }
+
         }else{
             document.querySelector('.autobackup_type').style.display="none";
             jQuery('.autobackup_frequency_pro').hide();
             jQuery('.autobackup_frequency_lite').hide();
             jQuery('.autobackup_frequency').hide();
             jQuery('.database_autobackup').hide();
+            
 		}
 	}
 }
@@ -147,12 +164,21 @@ jQuery('#enable_autobackups').change(function(){
 });
 
 function wpdbbkp_autobackup_type_switch(){
+    var enable_autobackups =document.getElementById('enable_autobackups');
+    if(enable_autobackups && !enable_autobackups.checked){
+
+        document.querySelector('.autobackup_frequency').style.display="none";
+        document.querySelector('.autobackup_daily_lite').style.display="none";
+        return false;
+
+    }
 	var db_backups =document.getElementById('autobackup_type');
   if(db_backups.value){
         document.querySelector('.autobackup_frequency').style.display="block";
         document.querySelector('.autobackup_daily_lite').style.display="block";
        
 	}else{
+        jQuery('.autobackup_frequency_lite').hide();
         document.querySelector('.autobackup_frequency').style.display="none";
         document.querySelector('.autobackup_daily_lite').style.display="none";
         if( document.querySelector('.autobackup_frequency_lite') && document.querySelector('.autobackup_frequency_lite').length){
@@ -253,3 +279,11 @@ document.querySelector('#wpdbbkp_sftp_sshkey').addEventListener('input', functio
       console.log(fr.error);
     }
   })
+
+if(jQuery("#create_backup")){
+    jQuery("#create_backup").click(function(event) {
+        jQuery(".wpdbbkp_notification").hide();
+        jQuery("#backup_process").show();
+        jQuery("#create_backup").attr("disabled", true);
+    });
+}

@@ -18,7 +18,7 @@ if ( ! current_user_can( 'manage_options' ) ) {
 }
 
 ?>
-<p><strong>Here's a list of BackupBreeze in your repository:</strong></p>
+<p><strong><?php esc_html_e('Here\'s a list of BackupBreeze in your repository:' , 'wpdbbkp');?> </strong></p>
 <?php
 /**
  * Set up variables
@@ -51,9 +51,12 @@ $contents = ftp_nlist( $conn_id, "$subdir/*.tar" );
 <ol></em>
 
 <?php
-foreach ( $contents as $key => $value ) {
-	echo '<li>' . esc_attr( substr( $value, ( strlen( $subdir ) ) ) ) . '</li>';
+if(!empty($contents) && is_array($contents)){
+	foreach ( $contents as $key => $value ) {
+		echo '<li>' . esc_attr( substr( $value, ( strlen( $subdir ) ) ) ) . '</li>';
+	}
 }
+
 ?>
 </ol>
 <p><br />

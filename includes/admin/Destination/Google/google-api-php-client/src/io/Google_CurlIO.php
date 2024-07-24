@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile -- third party library
 /*
  * Copyright 2010 Google Inc.
  *
@@ -120,7 +121,7 @@ class Google_CurlIO extends Google_IO {
     $curlError = curl_error($ch);
     curl_close($ch);
     if ($curlErrorNum != CURLE_OK) {
-      throw new Google_IOException("HTTP Error: ($respHttpCode) $curlError");
+      throw new Google_IOException("HTTP Error: (".esc_html($respHttpCode).") ".esc_html($curlError));
     }
 
     // Parse out the raw response into usable bits

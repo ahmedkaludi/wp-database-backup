@@ -1,3 +1,13 @@
+= 6.12 =
+* 24-07-2024
+* Improvement: Code & Performance Improvement according to Plugin check #90
+* Compatibility: Tested with WordPress version 6.6
+* Fixed: Multiple backups are getting created #89
+
+= 6.11 =
+* 13-06-2024
+* Improvement: Added support for backblaze. #85
+
 = 6.10 =
 * 24-05-2024
 * Improvement: Unable to translate the language using Loco Traslate #31

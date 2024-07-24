@@ -326,22 +326,48 @@ class S3
 	}
 
 
-	/**
-	* Set signing key
-	*
-	* @param string $keyPairId AWS Key Pair ID
-	* @param string $signingKey Private Key
-	* @param boolean $isFile Load private key from file, set to false to load string
-	* @return boolean
-	*/
-	public static function setSigningKey($keyPairId, $signingKey, $isFile = true)
-	{
-		self::$__signingKeyPairId = $keyPairId;
-		if ((self::$__signingKeyResource = openssl_pkey_get_private($isFile ?
-		file_get_contents($signingKey) : $signingKey)) !== false) return true;
-		self::__triggerError('S3::setSigningKey(): Unable to open load private key: '.$signingKey, __FILE__, __LINE__);
-		return false;
-	}
+/**
+ * Sets the signing key for the class.
+ *
+ * @param string $keyPairId The ID of the key pair.
+ * @param string $signingKey The path to the private key file or the key itself.
+ * @param bool   $isFile Whether the signing key is a file path or raw key data.
+ *
+ * @return bool True on success, false on failure.
+ */
+public static function setSigningKey( $keyPairId, $signingKey, $isFile = true ) {
+    global $wp_filesystem;
+
+    // Initialize the WP Filesystem API if needed
+    if ( ! function_exists( 'WP_Filesystem' ) ) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+    }
+    WP_Filesystem();
+
+    self::$__signingKeyPairId = $keyPairId;
+    $keyData = '';
+
+    if ( $isFile ) {
+        // Load the key from file
+        $keyData = $wp_filesystem->get_contents( $signingKey );
+        if ( false === $keyData ) {
+            self::__triggerError( 'S3::setSigningKey(): Unable to read private key file: ' . esc_html( $signingKey ), __FILE__, __LINE__ );
+            return false;
+        }
+    } else {
+        $keyData = $signingKey;
+    }
+
+    // Attempt to get the private key resource
+    self::$__signingKeyResource = openssl_pkey_get_private( $keyData );
+
+    if ( false !== self::$__signingKeyResource ) {
+        return true;
+    }
+
+    self::__triggerError( 'S3::setSigningKey(): Unable to load private key: ' . esc_html( $signingKey ), __FILE__, __LINE__ );
+    return false;
+}
 
 
 	/**
@@ -369,9 +395,9 @@ class S3
 	private static function __triggerError($message, $file, $line, $code = 0)
 	{
 		if (self::$useExceptions)
-			throw new S3Exception($message, $file, $line, $code);
+			throw new S3Exception(esc_html($message),esc_html( $file), esc_html($line), esc_html($code));
 		else
-			trigger_error($message, E_USER_WARNING);
+			trigger_error(esc_html($message), E_USER_WARNING);
 	}
 
 
@@ -620,95 +646,121 @@ class S3
 	}
 
 
-	/**
-	* Put an object
-	*
-	* @param mixed $input Input data
-	* @param string $bucket Bucket name
-	* @param string $uri Object URI
-	* @param constant $acl ACL constant
-	* @param array $metaHeaders Array of x-amz-meta-* headers
-	* @param array $requestHeaders Array of request headers or content type as a string
-	* @param constant $storageClass Storage class constant
-	* @param constant $serverSideEncryption Server-side encryption
-	* @return boolean
-	*/
-	public static function putObject($input, $bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $requestHeaders = array(), $storageClass = self::STORAGE_CLASS_STANDARD, $serverSideEncryption = self::SSE_NONE)
-	{
-		if ($input === false) return false;
-		$rest = new S3Request('PUT', $bucket, $uri, self::$endpoint);
+/**
+ * Puts an object in an S3 bucket.
+ *
+ * @param mixed  $input                 The input data.
+ * @param string $bucket                The bucket name.
+ * @param string $uri                   The object URI.
+ * @param string $acl                   The access control list.
+ * @param array  $metaHeaders           The meta headers.
+ * @param array  $requestHeaders        The request headers.
+ * @param string $storageClass          The storage class.
+ * @param string $serverSideEncryption  The server-side encryption setting.
+ *
+ * @return bool True on success, false on failure.
+ */
+public static function putObject( $input, $bucket, $uri, $acl = self::ACL_PRIVATE, $metaHeaders = array(), $requestHeaders = array(), $storageClass = self::STORAGE_CLASS_STANDARD, $serverSideEncryption = self::SSE_NONE ) {
+    global $wp_filesystem;
 
-		if (!is_array($input)) $input = array(
-			'data' => $input, 'size' => strlen($input),
-			'md5sum' => base64_encode(md5($input, true))
-		);
+    // Ensure WP Filesystem is loaded
+    if ( ! function_exists( 'WP_Filesystem' ) ) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+    }
+    WP_Filesystem();
 
-		// Data
-		if (isset($input['fp']))
-			$rest->fp =& $input['fp'];
-		elseif (isset($input['file']))
-			$rest->fp = @fopen($input['file'], 'rb');
-		elseif (isset($input['data']))
-			$rest->data = $input['data'];
+    if ( $input === false ) {
+        return false;
+    }
 
-		// Content-Length (required)
-		if (isset($input['size']) && $input['size'] >= 0)
-			$rest->size = $input['size'];
-		else {
-			if (isset($input['file'])) {
-				clearstatcache(false, $input['file']);
-				$rest->size = filesize($input['file']);
-			}
-			elseif (isset($input['data']))
-				$rest->size = strlen($input['data']);
-		}
+    $rest = new S3Request( 'PUT', $bucket, $uri, self::$endpoint );
 
-		// Custom request headers (Content-Type, Content-Disposition, Content-Encoding)
-		if (is_array($requestHeaders))
-			foreach ($requestHeaders as $h => $v)
-				strpos($h, 'x-amz-') === 0 ? $rest->setAmzHeader($h, $v) : $rest->setHeader($h, $v);
-		elseif (is_string($requestHeaders)) // Support for legacy contentType parameter
-			$input['type'] = $requestHeaders;
+    if ( ! is_array( $input ) ) {
+        $input = array(
+            'data'   => $input,
+            'size'   => strlen( $input ),
+            'md5sum' => base64_encode( md5( $input, true ) ),
+        );
+    }
 
-		// Content-Type
-		if (!isset($input['type']))
-		{
-			if (isset($requestHeaders['Content-Type']))
-				$input['type'] =& $requestHeaders['Content-Type'];
-			elseif (isset($input['file']))
-				$input['type'] = self::__getMIMEType($input['file']);
-			else
-				$input['type'] = 'application/octet-stream';
-		}
+    // Data
+    if ( isset( $input['fp'] ) ) {
+        $rest->fp = &$input['fp'];
+    } elseif ( isset( $input['file'] ) ) {
+        $rest->fp = $wp_filesystem->get_contents( $input['file'] );
+        if ( false === $rest->fp ) {
+            self::__triggerError( 'S3::putObject(): Unable to open file: ' . esc_html( $input['file'] ), __FILE__, __LINE__ );
+            return false;
+        }
+    } elseif ( isset( $input['data'] ) ) {
+        $rest->data = $input['data'];
+    }
 
-		if ($storageClass !== self::STORAGE_CLASS_STANDARD) // Storage class
-			$rest->setAmzHeader('x-amz-storage-class', $storageClass);
+    // Content-Length (required)
+    if ( isset( $input['size'] ) && $input['size'] >= 0 ) {
+        $rest->size = $input['size'];
+    } else {
+        if ( isset( $input['file'] ) ) {
+            clearstatcache( false, $input['file'] );
+            $rest->size = filesize( $input['file'] );
+        } elseif ( isset( $input['data'] ) ) {
+            $rest->size = strlen( $input['data'] );
+        }
+    }
 
-		if ($serverSideEncryption !== self::SSE_NONE) // Server-side encryption
-			$rest->setAmzHeader('x-amz-server-side-encryption', $serverSideEncryption);
+    // Custom request headers (Content-Type, Content-Disposition, Content-Encoding)
+    if ( is_array( $requestHeaders ) ) {
+        foreach ( $requestHeaders as $h => $v ) {
+            strpos( $h, 'x-amz-' ) === 0 ? $rest->setAmzHeader( $h, $v ) : $rest->setHeader( $h, $v );
+        }
+    } elseif ( is_string( $requestHeaders ) ) { // Support for legacy contentType parameter
+        $input['type'] = $requestHeaders;
+    }
 
-		// We need to post with Content-Length and Content-Type, MD5 is optional
-		if ($rest->size >= 0 && ($rest->fp !== false || $rest->data !== false))
-		{
-			$rest->setHeader('Content-Type', $input['type']);
-			if (isset($input['md5sum'])) $rest->setHeader('Content-MD5', $input['md5sum']);
+    // Content-Type
+    if ( ! isset( $input['type'] ) ) {
+        if ( isset( $requestHeaders['Content-Type'] ) ) {
+            $input['type'] = &$requestHeaders['Content-Type'];
+        } elseif ( isset( $input['file'] ) ) {
+            $input['type'] = self::__getMIMEType( $input['file'] );
+        } else {
+            $input['type'] = 'application/octet-stream';
+        }
+    }
 
-			$rest->setAmzHeader('x-amz-acl', $acl);
-			foreach ($metaHeaders as $h => $v) $rest->setAmzHeader('x-amz-meta-'.$h, $v);
-			$rest->getResponse();
-		} else
-			$rest->response->error = array('code' => 0, 'message' => 'Missing input parameters');
+    if ( $storageClass !== self::STORAGE_CLASS_STANDARD ) { // Storage class
+        $rest->setAmzHeader( 'x-amz-storage-class', $storageClass );
+    }
 
-		if ($rest->response->error === false && $rest->response->code !== 200)
-			$rest->response->error = array('code' => $rest->response->code, 'message' => 'Unexpected HTTP status');
-		if ($rest->response->error !== false)
-		{
-			self::__triggerError(sprintf("S3::putObject(): [%s] %s",
-			$rest->response->error['code'], $rest->response->error['message']), __FILE__, __LINE__);
-			return false;
-		}
-		return true;
-	}
+    if ( $serverSideEncryption !== self::SSE_NONE ) { // Server-side encryption
+        $rest->setAmzHeader( 'x-amz-server-side-encryption', $serverSideEncryption );
+    }
+
+    // We need to post with Content-Length and Content-Type, MD5 is optional
+    if ( $rest->size >= 0 && ( $rest->fp !== false || $rest->data !== false ) ) {
+        $rest->setHeader( 'Content-Type', $input['type'] );
+        if ( isset( $input['md5sum'] ) ) {
+            $rest->setHeader( 'Content-MD5', $input['md5sum'] );
+        }
+
+        $rest->setAmzHeader( 'x-amz-acl', $acl );
+        foreach ( $metaHeaders as $h => $v ) {
+            $rest->setAmzHeader( 'x-amz-meta-' . $h, $v );
+        }
+        $rest->getResponse();
+    } else {
+        $rest->response->error = array( 'code' => 0, 'message' => 'Missing input parameters' );
+    }
+
+    if ( $rest->response->error === false && $rest->response->code !== 200 ) {
+        $rest->response->error = array( 'code' => $rest->response->code, 'message' => 'Unexpected HTTP status' );
+    }
+    if ( $rest->response->error !== false ) {
+        self::__triggerError( sprintf( 'S3::putObject(): [%s] %s', $rest->response->error['code'], $rest->response->error['message'] ), __FILE__, __LINE__ );
+        return false;
+    }
+    return true;
+}
 
 
 	/**
@@ -745,41 +797,72 @@ class S3
 	}
 
 
-	/**
-	* Get an object
-	*
-	* @param string $bucket Bucket name
-	* @param string $uri Object URI
-	* @param mixed $saveTo Filename or resource to write to
-	* @return mixed
-	*/
-	public static function getObject($bucket, $uri, $saveTo = false)
-	{
-		$rest = new S3Request('GET', $bucket, $uri, self::$endpoint);
-		if ($saveTo !== false)
-		{
-			if (is_resource($saveTo))
-				$rest->fp =& $saveTo;
-			else
-				if (($rest->fp = @fopen($saveTo, 'wb')) !== false)
-					$rest->file = realpath($saveTo);
-				else
-					$rest->response->error = array('code' => 0, 'message' => 'Unable to open save file for writing: '.$saveTo);
-		}
-		if ($rest->response->error === false) $rest->getResponse();
+/**
+ * Gets an object from an S3 bucket.
+ *
+ * @param string $bucket The bucket name.
+ * @param string $uri    The object URI.
+ * @param mixed  $saveTo The path to save the object to, or a resource.
+ *
+ * @return mixed The response on success, false on failure.
+ */
+public static function getObject( $bucket, $uri, $saveTo = false ) {
+    global $wp_filesystem;
 
-		if ($rest->response->error === false && $rest->response->code !== 200)
-			$rest->response->error = array('code' => $rest->response->code, 'message' => 'Unexpected HTTP status');
-		if ($rest->response->error !== false)
-		{
-			self::__triggerError(sprintf("S3::getObject({$bucket}, {$uri}): [%s] %s",
-			$rest->response->error['code'], $rest->response->error['message']), __FILE__, __LINE__);
-			return false;
-		}
-		return $rest->response;
-	}
+    // Ensure WP Filesystem is loaded
+    if ( ! function_exists( 'WP_Filesystem' ) ) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+    }
+    WP_Filesystem();
 
+    $rest = new S3Request( 'GET', $bucket, $uri, self::$endpoint );
 
+    if ( $saveTo !== false ) {
+        if ( is_resource( $saveTo ) ) {
+            $rest->fp = &$saveTo;
+        } else {
+            // Ensure the directory exists
+            $saveToDir = dirname( $saveTo );
+            if ( ! $wp_filesystem->is_dir( $saveToDir ) ) {
+                $wp_filesystem->mkdir( $saveToDir, FS_CHMOD_DIR );
+            }
+
+            // Use WP Filesystem to open the file
+            if ( ! $wp_filesystem->put_contents( $saveTo, '', FS_CHMOD_FILE ) ) {
+                $rest->response->error = array( 'code' => 0, 'message' => 'Unable to open save file for writing: ' . esc_html( $saveTo ) );
+            } else {
+                $rest->file = realpath( $saveTo );
+                $rest->fp = tmpfile(); // create a temporary file for writing
+                if ( $rest->fp === false ) {
+                    $rest->response->error = array( 'code' => 0, 'message' => 'Unable to open save file for writing: ' . esc_html( $saveTo ) );
+                }
+            }
+        }
+    }
+
+    if ( $rest->response->error === false ) {
+        $rest->getResponse();
+    }
+
+    if ( $rest->response->error === false && $rest->response->code !== 200 ) {
+        $rest->response->error = array( 'code' => $rest->response->code, 'message' => 'Unexpected HTTP status' );
+    }
+
+    if ( $rest->response->error !== false ) {
+        self::__triggerError( sprintf( 'S3::getObject(%s, %s): [%s] %s', $bucket, $uri, $rest->response->error['code'], $rest->response->error['message'] ), __FILE__, __LINE__ );
+        return false;
+    }
+
+    if ( $saveTo !== false && ! is_resource( $saveTo ) ) {
+        // Use WP Filesystem to save the temporary file content
+        fseek( $rest->fp, 0 ); // rewind the file pointer to the beginning
+        $wp_filesystem->put_contents( $saveTo, stream_get_contents( $rest->fp ), FS_CHMOD_FILE );
+		//phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose --  WP_Filesystem does not provide a direct method for closing file pointers.
+        fclose( $rest->fp );
+    }
+
+    return $rest->response;
+}
 	/**
 	* Get object information
 	*
@@ -1545,7 +1628,7 @@ class S3
 		if ($rest->error !== false)
 		{
 			trigger_error(sprintf("S3::listOriginAccessIdentities(): [%s] %s",
-			$rest->error['code'], $rest->error['message']), E_USER_WARNING);
+			esc_html($rest->error['code']), esc_html($rest->error['message'])), E_USER_WARNING);
 			return false;
 		}
 
@@ -1591,8 +1674,8 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			trigger_error(sprintf("S3::invalidate('{$distributionId}',{$paths}): [%s] %s",
-			$rest->error['code'], $rest->error['message']), E_USER_WARNING);
+			trigger_error(sprintf("S3::invalidate(".esc_html($distributionId.",".esc_html($paths)."): [%s] %s",
+			esc_html($rest->error['code']), esc_html($rest->error['message'])), esc_html(E_USER_WARNING)));
 			return false;
 		}
 		return true;
@@ -1656,8 +1739,8 @@ class S3
 			$rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
 		if ($rest->error !== false)
 		{
-			trigger_error(sprintf("S3::getDistributionInvalidationList('{$distributionId}'): [%s]",
-			$rest->error['code'], $rest->error['message']), E_USER_WARNING);
+			trigger_error(sprintf("S3::getDistributionInvalidationList('".esc_html($distributionId)."'): [%s]",
+			esc_html($rest->error['code']), esc_html($rest->error['message'])), esc_html(E_USER_WARNING));
 			return false;
 		}
 		elseif ($rest->body instanceof SimpleXMLElement && isset($rest->body->InvalidationSummary))
@@ -2108,172 +2191,127 @@ final class S3Request
 	}
 
 
-	/**
-	* Get the S3 response
-	*
-	* @return object | false
-	*/
-	public function getResponse()
-	{
-		$query = '';
-		if (sizeof($this->parameters) > 0)
-		{
-			$query = substr($this->uri, -1) !== '?' ? '?' : '&';
-			foreach ($this->parameters as $var => $value)
-				if ($value == null || $value == '') $query .= $var.'&';
-				else $query .= $var.'='.rawurlencode($value).'&';
-			$query = substr($query, 0, -1);
-			$this->uri .= $query;
+/**
+ * Get the S3 response.
+ *
+ * @return object|false
+ */
+public function getResponse() {
+    $query = '';
+    if (sizeof($this->parameters) > 0) {
+        $query = (substr($this->uri, -1) !== '?') ? '?' : '&';
+        foreach ($this->parameters as $var => $value) {
+            $query .= ($value === null || $value === '') ? $var . '&' : $var . '=' . rawurlencode($value) . '&';
+        }
+        $query = substr($query, 0, -1);
+        $this->uri .= $query;
 
-			if (array_key_exists('acl', $this->parameters) ||
-			array_key_exists('location', $this->parameters) ||
-			array_key_exists('torrent', $this->parameters) ||
-			array_key_exists('website', $this->parameters) ||
-			array_key_exists('logging', $this->parameters))
-				$this->resource .= $query;
-		}
-		$url = (S3::$useSSL ? 'https://' : 'http://') . ($this->headers['Host'] !== '' ? $this->headers['Host'] : $this->endpoint) . $this->uri;
+        if (array_key_exists('acl', $this->parameters) ||
+            array_key_exists('location', $this->parameters) ||
+            array_key_exists('torrent', $this->parameters) ||
+            array_key_exists('website', $this->parameters) ||
+            array_key_exists('logging', $this->parameters)) {
+            $this->resource .= $query;
+        }
+    }
 
-		//var_dump('bucket: ' . $this->bucket, 'uri: ' . $this->uri, 'resource: ' . $this->resource, 'url: ' . $url);
+    $url = (S3::$useSSL ? 'https://' : 'http://') . (!empty($this->headers['Host']) ? $this->headers['Host'] : $this->endpoint) . $this->uri;
 
-		// Basic setup
-		$curl = curl_init();
-		curl_setopt($curl, CURLOPT_USERAGENT, 'S3/php');
+    // Prepare headers
+    $headers = array();
+    foreach ($this->amzHeaders as $header => $value) {
+        if (strlen($value) > 0) {
+            $headers[$header] = $value;
+        }
+    }
+    foreach ($this->headers as $header => $value) {
+        if (strlen($value) > 0) {
+            $headers[$header] = $value;
+        }
+    }
 
-		if (S3::$useSSL)
-		{
-			// Set protocol version
-			curl_setopt($curl, CURLOPT_SSLVERSION, S3::$useSSLVersion);
+    if (S3::hasAuth()) {
+        // Authorization string (CloudFront stringToSign should only contain a date)
+        if ($this->headers['Host'] === 'cloudfront.amazonaws.com') {
+            $headers['Authorization'] = S3::__getSignature($this->headers['Date']);
+        } else {
+            $headers['Authorization'] = S3::__getSignature(
+                $this->verb . "\n" .
+                $this->headers['Content-MD5'] . "\n" .
+                $this->headers['Content-Type'] . "\n" .
+                $this->headers['Date'] . $amz . "\n" .
+                $this->resource
+            );
+        }
+    }
 
-			// SSL Validation can now be optional for those with broken OpenSSL installations
-			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, S3::$useSSLValidation ? 2 : 0);
-			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, S3::$useSSLValidation ? 1 : 0);
+    // Prepare request arguments
+    $args = array(
+        'method'    => $this->verb,
+        'headers'   => $headers,
+        'body'      => ($this->data !== false) ? $this->data : null,
+        'sslverify' => S3::$useSSLValidation,
+        'timeout'   => 15, // Timeout after 15 seconds
+    );
 
-			if (S3::$sslKey !== null) curl_setopt($curl, CURLOPT_SSLKEY, S3::$sslKey);
-			if (S3::$sslCert !== null) curl_setopt($curl, CURLOPT_SSLCERT, S3::$sslCert);
-			if (S3::$sslCACert !== null) curl_setopt($curl, CURLOPT_CAINFO, S3::$sslCACert);
-		}
+    if ($this->verb === 'PUT' || $this->verb === 'POST') {
+        if ($this->fp !== false) {
+            // Handle file pointer if necessary
+            $args['body'] = stream_get_contents($this->fp);
+            if ($this->size >= 0) {
+                $args['headers']['Content-Length'] = $this->size;
+            }
+        }
+    }
 
-		curl_setopt($curl, CURLOPT_URL, $url);
+    // Make the request
+    $response = wp_remote_request($url, $args);
 
-		if (S3::$proxy != null && isset(S3::$proxy['host']))
-		{
-			curl_setopt($curl, CURLOPT_PROXY, S3::$proxy['host']);
-			curl_setopt($curl, CURLOPT_PROXYTYPE, S3::$proxy['type']);
-			if (isset(S3::$proxy['user'], S3::$proxy['pass']) && S3::$proxy['user'] != null && S3::$proxy['pass'] != null)
-				curl_setopt($curl, CURLOPT_PROXYUSERPWD, sprintf('%s:%s', S3::$proxy['user'], S3::$proxy['pass']));
-		}
+    if (is_wp_error($response)) {
+        $this->response->error = array(
+            'code'    => $response->get_error_code(),
+            'message' => $response->get_error_message(),
+            'resource' => $this->resource,
+        );
+        return false;
+    }
 
-		// Headers
-		$headers = array(); $amz = array();
-		foreach ($this->amzHeaders as $header => $value)
-			if (strlen($value) > 0) $headers[] = $header.': '.$value;
-		foreach ($this->headers as $header => $value)
-			if (strlen($value) > 0) $headers[] = $header.': '.$value;
+    $this->response->code = wp_remote_retrieve_response_code($response);
+    $this->response->headers = wp_remote_retrieve_headers($response);
+    $this->response->body = wp_remote_retrieve_body($response);
 
-		// Collect AMZ headers for signature
-		foreach ($this->amzHeaders as $header => $value)
-			if (strlen($value) > 0) $amz[] = strtolower($header).':'.$value;
+    if ($this->response->code !== 200) {
+        $this->response->error = array(
+            'code' => $this->response->code,
+            'message' => 'Unexpected HTTP status'
+        );
+    }
 
-		// AMZ headers must be sorted
-		if (sizeof($amz) > 0)
-		{
-			//sort($amz);
-			usort($amz, array(&$this, '__sortMetaHeadersCmp'));
-			$amz = "\n".implode("\n", $amz);
-		} else $amz = '';
+    // Parse body into XML if necessary
+    if ($this->response->headers['type'] === 'application/xml' && isset($this->response->body)) {
+        $this->response->body = simplexml_load_string($this->response->body);
 
-		if (S3::hasAuth())
-		{
-			// Authorization string (CloudFront stringToSign should only contain a date)
-			if ($this->headers['Host'] == 'cloudfront.amazonaws.com')
-				$headers[] = 'Authorization: ' . S3::__getSignature($this->headers['Date']);
-			else
-			{
-				$headers[] = 'Authorization: ' . S3::__getSignature(
-					$this->verb."\n".
-					$this->headers['Content-MD5']."\n".
-					$this->headers['Content-Type']."\n".
-					$this->headers['Date'].$amz."\n".
-					$this->resource
-				);
-			}
-		}
+        // Grab S3 errors
+        if (!in_array($this->response->code, array(200, 204, 206)) && isset($this->response->body->Code, $this->response->body->Message)) {
+            $this->response->error = array(
+                'code' => (string) $this->response->body->Code,
+                'message' => (string) $this->response->body->Message,
+            );
+            if (isset($this->response->body->Resource)) {
+                $this->response->error['resource'] = (string) $this->response->body->Resource;
+            }
+            unset($this->response->body);
+        }
+    }
 
-		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-		curl_setopt($curl, CURLOPT_HEADER, false);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, false);
-		curl_setopt($curl, CURLOPT_WRITEFUNCTION, array(&$this, '__responseWriteCallback'));
-		curl_setopt($curl, CURLOPT_HEADERFUNCTION, array(&$this, '__responseHeaderCallback'));
-		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+    // Clean up file resources
+    if ($this->fp !== false && is_resource($this->fp)) {
+		//phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose --  WP_Filesystem does not provide a direct method for closing file pointers.
+        fclose($this->fp);
+    }
 
-		// Request types
-		switch ($this->verb)
-		{
-			case 'GET': break;
-			case 'PUT': case 'POST': // POST only used for CloudFront
-				if ($this->fp !== false)
-				{
-					curl_setopt($curl, CURLOPT_PUT, true);
-					curl_setopt($curl, CURLOPT_INFILE, $this->fp);
-					if ($this->size >= 0)
-						curl_setopt($curl, CURLOPT_INFILESIZE, $this->size);
-				}
-				elseif ($this->data !== false)
-				{
-					curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->verb);
-					curl_setopt($curl, CURLOPT_POSTFIELDS, $this->data);
-				}
-				else
-					curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->verb);
-			break;
-			case 'HEAD':
-				curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'HEAD');
-				curl_setopt($curl, CURLOPT_NOBODY, true);
-			break;
-			case 'DELETE':
-				curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
-			break;
-			default: break;
-		}
-
-		// Execute, grab errors
-		if (curl_exec($curl))
-			$this->response->code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-		else
-			$this->response->error = array(
-				'code' => curl_errno($curl),
-				'message' => curl_error($curl),
-				'resource' => $this->resource
-			);
-
-		@curl_close($curl);
-
-		// Parse body into XML
-		if ($this->response->error === false && isset($this->response->headers['type']) &&
-		$this->response->headers['type'] == 'application/xml' && isset($this->response->body))
-		{
-			$this->response->body = simplexml_load_string($this->response->body);
-
-			// Grab S3 errors
-			if (!in_array($this->response->code, array(200, 204, 206)) &&
-			isset($this->response->body->Code, $this->response->body->Message))
-			{
-				$this->response->error = array(
-					'code' => (string)$this->response->body->Code,
-					'message' => (string)$this->response->body->Message
-				);
-				if (isset($this->response->body->Resource))
-					$this->response->error['resource'] = (string)$this->response->body->Resource;
-				unset($this->response->body);
-			}
-		}
-
-		// Clean up file resources
-		if ($this->fp !== false && is_resource($this->fp)) fclose($this->fp);
-
-		return $this->response;
-	}
+    return $this->response;
+}
 
 	/**
 	* Sort compare for meta headers
@@ -2303,10 +2341,35 @@ final class S3Request
 	*/
 	private function __responseWriteCallback(&$curl, &$data)
 	{
-		if (in_array($this->response->code, array(200, 206)) && $this->fp !== false)
-			return fwrite($this->fp, $data);
-		else
+		if (in_array($this->response->code, array(200, 206)) && $this->fp !== false) {
+
+			global $wp_filesystem;
+			// Initialize the WP Filesystem API if needed
+			if ( ! function_exists( 'WP_Filesystem' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+			}
+			WP_Filesystem();
+
+			if ($wp_filesystem->exists($this->fp)) {
+				// Read existing content
+				$existing_content = $wp_filesystem->get_contents($this->fp);
+			
+				// Append new data to the existing content
+				$content = $existing_content . $data;
+			
+				// Write the updated content to the file using WP_Filesystem
+				if ( ! $wp_filesystem->put_contents( $this->fp, $content, FS_CHMOD_FILE ) ) {
+					return false;
+				}
+				
+				return true;
+			} else {
+				// Handle the case where the file does not exist
+				return false;
+			}
+		} else {
 			$this->response->body .= $data;
+		}
 		return strlen($data);
 	}
 

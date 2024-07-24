@@ -17,8 +17,8 @@ $localfile                = trailingslashit( $wp_upload_dir['basedir'] . '/db-ba
 if ( $result ) {
 	$success = $sftp->put($remotefile, $localfile, SFTP::SOURCE_LOCAL_FILE | SFTP::RESUME_START);
 	if ( $success ) {
-		$args[2] = $args[2] . '<br> Upload Database Backup on SFTP ' . $host;
-		$args[4] = $args[4] .= 'SFTP, ';
+		$args[2] = $args[2] . '<br> '.esc_html__('Upload Database Backup on SFTP','wpdbbkp') . $host;
+		$args[4] .= 'SFTP, ';
 	}
 }
 // Close connection to host.

@@ -12,11 +12,16 @@ $wpdbbkp_bg_notify = get_option('wpdbbkp_dashboard_notify',false);
 if (true === isset($_GET['notification']) && true === isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'wp-database-backup') || $wpdbbkp_bg_notify) { ?>
 
 	<div class="text-center wpdbbkp_notification"><img width="50" height="50" src="<?php echo esc_url(WPDB_PLUGIN_URL. "/assets/images/success.png"); ?>">
-		<h4 class="text-success"><?php if ('create' === $_GET['notification'] || $wpdbbkp_bg_notify=='create') {
+		<h4 class="text-success"><?php if ((isset($_GET['notification']) && 'create' === $_GET['notification']) || $wpdbbkp_bg_notify=='create') {
 							$backup_list = get_option('wp_db_backup_backups');
-							$download_backup = end($backup_list);
-							if($download_backup && !empty($download_backup))
-							{ $backup_link = '<a href="' . esc_url($download_backup['url']) . '" style="color: #21759B;">' . __('Click Here to Download Backup.', 'wpdbbkp') . '</a>';}
+							if(!empty($backup_list) && is_array($backup_list)){
+								$download_backup = end($backup_list);
+								if($download_backup && !empty($download_backup) && isset($download_backup['url']))
+								{ 
+									$backup_link = '<a href="' . esc_url($download_backup['url']) . '" style="color: #21759B;">' . __('Click Here to Download Backup.', 'wpdbbkp') . '</a>';
+								}
+							}
+							
 							update_option('wpdbbkp_dashboard_notify',false);
 							esc_html_e('Backup Created Successfully. ', 'wpdbbkp');
 						} elseif ('restore' === $_GET['notification']) {
@@ -37,7 +42,7 @@ if (true === isset($_GET['notification']) && true === isset($_GET['_wpnonce']) &
 							esc_html_e('Backup Setting Saved Successfully', 'wpdbbkp');
 						}
 			?></h4>
-			<?php if ('create' === $_GET['notification']) { ?>
+			<?php if (isset($_GET['notification']) && 'create' === $_GET['notification'] && isset($backup_link)) { ?>
 		<h5 class="text-success"><strong><?php echo wp_kses_post($backup_link); ?> </strong></h5>
 		<?php } ?>
 	</div>

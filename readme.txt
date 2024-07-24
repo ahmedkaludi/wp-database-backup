@@ -4,9 +4,9 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: Database backup, db backup, cloud backup, files backup, wordpress backup.
 Requires at least: 3.1+
-Tested up to: 6.5
+Tested up to: 6.6
 Requires PHP: 5.6.20
-Stable tag: 6.10
+Stable tag: 6.12
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -32,7 +32,7 @@ WP Database Backup is super easy to install. </li>
 <li>Restore Database Backup
 WP Database Backup plugin helps you to Restore Database Backup easily on single click.</li>
 <li>Multiple storage destinations</li>
-<li>Store database backup on safe place- <strong> Dropbox, Google drive, Amazon s3,FTP,Email</strong></li>
+<li>Store database backup on safe place- <strong> Dropbox, Google drive, Amazon s3, FTP, sFTP, Backblaze, Email</strong></li>
 <li>Reporting- Sends emailed backups and backup reports to any email addresses</li>
 <li><strong>Exclude Table</strong></li>
 <li>Database backup list pagination</li>
@@ -76,6 +76,16 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 4. screenshot-4.png
 
 == Changelog ==
+
+= 6.12 =
+* 24-07-2024
+* Improvement: Code & Performance Improvement according to Plugin check #90
+* Compatibility: Tested with WordPress version 6.6
+* Fixed: Multiple backups are getting created #89
+
+= 6.11 =
+* 13-06-2024
+* Improvement: Added support for backblaze. #85
 
 = 6.10 =
 * 24-05-2024
@@ -147,10 +157,6 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 * 21-01-2023
 * Added Feature - Added full backup files and database
 
-= 6.0 =
-* 22-12-2022
-* UI/UX and other Improvements
-
 Full changelog available [ at changelog.txt](https://plugins.svn.wordpress.org/wp-database-backup/trunk/changelog.txt)
 
 == Frequently Asked Questions ==
@@ -196,3 +202,28 @@ Also Please make sure that you have write permission to Backup folder and also c
 
 == Upgrade Notice ==
 * Sanitised multiple inputs and escape output to remove further risk of cross site script security.
+
+== Credits ==
+
+=== This plugin uses the following third-party libraries: ===
+
+1. === Google APIs Client Library for PHP ===
+   - Author: Google
+   - URL: https://github.com/googleapis/google-api-php-client
+   - License: Apache License, Version 2.0 (the "License")
+   - License URL: http://www.apache.org/licenses/LICENSE-2.0
+
+2. === PHP Secure Communications Library ===
+   - Author: phpseclib
+   - URL:https://github.com/phpseclib/phpseclib
+   - License: MIT License (or any other applicable license)
+   - License URL: http://opensource.org/licenses/MIT
+
+3. === PhpConcept Library - Zip Module ===
+   - Author: Vincent Blavet
+   - URL:http://www.phpconcept.net
+   - License: License GNU/LGPL
+
+4. === phpFileTree ===
+   - Author: Cory S.N. LaViska's
+   - URL: https://www.abeautifulsite.net/blog/2007/06/php-file-tree/

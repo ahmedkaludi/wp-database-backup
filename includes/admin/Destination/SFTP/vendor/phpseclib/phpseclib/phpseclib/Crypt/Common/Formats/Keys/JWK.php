@@ -64,6 +64,6 @@ abstract class JWK
      */
     protected static function wrapKey(array $key, array $options)
     {
-        return json_encode(['keys' => [$key + $options]]);
+        return wp_json_encode(['keys' => [$key + $options]]);
     }
 }

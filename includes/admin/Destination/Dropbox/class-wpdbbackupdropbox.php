@@ -20,7 +20,7 @@ class WPDBBackupDropbox {
 	 */
 	public static function wp_db_backup_completed( &$args ) {
 		
-		include plugin_dir_path( __FILE__ ) . 'DropboxClient.php';
+		include plugin_dir_path( __FILE__ ) . 'class-wpdbbackup-destination-dropbox-api.php';
 		$dropbox           = new WPDBBackup_Destination_Dropbox_API( 'dropbox' );
 		$wpdb_dropboxtoken = get_option( 'wpdb_dropboxtoken' );
 		$dropboxtoken      = ( ! empty( $wpdb_dropboxtoken ) ) ? maybe_unserialize( $wpdb_dropboxtoken ) : array();
@@ -31,8 +31,8 @@ class WPDBBackupDropbox {
 			$wpdb_dropbbox_dir = ! empty( $wpdb_dropbbox_dir ) ? '/' . get_option( 'wpdb_dropbbox_dir' ) . '/' : '';
 			$response          = $dropbox->upload( $args[1], $wpdb_dropbbox_dir . apply_filters( 'wp_db_backup_dropbox_file_name', $args[0] ) );
 			if ( $response ) {
-				$args[2] = $args[2] . '<br> Upload Database Backup on Dropbox';
-				$args[4] = $args[4] .= 'DropBox, ';
+				$args[2] = $args[2] . '<br> '.esc_html__('Upload Database Backup on Dropbox', 'wpdbbkp').'';
+				$args[4] .= 'DropBox, ';
 				
 			}
 		}

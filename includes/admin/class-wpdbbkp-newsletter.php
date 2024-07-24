@@ -11,7 +11,7 @@
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class wpdbbkp_ads_newsletter {
+class Wpdbbkp_Newsletter {
         
 	function __construct () {
                 add_filter( 'wpdbbkp_localize_filter',array($this,'wpdbbkp_add_localize_footer_data'),10,2);
@@ -44,7 +44,7 @@ class wpdbbkp_ads_newsletter {
 		    $response = wp_remote_post( $api_url, array( 'timeout' => 15, 'sslverify' => false, 'body' => $api_params ) );
                     if ( ! is_wp_error( $response ) ) {
                         $response = wp_remote_retrieve_body( $response );                    
-                        echo $response;
+                        echo esc_html($response);
                     }else{
                         echo esc_html__('Unable to submit form, please try again','wpdbbkp') ;
                     }
@@ -70,7 +70,8 @@ class wpdbbkp_ads_newsletter {
                         
                 global $current_user;                
 		$tour     = array ();
-                $tab      = isset($_GET['tab']) ? esc_attr($_GET['tab']) : '';                   
+                //phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verification is not required here.
+                $tab      = isset($_GET['tab']) ? esc_attr(wp_unslash($_GET['tab'])) : '';                   
                 
                 if (!array_key_exists($tab, $tour)) {                
 			                                           			            	
@@ -90,5 +91,5 @@ class wpdbbkp_ads_newsletter {
     }
        
 }
-$wpdbbkp_ads_newsletter = new wpdbbkp_ads_newsletter();
+$wpdbbkp_newsletter = new Wpdbbkp_Newsletter();
 ?>

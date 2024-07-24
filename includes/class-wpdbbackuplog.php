@@ -27,9 +27,12 @@ class WPDBBackupLog {
 		if(!empty($options) && is_array($options)){
 
 			foreach ( $options as $option ) {
-				if (isset($args[0]) && $option['filename'] === sanitize_text_field($args[0])) {
-					$option['destination'] = wp_kses($args[4]);
-					$option['log']         = wp_kses($args[2]);
+				if(!is_array($option )){
+					continue;
+				}
+				if (isset($args[0]) && $option['filename'] === $args[0]) {
+					$option['destination'] = wp_kses_post($args[4]);
+					$option['log']         = wp_kses_post($args[2]);
 					$newoptions[]          = $option;
 				} else {
 					$newoptions[] = $option;

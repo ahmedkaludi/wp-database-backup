@@ -38,7 +38,7 @@ class Google_P12Signer extends Google_Signer {
     if (!openssl_pkcs12_read($p12, $certs, $password)) {
       throw new Google_AuthException("Unable to parse the p12 file.  " .
           "Is this a .p12 file?  Is the password correct?  OpenSSL error: " .
-          openssl_error_string());
+          esc_html(openssl_error_string()));
     }
     // TODO(beaton): is this part of the contract for the openssl_pkcs12_read
     // method?  What happens if there are multiple private keys?  Do we care?

@@ -2,17 +2,17 @@
 
 $wpdbbkp_local_enabled	=	get_option( 'wp_db_local_backup',null );
 $wpdbbkp_local_path		=	get_option( 'wp_db_local_backup_path',null );
-$wpdbbkp_local_status		=	'<label><b>Status</b>: Not Configured </label> ';
+$wpdbbkp_local_status		=	'<label><b>'.esc_html__('Status','wpdbbkp').'</b>: '.esc_html__('Not Configured','wpdbbkp').' </label> ';
 if($wpdbbkp_local_enabled==1 && !empty($wpdbbkp_local_path))
 {
-	$wpdbbkp_local_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span> </label> ';
+	$wpdbbkp_local_status='<label><b>'.esc_html__('Status','wpdbbkp').'</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="'.esc_attr__('Destination enabled','wpdbbkp').'"></span><span class="configured">'.esc_html__('Configured','wpdbbkp').' </span> </label> ';
 }
 ?>
 <div class="panel panel-default">
 					<div class="panel-heading">
 						<h4 class="panel-title">
 							<a data-toggle="collapse" data-parent="#accordion" href="#collapseLocal">
-								<h2><?php echo esc_html__('Local Backup', 'wpdbbkp') ?> <?php echo $wpdbbkp_local_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
+								<h2><?php echo esc_html__('Local Backup', 'wpdbbkp') ?> <?php echo wp_kses_post($wpdbbkp_local_status);?> <span class="dashicons dashicons-admin-generic"></span></h2>
 
 							</a>
 						</h4>

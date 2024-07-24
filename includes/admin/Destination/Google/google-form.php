@@ -70,7 +70,7 @@ if ( isset( $_POST['wpdb_google_drive'] ) && 'Y' === $_POST['wpdb_google_drive']
 	}
 
 	// Put a "settings updated" message on the screen.
-	$update_msg = '<div class="updated"><p><strong>Your google drive setting has been saved.</strong></p></div>';
+	$update_msg = '<div class="updated"><p><strong>'.esc_html__('Your google drive setting has been saved.', 'wpdbbkp').'</strong></p></div>';
 }
 if ( isset( $_GET['code'] ) ) {
 	update_option( 'wpdb_dest_google_authCode', wp_db_filter_data( sanitize_text_field( wp_unslash( $_GET['code'] ) ) ) , false);
@@ -80,18 +80,18 @@ if ( isset( $_GET['code'] ) ) {
 $wpdb_dest_google_auth_code  = get_option( 'wpdb_dest_google_authCode' );
 $wpdb_dest_google_client_key = get_option( 'wpdb_dest_google_client_key' );
 $wpdb_dest_google_secret_key = get_option( 'wpdb_dest_google_secret_key' );
-$wpdbbkp_gdrive_status			=	'<label><b>Status</b>: Not Configured </label> ';
+$wpdbbkp_gdrive_status			=	'<label><b>'.esc_html__('Status','wpdbbkp').'</b>: '.esc_html__('Not Configured','wpdbbkp').' </label> ';
 
 if(!empty($wpdb_dest_google_auth_code) && !empty($wpdb_dest_google_client_key) && !empty($wpdb_dest_google_secret_key))
 {
-	$wpdbbkp_gdrive_status='<label><b>Status</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="Destination enabled"></span><span class="configured">Configured </span> </label> ';
+	$wpdbbkp_gdrive_status='<label><b>'.esc_html__('Status','wpdbbkp').'</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="'.esc_attr__('Destination enabled','wpdbbkp').'"></span><span class="configured">'.esc_html__('Configured','wpdbbkp').' </span> </label> ';
 }
 ?>
 <div class="panel panel-default">
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapsegoogle">
-				<h2>Google drive<?php echo $wpdbbkp_gdrive_status;?> <span class="dashicons dashicons-admin-generic"></span></h2>
+				<h2><?php echo esc_html__('Google drive', 'wpdbbkp'); ?><?php echo wp_kses_post($wpdbbkp_gdrive_status);?> <span class="dashicons dashicons-admin-generic"></span></h2>
 			</a>
 		</h4>
 	</div>
@@ -106,8 +106,8 @@ if(!empty($wpdb_dest_google_auth_code) && !empty($wpdb_dest_google_client_key) &
 				if ( ! empty( $wpdb_dest_google_auth_code ) && ! empty( $wpdb_dest_google_client_key ) && ! empty( $wpdb_dest_google_secret_key ) ) {
 					?>
 					<p class="text-success"><?php echo esc_html__('Configuration to Google Drive Access has been done successfully', 'wpdbbkp') ?></p>
-					<p><?php echo esc_html__('By clicking reset, you can reconfigure Google Account', 'wpdbbkp') ?></p>
-					<p><?php echo esc_html__('For local backup click on Reset Configure', 'wpdbbkp') ?></p>
+					<p><?php echo esc_html__('By clicking reset, you can reconfigure Google Account', 'wpdbbkp'); ?></p>
+					<p><?php echo esc_html__('For local backup click on Reset Configure', 'wpdbbkp'); ?></p>
 					<p><input type="submit" name="reset" class="btn btn-primary" value="<?php esc_attr_e( 'Reset Configure' , 'wpdbbkp' ); ?>" />&nbsp;
 					</p>
 				<?php } else { ?>
@@ -120,14 +120,14 @@ if(!empty($wpdb_dest_google_auth_code) && !empty($wpdb_dest_google_client_key) &
 					<div class="row form-group">
 						<label class="col-sm-2" for="wpdb_dest_google_client_key"><?php echo esc_html__('Client ID', 'wpdbbkp') ?></label>
 						<div class="col-sm-6">
-							<input type="text" id="wpdb_dest_google_client_key" class="form-control" name="wpdb_dest_google_client_key" value="<?php echo esc_html( get_option( 'wpdb_dest_google_client_key' ) ); ?>" size="25" placeholder="your client id">
+							<input type="text" id="wpdb_dest_google_client_key" class="form-control" name="wpdb_dest_google_client_key" value="<?php echo esc_html( get_option( 'wpdb_dest_google_client_key' ) ); ?>" size="25" placeholder="<?php esc_attr_e('your client id','wpdbbkp');?>">
 						</div>
 					</div>
 
 					<div class="row form-group">
 						<label class="col-sm-2" for="wpdb_dest_google_secret_key"><?php echo esc_html__('Client secret:', 'wpdbbkp') ?></label>
 						<div class="col-sm-6">
-							<input type="text" id="wpdb_dest_google_secret_key" class="form-control" name="wpdb_dest_google_secret_key" value="<?php echo esc_html( get_option( 'wpdb_dest_google_secret_key' ) ); ?>" size="25" placeholder="your client secret key">
+							<input type="text" id="wpdb_dest_google_secret_key" class="form-control" name="wpdb_dest_google_secret_key" value="<?php echo esc_html( get_option( 'wpdb_dest_google_secret_key' ) ); ?>" size="25" placeholder="<?php esc_attr_e('your client secret key','wpdbbkp');?>">
 						</div>
 					</div>
 

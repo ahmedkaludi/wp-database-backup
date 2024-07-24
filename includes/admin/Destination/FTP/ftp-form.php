@@ -76,7 +76,7 @@ if ( true === isset( $_POST[ $hidden_field_name3 ] ) && 'Y' === $_POST[ $hidden_
 	}
 	// Put a "settings updated" message on the screen.
 	?>
-	<div class="updated"><p><strong><?php echo 'Your additional directory has been saved.'; ?></strong></p></div>
+	<div class="updated"><p><strong><?php echo esc_html__('Your additional directory has been saved.','wpdbbkp'); ?></strong></p></div>
 	<?php
 }
 
@@ -193,7 +193,7 @@ if ( isset( $_POST[ $hidden_field_name ] ) && 'Test Connection' === $_POST[ $hid
 	<div class="row form-group">
 		<label class="col-sm-2" for="FTP_host"><?php echo esc_html__('FTP Host:', 'wpdbbkp') ?></label>
 		<div class="col-sm-6">
-			<input type="text" id="FTP_host" class="form-control" name="<?php echo esc_html( $data_field_name ); ?>" value="<?php echo esc_html( $opt_val ); ?>" size="25" placeholder="e.g. ftp.yoursite.com">
+			<input type="text" id="FTP_host" class="form-control" name="<?php echo esc_html( $data_field_name ); ?>" value="<?php echo esc_html( $opt_val ); ?>" size="25" placeholder="<?php esc_attr_e('e.g. ftp.yoursite.com','wpdbbkp');?>">
 		</div>
 	</div>
 
@@ -224,7 +224,7 @@ if ( isset( $_POST[ $hidden_field_name ] ) && 'Test Connection' === $_POST[ $hid
 	<div class="row form-group">
 		<label class="col-sm-2" for="FTP_dir"><?php echo esc_html__('Subdirectory:', 'wpdbbkp') ?></label>
 		<div class="col-sm-6">
-			<input type="text" id="FTP_dir" placeholder="e.g. /httpdocs/backups" class="form-control" name="<?php echo esc_html( $data_field_name4 ); ?>" value="<?php echo esc_html( $opt_val4 ); ?>" size="25">
+			<input type="text" id="FTP_dir" placeholder="<?php esc_attr_e('e.g. /httpdocs/backups','wpdbbkp');?>" class="form-control" name="<?php echo esc_html( $data_field_name4 ); ?>" value="<?php echo esc_html( $opt_val4 ); ?>" size="25">
 		</div>
 		<div class="col-sm-4"> 
 			<em><?php echo esc_html__('e.g. /httpdocs/backups or leave blank', 'wpdbbkp') ?></em> 

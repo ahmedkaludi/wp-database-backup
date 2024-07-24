@@ -133,11 +133,24 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 			$file = str_replace( '\\', '/', $file );
 			$output ='';
 			if ( ! is_readable( $file ) ) {
-				throw new WPDBBackup_Destination_Dropbox_API_Exception( "Error: File \"$file\" is not readable or doesn't exist." );
+				throw new WPDBBackup_Destination_Dropbox_API_Exception( "Error: File ".esc_url($file)." is not readable or doesn't exist." );
 			}
 
 			if ( filesize( $file ) < 5242880 ) { // chunk transfer on bigger uploads
-				$file_content = file_get_contents( $file );
+				global $wp_filesystem;
+
+				// Initialize the WordPress filesystem if it hasn't been initialized yet.
+				if ( ! function_exists( 'WP_Filesystem' ) ) {
+					require_once ABSPATH . 'wp-admin/includes/file.php';
+				}
+
+				WP_Filesystem();
+
+				$file_content = '';
+				if ( $wp_filesystem->exists( $file ) ) {
+					$file_content = $wp_filesystem->get_contents( $file );
+				}
+
 				if($file_content){
 					$output = $this->filesUpload(
 						array(
@@ -164,21 +177,28 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 		 * @throws WPDBBackup_Destination_Dropbox_API_Exception
 		 */
 		public function multipartUpload( $file, $path = '', $overwrite = true ) {
-			$file = str_replace( '\\', '/', $file );
-
-			if ( ! is_readable( $file ) ) {
-				throw new WPDBBackup_Destination_Dropbox_API_Exception( "Error: File \"$file\" is not readable or doesn't exist." );
+			global $wp_filesystem;
+		
+			// Initialize the WordPress filesystem
+			if (empty($wp_filesystem)) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+				WP_Filesystem();
 			}
-
+		
+			$file = str_replace( '\\', '/', $file );
+		
+			if ( ! $wp_filesystem->exists( $file ) || ! $wp_filesystem->is_readable( $file ) ) {
+				throw new WPDBBackup_Destination_Dropbox_API_Exception( "Error: File ".esc_url($file)." is not readable or doesn't exist." );
+			}
+		
 			$chunk_size = 4194304; // 4194304 = 4MB
-
-			$file_handel = fopen( $file, 'rb' );
-			if ( ! $file_handel ) {
+		
+			$file_handle = $wp_filesystem->get_contents( $file );
+			if ( ! $file_handle ) {
 				throw new WPDBBackup_Destination_Dropbox_API_Exception( 'Can not open source file for transfer.' );
 			}
-
+		
 			if ( isset($this->job_object->step_working) && ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['uploadid'] ) ) {
-				// $this->job_object->log(__('Beginning new file upload session', 'backwpup'));
 				$session = $this->filesUploadSessionStart();
 				$this->job_object->steps_data[ $this->job_object->step_working ]['uploadid'] = $session['session_id'];
 			}
@@ -188,38 +208,41 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 			if ( isset($this->job_object->step_working) && ! isset( $this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] ) ) {
 				$this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] = 0;
 			}
-
-			// seek to current position
-			if ( isset($this->job_object->step_working) && $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] > 0 ) {
-				fseek( $file_handel, $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] );
-			}
-
-			while ( $data = fread( $file_handel, $chunk_size ) ) {
+		
+			$offset = $this->job_object->steps_data[ $this->job_object->step_working ]['offset'];
+		
+			// Seek to current position
+			$file_handle = substr($file_handle, $offset);
+		
+			while ( $offset < strlen($file_handle) ) {
+				$chunk = substr($file_handle, $offset, $chunk_size);
 				$chunk_upload_start = microtime( true );
-
+		
 				if ( $this->job_object && method_exists($this->job_object,'is_debug') && method_exists($this->job_object,'log') && $this->job_object->is_debug() ) {
-					$this->job_object->log( sprintf( __( 'Uploading %s of data', 'backwpup' ), size_format( strlen( $data ) ) ) );
+					/* translators: %s: chunk of data being uploaded */
+					$this->job_object->log( sprintf( __( 'Uploading %s of data', 'backwpup' ), size_format( strlen( $chunk ) ) ) );
 				}
-
+		
 				$this->filesUploadSessionAppendV2(
 					array(
-						'contents' => $data,
+						'contents' => $chunk,
 						'cursor'   => array(
 							'session_id' => $this->job_object->steps_data[ $this->job_object->step_working ]['uploadid'],
-							'offset'     => $this->job_object->steps_data[ $this->job_object->step_working ]['offset'],
+							'offset'     => $offset,
 						),
 					)
 				);
+		
 				$chunk_upload_time = microtime( true ) - $chunk_upload_start;
-				$this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] += strlen( $data );
-
-				// args for next chunk
-				$this->job_object->steps_data[ $this->job_object->step_working ]['offset'] += $chunk_size;
+				$this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] += strlen( $chunk );
+		
+				$offset += strlen($chunk);
+				$this->job_object->steps_data[ $this->job_object->step_working ]['offset'] = $offset;
+		
 				if ( $this->job_object->job['backuptype'] === 'archive' ) {
 					$this->job_object->substeps_done = $this->job_object->steps_data[ $this->job_object->step_working ]['offset'];
-					if ( strlen( $data ) == $chunk_size ) {
+					if ( strlen( $chunk ) == $chunk_size ) {
 						$time_remaining = $this->job_object->do_restart_time();
-						// calc next chunk
 						if ( $time_remaining < $chunk_upload_time ) {
 							$chunk_size = floor( $chunk_size / $chunk_upload_time * ( $time_remaining - 3 ) );
 							if ( $chunk_size < 0 ) {
@@ -234,12 +257,10 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				if(property_exists($this->job_object,'update_working_data')){
 					$this->job_object->update_working_data();
 				}
-				// correct position
-				fseek( $file_handel, $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] );
 			}
-
-			fclose( $file_handel );
+		
 			if(method_exists($this->job_object,'log')){
+				/* translators: %s: total size of data uploaded  */
 				$this->job_object->log( sprintf( __( 'Finishing upload session with a total of %s uploaded', 'backwpup' ), size_format( $this->job_object->steps_data[ $this->job_object->step_working ]['totalread'] ) ) );
 			}
 			$response = $this->filesUploadSessionFinish(
@@ -254,12 +275,12 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 					),
 				)
 			);
-
+		
 			unset( $this->job_object->steps_data[ $this->job_object->step_working ]['uploadid'] );
 			unset( $this->job_object->steps_data[ $this->job_object->step_working ]['offset'] );
-
+		
 			return $response;
-		}
+		}		
 
 		// Authentication
 
@@ -621,7 +642,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				}
 				// only wait if we get a retry-after header.
 				if ( ! empty( $wait ) ) {
-					trigger_error( sprintf( '(429) Your app is making too many requests and is being rate limited. Error 429 can be triggered on a per-app or per-user basis. Wait for %d seconds.', $wait ), E_USER_WARNING );
+  					trigger_error( sprintf( '(429) Your app is making too many requests and is being rate limited. Error 429 can be triggered on a per-app or per-user basis. Wait for %d seconds.', esc_html($wait) ), E_USER_WARNING );
 					sleep( $wait );
 				} else {
 					throw new WPDBBackup_Destination_Dropbox_API_Exception( '(429) This indicates a transient server error.' );
@@ -633,7 +654,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 			elseif ( isset( $output['error'] ) || wp_remote_retrieve_response_code( $result ) >= 400 ) {
 				$code = wp_remote_retrieve_response_code( $result );
 				if ( wp_remote_retrieve_response_code( $result ) == 400 ) {
-					$message = '(400) Bad input parameter: ' . strip_tags( $responce[1] );
+					$message = '(400) Bad input parameter: ' . wp_strip_all_tags( $responce[1] );
 				} elseif ( wp_remote_retrieve_response_code( $result ) == 401 ) {
 					$message = '(401) Bad or expired token. This can happen if the user or Dropbox revoked or expired an access token. To fix, you should re-authenticate the user.';
 				} elseif ( wp_remote_retrieve_response_code( $result ) == 409 ) {
@@ -805,7 +826,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 				case 'incorrect_offset':
 					trigger_error(
 						'Incorrect offset given. Correct offset is ' .
-						$error['correct_offset'] . '.',
+						esc_html($error['correct_offset']) . '.',
 						E_USER_WARNING
 					);
 					break;
@@ -880,7 +901,7 @@ if ( ! class_exists( 'WPDBBackup_Destination_Dropbox_API' ) ) {
 					break;
 			}
 
-			trigger_error( $message, E_USER_WARNING );
+			trigger_error( esc_html($message), E_USER_WARNING );
 		}
 
 	}

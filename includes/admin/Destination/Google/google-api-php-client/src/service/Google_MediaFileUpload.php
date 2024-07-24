@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile -- third party library
 /**
  * Copyright 2012 Google Inc.
  *

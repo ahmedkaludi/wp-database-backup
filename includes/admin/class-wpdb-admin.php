@@ -1910,60 +1910,133 @@ class Wpdb_Admin {
 		/**
 	 * Create database backup new function.
 	 */
-	public function wp_db_backup_create_mysql_backup_new($table) {
-		global $wpdb;
-		$output              = '';
-
-		$check_count      = $wpdb->get_var( "SELECT count(*) FROM {$table}"); // phpcs:ignore
-		$check_count = intval($check_count);
-		$sub_limit =500;
-		if(isset($check_count) && $check_count>$sub_limit){
-			$result =array();
-			$t_sub_queries= ceil($check_count/$sub_limit);
-			for($sub_i=0;$sub_i<$t_sub_queries;$sub_i++)
-			{
-				$sub_offset = $sub_i*$sub_limit;
-				//phpcs:ignore -- using direct query  to get the data of table in chunks.
-				$sub_result = $wpdb->get_results( $wpdb->prepare("SELECT * FROM `$table` LIMIT %d OFFSET %d",array($sub_limit,$sub_offset)), ARRAY_A  ); 
-				if($sub_result){
-					$result = array_merge($result,$sub_result);
+	public function wp_db_backup_create_mysql_backup_new( $table, $file_path ) {
+		global $wpdb, $wp_filesystem;
+	
+		// Ensure WP Filesystem is loaded
+		if ( ! function_exists( 'WP_Filesystem' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+		WP_Filesystem();
+	
+		// Define file size threshold (e.g., 10MB)
+		$file_size_threshold = 10 * 1024 * 1024; // 10MB
+	
+		// Initialize the file with table creation statement if it doesn't exist
+		$row2 = $wpdb->get_row( 'SHOW CREATE TABLE ' . $table, ARRAY_N ); // phpcs:ignore
+		$initial_output = "\n\n" . $row2[1] . ";\n\n";
+	
+		$use_php_methods = false;
+		if ( $wp_filesystem->exists( $file_path ) ) {
+			// Check file size
+			$file_size = $wp_filesystem->size( $file_path );
+			if ( $file_size !== false && $file_size > $file_size_threshold ) {
+				$use_php_methods = true;
+			}
+		}
+	
+		// Function to append content
+		$append_content = function( $new_content ) use ( $file_path, $wp_filesystem, $use_php_methods ) {
+			if ( $use_php_methods ) {
+				// Using PHP methods to append
+				if ( ! $wp_filesystem->exists( $file_path ) ) {
+					// phpcs:ignore -- WP Filesystem fileing for large files
+					file_put_contents( $file_path, $new_content );
+				} else {
+					// phpcs:ignore -- WP Filesystem fileing for large files
+					file_put_contents( $file_path, $new_content, FILE_APPEND );
+				}
+			} else {
+				// Use WP Filesystem to append
+				if ( ! $wp_filesystem->exists( $file_path ) ) {
+					$wp_filesystem->put_contents( $file_path, $new_content, FS_CHMOD_FILE );
+				} else {
+					// Read current contents
+					$current_contents = $wp_filesystem->get_contents( $file_path );
+					if ( $current_contents === false ) {
+						// Handle error if reading fails
+						return false;
+					}
+					// Append new content
+					$updated_contents = $current_contents . $new_content;
+					// Write back updated contents
+					if ( ! $wp_filesystem->put_contents( $file_path, $updated_contents, FS_CHMOD_FILE ) ) {
+						// Handle error if writing fails
+						return false;
+					}
+				}
+			}
+			return true;
+		};
+	
+		// Write the initial output to the file
+		if ( ! $append_content( $initial_output ) ) {
+			return false; // Handle error if initial content writing fails
+		}
+	
+		$sub_limit = 500;
+		$check_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ); // phpcs:ignore
+		$check_count = intval( $check_count );
+	
+		if ( $check_count > $sub_limit ) {
+			$t_sub_queries = ceil( $check_count / $sub_limit );
+	
+			for ( $sub_i = 0; $sub_i < $t_sub_queries; $sub_i++ ) {
+				$sub_offset = $sub_i * $sub_limit;
+				$sub_result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `$table` LIMIT %d OFFSET %d", array( $sub_limit, $sub_offset ) ), ARRAY_A ); // phpcs:ignore
+	
+				if ( $sub_result ) {
+					$output = '';
+					foreach ( $sub_result as $row ) {
+						$output .= 'INSERT INTO ' . $table . ' VALUES(';
+						$result_o_index = count( $row );
+						$j = 0;
+						foreach ( $row as $key => $value ) {
+							$row[ $key ] = $wpdb->_real_escape( apply_filters( 'wpdbbkp_process_db_fields', $value, $table, $key ) );
+							$output .= ( isset( $row[ $key ] ) ) ? '"' . $row[ $key ] . '"' : '""';
+							if ( $j < ( $result_o_index - 1 ) ) {
+								$output .= ',';
+							}
+							$j++;
+						}
+						$output .= ");\n";
+					}
+					// Append to the file
+					if ( ! $append_content( $output ) ) {
+						return false; // Handle error if appending content fails
+					}
 				}
 				sleep(1);
 			}
-		}
-		else{
-			$result       = $wpdb->get_results( $wpdb->prepare("SELECT * FROM `$table`"), ARRAY_A  ); // phpcs:ignore
-		}
-			
-
-			$row2         = $wpdb->get_row( 'SHOW CREATE TABLE ' . $table, ARRAY_N ); // phpcs:ignore
-			$output      .= "\n\n" . $row2[1] . ";\n\n";
-			$result_count = count( $result );
-			for ( $i = 0; $i < $result_count; $i++ ) {
-				$row            = $result[ $i ];
-				$output        .= 'INSERT INTO ' . $table . ' VALUES(';
-				$result_o_index = count( $result[0] );
-				$j=0;
-				if(!empty($row)){
-				foreach ($row as $key => $value) {
-					$row[ $key] = $wpdb->_real_escape( apply_filters( 'wpdbbkp_process_db_fields', $row[$key],$table,$key) );
-					$output   .= ( isset( $row[ $key ] ) ) ? '"' . $row[ $key ] . '"' : '""';
+		} else {
+			$result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `$table`" ), ARRAY_A ); // phpcs:ignore
+	
+			$output = '';
+			foreach ( $result as $row ) {
+				$output .= 'INSERT INTO ' . $table . ' VALUES(';
+				$result_o_index = count( $row );
+				$j = 0;
+				foreach ( $row as $key => $value ) {
+					$row[ $key ] = $wpdb->_real_escape( apply_filters( 'wpdbbkp_process_db_fields', $value, $table, $key ) );
+					$output .= ( isset( $row[ $key ] ) ) ? '"' . $row[ $key ] . '"' : '""';
 					if ( $j < ( $result_o_index - 1 ) ) {
 						$output .= ',';
 					}
 					$j++;
 				}
-			}
 				$output .= ");\n";
 			}
-			$output .= "\n";
-
-		sleep(1);
-			
+			// Append to the file
+			if ( ! $append_content( $output ) ) {
+				return false; // Handle error if appending content fails
+			}
+		}
+	
+		// Flush the database cache
 		$wpdb->flush();
-		
-		return $output;
+		return true;
 	}
+	
 
 	/**
 	 * Mysql Dump set path.
@@ -2324,7 +2397,7 @@ class Wpdb_Admin {
 			if(!empty($tables)){
 			foreach($tables as $table){
 				if ( empty( $wp_db_exclude_table ) || ( ! ( in_array( $table, $wp_db_exclude_table, true ) ) ) ) {
-					$this->wpdbbkp_append_to_file($path_info['basedir'] . '/db-backup/' . $sql_filename , $this->wp_db_backup_create_mysql_backup_new($table));
+					$this->wp_db_backup_create_mysql_backup_new($table,$path_info['basedir'] . '/db-backup/' . $sql_filename );
 				}
 			}
 

@@ -371,6 +371,7 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 			$FileName = sanitize_text_field($args['FileName']);
 			$filename = $FileName . '.sql';
 			$path_info = wp_upload_dir();
+			$filepath  = $path_info['basedir'] . '/db-backup/' . $filename;
 			global $wpdb;
 	
 			// Load WP Filesystem
@@ -427,20 +428,20 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 				$offset = 0;
 				$use_php_methods = $total_size > 10 * $chunk_size; // Use PHP methods for large files
 	
-				$append_content = function($new_content) use ($filename, $wp_filesystem, $use_php_methods) {
+				$append_content = function($new_content) use ($filepath, $wp_filesystem, $use_php_methods) {
 					if ($use_php_methods) {
 						//phpcs:ignore  -- Use PHP methods for large files
-						file_put_contents($filename, $new_content, FILE_APPEND);
+						file_put_contents($filepath, $new_content, FILE_APPEND);
 					} else {
-						if (!$wp_filesystem->exists($filename)) {
-							$wp_filesystem->put_contents($filename, $new_content, FS_CHMOD_FILE);
+						if (!$wp_filesystem->exists($filepath)) {
+							$wp_filesystem->put_contents($filepath, $new_content, FS_CHMOD_FILE);
 						} else {
-							$current_contents = $wp_filesystem->get_contents($filename);
+							$current_contents = $wp_filesystem->get_contents($filepath);
 							if ($current_contents === false) {
 								return false;
 							}
 							$updated_contents = $current_contents . $new_content;
-							$wp_filesystem->put_contents($filename, $updated_contents, FS_CHMOD_FILE);
+							$wp_filesystem->put_contents($filepath, $updated_contents, FS_CHMOD_FILE);
 						}
 					}
 				};

@@ -3251,14 +3251,14 @@ class Wpdb_Admin {
 		private function wpdbbkp_filter_unique_filenames($backups) {
 		   $unique_filenames = [];
 		   $filtered_backups = [];
-	   
-		   foreach ($backups as $backup) {
-			   if (isset($backup['filename']) && !in_array($backup['filename'], $unique_filenames)) {
-				   $unique_filenames[] = $backup['filename'];
-				   $filtered_backups[] = $backup;
-			   }
-		   }
-	   
+			if(!empty($backups)){
+				foreach ($backups as $backup) {
+					if (isset($backup['filename']) && !in_array($backup['filename'], $unique_filenames)) {
+						$unique_filenames[] = $backup['filename'];
+						$filtered_backups[] = $backup;
+					}
+				}
+			}
 		   return $filtered_backups;
 	   }
 

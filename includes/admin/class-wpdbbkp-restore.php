@@ -164,7 +164,7 @@ class Wpdbbkp_Restore {
                     }
                 }
             
-                @unlink($file_path);
+                wp_delete_file($file_path);
             }
             
 

@@ -202,3 +202,29 @@ Also Please make sure that you have write permission to Backup folder and also c
 
 == Upgrade Notice ==
 * Sanitised multiple inputs and escape output to remove further risk of cross site script security.
+
+== Credits ==
+
+=== This plugin uses the following third-party libraries: ===
+
+1. === Google APIs Client Library for PHP ===
+   - Author: Google
+   - URL: https://github.com/googleapis/google-api-php-client
+   - License: Apache License, Version 2.0 (the "License")
+   - License URL: http://www.apache.org/licenses/LICENSE-2.0
+
+2. === PHP Secure Communications Library ===
+   - Author: phpseclib
+   - URL:https://github.com/phpseclib/phpseclib
+   - License: MIT License (or any other applicable license)
+   - License URL: http://opensource.org/licenses/MIT
+
+3. === PhpConcept Library - Zip Module ===
+   - Author: Vincent Blavet
+   - URL:http://www.phpconcept.net
+   - License: License GNU/LGPL
+
+4. === phpFileTree ===
+   - Author: Cory S.N. LaViska's
+   - URL: https://www.abeautifulsite.net/blog/2007/06/php-file-tree/
+   - License: License GNU/LGPL

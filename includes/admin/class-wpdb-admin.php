@@ -146,7 +146,7 @@ class Wpdb_Admin {
 		$wp_db_remove_local_backup = get_option( 'wp_db_remove_local_backup' );
 		if ( 1 === $wp_db_remove_local_backup ) {
 			if ( file_exists( $args[1] ) ) {
-				unlink( $args[1] );// File path.
+				wp_delete_file( $args[1] );// File path.
 			}
 		}
 	}
@@ -233,7 +233,7 @@ class Wpdb_Admin {
 							update_option( 'wp_db_backup_enable_htaccess', 0 , false);
 							$path_info = wp_upload_dir();
 							if ( file_exists( $path_info['basedir'] . '/db-backup/.htaccess' ) ) {
-								unlink( $path_info['basedir'] . '/db-backup/.htaccess' );
+								wp_delete_file( $path_info['basedir'] . '/db-backup/.htaccess' );
 							}
 						}
 
@@ -310,7 +310,7 @@ class Wpdb_Admin {
 					while ( $file ) {
 						// If $file is NOT a directory remove it.
 						if ( ! is_dir( $file ) ) {
-							unlink( $dir . $file );
+							wp_delete_file( $dir . $file );
 						}
 					}
 					// Close the directory.
@@ -348,12 +348,12 @@ class Wpdb_Admin {
 									higher in the hierarchy to your working directory */
 									chdir($file_directory);
 									if ( isset($options[ $index ]['filename']) && file_exists( $options[ $index ]['filename'] ) ) {
-										unlink( $options[ $index ]['filename'] );
+										wp_delete_file( $options[ $index ]['filename'] );
 									}
 									if(isset($options[ $index ]['filename'])){
 										$file_sql = explode( '.', $options[ $index ]['filename'] );
 										if ( isset($file_sql[0]) && file_exists( $file_sql[0] . '.sql' ) ) {
-											unlink( $file_sql[0] . '.sql' );
+											wp_delete_file( $file_sql[0] . '.sql' );
 										}
 									}
 									
@@ -381,7 +381,7 @@ class Wpdb_Admin {
 										if(!empty($files)){
 											foreach($files as $file) { 
 												if(is_file($file)){
-													unlink($file);
+													wp_delete_file($file);
 												}  
 											} 
 										}
@@ -416,7 +416,7 @@ class Wpdb_Admin {
 										while ( false !== ($file = readdir( $dh )) ) {
 											if ( ! ( in_array( $file, $backup_check_list, true ) ) ) {
 												if ( file_exists( $wp_db_backup_path . '/' . $file ) ) {
-													unlink( $wp_db_backup_path . '/' . $file );
+													wp_delete_file( $wp_db_backup_path . '/' . $file );
 												}
 												$delete_message .= ' ' . $file;
 											}
@@ -552,7 +552,7 @@ class Wpdb_Admin {
 								
 								if ( isset( $options[ $index ]['sqlfile'] ) && file_exists( $options[ $index ]['sqlfile'] ) ) { // Added for extract zip file V.3.3.0.
 									if ( file_exists( $options[ $index ]['sqlfile'] ) ) {
-										unlink( $options[ $index ]['sqlfile'] );
+										wp_delete_file( $options[ $index ]['sqlfile'] );
 									}
 								} else {
 									$database_file = isset($options[ $index ]['dir'] )?$options[ $index ]['dir']:'';
@@ -561,7 +561,7 @@ class Wpdb_Admin {
 										if(isset($file_sql[0])){
 											$database_file = ( $file_sql[0] . '.sql' );
 												if ( file_exists( $database_file ) ) {
-													unlink( $database_file );
+													wp_delete_file( $database_file );
 												}
 
 										}
@@ -2280,14 +2280,14 @@ class Wpdb_Admin {
 		// If there are mysqldump errors delete the database dump file as mysqldump will still have written one.
 		if ( $this->get_errors( $this->get_mysqldump_method() ) && file_exists( $sql_filename ) ) {
 			if ( file_exists( $sql_filename ) ) {
-				unlink( $sql_filename );
+				wp_delete_file( $sql_filename );
 			}
 		}
 
 		// If we have an empty file delete it.
 		if ( 0 === filesize( $sql_filename ) ) {
 			if ( file_exists( $sql_filename ) ) {
-				unlink( $sql_filename );
+				wp_delete_file( $sql_filename );
 			}
 		}
 
@@ -2486,11 +2486,11 @@ class Wpdb_Admin {
 				for ( $i = 0; $i <= $diff; $i++ ) {
 					$index = $i;
 					if ( isset($options[ $index ]['dir']) && file_exists( $options[ $index ]['dir'] ) ) {
-						unlink( $options[ $index ]['dir'] );
+						wp_delete_file( $options[ $index ]['dir'] );
 					}
 					$file_sql = explode( '.', $options[ $index ]['dir'] );
 					if ( isset($file_sql[0]) && file_exists( $file_sql[0] . '.sql' ) ) {
-						unlink( $file_sql[0] . '.sql' );
+						wp_delete_file( $file_sql[0] . '.sql' );
 					}
 				}
 				for ( $i = ( $diff + 1 ); $i < $number_of_existing_backups; $i++ ) {
@@ -2504,7 +2504,7 @@ class Wpdb_Admin {
 		}
 
 		if ( file_exists( $path_info['basedir'] . '/db-backup/' . $sql_filename ) ) {
-			unlink( $path_info['basedir'] . '/db-backup/' . $sql_filename );
+			wp_delete_file( $path_info['basedir'] . '/db-backup/' . $sql_filename );
 		}
 		return $upload_path;
 	}
@@ -2916,8 +2916,8 @@ class Wpdb_Admin {
 	        $path_info = wp_upload_dir();
 	        $filename = $FileName . '.sql';
 	        $WPDBFileName = $FileName . '.zip';
-	        @unlink($this->wp_db_backup_wp_config_path() . '/' . $filename);
-	        @unlink($this->wp_db_backup_wp_config_path() . '/wp_installer.php');
+	        wp_delete_file($this->wp_db_backup_wp_config_path() . '/' . $filename);
+	        wp_delete_file($this->wp_db_backup_wp_config_path() . '/wp_installer.php');
 	        @$filesize = filesize($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/' . $WPDBFileName);
 
 	        $upload_path = array(
@@ -3154,7 +3154,7 @@ class Wpdb_Admin {
 
 	        // If there are errors delete the backup file.
 	        if ($this->get_errors($this->get_archive_method()) && file_exists($WPDBFileName))
-	            unlink($WPDBFileName);
+	            wp_delete_file($WPDBFileName);
 
 	        // If the archive file still exists assume it's good
 	        if (file_exists($WPDBFileName))

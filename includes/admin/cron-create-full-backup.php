@@ -394,8 +394,8 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 	
 				$output = '';
 				$sub_limit = 500;
-				//phpcs:ignore  -- Use PHP methods for large files
-				$check_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM %s", $table));
+				//phpcs:ignore  -- need to get all tables
+				$check_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM `{$table}`"));
 				$check_count = intval($check_count);
 	
 				if ($check_count > $sub_limit) {
@@ -403,7 +403,7 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 					for ($sub_i = 0; $sub_i < $t_sub_queries; $sub_i++) {
 						$sub_offset = $sub_i * $sub_limit;
 						// phpcs:ignore  -- need to get chunk of data for selected table
-						$sub_result = $wpdb->get_results($wpdb->prepare("SELECT * FROM %s LIMIT %d OFFSET %d", $table, $sub_limit, $sub_offset), ARRAY_A);
+						$sub_result = $wpdb->get_results($wpdb->prepare("SELECT * FROM `{$table}` LIMIT %d OFFSET %d", $sub_limit, $sub_offset), ARRAY_A);
 						if ($sub_result) {
 							$output .= wpdbbkp_create_sql_insert_statements($table, $sub_result);
 						}
@@ -411,13 +411,13 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 					}
 				} else {
 					// phpcs:ignore  -- need to get all data for selected table
-					$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM %s", $table), ARRAY_A);
+					$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM `{$table}`"), ARRAY_A);
 					$output .= wpdbbkp_create_sql_insert_statements($table, $result);
 				}
 	
 
 				// phpcs:ignore  -- Get table structure for backup
-				$row2 = $wpdb->get_row($wpdb->prepare("SHOW CREATE TABLE %s", $table), ARRAY_N);
+				$row2 = $wpdb->get_row($wpdb->prepare("SHOW CREATE TABLE `{$table}`"), ARRAY_N);
 				$output = "\n\n" . $row2[1] . ";\n\n" . $output;
 	
 				// Write to file in chunks
@@ -451,7 +451,7 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 					sleep(1);
 				}
 	
-				$logMessage .= "\nBackup completed for table: $table";
+				$logMessage .= "\nBackup completed for table: {$table}";
 			}
 	
 			$wpdb->flush();

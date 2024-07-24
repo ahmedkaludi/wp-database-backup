@@ -11,7 +11,7 @@
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class wpdbbkp_ads_newsletter {
+class Wpdbbkp_Newsletter {
         
 	function __construct () {
                 add_filter( 'wpdbbkp_localize_filter',array($this,'wpdbbkp_add_localize_footer_data'),10,2);
@@ -91,5 +91,5 @@ class wpdbbkp_ads_newsletter {
     }
        
 }
-$wpdbbkp_ads_newsletter = new wpdbbkp_ads_newsletter();
+$wpdbbkp_newsletter = new Wpdbbkp_Newsletter();
 ?>

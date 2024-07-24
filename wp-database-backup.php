@@ -116,7 +116,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			include_once 'includes/admin/Destination/wp-backup-destination-upload-action.php';
 			include_once 'includes/class-wpdbbackuplog.php';
 			include_once 'includes/admin/filter.php';
-			include_once 'includes/admin/newsletter.php';
+			include_once 'includes/admin/class-wpdbbkp-newsletter.php';
 			include_once 'includes/admin/cron-create-full-backup.php';
 			include_once 'includes/class-wpdbfullbackuplog.php';
 			

@@ -394,8 +394,9 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 	
 				$output = '';
 				$sub_limit = 500;
+				$table = esc_sql($table);
 				//phpcs:ignore  -- need to get all tables
-				$check_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM `{$table}`"));
+				$check_count = $wpdb->get_var("SELECT COUNT(*) FROM `{$table}`");
 				$check_count = intval($check_count);
 	
 				if ($check_count > $sub_limit) {
@@ -411,13 +412,13 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 					}
 				} else {
 					// phpcs:ignore  -- need to get all data for selected table
-					$result = $wpdb->get_results($wpdb->prepare("SELECT * FROM `{$table}`"), ARRAY_A);
+					$result = $wpdb->get_results("SELECT * FROM `{$table}`", ARRAY_A);
 					$output .= wpdbbkp_create_sql_insert_statements($table, $result);
 				}
 	
 
 				// phpcs:ignore  -- Get table structure for backup
-				$row2 = $wpdb->get_row($wpdb->prepare("SHOW CREATE TABLE `{$table}`"), ARRAY_N);
+				$row2 = $wpdb->get_row("SHOW CREATE TABLE `{$table}`", ARRAY_N);
 				$output = "\n\n" . $row2[1] . ";\n\n" . $output;
 	
 				// Write to file in chunks

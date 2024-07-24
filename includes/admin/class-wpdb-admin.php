@@ -1924,7 +1924,9 @@ class Wpdb_Admin {
 		$file_size_threshold = 10 * 1024 * 1024; // 10MB
 	
 		// Initialize the file with table creation statement if it doesn't exist
-		$row2 = $wpdb->get_row( 'SHOW CREATE TABLE ' . $table, ARRAY_N ); // phpcs:ignore
+
+		$table = esc_sql( $table );
+		$row2 = $wpdb->get_row( "SHOW CREATE TABLE `{$table}`", ARRAY_N ); // phpcs:ignore
 		$initial_output = "\n\n" . $row2[1] . ";\n\n";
 	
 		$use_php_methods = false;
@@ -1976,7 +1978,8 @@ class Wpdb_Admin {
 		}
 	
 		$sub_limit = 500;
-		$check_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" ); // phpcs:ignore
+		// phpcs:ignore
+		$check_count = $wpdb->get_var( "SELECT COUNT(*) FROM `{$table}`" ); 
 		$check_count = intval( $check_count );
 	
 		if ( $check_count > $sub_limit ) {
@@ -1984,7 +1987,7 @@ class Wpdb_Admin {
 	
 			for ( $sub_i = 0; $sub_i < $t_sub_queries; $sub_i++ ) {
 				$sub_offset = $sub_i * $sub_limit;
-				$sub_result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `$table` LIMIT %d OFFSET %d", array( $sub_limit, $sub_offset ) ), ARRAY_A ); // phpcs:ignore
+				$sub_result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$table}` LIMIT %d OFFSET %d", array( $sub_limit, $sub_offset ) ), ARRAY_A ); // phpcs:ignore
 	
 				if ( $sub_result ) {
 					$output = '';
@@ -2010,7 +2013,7 @@ class Wpdb_Admin {
 				sleep(1);
 			}
 		} else {
-			$result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `$table`" ), ARRAY_A ); // phpcs:ignore
+			$result = $wpdb->get_results( "SELECT * FROM `{$table}`", ARRAY_A ); // phpcs:ignore
 	
 			$output = '';
 			foreach ( $result as $row ) {
@@ -2398,7 +2401,7 @@ class Wpdb_Admin {
 			if(!empty($tables)){
 			foreach($tables as $table){
 				if ( empty( $wp_db_exclude_table ) || ( ! ( in_array( $table, $wp_db_exclude_table, true ) ) ) ) {
-					$this->wp_db_backup_create_mysql_backup_new($table,$path_info['basedir'] . '/db-backup/' . $sql_filename );
+					$this->wp_db_backup_create_mysql_backup_new($table, $path_info['basedir'] . '/db-backup/' . $sql_filename );
 				}
 			}
 

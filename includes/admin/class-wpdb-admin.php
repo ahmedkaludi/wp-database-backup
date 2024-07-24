@@ -630,6 +630,7 @@ class Wpdb_Admin {
 		WP_Filesystem();
 
 		$options  = get_option( 'wp_db_backup_backups' );
+		$options = $this->wpdbbkp_filter_unique_filenames( $options );
 		$settings = get_option( 'wp_db_backup_options' ); 
 		$wp_db_log = get_option( 'wp_db_log' ); ?>
 		<div class="bootstrap-wrapper">
@@ -3246,6 +3247,20 @@ class Wpdb_Admin {
 		
 			return false;
 		}
+
+		private function wpdbbkp_filter_unique_filenames($backups) {
+		   $unique_filenames = [];
+		   $filtered_backups = [];
+	   
+		   foreach ($backups as $backup) {
+			   if (isset($backup['filename']) && !in_array($backup['filename'], $unique_filenames)) {
+				   $unique_filenames[] = $backup['filename'];
+				   $filtered_backups[] = $backup;
+			   }
+		   }
+	   
+		   return $filtered_backups;
+	   }
 
 	}
 

@@ -575,7 +575,10 @@ if(!function_exists('wpdbbkp_cron_get_backup_files')){
 
 	            if (get_option('wp_db_backup_backup_type') == 'Database' || get_option('wp_db_backup_backup_type') == 'complete') {
 	                $filename = $FileName . '.sql';
-	                $zip->addFile($path_info['basedir'] . '/db-backup/' . $filename, $filename);
+					//phpcs:ignore  -- check if file exists
+					if(file_exists( $path_info['basedir'] . '/db-backup/' . $filename )){
+						$zip->addFile($path_info['basedir'] . '/db-backup/' . $filename, $filename);
+					}
 	            }
 	            $zip->close();
 

@@ -1042,17 +1042,3 @@ function wpdbbkp_backup_files_cron_with_resume(){
 
 	return $should_run_backup;
  }
-
- function wpdbbkp_filter_unique_filenames($backups) {
-	$unique_filenames = [];
-	$filtered_backups = [];
-	 if(!empty($backups)){
-		 foreach ($backups as $backup) {
-			 if (isset($backup['filename']) && !in_array($backup['filename'], $unique_filenames)) {
-				 $unique_filenames[] = $backup['filename'];
-				 $filtered_backups[] = $backup;
-			 }
-		 }
-	 }
-	return $filtered_backups;
-}

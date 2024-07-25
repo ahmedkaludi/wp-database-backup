@@ -221,6 +221,10 @@ function wpdbbkp_get_progress(){
 		}
 		if(!empty($tables['tables']) && is_array($tables['tables'])){
 			foreach($tables['tables'] as $table){
+				$wpdbbkp_backupcron_step = get_option( 'wpdbbkp_backupcron_step', false );
+				if('Fetching Tables' != $wpdbbkp_backupcron_step){
+					break;
+				}
 				$common_args['tableName']= $table;
 				update_option('wpdbbkp_backupcron_current',$table, false);
 				$progress = $progress+$single_item_percent;

@@ -39,7 +39,7 @@ class WPDBBackupLog {
 				}
 			}
 		}		
-
+		$newoptions = wpdbbkp_filter_unique_filenames( $newoptions );
 		update_option( 'wp_db_backup_backups', $newoptions ,false);
 	}
 

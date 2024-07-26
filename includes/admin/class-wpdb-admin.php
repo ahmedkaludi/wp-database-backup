@@ -2347,10 +2347,15 @@ class Wpdb_Admin {
 	 */
 	public function wp_db_backup_event_process() {
 		// Added in v.3.9.5!
+		global $wp_filesystem;
+		if(!function_exists('WP_Filesystem')){
+			require_once ( ABSPATH . '/wp-admin/includes/file.php' );
+		}
+		WP_Filesystem();
 
 		$cron_condition = apply_filters('wpdbbkp_dbback_cron_condition',true );
 		if(wp_doing_cron() && !$cron_condition){
-			wp_die();
+			return false;
 		}
 
 		set_time_limit( 0 );
@@ -2398,16 +2403,8 @@ class Wpdb_Admin {
 		}
 		if(isset($details['log_dir']) && !empty($details['log_dir']))
 		{
-			if (is_writable($details['log_dir']) || !file_exists($details['log_dir'])) {
-
-				if ($handle = @fopen($details['log_dir'], 'a'))
-				{
-					if (fwrite($handle,  str_replace(array("<br>","<b>","</b>"), array("\n","",""), $args[2])))
-					{
-						fclose($handle);
-					}
-				}
-			
+			if ($wp_filesystem->is_writable($details['log_dir']) || file_exists($details['log_dir'])) {
+				$wp_filesystem->put_contents( $details['log_dir'], str_replace(array("<br>","<b>","</b>"), array("\n","",""), $args[2]), FS_CHMOD_FILE );
 			}
 		}
 	}

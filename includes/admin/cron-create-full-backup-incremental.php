@@ -339,93 +339,144 @@ if(!function_exists('wpdbbkp_cron_mysqldump')){
 	
 }
 
+
  /*******************
  * Create DB Backup
  ********************/
 if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
-	function wpdbbkp_cron_create_mysql_backup($args)
-	{
-		global $wpdb;
-			if((isset($args['logFile']) && !empty($args['logFile'])) && (isset($args['tableName']) && !empty($args['tableName'])) && (isset($args['FileName']) && !empty($args['FileName']))){
-				$logFile = sanitize_text_field($args['logFile']);
-				$table = sanitize_text_field($args['tableName']);
-				$FileName = sanitize_text_field($args['FileName']);
-				$filename = $FileName . '.sql';
-				$path_info = wp_upload_dir();
-				
-		        $wp_db_exclude_table = array();
-		        $wp_db_exclude_table = get_option('wp_db_exclude_table');
-		        $logMessage = "\n#--------------------------------------------------------\n";
-		        $logMessage .= "\n Database Table Backup";
-		        $logMessage .= "\n#--------------------------------------------------------\n";
-		        if (!empty($wp_db_exclude_table)) {
-		            $logMessage.= 'Exclude Table : ' . implode(', ', $wp_db_exclude_table);
-		            $logMessage .= "\n#--------------------------------------------------------\n";
-		        }
+	function wpdbbkp_cron_create_mysql_backup($args) {
+		if (isset($args['logFile']) && !empty($args['logFile']) && 
+			isset($args['tableName']) && !empty($args['tableName']) && 
+			isset($args['FileName']) && !empty($args['FileName'])) {
 	
-		        $output = '';
-		        if (empty($wp_db_exclude_table) || (!(in_array($table, $wp_db_exclude_table)))) {
-		            $logMessage .= "\n $table";
-					$check_count      = $wpdb->get_var( "SELECT count(*) FROM {$table}"); // phpcs:ignore
-					$check_count = intval($check_count);
-					$sub_limit =500;
-					if(isset($check_count) && $check_count>$sub_limit){
-						$result =array();
-						$t_sub_queries= ceil($check_count/$sub_limit);
-						for($sub_i=0;$sub_i<$t_sub_queries;$sub_i++)
-						{
-							$sub_offset = $sub_i*$sub_limit;
-							$sub_result = $wpdb->get_results( $wpdb->prepare("SELECT * FROM %i LIMIT %d OFFSET %d",array($table,$sub_limit,$sub_offset)), ARRAY_A  );
-							if($sub_result){
-								$result = array_merge($result,$sub_result);
+			$logFile = sanitize_text_field($args['logFile']);
+			$table = sanitize_text_field($args['tableName']);
+			$FileName = sanitize_text_field($args['FileName']);
+			$filename = $FileName . '.sql';
+			$path_info = wp_upload_dir();
+			$filepath  = $path_info['basedir'] . '/db-backup/' . $filename;
+			global $wpdb;
+	
+			// Load WP Filesystem
+			if (!function_exists('WP_Filesystem')) {
+				require_once ABSPATH . 'wp-admin/includes/file.php';
+				WP_Filesystem();
+			}
+	
+			global $wp_filesystem;
+			$wp_db_exclude_table = get_option('wp_db_exclude_table', array());
+			$logMessage = "\n#--------------------------------------------------------\n";
+			$logMessage .= "\n Database Table Backup";
+			$logMessage .= "\n#--------------------------------------------------------\n";
+			
+			if (!empty($wp_db_exclude_table)) {
+				$logMessage .= 'Exclude Table: ' . implode(', ', $wp_db_exclude_table) . "\n#--------------------------------------------------------\n";
+			}
+	
+			if (empty($wp_db_exclude_table) || !in_array($table, $wp_db_exclude_table)) {
+				$logMessage .= "\nBacking up table: $table";
+	
+				$output = '';
+				$sub_limit = 500;
+				$table = esc_sql($table);
+				//phpcs:ignore  -- need to get all tables
+				$check_count = $wpdb->get_var("SELECT COUNT(*) FROM `{$table}`");
+				$check_count = intval($check_count);
+	
+				if ($check_count > $sub_limit) {
+					$t_sub_queries = ceil($check_count / $sub_limit);
+					for ($sub_i = 0; $sub_i < $t_sub_queries; $sub_i++) {
+						$sub_offset = $sub_i * $sub_limit;
+						// phpcs:ignore  -- need to get chunk of data for selected table
+						$sub_result = $wpdb->get_results($wpdb->prepare("SELECT * FROM `{$table}` LIMIT %d OFFSET %d", $sub_limit, $sub_offset), ARRAY_A);
+						if ($sub_result) {
+							$output .= wpdbbkp_create_sql_insert_statements($table, $sub_result);
+						}
+						sleep(1);
+					}
+				} else {
+					// phpcs:ignore  -- need to get all data for selected table
+					$result = $wpdb->get_results("SELECT * FROM `{$table}`", ARRAY_A);
+					$output .= wpdbbkp_create_sql_insert_statements($table, $result);
+				}
+	
+
+				// phpcs:ignore  -- Get table structure for backup
+				$row2 = $wpdb->get_row("SHOW CREATE TABLE `{$table}`", ARRAY_N);
+				$output = "\n\n" . $row2[1] . ";\n\n" . $output;
+	
+				// Write to file in chunks
+				$chunk_size = 1024 * 1024; // 1MB chunks
+				$total_size = strlen($output);
+				$offset = 0;
+				$use_php_methods = $total_size > 10 * $chunk_size; // Use PHP methods for large files
+	
+				$append_content = function($new_content) use ($filepath, $wp_filesystem, $use_php_methods) {
+					if ($use_php_methods) {
+						//phpcs:ignore  -- Use PHP methods for large files
+						file_put_contents($filepath, $new_content, FILE_APPEND);
+					} else {
+						if (!$wp_filesystem->exists($filepath)) {
+							$wp_filesystem->put_contents($filepath, $new_content, FS_CHMOD_FILE);
+						} else {
+							$current_contents = $wp_filesystem->get_contents($filepath);
+							if ($current_contents === false) {
+								return false;
 							}
-							sleep(1);
+							$updated_contents = $current_contents . $new_content;
+							$wp_filesystem->put_contents($filepath, $updated_contents, FS_CHMOD_FILE);
 						}
 					}
-					else{
-						$result       = $wpdb->get_results( $wpdb->prepare("SELECT * FROM %i",array($table)), ARRAY_A  ); // phpcs:ignore
-					}
-		            $row2 = $wpdb->get_row('SHOW CREATE TABLE ' . $table, ARRAY_N);
-		            $output .= "\n\n" . $row2[1] . ";\n\n";
-		            $logMessage .= "(" . count($result) . ")";
-					$result_count=count($result);
-
-					for ( $i = 0; $i < $result_count; $i++ ) {
-						$row            = $result[ $i ];
-						$output        .= 'INSERT INTO ' . $table . ' VALUES(';
-						$result_o_index = count( $result[0] );
-						$j=0;
-						foreach ($row as $key => $value) {
-							$row[ $key] = $wpdb->_real_escape( apply_filters( 'wpdbbkp_process_db_fields', $row[$key],$table,$key) );
-							$output   .= ( isset( $row[ $key ] ) ) ? '"' . $row[ $key ] . '"' : '""';
-							if ( $j < ( $result_o_index - 1 ) ) {
-								$output .= ',';
-							}
-							$j++;
+				};
 	
-						}
-						$output .= ");\n";
-					}
-		            $output .= "\n";
-		        }
-		        $wpdb->flush();
-		        $logMessage .= "\n#--------------------------------------------------------\n";
-		        if (get_option('wp_db_log') == 1) {
-		            wpdbbkp_write_log($logFile, $logMessage);
-		            $upload_path['logfile'] = $logFile;
-		        } else {
-		            $upload_path['logfile'] = "";
-		        }
-				$handle = fopen($path_info['basedir'] . '/db-backup/' . $filename, 'a');
-		        fwrite($handle, $output);
-				fclose($handle);
-
-				$logMessage = "\n# Database dump method: PHP\n";
-				if (get_option('wp_db_log') == 1) {
-	                wpdbbkp_write_log($logFile, $logMessage);
-	            }
+				while ($offset < $total_size) {
+					$chunk = substr($output, $offset, $chunk_size);
+					$append_content($chunk);
+					$offset += $chunk_size;
+					sleep(1);
+				}
+	
+				$logMessage .= "\nBackup completed for table: {$table}";
+			}
+	
+			$wpdb->flush();
+			$logMessage .= "\n#--------------------------------------------------------\n";
+	
+			if (get_option('wp_db_log') == 1) {
+				wpdbbkp_write_log($logFile, $logMessage);
+				$upload_path['logfile'] = $logFile;
+			} else {
+				$upload_path['logfile'] = "";
+			}
+	
+			$logMessage = "\n# Database dump method: PHP\n";
+			if (get_option('wp_db_log') == 1) {
+				wpdbbkp_write_log($logFile, $logMessage);
 			}
 		}
+	}
+	
+	/**
+	 * Creates SQL INSERT statements for the given data.
+	 *
+	 * @param string $table Table name.
+	 * @param array $rows Data rows.
+	 * @return string SQL INSERT statements.
+	 */
+	function wpdbbkp_create_sql_insert_statements($table, $rows) {
+		global $wpdb;
+		$output = '';
+		foreach ($rows as $row) {
+			$output .= 'INSERT INTO `' . $table . '` VALUES(';
+			$values = array();
+			foreach ($row as $value) {
+				$values[] = isset($value) ? '"' . $wpdb->_real_escape($value) . '"' : 'NULL';
+			}
+			$output .= implode(',', $values) . ");\n";
+		}
+		return $output;
+	}
+	
 	
 }
 

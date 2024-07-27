@@ -138,7 +138,7 @@ function wpdbbkp_enqueue_makebetter_email_js(){
 
     wp_register_script( 'wpdbbkp-make-better-js', WPDB_PLUGIN_URL . '/assets/js/make-better-admin.js', array( 'jquery' ), WPDB_VERSION , true);
     wp_localize_script('wpdbbkp-make-better-js', 'wpdbbkp_pub_script_vars', array(
-        'nonce' => wp_create_nonce( 'wpdbbkp-pub-nonce' ),)
+        'nonce' => wp_create_nonce( 'wpdbbkp-pub-nonce' ))
     );
     wp_enqueue_script( 'wpdbbkp-make-better-js');
     wp_enqueue_style( 'wpdbbkp-make-better-css', WPDB_PLUGIN_URL . '/assets/css/make-better-admin.css', false , WPDB_VERSION);

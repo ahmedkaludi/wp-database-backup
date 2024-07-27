@@ -1869,7 +1869,7 @@ class Wpdb_Admin {
 						}
 					}
 					else{
-						$result       = $wpdb->get_results( $wpdb->prepare("SELECT * FROM {$table}",), ARRAY_A  ); // phpcs:ignore
+						$result       = $wpdb->get_results( $wpdb->prepare("SELECT * FROM {$table}"), ARRAY_A  ); // phpcs:ignore
 					}
 					
 	

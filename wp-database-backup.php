@@ -117,7 +117,12 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			include_once 'includes/class-wpdbbackuplog.php';
 			include_once 'includes/admin/filter.php';
 			include_once 'includes/admin/class-wpdbbkp-newsletter.php';
-			include_once 'includes/admin/cron-create-full-backup.php';
+			$wp_db_incremental_backup=get_option('wp_db_incremental_backup');
+			if($wp_db_incremental_backup==1){
+				include_once 'includes/admin/cron-create-full-backup-incremental.php';
+			}else{
+				include_once 'includes/admin/cron-create-full-backup.php';
+			}
 			include_once 'includes/class-wpdbfullbackuplog.php';
 			
 		}

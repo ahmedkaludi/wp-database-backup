@@ -360,6 +360,7 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 	
 			
 			$wp_db_exclude_table = get_option('wp_db_exclude_table', array());
+			$wp_db_exclude_table[] = $wpdb->prefix.'wpdbbkp_processed_files';
 			$logMessage = "\n#--------------------------------------------------------\n";
 			$logMessage .= "\n Database Table Backup";
 			$logMessage .= "\n#--------------------------------------------------------\n";

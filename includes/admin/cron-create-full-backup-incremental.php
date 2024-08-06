@@ -45,8 +45,8 @@ if ( ! wp_next_scheduled( 'backup_files_cron_new' ) ) {
 
 	$trasient_lock 	= get_transient( 'wpdbbkp_backup_status' );
 	$status_lock 	= get_option( 'wpdbbkp_backupcron_status','inactive');
-	$total_chunk 	= get_option( 'wpdbbkp_total_chunk_cnt',false );
-	$current_args 	= get_option( 'wpdbbkp_current_chunk_args',false );
+	$total_chunks 	= get_option( 'wpdbbkp_total_chunk_cnt',false );
+	$current_chunk_args 	= get_option( 'wpdbbkp_current_chunk_args',false );
 	$last_update 	= get_option('wpdbbkp_last_update',false);
 
 
@@ -356,14 +356,9 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 			$path_info = wp_upload_dir();
 			$filepath  = $path_info['basedir'] . '/db-backup/' . $filename;
 			global $wpdb;
+			
 	
-			// Load WP Filesystem
-			if (!function_exists('WP_Filesystem')) {
-				require_once ABSPATH . 'wp-admin/includes/file.php';
-				WP_Filesystem();
-			}
-	
-			global $wp_filesystem;
+			
 			$wp_db_exclude_table = get_option('wp_db_exclude_table', array());
 			$logMessage = "\n#--------------------------------------------------------\n";
 			$logMessage .= "\n Database Table Backup";
@@ -410,13 +405,18 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
 				$total_size = strlen($output);
 				$offset = 0;
 				$use_php_methods = $total_size > 10 * $chunk_size; // Use PHP methods for large files
-	
+				global $wp_filesystem;
+				// Load WP Filesystem
+				if (!function_exists('WP_Filesystem')) {
+					require_once ABSPATH . 'wp-admin/includes/file.php';
+					WP_Filesystem();
+				}
 				$append_content = function($new_content) use ($filepath, $wp_filesystem, $use_php_methods) {
-					if ($use_php_methods) {
+					if ($use_php_methods && !$wp_filesystem) {
 						//phpcs:ignore  -- Use PHP methods for large files
 						file_put_contents($filepath, $new_content, FILE_APPEND);
 					} else {
-						if (!$wp_filesystem->exists($filepath)) {
+						if ($wp_filesystem && !$wp_filesystem->exists($filepath)) {
 							$wp_filesystem->put_contents($filepath, $new_content, FS_CHMOD_FILE);
 						} else {
 							$current_contents = $wp_filesystem->get_contents($filepath);

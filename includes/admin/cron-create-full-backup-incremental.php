@@ -43,7 +43,7 @@ if ( ! function_exists( 'wpdbbkp_schedule_backup_db' ) ) {
 		if ( ! wp_next_scheduled( 'wpdbbkp_cron_backup_hook_db' ) && ! $db_process_check) {
 			$path_info = wp_upload_dir();
 			$progressFile = $path_info['basedir'] . '/db-backup/db_progress.json';
-			$progress_json  = file_exists( $progressFile ) ? json_decode( file_get_contents( $progressFile ), true ) : null ;
+			$progress_json  = file_exists( $progressFile ) ? true : false ;
 			if($progress_json){
 				wp_schedule_event( time(), 'every_tweleve_minutes', 'wpdbbkp_cron_backup_hook_db' );
 			}

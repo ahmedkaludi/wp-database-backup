@@ -88,36 +88,37 @@ function wp_db_fullbackup_add_cron_schedules($schedules){
     }
     return $schedules;
 }
+add_filter('cron_schedules','wp_db_fullbackup_add_cron_schedules');
+function wpdbbkp_schedule_backup_files(){
+	if ( ! wp_next_scheduled( 'backup_files_cron_new' ) ) {
 
-if ( ! wp_next_scheduled( 'backup_files_cron_new' ) ) {
-
-	$trasient_lock 	= get_transient( 'wpdbbkp_backup_status' );
-	$status_lock 	= get_option( 'wpdbbkp_backupcron_status','inactive');
-	$total_chunks 	= get_option( 'wpdbbkp_total_chunk_cnt',false );
-	$current_chunk_args 	= get_option( 'wpdbbkp_current_chunk_args',false );
-	$last_update 	= get_option('wpdbbkp_last_update',false);
-
-
-    $should_run_backup = ($status_lock == 'active');
-
-    if ( !$should_run_backup && $trasient_lock ) {
-        $time_diff = time() - intval( $last_update );
-        if ( $time_diff < 600 ) { // 10 minutes * 60 seconds
-            $should_run_backup = false;
-        }
-    }
-
-   
-    if ( !$total_chunks || !$current_chunk_args ) {
-        $should_run_backup = false;
-    }
-
-    
-    if ( $should_run_backup ) {
-        wp_schedule_event( time(), 'ten_minutes', 'backup_files_cron_new' );
-    }
-
+		$trasient_lock 	= get_transient( 'wpdbbkp_backup_status' );
+		$status_lock 	= get_option( 'wpdbbkp_backupcron_status','inactive');
+		$total_chunks 	= get_option( 'wpdbbkp_total_chunk_cnt',false );
+		$current_chunk_args 	= get_option( 'wpdbbkp_current_chunk_args',false );
+		$last_update 	= get_option('wpdbbkp_last_update',false);
+	
+	
+		$should_run_backup = ($status_lock == 'active');
+	
+		if ( !$should_run_backup && $trasient_lock ) {
+			$time_diff = time() - intval( $last_update );
+			if ( $time_diff < 600 ) { // 10 minutes * 60 seconds
+				$should_run_backup = false;
+			}
+		}
+	
+		if ( !$total_chunks || !$current_chunk_args ) {
+			$should_run_backup = false;
+		}
+		
+		if ( $should_run_backup ) {
+			wp_schedule_event( time(), 'ten_minutes', 'backup_files_cron_new' );
+		}
+	
+	}
 }
+add_action( 'wp', 'wpdbbkp_schedule_backup_files' );
 
 /*************************************************
  * Create custom enpoint for running cron backup
@@ -503,6 +504,7 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 					update_option('wpdbbkp_backupcron_current','DB Backed Up', false);
 				}
 				if($args['from_cron']){
+					update_option('wpdbbkp_current_chunk_args',$args, false);
 					backup_files_cron_with_resume();
 				}
 			}
@@ -1165,18 +1167,4 @@ class wpdbbkpExcludeFilter extends RecursiveFilterIterator {
 	}
 
 	return $size;
-}
-
-add_action( 'wp_ajax_backup_files_cron_with_resume', 'wpdbbkp_backup_files_cron_with_resume' );
-
-function wpdbbkp_backup_files_cron_with_resume(){
-	 // Ensure the function is defined
-	 if ( function_exists( 'backup_files_cron_with_resume' ) ) {
-        backup_files_cron_with_resume();
-        wp_send_json_success( 'Backup process initiated.' );
-    } else {
-        wp_send_json_error( 'Function not found.' );
-    }
-
-    wp_die();
 }

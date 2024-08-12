@@ -956,8 +956,7 @@ function backup_files_cron_with_resume(){
 
 	
 	$total_chunk 	= $total_files;
-	$current_chunk  = get_option( 'wpdbbkp_current_chunk_cnt', 0);
-	$current_args 	= get_option( 'wpdbbkp_current_chunk_args', false);
+	$current_chunk  = 0;
 	$progress 		= 30;
 	$single_chunk_percent = number_format(((1/$total_files)*64),2,".","");
 
@@ -966,9 +965,9 @@ function backup_files_cron_with_resume(){
 
 	if($last_update)
 	{
-		if($trasient_lock=='active'){
+		if($status_lock == 'active'){
 			$diff = time()-intval($last_update);
-			if($diff<600){
+			if($diff<660){
 				wp_die();
 			}
 		}
@@ -990,23 +989,28 @@ function backup_files_cron_with_resume(){
 			$total_size += $file->getSize();
 			$current_chunk++;
 			$progress = $progress+$single_chunk_percent;
-			update_option('wpdbbkp_backupcron_progress',intval($progress), false);
-			update_option('wpdbbkp_current_chunk_cnt',$current_chunk, false);
-			update_option('wpdbbkp_backupcron_current',$chunk_count.' of '.$total_chunk.' files done' , false);
+				update_option('wpdbbkp_backupcron_progress',intval($progress), false);
+				update_option('wpdbbkp_current_chunk_cnt',$current_chunk, false);
+				update_option('wpdbbkp_backupcron_current',$current_chunk.' of '.$total_chunk.' files done' , false);
 			$return_params  = wpdbbkp_upload_batch_to_server($batch);
 			$batch = [];
 			if($chunk_count%10==0){
 				sleep(1);
-				set_transient('wpdbbkp_backup_status','active',600);
+				
+				
+				update_option('wpdbbkp_last_update',time(), false);
 			}
 			
 			if(isset($return_params['success']) && $return_params['success']){
 				wpdbbkp_add_processed_file($file_path);
 				$chunk_count++;
+
+				$current_args['total_chunk_cnt'] = $total_chunk;
+				update_option('wpdbbkp_total_chunk_cnt',$total_chunk, false);
+				update_option('wpdbbkp_current_chunk_args',$current_args, false);
 			}
 	  }
-	  update_option('wpdbbkp_current_chunk_args',$current_args, false);
-	 
+	  set_transient('wpdbbkp_backup_status','active',600);
 	}
 
 	if($current_chunk>=$total_chunk){

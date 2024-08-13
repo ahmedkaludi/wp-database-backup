@@ -959,7 +959,7 @@ function backup_files_cron_with_resume(){
 	$current_chunk  = 0;
 	$progress 		= 30;
 	$single_chunk_percent = number_format(((1/$total_files)*64),2,".","");
-
+	$current_args = get_option('wpdbbkp_current_chunk_args',[]);
 	$current_args['total_chunk_cnt'] = $total_chunk;
 	$chunk_count=$current_chunk+1;
 
@@ -982,10 +982,11 @@ function backup_files_cron_with_resume(){
 	update_option('wpdbbkp_backupcron_current','Scanning Directories' , false);
 	foreach($files as $key=>$file){
 			$file_path = $file->getPathname();
+			$file_name = $file->getFilename();
 			$trasient_lock = get_transient( 'wpdbbkp_backup_status' );
 			$status_lock = get_option( 'wpdbbkp_backupcron_status','inactive');
-		if (($trasient_lock =='active' || $status_lock =='active' ) && $file->isFile() && !wpdbbkp_is_file_processed($file_path,$file->getMTime())) {
-			$batch[] = ['file_path' => $file->getPathname(), 'file_name' => $file->getFilename()];
+		if (($trasient_lock =='active' || $status_lock =='active' ) && $file->isFile() && !wpdbbkp_is_file_processed($file_path,$file->getMTime()) && strpos($file_name, 'error_log') === false && strpos($file_name, 'debug_log') === false) {
+			$batch[] = ['file_path' => $file->getPathname(), 'file_name' => $file_name];
 			$total_size += $file->getSize();
 			$current_chunk++;
 			$progress = $progress+$single_chunk_percent;
@@ -996,8 +997,6 @@ function backup_files_cron_with_resume(){
 			$batch = [];
 			if($chunk_count%10==0){
 				sleep(1);
-				
-				
 				update_option('wpdbbkp_last_update',time(), false);
 			}
 			
@@ -1009,21 +1008,21 @@ function backup_files_cron_with_resume(){
 				update_option('wpdbbkp_total_chunk_cnt',$total_chunk, false);
 				update_option('wpdbbkp_current_chunk_args',$current_args, false);
 			}
+
+			if($current_chunk>=$total_chunk){
+				$wpdbbkp_update_backup_info = ['filename' =>$current_args['fileName'],'dir' => '','url' => '','size' => wpdbbkp_get_foldersize(ABSPATH),'type' => get_option('wp_db_backup_backup_type')];
+				$wpdbbkp_update_backup_info['logfile'] = $current_args['logFile'];
+				$wpdbbkp_update_backup_info['logfileDir'] = $current_args['logFile'];
+				$wpdbbkp_update_backup_info['logMessage'] = isset($current_args['logMessage'])?$current_args['logMessage']:'';
+				wpdbbkp_cron_backup_event_process($wpdbbkp_update_backup_info);
+				update_option('wp_db_last_backup_timestamp' , $start_time);
+				set_transient('wpdbbkp_backup_status','active',600);
+				wp_die();
+			}
 	  }
 	  set_transient('wpdbbkp_backup_status','active',600);
 	}
 
-	if($current_chunk>=$total_chunk){
-
-		$wpdbbkp_update_backup_info = ['filename' =>$current_args['fileName'],'dir' => '','url' => '','size' => wpdbbkp_get_foldersize(ABSPATH),'type' => get_option('wp_db_backup_backup_type')];
-		$wpdbbkp_update_backup_info['logfile'] = $current_args['logFile'];
-		$wpdbbkp_update_backup_info['logfileDir'] = $current_args['logFile'];
-		$wpdbbkp_update_backup_info['logMessage'] = $current_args['logMessage'];
-		wpdbbkp_cron_backup_event_process($wpdbbkp_update_backup_info);
-		update_option('wp_db_last_backup_timestamp' , $start_time);
-	}
-
-	
 }
 
 /************************************************

@@ -842,12 +842,19 @@ class Wpdb_Admin {
 							'S3'         => 'glyphicon glyphicon-cloud-upload',
 							'Drive'      => 'glyphicon glyphicon-hdd',
 							'DropBox'    => 'glyphicon glyphicon-inbox',
-							'Backblaze'  => 'glyphicon glyphicon-cloud-upload'
+							'Backblaze'  => 'glyphicon glyphicon-cloud-upload',
+							'CloudDrive'  => 'glyphicon glyphicon-cloud-upload'
 						);
 						if(!empty($options) && is_array($options)){
 							foreach ( $options as $option ) {
-								if(!is_array($option)){
+								if (!is_array($option)) {
 									continue;
+								}
+
+								if (!empty($option['destination'])) {
+									if (strpos($option['destination'], 'CloudDrive') !== false) {
+										continue;
+									}
 								}
 								$size = isset( $option['size'])? $option['size'] : 0;
 								$str_class = ( 0 === (int) $size  ) ? 'text-danger' : 'wpdb_download';
@@ -1149,6 +1156,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 			
 			<p style="padding:0 20px;"> 
 			<?php echo '<h2 style="padding:0 20px;">'.esc_html__('Getting started with our Remote backup service is simple.', 'wpdbbkp').'</h2>'; ?>
+			
 			<ul style="list-style-type: style;">
 				<li style="margin-left: 30px;"><?php echo esc_html__('Sign up for a free account at', 'wpdbbkp'); ?> <a href="https://app.backupforwp.com/register" target="_blank"><?php  echo esc_html__('Backup for WP CloudDrive', 'wpdbbkp');?> </a></li>
 				<li style="margin-left: 30px;"><?php echo esc_html__('Add the website url', 'wpdbbkp'); ?> <a href="https://app.backupforwp.com/websites" target="_blank"><?php  echo esc_html__('Add Website here', 'wpdbbkp');?> </a></li>
@@ -1172,7 +1180,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 				<p style="padding-left:20px"><input type="submit" name="Submit" class="btn btn-primary" value="<?php esc_attr_e( 'Save' , 'wpdbbkp' ); ?>" />&nbsp;
 				</p>
 			</form>
-
+			<h2 style="padding:20px;"><?php echo esc_html__('Access you  backups', 'wpdbbkp'); ?>  <a href="https://app.backupforwp.com/dashboard/" target="_blank">  <?php echo esc_html__('HERE', 'wpdbbkp'); ?> </a> </h2>
 		</div>
 </div>
 

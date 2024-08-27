@@ -184,21 +184,21 @@ if ( isset( $_POST[ $hidden_field_name ] ) && 'Test Connection' === $_POST[ $hid
 <?php wp_nonce_field( 'wp-database-backup' ); ?>
 
 	<div class="row form-group">
-		<label class="col-sm-2" for="wp_db_backup_destination_FTP"><?php echo esc_html__('Enable FTP Destination:', 'wpdbbkp') ?></label>
+		<label class="col-sm-2" for="wp_db_backup_destination_FTP"><?php echo esc_html__('Enable FTP Destination', 'wpdbbkp') ?></label>
 		<div class="col-sm-6">
 			<input type="checkbox" id="wp_db_backup_destination_FTP" <?php echo ( isset( $wp_db_backup_destination_ftp ) && 1 === (int) $wp_db_backup_destination_ftp ) ? 'checked' : ''; ?> name="wp_db_backup_destination_FTP">
 		</div>
 	</div>
 
 	<div class="row form-group">
-		<label class="col-sm-2" for="FTP_host"><?php echo esc_html__('FTP Host:', 'wpdbbkp') ?></label>
+		<label class="col-sm-2" for="FTP_host"><?php echo esc_html__('FTP Host', 'wpdbbkp') ?></label>
 		<div class="col-sm-6">
 			<input type="text" id="FTP_host" class="form-control" name="<?php echo esc_html( $data_field_name ); ?>" value="<?php echo esc_html( $opt_val ); ?>" size="25" placeholder="<?php esc_attr_e('e.g. ftp.yoursite.com','wpdbbkp');?>">
 		</div>
 	</div>
 
 	<div class="row form-group">
-		<label class="col-sm-2" for="FTP_port"><?php echo esc_html__('FTP Port:', 'wpdbbkp') ?></label>
+		<label class="col-sm-2" for="FTP_port"><?php echo esc_html__('FTP Port', 'wpdbbkp') ?></label>
 		<div class="col-sm-2">
 			<input type="text" id="FTP_port" class="form-control" name="<?php echo esc_html( $data_field_name9 ); ?>" value="<?php echo esc_html( $opt_val9 ); ?>" size="4">
 		</div>
@@ -208,21 +208,21 @@ if ( isset( $_POST[ $hidden_field_name ] ) && 'Test Connection' === $_POST[ $hid
 	</div>
 
 	<div class="row form-group">
-		<label class="col-sm-2" for="FTP_user"><?php echo esc_html__('FTP User:', 'wpdbbkp') ?></label>
+		<label class="col-sm-2" for="FTP_user"><?php echo esc_html__('FTP User', 'wpdbbkp') ?></label>
 		<div class="col-sm-6">
 			<input type="text" id="FTP_user" class="form-control" name="<?php echo esc_html( $data_field_name2 ); ?>" value="<?php echo esc_html( $opt_val2 ); ?>" size="25">
 		</div>
 	</div>
 
 	<div class="row form-group">
-		<label class="col-sm-2" for="FTP_password"><?php echo esc_html__('FTP Password:', 'wpdbbkp') ?></label>
+		<label class="col-sm-2" for="FTP_password"><?php echo esc_html__('FTP Password', 'wpdbbkp') ?></label>
 		<div class="col-sm-6">
 			<input type="password" id="FTP_password" class="form-control" name="<?php echo esc_html( $data_field_name3 ); ?>" value="<?php echo esc_html( $opt_val3 ); ?>" size="25">
 		</div>
 	</div>
 
 	<div class="row form-group">
-		<label class="col-sm-2" for="FTP_dir"><?php echo esc_html__('Subdirectory:', 'wpdbbkp') ?></label>
+		<label class="col-sm-2" for="FTP_dir"><?php echo esc_html__('Subdirectory', 'wpdbbkp') ?></label>
 		<div class="col-sm-6">
 			<input type="text" id="FTP_dir" placeholder="<?php esc_attr_e('e.g. /httpdocs/backups','wpdbbkp');?>" class="form-control" name="<?php echo esc_html( $data_field_name4 ); ?>" value="<?php echo esc_html( $opt_val4 ); ?>" size="25">
 		</div>

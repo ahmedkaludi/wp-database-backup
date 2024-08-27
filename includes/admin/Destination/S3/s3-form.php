@@ -99,7 +99,7 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 			<form  class="form-group" name="amazons3" method="post" action="">
 
 				<div class="row form-group">
-					<label class="col-sm-2" for="wp_db_backup_destination_s3"><?php echo esc_html__('Enable Amazon S3 Destination:', 'wpdbbkp') ?></label>
+					<label class="col-sm-2" for="wp_db_backup_destination_s3"><?php echo esc_html__('Enable Amazon S3 Destination', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 						<input type="checkbox" id="wp_db_backup_destination_s3" <?php echo ( true === isset( $wp_db_backup_destination_s3 ) && 1 === $wp_db_backup_destination_s3 ) ? 'checked' : ''; ?> name="wp_db_backup_destination_s3">
 				</div>
@@ -109,7 +109,7 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 				<input name="wpdbbackup_update_amazon_setting" type="hidden" value="<?php echo esc_attr( wp_create_nonce( 'wpdbbackup-update-amazon-setting' ) ); ?>" />
 				<?php wp_nonce_field( 'wp-database-backup' ); ?>
 				<div class="row form-group">
-					<label class="col-sm-2" for="wpdb_dest_amazon_s3_bucket"><?php echo esc_html__('Bucket Name:', 'wpdbbkp') ?></label>
+					<label class="col-sm-2" for="wpdb_dest_amazon_s3_bucket"><?php echo esc_html__('Bucket Name', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 
 						<input type="text" id="wpdb_dest_amazon_s3_bucket" class="form-control" name="wpdb_dest_amazon_s3_bucket" value="<?php echo esc_html( get_option( 'wpdb_dest_amazon_s3_bucket' ) ); ?>" size="25" placeholder="<?php esc_attr_e('Buket name','wpdbbkp');?>">
@@ -118,7 +118,7 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 				</div>
 
 				<div class="row form-group">
-					<label class="col-sm-2" for="wpdb_dest_amazon_s3_bucket_key"><?php echo esc_html__('Key:', 'wpdbbkp') ?></label>
+					<label class="col-sm-2" for="wpdb_dest_amazon_s3_bucket_key"><?php echo esc_html__('Key', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 						<input type="text" id="wpdb_dest_amazon_s3_bucket_key" class="form-control" name="wpdb_dest_amazon_s3_bucket_key" value="<?php echo esc_html( get_option( 'wpdb_dest_amazon_s3_bucket_key' ) ); ?>" size="25" placeholder="<?php esc_attr_e('your access key id','wpdbbkp');?>">
 						<a href="http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSGettingStartedGuide/AWSCredentials.html" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
@@ -126,7 +126,7 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 				</div>
 
 				<div class="row form-group">
-					<label class="col-sm-2" for="wpdb_dest_amazon_s3_bucket_secret"><?php echo esc_html__('Secret:', 'wpdbbkp') ?></label>
+					<label class="col-sm-2" for="wpdb_dest_amazon_s3_bucket_secret"><?php echo esc_html__('Secret', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 						<input type="text" id="wpdb_dest_amazon_s3_bucket_secret" class="form-control" name="wpdb_dest_amazon_s3_bucket_secret" value="<?php echo esc_html( get_option( 'wpdb_dest_amazon_s3_bucket_secret' ) ); ?>" size="25" placeholder="<?php esc_attr_e('your secret access key','wpdbbkp');?>">
 						<a href="http://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSGettingStartedGuide/AWSCredentials.html" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>

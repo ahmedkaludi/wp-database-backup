@@ -872,6 +872,7 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 			WPDatabaseBackupS3::wp_db_backup_completed($args2);
 			WPDBBackupSFTP::wp_db_backup_completed($args2);
 			WPDatabaseBackupBB::wp_db_backup_completed($args2);
+			WPDatabaseBackupCD::wp_db_backup_completed($args2);
 			wpdbbkp_fullbackup_log($args2);
 			wpdbbkp_backup_completed_notification($args2);
 			update_option('wpdbbkp_dashboard_notify','create', false);

@@ -29,7 +29,7 @@ if ( true === isset( $_POST['wpdb_cd_s3'] ) && 'Y' === $_POST['wpdb_cd_s3'] ) {
 		update_option( 'wp_db_backup_destination_cd', 0 , false);
 	}
 	// Put a "settings updated" message on the screen.
-	$update_msg = esc_html__('Your BackupforWP CloudDrive setting has been saved.' , 'wpdbbkp');
+	$update_msg = esc_html__('Your BackupforWP Cloud backup setting has been saved.' , 'wpdbbkp');
 }
 $wpdb_clouddrive_token = get_option( 'wpdb_clouddrive_token',null);
 
@@ -57,15 +57,15 @@ if(!empty($wpdb_clouddrive_token))
 				echo '<div class="updated"><p><strong>'.esc_html( $update_msg ).'</strong></p></div>';
 			}
 			?>
-			<p> <?php echo esc_html__('Back up WordPress database to Backup for WP CloudDrive.', 'wpdbbkp') ?></p>
-			<p><?php echo esc_html__('Enter your CloudDrive token for your offsite backup. Leave these blank for local backups OR Disable CloudDrive Destination', 'wpdbbkp') ?></p>
+			<p> <?php echo esc_html__('Back up WordPress database to Backup for WP Cloud Backup.', 'wpdbbkp') ?></p>
+			<p><?php echo esc_html__('Enter your Cloud Backup token for your offsite backup. Leave these blank for local backups OR Disable Cloud Backup Destination', 'wpdbbkp') ?></p>
 			<form  class="form-group" name="CloudDrive" method="post" action="">
 
 				<input type="hidden" name="wpdb_cd_s3" value="Y">
 				<input name="wpdbbackup_update_cd_setting" type="hidden" value="<?php echo esc_attr( wp_create_nonce( 'wpdbbackup-update-cd-setting' ) ); ?>" />
 				<?php wp_nonce_field( 'wp-database-backup' ); ?>
 				<div class="row form-group">
-					<label class="col-sm-2" for="wpdb_clouddrive_token"><?php echo esc_html__('BackupforWP CloudDrive API Token', 'wpdbbkp') ?></label>
+					<label class="col-sm-2" for="wpdb_clouddrive_token"><?php echo esc_html__('BackupforWP Cloud Backup API Token', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 
 						<input type="text" id="wpdb_clouddrive_token" class="form-control" name="wpdb_clouddrive_token" value="<?php echo esc_html( get_option( 'wpdb_clouddrive_token' ) ); ?>" size="25" placeholder="<?php esc_attr_e('26b18a624d2f5e01324bc81f90cfff63ba493bc15f00d790729fb437e90f54ea','wpdbbkp');?>">

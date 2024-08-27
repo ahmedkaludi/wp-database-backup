@@ -92,10 +92,10 @@ public static function upload_backup_to_clouddrive($file_path, $file_name) {
     $response_code = wp_remote_retrieve_response_code($response);
     if ($response_code != 200) {
         $response_body = wp_remote_retrieve_body($response);
-        return array('success' => false, 'message' => esc_html__('Failed to upload ' , 'wpdbbkp'). $file_name . ' to CloudDrive. Response: ' . $response_body);
+        return array('success' => false, 'message' => esc_html__('Failed to upload ' , 'wpdbbkp'). $file_name . ' to Cloud Backup. Response: ' . $response_body);
     }
 
-    return array('success' => true, 'message' => 'File ' . $file_name . esc_html__(' uploaded successfully to CloudDrive.', 'wpdbbkp'));
+    return array('success' => true, 'message' => 'File ' . $file_name . esc_html__(' uploaded successfully to Cloud Backup.', 'wpdbbkp'));
 }
 
 
@@ -118,7 +118,7 @@ public static function upload_backup_to_clouddrive($file_path, $file_name) {
                 }
                 return $ret;	
 			} catch ( Exception $e ) {
-				$args[2] = $args[2] . "<br>".esc_html__("Failed to upload Database Backup on CloudDrive", 'wpdbbkp');
+				$args[2] = $args[2] . "<br>".esc_html__("Failed to upload Database Backup on Cloud Backup", 'wpdbbkp');
                 return $e;	
 			}
 		}

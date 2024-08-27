@@ -6,7 +6,7 @@ Tags: Database backup, db backup, cloud backup, files backup, wordpress backup.
 Requires at least: 3.1+
 Tested up to: 6.6
 Requires PHP: 5.6.20
-Stable tag: 7.0
+Stable tag: 7.0.1
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -80,16 +80,13 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 
 = 7.0.1 =
 * 28-08-2024
-* New: Data Anonymization 
-* New: Backup time and scheduling 
-* New: BackupforWP Remote Storage Service
-* New: Incremental backup for Backblaze
+* Fix: Backup not starting after update 7.0
 
 = 7.0 =
 * 27-08-2024
 * New: Data Anonymization 
 * New: Backup time and scheduling 
-* New: BackupforWP Remote Storage Service
+* New: BackupforWP Cloud Storage Service
 * New: Incremental backup for Backblaze
 
 = 6.12.1 =

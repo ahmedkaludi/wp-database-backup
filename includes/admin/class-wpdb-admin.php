@@ -314,7 +314,41 @@ class Wpdb_Admin {
 						
 					}
 					
-					do_action('wpdbbkp_save_pro_options');
+
+					if ( isset( $_POST['featureSubmit'] ) && 'Save Settings' === $_POST['featureSubmit'] ) {
+						if ( isset( $_POST['enable_anonymization'] ) ) {
+						  update_option( 'bkpforwp_enable_anonymization', 1 );
+						} else {
+						  update_option( 'bkpforwp_enable_anonymization', 0 );
+						}
+					
+						if ( isset( $_POST['enable_backup_encryption'] ) ) {
+						  update_option( 'bkpforwp_enable_backup_encryption', 1 );
+						} else {
+						  update_option( 'bkpforwp_enable_backup_encryption', 0 );
+						}
+						if ( isset( $_POST['enable_exact_backup_time'] ) ) {
+						  update_option( 'bkpforwp_enable_exact_backup_time', 1 );
+						} else {
+						  update_option( 'bkpforwp_enable_exact_backup_time', 0 );
+						}
+					
+						if ( isset( $_POST['anonymization_type'] ) ) {
+						  update_option( 'bkpforwp_anonymization_type', wp_db_filter_data( sanitize_text_field( $_POST['anonymization_type'] ) ) );
+						  
+						}
+					
+						if ( isset( $_POST['anonymization_pass'] )) {
+						  update_option( 'bkpforwp_anonymization_pass', wp_db_filter_data( sanitize_text_field( $_POST['anonymization_pass'] ) ) );
+						  
+						}
+					
+						if ( isset( $_POST['backup_encryption_pass'] )) {
+						  update_option( 'bkpforwp_backup_encryption_pass', wp_db_filter_data( sanitize_text_field( $_POST['backup_encryption_pass'] ) ) );
+						  
+						}
+					  }
+
 				}
 				$wp_db_backup_destination_email = get_option( 'wp_db_backup_destination_Email' , false);
 
@@ -1040,7 +1074,7 @@ class Wpdb_Admin {
 					<div class="row form-group" id="anonymization_enc_ip" style="display:none">
 					<label class="col-sm-3" for="anonymization_pass"><?php esc_html_e('Encrypted Data','backupforwp-pro'); ?> <?php esc_html_e('Anonymization Password','backupforwp-pro'); ?></label>
 					<div class="col-sm-9">
-						<input type="password" name="anonymization_pass" id="anonymization_pass" class="form-control" value="<?php esc_attr_e($anonymization_pass);?>"> 
+						<input type="password" name="anonymization_pass" id="anonymization_pass" class="form-control" value="<?php esc_attr($anonymization_pass);?>"> 
 						<div class="alert alert-default" role="alert">
 							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> <?php esc_html_e('Please enter the encryption password. If you lose this pass then you can not recover the encrypted data','backupforwp-pro'); ?></div>
 					</div>

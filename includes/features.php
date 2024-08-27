@@ -110,45 +110,6 @@ function bkpforwp_sql_restore_replace($matches){
   return $matches[0];
 }
 
-
-add_action('wpdbbkp_save_pro_options','bkpforwp_save_pro_options');
-function bkpforwp_save_pro_options(){
-  if ( isset( $_POST['featureSubmit'] ) && 'Save Settings' === $_POST['featureSubmit'] ) {
-    if ( isset( $_POST['enable_anonymization'] ) ) {
-      update_option( 'bkpforwp_enable_anonymization', 1 );
-    } else {
-      update_option( 'bkpforwp_enable_anonymization', 0 );
-    }
-
-    if ( isset( $_POST['enable_backup_encryption'] ) ) {
-      update_option( 'bkpforwp_enable_backup_encryption', 1 );
-    } else {
-      update_option( 'bkpforwp_enable_backup_encryption', 0 );
-    }
-    if ( isset( $_POST['enable_exact_backup_time'] ) ) {
-      update_option( 'bkpforwp_enable_exact_backup_time', 1 );
-    } else {
-      update_option( 'bkpforwp_enable_exact_backup_time', 0 );
-    }
-
-    if ( isset( $_POST['anonymization_type'] ) ) {
-      update_option( 'bkpforwp_anonymization_type', wp_db_filter_data( sanitize_text_field( $_POST['anonymization_type'] ) ) );
-      
-    }
-
-    if ( isset( $_POST['anonymization_pass'] )) {
-      update_option( 'bkpforwp_anonymization_pass', wp_db_filter_data( sanitize_text_field( $_POST['anonymization_pass'] ) ) );
-      
-    }
-
-    if ( isset( $_POST['backup_encryption_pass'] )) {
-      update_option( 'bkpforwp_backup_encryption_pass', wp_db_filter_data( sanitize_text_field( $_POST['backup_encryption_pass'] ) ) );
-      
-    }
-  }
-
-}
-
 add_action('wpdbbkp_database_backup_options','bkpforwp_database_backup_options');
 function bkpforwp_database_backup_options(){
   $settings = get_option( 'wp_db_backup_options' );
@@ -244,23 +205,23 @@ function bkpforwp_fullback_cron_condition($value){
   }
   if(wp_doing_cron() &&  $options_settings && isset($options_settings['enable_autobackups']) && $options_settings['enable_autobackups']==1 && isset($options_settings['full_autobackup_frequency'])){
     if($options_settings['full_autobackup_frequency']=='daily' && isset($options_settings['autobackup_full_time']) && $options_settings['autobackup_full_time']){
-      if($options_settings['autobackup_full_time'] < date("H:i") || $options_settings['autobackup_full_time'] > date("H:i",strtotime('+30 minutes', date("H:i")))){
+      if($options_settings['autobackup_full_time'] < gmdate("H:i") || $options_settings['autobackup_full_time'] > gmdate("H:i",strtotime('+30 minutes', gmdate("H:i")))){
         $value= false;
       }
     }
     if($options_settings['full_autobackup_frequency']=='weekly' && isset($options_settings['autobackup_full_time']) && $options_settings['autobackup_full_time'] && isset($options_settings['autobackup_full_days'])){
-      $current_day=date('M');
-      $current_time=date('H:i');
+      $current_day=gmdate('M');
+      $current_time=gmdate('H:i');
       $allowed_days=  $options_settings['autobackup_full_days'];
-      if(!in_array($current_day,$allowed_days) || ($options_settings['autobackup_full_time'] < $current_time) || $options_settings['autobackup_full_time'] > date("H:i",strtotime('+30 minutes', $current_time))){
+      if(!in_array($current_day,$allowed_days) || ($options_settings['autobackup_full_time'] < $current_time) || $options_settings['autobackup_full_time'] > gmdate("H:i",strtotime('+30 minutes', $current_time))){
         $value= false;
       }
     }
     if($options_settings['full_autobackup_frequency']=='monthly' && isset($options_settings['autobackup_full_time']) && $options_settings['autobackup_full_time'] && isset($options_settings['autobackup_full_date'])){
-      $current_date=date('d');
-      $current_time=date('H:i');
-      $allowed_date=date('d',strtotime($options_settings['autobackup_full_date']));
-      if(($allowed_date!=$current_date) || ($options_settings['autobackup_full_time'] < current_time || $options_settings['autobackup_full_time'] > date("H:i",strtotime('+30 minutes', $current_time)))){
+      $current_date=gmdate('d');
+      $current_time=gmdate('H:i');
+      $allowed_date=gmdate('d',strtotime($options_settings['autobackup_full_date']));
+      if(($allowed_date!=$current_date) || ($options_settings['autobackup_full_time'] < $current_time || $options_settings['autobackup_full_time'] > gmdate("H:i",strtotime('+30 minutes', $current_time)))){
         $value= false;
       }
     }
@@ -273,23 +234,23 @@ function bkpforwp_dbback_cron_condition($value){
   $options_settings = get_option('wp_db_backup_options',false);
   if(wp_doing_cron() && $options_settings && isset($options_settings['enable_autobackups']) && $options_settings['enable_autobackups']==1 && isset($options_settings['autobackup_frequency'])){
     if($options_settings['autobackup_frequency']=='daily' && isset($options_settings['autobackup_time'])){
-      if($options_settings['autobackup_time'] < date("H:i") || $options_settings['autobackup_time'] > date("H:i",strtotime('+30 minutes', date("H:i")))){
+      if($options_settings['autobackup_time'] < gmdate("H:i") || $options_settings['autobackup_time'] > gmdate("H:i",strtotime('+30 minutes', gmdate("H:i")))){
         $value= false;
       }
     }
     if($options_settings['autobackup_frequency']=='weekly' && isset($options_settings['autobackup_time']) && isset($options_settings['autobackup_days'])){
-      $current_day=date('M');
-      $current_time=date('H:i');
+      $current_day=gmdate('M');
+      $current_time=gmdate('H:i');
       $allowed_days=$options_settings['autobackup_days'];
-      if(!in_array($current_day,$allowed_days) || ($options_settings['autobackup_time'] < $current_time || $options_settings['autobackup_time'] > date("H:i",strtotime('+30 minutes', $current_time)))){
+      if(!in_array($current_day,$allowed_days) || ($options_settings['autobackup_time'] < $current_time || $options_settings['autobackup_time'] > gmdate("H:i",strtotime('+30 minutes', $current_time)))){
         $value= false;
       }
     }
     if($options_settings['autobackup_frequency']=='monthly' && isset($options_settings['autobackup_time']) && isset($options_settings['autobackup_date'])){
-      $current_date=date('d');
-      $current_time=date('H:i');
-      $allowed_date=date('d',strtotime($options_settings['autobackup_date']));
-      if(($allowed_date!=$current_date) || ($options_settings['autobackup_time'] < $current_time || $options_settings['autobackup_time'] > date("H:i",strtotime('+30 minutes', $current_time)))){
+      $current_date=gmdate('d');
+      $current_time=gmdate('H:i');
+      $allowed_date=gmdate('d',strtotime($options_settings['autobackup_date']));
+      if(($allowed_date!=$current_date) || ($options_settings['autobackup_time'] < $current_time || $options_settings['autobackup_time'] > gmdate("H:i",strtotime('+30 minutes', $current_time)))){
         $value= false;
       }
     }

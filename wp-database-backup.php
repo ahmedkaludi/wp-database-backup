@@ -166,7 +166,9 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			$charset_collate = $wpdb->get_charset_collate();
 		
 			// Check if the table already exists
+			//phpcs:ignore  -- Reason: Direct SQL execution is required here.
 			if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+				//phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
 				$sql = "CREATE TABLE $table_name (
 					id mediumint(9) NOT NULL AUTO_INCREMENT,
 					file_path text NOT NULL,

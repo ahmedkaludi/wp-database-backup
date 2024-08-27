@@ -56,7 +56,7 @@ if ( ! function_exists( 'wpdbbkp_cron_backup_hook_db' ) ) {
 	function wpdbbkp_cron_backup_hook_db_cb() {
 		$path_info = wp_upload_dir();
 		$progressFile = $path_info['basedir'] . '/db-backup/db_progress.json';
-		$progress_json  = file_exists( $progressFile ) ? json_decode( file_get_contents( $progressFile ), true ) : null ;
+		$progress_json  = file_exists( $progressFile ) ? json_decode( wpdbbkp_read_file_contents( $progressFile ), true ) : null ;
 		if($progress_json){
 			$args = array(
 				'logFile'   => $progress_json['logFile'], 
@@ -293,22 +293,22 @@ if(!function_exists('wpdbbkp_wp_cron_config_path')){
 
 	        wp_mkdir_p($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR);
 	        wp_mkdir_p($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log');
-	        fclose(fopen($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/index.php', 'w'));
-	        fclose(fopen($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/index.php', 'w'));
+			wpdbbkp_write_file_contents($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/index.php','');
+			wpdbbkp_write_file_contents($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/index.php','');
 	        //added htaccess file 08-05-2015 for prevent directory listing
 	        //Fixed Vulnerability 22-06-2016 for prevent direct download
 	        //fclose(fopen($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR .'/.htaccess', $htassesText));
-	        $f = fopen($path_info['basedir']  . '/' . WPDB_BACKUPS_DIR . '/.htaccess', "w");
-	        fwrite($f, "#These next two lines will already exist in your .htaccess file
-	 RewriteEngine On
-	 RewriteBase /
-	 # Add these lines right after the preceding two
-	 RewriteCond %{REQUEST_FILENAME} ^.*(.zip)$
-	 RewriteCond %{HTTP_COOKIE} !^.*can_download.*$ [NC]
-	 RewriteRule . - [R=403,L]");
-	        fclose($f);
+			$htaccess_content = "#These next two lines will already exist in your .htaccess file
+			RewriteEngine On
+			RewriteBase /
+			# Add these lines right after the preceding two
+			RewriteCond %{REQUEST_FILENAME} ^.*(.zip)$
+			RewriteCond %{HTTP_COOKIE} !^.*can_download.*$ [NC]
+			RewriteRule . - [R=403,L]";
+			wpdbbkp_write_file_contents($path_info['basedir']  . '/' . WPDB_BACKUPS_DIR . '/.htaccess',$htaccess_content);
+
 	        $siteName = preg_replace('/[^\p{L}\p{M}]+/u', '_', get_bloginfo('name')); //added in v2.1 for Backup zip labeled with the site name(Help when backing up multiple sites).
-	        $FileName = $siteName . '_' . Date("Y_m_d") . '_' . Time() .'_'. substr(md5(AUTH_KEY), 0, 7).'_wpall';
+	        $FileName = $siteName . '_' . gmdate("Y_m_d") . '_' . Time() .'_'. substr(md5(AUTH_KEY), 0, 7).'_wpall';
 	        $WPDBFileName = $FileName . '.zip';
 	        $wp_all_backup_type = get_option('wp_db_backup_backup_type');
 	        $logFile = $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/' . $FileName . '.txt';
@@ -355,6 +355,7 @@ if(!function_exists('wpdbbkp_cron_mysqldump')){
 		            $mySqlDump = 1;
 		            if ($mySqlDump == 1) {
 		            	 global $wpdb;
+						 //phpcs:ignore  -- Reason No caching is required
 		                $tables = $wpdb->get_col('SHOW TABLES');
 		                $all_db_tables['status'] = 'success';
 		                $all_db_tables['tables'] = $tables;
@@ -437,9 +438,11 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 			
 							$sub_limit  = 500;
 							$table      = esc_sql( $table );
+							//phpcs:ignore  -- Reason No caching is required and direct query is used because of custom table used
 							$check_count = intval( $wpdb->get_var( "SELECT COUNT(*) FROM `{$table}`" ) );
 			
 							// Get table structure for backup
+							//phpcs:ignore  -- Reason No caching is required and direct query is used because of custom table used
 							$row2    = $wpdb->get_row( "SHOW CREATE TABLE `{$table}`", ARRAY_N );
 							if( ! $row2 ) {
 								$logMessage .= "\nFailed to get table structure for table: {$table}";
@@ -452,6 +455,7 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 							$offset = isset( $args['offset'] ) ? intval( $args['offset'] ) : 0;
 			
 							while ( $offset < $check_count ) {
+								//phpcs:ignore  -- Reason No caching is required and direct query is used because of custom table used
 								$sub_result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$table}` LIMIT %d OFFSET %d", $sub_limit, $offset ), ARRAY_A );
 								if ( $sub_result ) {
 									$output = wpdbbkp_create_sql_insert_statements( $table, $sub_result );
@@ -466,7 +470,7 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 			
 									// Update progress
 									$offset += $sub_limit;
-									file_put_contents( $progressFile, json_encode( array( 'FileName'=>$FileName,'logFile'=>$logFile,'tableName'=>$table,'offset' => $offset ,'tables'=>$tables, 'progress'=>$progress) ) );
+									wpdbbkp_write_file_contents( $progressFile, json_encode( array( 'FileName'=>$FileName,'logFile'=>$logFile,'tableName'=>$table,'offset' => $offset ,'tables'=>$tables, 'progress'=>$progress) ) );
 									set_transient( 'wpdbbkp_db_cron_event_check', true, 600 );
 								}
 								sleep( 1 ); // Optional sleep to reduce server load
@@ -525,11 +529,14 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 }
 	
 function wpdbbkp_append_to_file( $file, $data ) {
+	//phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Need to write to file with fopen for performance reasons
 	$fp = fopen( $file, 'a' );
 	if ( ! $fp ) {
 		return false;
 	}
+	//phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- Need to write to file with fwrite for performance reasons
 	fwrite( $fp, $data );
+	//phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- Need to write to file with fclose for performance reasons
 	fclose( $fp );
 }
 	/**
@@ -561,19 +568,7 @@ function wpdbbkp_append_to_file( $file, $data ) {
  ************************/
 if(!function_exists('wpdbbkp_write_log')){
 	function wpdbbkp_write_log($logFile, $logMessage) {
-	    // Actually write the log file
-	    if (is_writable($logFile) || !file_exists($logFile)) {
-
-	        if (!$handle = @fopen($logFile, 'a'))
-	            return;
-
-	        if (!fwrite($handle, $logMessage))
-	            return;
-
-	        fclose($handle);
-
-	        return true;
-	    }
+		return wpdbbkp_write_to_file($logFile,$logMessage,'',true);
 	}
 }
 
@@ -892,44 +887,49 @@ function wpdbbkp_backup_completed_notification($args){
 			}
 }
 
- function wpdbbkp_fullbackup_log(&$args) {
-        
-	$options = get_option('wp_db_backup_backups');
-	$newoptions = array();
+function wpdbbkp_fullbackup_log( &$args ) {
+    global $wp_filesystem;
 
-	if(!empty($options) && is_array($options)){
+    // Initialize the WordPress filesystem if it hasn't been initialized yet.
+    if ( ! function_exists( 'WP_Filesystem' ) ) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+    }
 
-		foreach ($options as $option) {
-			if ($option['filename'] == $args[0]) {
-				$option['destination'] = wp_kses( $args[4] , wp_kses_allowed_html('post'));  
-				$newoptions[] = $option;
-			}else{
-					$newoptions[] = $option;
-			}
-		} 
+    WP_Filesystem();
 
-	}
-                                
-        update_option('wp_db_backup_backups', $newoptions, false);
+    $options     = get_option( 'wp_db_backup_backups' );
+    $new_options = array();
 
-        if (get_option('wp_db_log') == 1) {
-            if(isset($args[4]) && !empty($args[4]))
-            {
-                if (is_writable($args[5]) || !file_exists($args[5])) {
+    if ( ! empty( $options ) && is_array( $options ) ) {
+        foreach ( $options as $option ) {
+            if ( ! is_array( $option ) ) {
+                continue;
+            }
+            if ( $option['filename'] === $args[0] ) {
+                $option['destination'] = wp_kses_post( $args[4] );
+            }
+            $new_options[] = $option;
+        }
+    }
 
-                    if (!$handle = @fopen($args[5], 'a'))
-                        return;
+	$new_options = wpdbbkp_filter_unique_filenames( $new_options );
 
-                    if (!fwrite($handle,  str_replace("<br>", "\n", $args[2])))
-                        return;
 
-                    fclose($handle);
+    update_option( 'wp_db_backup_backups', $new_options, false );
 
-                    return true;
+    if ( get_option( 'wp_db_log' ) === '1' ) {
+        if ( ! empty( $args[5] ) && ! empty( $args[2] ) ) {
+            if ( $wp_filesystem->is_writable( $args[5] ) || ! $wp_filesystem->exists( $args[5] ) ) {
+                if ( ! $wp_filesystem->put_contents( $args[5], str_replace( '<br>', "\n", $args[2] ), FS_CHMOD_FILE ) ) {
+                    return false;
                 }
+                return true;
             }
         }
     }
+
+    return false;
+}
 function wpdbbkp_token_gen($length_of_string = 16)
 {
     $str_result = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -1078,12 +1078,16 @@ function backup_files_cron_with_resume($bypass = false){
 function wpdbbkp_add_processed_file($file_path) {
     global $wpdb;
     $table_name = $wpdb->prefix . 'wpdbbkp_processed_files';
-	$prep_query = $wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE file_path = %s", $file_path);
     // Check if the file path already exists
-    $exists = $wpdb->get_var($prep_query);
+	//phpcs:ignore  -- Reason No caching is required and direct query is used because of custom table used
+    $exists = $wpdb->get_var(
+		//phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name is safe
+		$wpdb->prepare("SELECT COUNT(*) FROM $table_name WHERE file_path = %s", $file_path)
+	);
 
     if ($exists == 0) {
         // Insert the file path if it doesn't exist
+		//phpcs:ignore  -- Reason No caching is required and direct query is used because of custom table used
         $wpdb->insert(
             $table_name,
             [
@@ -1099,7 +1103,7 @@ function wpdbbkp_add_processed_file($file_path) {
     }else{
 		// Update the processed_at timestamp if it exists
 		
-
+	//phpcs:ignore  -- Reason No caching is required and direct query is used because of custom table used
 	 $op = $wpdb->update(
 			$table_name,
 			[
@@ -1131,12 +1135,13 @@ function wpdbbkp_is_file_processed($file_path = null, $timestamp = 0) {
     }
     global $wpdb;
     $table_name = $wpdb->prefix . 'wpdbbkp_processed_files';
-    $query = $wpdb->prepare(
+	//phpcs:ignore  -- Reason No caching is required and direct query is used because of custom table used
+    $result = $wpdb->get_row(
+		$wpdb->prepare(
+		//phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table name is safe
 		"SELECT processed_at FROM $table_name WHERE file_path = %s",
         $file_path
-    );
-
-    $result = $wpdb->get_row($query);
+    ));
 	if($result && isset($result->processed_at)){
 		$processed_at = strtotime($result->processed_at);
 		if($timestamp >= $processed_at){

@@ -1158,7 +1158,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 			<?php echo '<h2 style="padding:0 20px;">'.esc_html__('Getting started with our Cloud Backup service is simple.', 'wpdbbkp').'</h2>'; ?>
 			
 			<ul style="list-style-type: style;">
-				<li style="margin-left: 30px;"><?php echo esc_html__('Sign up for a free account at', 'wpdbbkp'); ?> <a href="https://app.backupforwp.com/register" target="_blank"><?php  echo esc_html__(' Cloud Backup by ', 'wpdbbkp');?> </a><?php  echo esc_html__('Backup for WP', 'wpdbbkp');?></li>
+				<li style="margin-left: 30px;"><?php echo esc_html__('Sign up for a free account at', 'wpdbbkp'); ?> <a href="https://app.backupforwp.com/register" target="_blank"><?php  echo esc_html__(' Cloud Backup ', 'wpdbbkp');?> </a><?php  echo esc_html__('by Backup for WP', 'wpdbbkp');?></li>
 				<li style="margin-left: 30px;"><?php echo esc_html__('Add the website url', 'wpdbbkp'); ?> <a href="https://app.backupforwp.com/websites" target="_blank"><?php  echo esc_html__('Add Website here', 'wpdbbkp');?> </a></li>
 				<li style="margin-left: 30px;"><?php echo esc_html__('API token will be generated on adding website.', 'wpdbbkp'); ?></li>
 				<li style="margin-left: 30px;"><?php echo esc_html__('Copy the token here and Click Save.', 'wpdbbkp'); ?></li>

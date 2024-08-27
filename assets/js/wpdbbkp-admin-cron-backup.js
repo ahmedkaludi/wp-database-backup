@@ -23,7 +23,7 @@ jQuery(document).ready(function($){
 		}else{
 			let wpdbbkp_offer_modal = $('#wpdbbkp_offer_modal').modal({backdrop: true, keyboard: true});
 			wpdbbkp_offer_modal.show();
-		}
+		
 		// When the user selects an option, set the cookie and hide the modal
 		document.getElementById("wpdbbkp_server_backup").addEventListener("click", function() {
 			wpdbbkp_offer_modal.hide();
@@ -77,6 +77,7 @@ jQuery(document).ready(function($){
 			});
 		});
 			
+	}
 	});
 
 

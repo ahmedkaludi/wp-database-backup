@@ -78,6 +78,13 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 
 == Changelog ==
 
+= 7.0.1 =
+* 28-08-2024
+* New: Data Anonymization 
+* New: Backup time and scheduling 
+* New: BackupforWP Remote Storage Service
+* New: Incremental backup for Backblaze
+
 = 7.0 =
 * 27-08-2024
 * New: Data Anonymization 

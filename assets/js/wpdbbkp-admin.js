@@ -283,9 +283,7 @@ document.querySelector('#wpdbbkp_sftp_sshkey').addEventListener('input', functio
 if(jQuery("#create_backup")){
 
     jQuery("#create_backup").click(function(event) {
-       if(bkpforwp_token_check()){
-        return;
-       }
+       if(!bkpforwp_token_check()){
         event.preventDefault();
         let  wpdbbkp_offer_modal = jQuery('#wpdbbkp_offer_modal').modal({ keyboard: true , backdrop: 'true',});
 		wpdbbkp_offer_modal.show();
@@ -295,6 +293,7 @@ if(jQuery("#create_backup")){
             jQuery(".wpdbbkp_notification").hide();
             jQuery("#backup_process").show();
             jQuery("#create_backup").attr("disabled", true);
+            window.location.href = jQuery("#create_backup").attr("href");
 		});
 
 		document.getElementById("wpdbbkp_remote_backup").addEventListener("click", function() {
@@ -327,6 +326,8 @@ if(jQuery("#create_backup")){
 			});
 			
 		});
+       }
+ 
 
     });
 }

@@ -125,7 +125,7 @@ if(!empty($wpdb_dest_google_auth_code) && !empty($wpdb_dest_google_client_key) &
 					</div>
 
 					<div class="row form-group">
-						<label class="col-sm-2" for="wpdb_dest_google_secret_key"><?php echo esc_html__('Client secret:', 'wpdbbkp') ?></label>
+						<label class="col-sm-2" for="wpdb_dest_google_secret_key"><?php echo esc_html__('Client secret', 'wpdbbkp') ?></label>
 						<div class="col-sm-6">
 							<input type="text" id="wpdb_dest_google_secret_key" class="form-control" name="wpdb_dest_google_secret_key" value="<?php echo esc_html( get_option( 'wpdb_dest_google_secret_key' ) ); ?>" size="25" placeholder="<?php esc_attr_e('your client secret key','wpdbbkp');?>">
 						</div>

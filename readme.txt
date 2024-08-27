@@ -6,7 +6,7 @@ Tags: Database backup, db backup, cloud backup, files backup, wordpress backup.
 Requires at least: 3.1+
 Tested up to: 6.6
 Requires PHP: 5.6.20
-Stable tag: 6.12
+Stable tag: 7.0
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -43,12 +43,13 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 <li>Documentation</li>
 </ul>
 
-== Upgrade to PRO ==
+== Subscribe to Backup for WP Cloudstorage ==
 <ul>
-<li>With <a target="_blank" href="https://backupforwp.com/pricing/#price">Backup For WP PRO</a> You will get access to more professional Settings, options .</li>
-<li>*New - Data Anonymization </li>
-<li>*New - Backup time and scheduling  </li>
-<li>*New - Fast, personal support </li>
+<li>We are excited to introduce a new feature for the Backup for WP plugin , our <a target="_blank" href="https://app.backupforwp.com/register">Backup For WP Cloudstorage</a>. </li>
+<li><strong>Affordable Pricing</strong>: Only $1 per 50GB of storage per website per month, with a flexible pay-as-you-go model. </li>
+<li><strong>14-Day Free Trial</strong>: Start with a 14-day free trial to experience the benefits of cloud storage without any upfront cost.  </li>
+<li><strong>Scalable Storage</strong>: Easily adjusts to your storage needs, providing as much space as required for your backups. </li>
+<li><strong>Secure Cloud Storage</strong>: All backups are stored securely in the cloud, protecting your data from unauthorized access </li>
 
 </ul>
 
@@ -76,6 +77,17 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 4. screenshot-4.png
 
 == Changelog ==
+
+= 7.0 =
+* 27-08-2024
+* New: Data Anonymization 
+* New: Backup time and scheduling 
+* New: BackupforWP Remote Storage Service
+* New: Incremental backup for Backblaze
+
+= 6.12.1 =
+* 27-07-2024
+* Fixed: Fatal error on PHP 7.2 and below after updating to version 6.12 #89
 
 = 6.12 =
 * 24-07-2024

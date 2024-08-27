@@ -116,12 +116,13 @@ public static function upload_backup_to_backblaze($file_path, $file_name) {
     $root_path = str_replace('\\', '/', ABSPATH); // Normalize to forward slashes for consistency
     $file_path = str_replace($root_path, '', $file_path);
     $file_path = ltrim($file_path, '/'); // Ensure there is no leading slash
+    $file_path = 'wpdbbkp/'.$file_path;
 
     $response = wp_remote_post($upload_url, array(
         'body' => $file_contents,
         'headers' => array(
             'Authorization' => $upload_auth_token,
-            'X-Bz-File-Name' => basename($file_path),
+            'X-Bz-File-Name' => $file_path,
             'Content-Type' => 'b2/x-auto',
             'X-Bz-Content-Sha1' => $sha1_of_file_data
         ),

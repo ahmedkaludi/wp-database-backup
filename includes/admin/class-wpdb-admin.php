@@ -79,6 +79,14 @@ class Wpdb_Admin {
 			'wp-database-backup#tab_db_destination',
 			array($this, 'wp_db_backup_settings_page' ));
 
+			add_submenu_page(
+				'wp-database-backup',
+				'Remote Backups',
+				'Remote Backups',
+				'manage_options',
+				'wp-database-backup#tab_db_remotebackups',
+				array($this, 'wp_db_backup_settings_page' ));
+
 		add_submenu_page(
 			'wp-database-backup',
 			'Settings',
@@ -86,7 +94,13 @@ class Wpdb_Admin {
 			'manage_options',
 			'wp-database-backup#tab_db_setting',
 			array($this, 'wp_db_backup_settings_page' ));
-
+			add_submenu_page(
+				'wp-database-backup',
+				'Search and Replace',
+				'Search and Replace',
+				'manage_options',
+				'wp-database-backup#searchreplace',
+				array($this, 'wp_db_backup_settings_page' ));
 
 
 				add_submenu_page(
@@ -97,31 +111,31 @@ class Wpdb_Admin {
 					'wp-database-backup#tab_db_help',
 					array($this, 'wp_db_backup_settings_page' ));
 
-		if(!defined('BKPFORWP_VERSION')){
-			add_submenu_page(
-				'wp-database-backup',
-				'Upgrade to Premium',
-				'Upgrade to Premium',
-				'manage_options',
-				'wp-database-backup#tab_db_upgrade',
-				array($this, 'wp_db_backup_settings_page' ));
-		}
-		else{
-			add_submenu_page(
-				'wp-database-backup',
-				'Modules',
-				'Modules',
-				'manage_options',
-				'wp-database-backup#tab_db_features',
-				array($this, 'wp_db_backup_settings_page' ));
-				add_submenu_page(
-					'wp-database-backup',
-					'Licence',
-					'Licence',
-					'manage_options',
-					'wp-database-backup#tab_db_licence',
-					array($this, 'wp_db_backup_settings_page' ));
-		}
+		// if(!defined('BKPFORWP_VERSION')){
+		// 	add_submenu_page(
+		// 		'wp-database-backup',
+		// 		'Upgrade to Premium',
+		// 		'Upgrade to Premium',
+		// 		'manage_options',
+		// 		'wp-database-backup#tab_db_upgrade',
+		// 		array($this, 'wp_db_backup_settings_page' ));
+		// }
+		// else{
+		// 	add_submenu_page(
+		// 		'wp-database-backup',
+		// 		'Modules',
+		// 		'Modules',
+		// 		'manage_options',
+		// 		'wp-database-backup#tab_db_features',
+		// 		array($this, 'wp_db_backup_settings_page' ));
+		// 		add_submenu_page(
+		// 			'wp-database-backup',
+		// 			'Licence',
+		// 			'Licence',
+		// 			'manage_options',
+		// 			'wp-database-backup#tab_db_licence',
+		// 			array($this, 'wp_db_backup_settings_page' ));
+		// }
 
 
 
@@ -211,6 +225,11 @@ class Wpdb_Admin {
 						} else {
 							update_option( 'wp_db_remove_on_uninstall', 0 , false);
 						}
+						if ( isset( $_POST['wp_db_incremental_backup'] ) ) {
+							update_option( 'wp_db_incremental_backup', 1 , false);
+						} else {
+							update_option( 'wp_db_incremental_backup', 0 , false);
+						}
 						if ( isset( $_POST['wp_db_remove_local_backup'] ) ) {
 							update_option( 'wp_db_remove_local_backup', 1 , false);
 						} else {
@@ -295,7 +314,41 @@ class Wpdb_Admin {
 						
 					}
 					
-					do_action('wpdbbkp_save_pro_options');
+
+					if ( isset( $_POST['featureSubmit'] ) && 'Save Settings' === $_POST['featureSubmit'] ) {
+						if ( isset( $_POST['enable_anonymization'] ) ) {
+						  update_option( 'bkpforwp_enable_anonymization', 1 );
+						} else {
+						  update_option( 'bkpforwp_enable_anonymization', 0 );
+						}
+					
+						if ( isset( $_POST['enable_backup_encryption'] ) ) {
+						  update_option( 'bkpforwp_enable_backup_encryption', 1 );
+						} else {
+						  update_option( 'bkpforwp_enable_backup_encryption', 0 );
+						}
+						if ( isset( $_POST['enable_exact_backup_time'] ) ) {
+						  update_option( 'bkpforwp_enable_exact_backup_time', 1 );
+						} else {
+						  update_option( 'bkpforwp_enable_exact_backup_time', 0 );
+						}
+					
+						if ( isset( $_POST['anonymization_type'] ) ) {
+						  update_option( 'bkpforwp_anonymization_type', wp_db_filter_data( sanitize_text_field( $_POST['anonymization_type'] ) ) );
+						  
+						}
+					
+						if ( isset( $_POST['anonymization_pass'] )) {
+						  update_option( 'bkpforwp_anonymization_pass', wp_db_filter_data( sanitize_text_field( $_POST['anonymization_pass'] ) ) );
+						  
+						}
+					
+						if ( isset( $_POST['backup_encryption_pass'] )) {
+						  update_option( 'bkpforwp_backup_encryption_pass', wp_db_filter_data( sanitize_text_field( $_POST['backup_encryption_pass'] ) ) );
+						  
+						}
+					  }
+
 				}
 				$wp_db_backup_destination_email = get_option( 'wp_db_backup_destination_Email' , false);
 
@@ -371,6 +424,7 @@ class Wpdb_Admin {
 										$upload_dir = wp_upload_dir();
 										$actual_working_directory = getcwd();
 										$file_directory = $upload_dir['basedir'];
+										global $wpdb;
 										/*
 										Fix for when you try to delete a file thats in a folder 
 										higher in the hierarchy to your working directory 
@@ -389,6 +443,8 @@ class Wpdb_Admin {
 										chdir($actual_working_directory);
 										update_option( 'wp_db_backup_backups', array() , false);
 										$nonce = wp_create_nonce( 'wp-database-backup' );
+										$table_name = $wpdb->prefix . 'wpdbbkp_processed_files';
+										$wpdb->query( "TRUNCATE TABLE $table_name" ); // phpcs:ignore
 										wp_safe_redirect( site_url() . '/wp-admin/admin.php?page=wp-database-backup&notification=deleteall&_wpnonce=' . $nonce );
 										exit;
 	
@@ -633,7 +689,8 @@ class Wpdb_Admin {
 		$options  = get_option( 'wp_db_backup_backups' );
 		$options = wpdbbkp_filter_unique_filenames( $options );
 		$settings = get_option( 'wp_db_backup_options' ); 
-		$wp_db_log = get_option( 'wp_db_log' ); ?>
+		$wp_db_log = get_option( 'wp_db_log' );
+		$incremental_backup =  get_option( 'wp_db_incremental_backup' ,false);  ?>
 		<div class="bootstrap-wrapper">
 		<?php
 		$wp_db_local_backup_path = get_option( 'wp_db_local_backup_path' );
@@ -667,7 +724,17 @@ class Wpdb_Admin {
 				</div>
 				<?php
 		}
+		$cloud_drive_flag =  get_option( 'wp_db_backup_destination_cd', false );
+		if ( !$cloud_drive_flag ) {
+			?><br>
+				<div class="alert alert-info " role="alert">
+		&nbsp;<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> 
+		<?php esc_html_e( 'Try Backup for WP Cloud Storage free for 14 days', 'wpdbbkp' ); ?> <a href="https://app.backupforwp.com/register"><?php echo esc_html__( 'Try now for free' , 'wpdbbkp'); ?></a>	</div>
+				<?php
+		}
 		?>
+
+		
 			
 		<div id="wpdbbkpModal" class="modal">
 			<div class="wpdbbkpmodal-content">
@@ -692,14 +759,15 @@ class Wpdb_Admin {
 				<div class="panel-body">
 					<ul class="nav nav-tabs wbdbbkp_has_nav">
 						<li class="active"><a href="#db_home" data-toggle="tab"><?php echo esc_html__('Backups', 'wpdbbkp') ?></a></li>
+						<li><a href="#db_remotebackups" data-toggle="tab"><?php echo esc_html__('Remote Backups', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_schedul" data-toggle="tab"><?php echo esc_html__('Auto Scheduler', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_destination" data-toggle="tab"><?php echo esc_html__('Save Backups to', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_setting" data-toggle="tab"><?php echo esc_html__('Settings', 'wpdbbkp') ?></a></li>
-						<li><a href="#searchreplace" data-toggle="tab"><?php echo esc_html__('Search and Replace', 'wpdbbkp') ?></a></li>
-						<li style="display:none"><a href="#db_upgrade" data-toggle="tab"><?php echo esc_html__('Upgrade', 'wpdbbkp') ?></a></li>
-						<?php do_action( 'wpdbbkp_pro_tab_links' ); ?>
+						<li><a href="#searchreplace" style="display:none" data-toggle="tab"><?php echo esc_html__('Search and Replace', 'wpdbbkp') ?></a></li>
+						<li><a href="#db_features" data-toggle="tab"><?php echo esc_html__('Modules', 'wpdbbkp') ?></a></li>
+						<li title="System Info"><a href="#db_info" data-toggle="tab"><?php echo esc_html__('Usage', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_help" data-toggle="tab"><?php echo esc_html__('Help &amp; Support', 'wpdbbkp') ?></a></li>
-						<li id="db_info_link" title="System Info"><a href="#db_info" data-toggle="tab"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a></li>
+						
 						
 					</ul>
 
@@ -743,7 +811,6 @@ class Wpdb_Admin {
 								this.checked = checked;
 							});
 						}
-
 					</script>';
 						echo ' <div class="table-responsive">
                                 <div id="wpdbbkp_dataTables" class="dataTables_wrapper form-inline" role="grid">
@@ -918,162 +985,199 @@ class Wpdb_Admin {
 					echo '</form>';
 					echo '</div>';
 					echo '</div>';
+					
 
+					
 					do_action('wpdbbkp_pro_tab_content');
 				
 					?>
 
-			<div class="tab-pane" id="db_upgrade">
-						<div class="panel-group ">
-						        <div class="gn-flex-container row">
-						          <div class=" col-md-12">
-									<div class="wpdbbkp-wrapper">
-            <div class="wpdbbkp-wr">
-                <div class="bkp-wpdbbkp-img">
-                    <span class="sp_ov"></span>
-                </div>
-                <div class="bkp-wpdbbkp-cnt">
-                    <h1><?php esc_html_e('UPGRADE to PRO Version','wpdbbkp');?></h1>
-                    <a class="buy" href="https://backupforwp.com/pricing/#pricings" target="_blank">Purchase Now</a>
-                </div>
-                <div class="pvf">
-                    <div class="pvf-cnt">
-                        <div class="pvf-tlt">
-                            <h2><?php esc_html_e('Compare Pro vs. Free Version','wpdbbkp');?></h2>
-                            <span><?php esc_html_e('See what you\'ll get with the professional version','wpdbbkp');?></span>
-                        </div>
-                        <div class="pvf-cmp">
-                            <div class="fr">
-                                <h1><?php esc_html_e('FREE','wpdbbkp');?></h1>
-                                <div class="fr-fe">
-                                    <div class="fe-1">
-                                        <h4><?php esc_html_e('Continious Development','wpdbbkp');?></h4>
-                                        <p><?php esc_html_e('We take bug reports and feature requests seriously. We\'re continiously developing &amp; improve this product for last 2 years with passion and love.','wpdbbkp');?></p>
-                                    </div>
-                                    <div class="fe-1">
-                                        <h4><?php esc_html_e('10+ Features','wpdbbkp');?></h4>
-                                        <p><?php esc_html_e('We\'re constantly expanding the plugin and make it more useful. We have wide variety of features which will fit any use-case.','wpdbbkp');?></p>
-                                    </div>
-                                </div><!-- /. fr-fe -->
-                            </div><!-- /. fr -->
-                            <div class="pr">
-                                <h1>PRO</h1>
-                                <div class="pr-fe">
-                                    <span><?php esc_html_e('Everything in Free, and:','wpdbbkp');?></span>
-                                    <div class="fet">
-                                        <div class="fe-2">
-                                            <div class="fe-t">
-                                                <img src="<?php echo esc_url(WPDB_PLUGIN_URL.'/assets/images/right-tick.png');?>" alt="right-tick">
-                                                <h4><?php esc_html_e('Anonymization Function','wpdbbkp');?></h4>
-                                            </div>
-                                            <p><?php esc_html_e('Anonymization you critical data during backup with three methods','wpdbbkp');?> </p>
-                                        </div>
-                                        <div class="fe-2">
-                                            <div class="fe-t">
-                                                <img src="<?php echo esc_url(WPDB_PLUGIN_URL.'/assets/images/right-tick.png');?>" alt="right-tick">
-                                                <h4><?php esc_html_e('Pre-update backups','wpdbbkp');?></h4>
-                                            </div>
-                                            <p> <?php esc_html_e('Automatically backs up your website before any updates to plugins, themes and WordPress core.','wpdbbkp');?></p>
-                                        </div>
-
-                                        <div class="fe-2">
-                                            <div class="fe-t">
-                                                <img src="<?php echo esc_url(WPDB_PLUGIN_URL.'/assets/images/right-tick.png');?>" alt="right-tick">
-                                                <h4><?php esc_html_e('Backup time and scheduling','wpdbbkp'); ?></h4>
-                                            </div>
-                                            <p><?php esc_html_e('Set exact times to create or delete backups.','wpdbbkp');?></p>
-                                        </div>
-
-
-                                        <div class="fe-2">
-                                            <div class="fe-t">
-                                                <img src="<?php echo esc_url(WPDB_PLUGIN_URL.'/assets/images/right-tick.png');?>" alt="right-tick">
-                                                <h4><?php esc_html_e('Fast, personal support','wpdbbkp'); ?></h4>
-                                            </div>
-                                            <p><?php esc_html_e('Provides expert help and support from the developers whenever you need it.','wpdbbkp'); ?></p>
-                                        </div>
-                                        <div class="fe-2">
-                                            <div class="fe-t">
-                                                <img src="<?php echo esc_url(WPDB_PLUGIN_URL.'/assets/images/right-tick.png');?>" alt="right-tick">
-                                                <h4><?php esc_html_e('Continuous Updates','wpdbbkp'); ?></h4>
-                                            </div>
-                                            <p><?php esc_html_e('We\'re continuously updating our premium features and releasing them.','wpdbbkp'); ?></p>
-                                        </div>
-                                        <div class="fe-2">
-                                            <div class="fe-t">
-                                                <img src="<?php echo esc_url(WPDB_PLUGIN_URL.'/assets/images/right-tick.png');?>" alt="right-tick">
-                                                <h4><?php esc_html_e('Documentation','wpdbbkp'); ?></h4>
-                                            </div>
-                                            <p><?php esc_html_e('We create tutorials for every possible feature and keep it updated for you.','wpdbbkp'); ?></p>
-                                        </div>
-                                    </div><!-- /. fet -->
-                                    <div class="pr-btn">
-                                        <a href="https://backupforwp.com/pricing/#pricings" target="_blank"><?php esc_html_e('Upgrade to Pro','wpdbbkp'); ?></a>
-                                    </div><!-- /. pr-btn -->
-                                </div><!-- /. pr-fe -->
-                            </div><!-- /.pr -->
-                        </div><!-- /. pvf-cmp -->
-                    </div><!-- /. pvf-cnt -->
-            
-                    <div class="wpdbbkpfaq">
-                        <h2><?php esc_html_e('Frequently Asked Questions','wpdbbkp'); ?></h2>
-                        <div class="faq-lst">
-                            <div class="lt">
-                                <ul>
-                                    <li>
-                                        <span><?php esc_html_e('Is there a setup fee?','wpdbbkp'); ?></span>
-                                        <p><?php esc_html_e('No. There are no setup fees on any of our plans','wpdbbkp'); ?></p>
-                                    </li>
-                                    <li>
-                                        <span><?php esc_html_e('What\'s the time span for your contracts?','wpdbbkp'); ?></span>
-                                        <p><?php esc_html_e('All the plans are year-to-year which are subscribed annually except for lifetime plan.','wpdbbkp'); ?></p>
-                                    </li>
-                                    <li>
-                                        <span><?php esc_html_e('What payment methods are accepted?','wpdbbkp'); ?></span>
-                                        <p><?php esc_html_e('We accepts PayPal and Credit Card payments.','wpdbbkp'); ?></p>
-                                    </li>
-                                    <li>
-                                        <span><?php esc_html_e('Do you offer support if I need help?','wpdbbkp'); ?></span>
-                                        <p><?php esc_html_e('Yes! Top-notch customer support for our paid customers is key for a quality product, so we\'ll do our very best to resolve any issues you encounter via our support page.','wpdbbkp'); ?></p>
-                                    </li>
-                                    <li>
-                                        <span><?php esc_html_e('Can I use the plugins after my subscription is expired?','wpdbbkp'); ?></span>
-                                        <p><?php esc_html_e('Yes, you can use the plugins, but you will not get future updates for those plugins.','wpdbbkp'); ?></p>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="rt">
-                                <ul>
-                                    <li>
-                                        <span><?php esc_html_e('Can I cancel my membership at any time?','wpdbbkp'); ?></span>
-                                        <p><?php esc_html_e('Yes. You can cancel your membership by contacting us.','wpdbbkp'); ?></p>
-                                    </li>
-                                    <li>
-                                        <span><?php esc_html_e('Can I change my plan later on?','wpdbbkp'); ?></span>
-                                        <p><?php esc_html_e('Yes. You can upgrade your plan by contacting us.','wpdbbkp'); ?></p>
-                                    </li>
-                                    <li>
-                                        <span><?php esc_html_e('Do you offer refunds?','wpdbbkp'); ?></span>
-                                        <p><?php esc_html_e('You are fully protected by our 100% Money-Back Guarantee Unconditional. If during the next 14 days you experience an issue that makes the plugin unusable, and we are unable to resolve it, we\'ll happily offer a full refund.','wpdbbkp'); ?></p>
-                                    </li>
-                                    <li>
-                                        <span><?php esc_html_e('Do I get updates for the premium plugin?','wpdbbkp'); ?></span>
-                                        <p><?php esc_html_e('Yes, you will get updates for all the premium plugins until your subscription is active.','wpdbbkp'); ?></p>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div><!-- /.faq-lst -->
-                    </div><!-- /.faq -->
-                </div><!-- /. pvf -->
-            </div>
-        </div>
-					
-						            </div>
-						          </div>
-						        </div>
-						</div>
+<!-- Modal Structure -->
+<div class="modal" id="wpdbbkp_offer_modal" data-dismiss="modal" tabindex="-1" aria-labelledby="wpdbbkp_offer_modalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+   <div class="modal-body">
+   <button type="button" id="offer_close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+  <h3 class="modal-title" id="wpdbbkp_offer_modalLabel"><img src="<?php echo esc_attr( WPDB_PLUGIN_URL ); ?>/assets/images/wp-database-backup.png" width="230px"></h3>
+		  <p style="padding:0 50px;"><?php echo esc_html__('Remote Backups offers a secure, reliable and affordable solution to backup your WP site to the cloud.','wpdbbkp');?></p>
+		<div class="wpdbbkp_offer_container">
+			<div class="wpdbbkp_server">
+				<h4><?php echo esc_html__('Server Backup','wpdbbkp');?></h4>
+				<p><?php echo esc_html__('Backup your site to server','wpdbbkp');?></p>
+				<ul>
+					<li>&#10004; <?php echo esc_html__('Easy to setup','wpdbbkp');?></li>
+					<li>&#10004; <?php echo esc_html__('Takes storage on your server','wpdbbkp');?></li>
+					<li>&#10004; <?php echo esc_html__('Availability subject to server','wpdbbkp');?></li>
+				</ul>
+				<h4><?php echo esc_html__('Free','wpdbbkp');?></h4>
+				<button id="wpdbbkp_server_backup" class="btn btn-secondary"><?php echo esc_html__('Create a Backup on this Server','wpdbbkp');?></button>
+			</div>
+			<div class="wpdbbkp_remote">
+				<h4><?php echo esc_html__('Remote Backup','wpdbbkp');?></h4>
+				<p><?php echo esc_html__('Backup your site in the cloud','wpdbbkp');?></p>
+				<ul>
+					<li>&#10004; <?php echo esc_html__('Secure and reliable','wpdbbkp');?></li>
+					<li>&#10004; <?php echo esc_html__('Only pay for what you use','wpdbbkp');?></li>
+					<li>&#10004; <?php echo esc_html__('High availability','wpdbbkp');?></li>
+				</ul>
+				<h4><?php echo esc_html__('$1 per 50GB','wpdbbkp');?> <small><?php echo esc_html__('per month','wpdbbkp');?></small></h4>
+				<button id="wpdbbkp_remote_backup" class="btn btn-primary"><?php echo esc_html__('Create a Backup on Remote Server','wpdbbkp');?></button>
+			</div>
 			
+		</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="tab-pane" id="db_features">
 
+		<div class="panel-group">
+			<form method="post" action="" name="db_features_form">
+				<?php wp_nonce_field('wp-database-backup');
+				$enable_anonymization = get_option('bkpforwp_enable_anonymization',false);
+				$anonymization_type = get_option('bkpforwp_anonymization_type',false);
+				$enable_backup_encryption = get_option('bkpforwp_enable_backup_encryption',false);
+				$anonymization_pass = get_option('bkpforwp_anonymization_pass','');
+				$backup_encryption_pass = get_option('bkpforwp_encryption_pass','');
+				$enable_exact_backup_time = get_option('bkpforwp_enable_exact_backup_time',false);
+				?>
+				<div class="row form-group"><label class="col-sm-3" for="enable_anonymization"><?php esc_html_e('Data Anonymization','backupforwp-pro'); ?></label>
+					<div class="col-sm-9"><input type="checkbox" id="enable_anonymization"
+							name="enable_anonymization" value="1" <?php checked($enable_anonymization,1,1); ?> />
+					
+						<div class="alert alert-default" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> <?php esc_html_e('Data anonymization is protecting private or sensitive information by erasing or encrypting identifiers that connect an individual to stored data.','backupforwp-pro'); ?><a href="https://backupforwp.com/" target="_blank">Learn More</a></div>
+					</div>
+					</div>
+				<div class="row form-group" id="anonymization_type_div" style="display:none">
+					<label class="col-sm-3" for="anonymization_type"><?php esc_html_e('Data Anonymization Type','backupforwp-pro'); ?> </label>
+					<div class="col-sm-9"><select id="anonymization_type" class="form-control"
+							name="anonymization_type">
+							<option value="masked_data" <?php selected('masked_data', $anonymization_type, true) ?>> <?php esc_html_e('Masked Data','backupforwp-pro'); ?>
+							</option>
+							<option value="fake_data" <?php selected('fake_data', $anonymization_type, true) ?>> <?php esc_html_e('Fake Data','backupforwp-pro'); ?>
+							</option>
+							<option value="encrypted_data" <?php selected('encrypted_data', $anonymization_type, true) ?>> <?php esc_html_e('Encrypted Data','backupforwp-pro'); ?>
+							</option>
+						</select>
+						<?php echo wp_kses_post('<table class="bkpforwp-infotable">
+							<tr><th>Masked Data </th><td>Data is masked with * character and <strong class="bkpforwp-red">data can not be recovered</strong> while restore.</td></tr>
+							<tr><th>Fake Data </th><td>Data is replaced with fake data and <strong class="bkpforwp-red">data can not be recovered</strong> while restore.</td></tr>
+							<tr><th>Encrypted Data </th><td>Data is encrypted with a password  and <strong class="bkpforwp-green">data can be recovered</strong> while restore by using the same password used to backup the data.You just have to add the encryption password in Data Anonymization setting before restoring backup.</td></tr>
+						</table>');?>
+						
+					</div>
+				</div>
+			
+					<div class="row form-group" id="anonymization_enc_ip" style="display:none">
+					<label class="col-sm-3" for="anonymization_pass"><?php esc_html_e('Encrypted Data','backupforwp-pro'); ?> <?php esc_html_e('Anonymization Password','backupforwp-pro'); ?></label>
+					<div class="col-sm-9">
+						<input type="password" name="anonymization_pass" id="anonymization_pass" class="form-control" value="<?php esc_attr($anonymization_pass);?>"> 
+						<div class="alert alert-default" role="alert">
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> <?php esc_html_e('Please enter the encryption password. If you lose this pass then you can not recover the encrypted data','backupforwp-pro'); ?></div>
+					</div>
+					
+				</div>
+
+				<div class="row form-group" style="display:none"><label class="col-sm-3" for="enable_backup_encryption"><?php esc_html_e('Backup File Encrpytion','backupforwp-pro'); ?></label>
+					<div class="col-sm-9"><input type="checkbox" id="enable_backup_encryption"
+							name="enable_backup_encryption" value="1" <?php checked($enable_backup_encryption,1,1); ?> /></div>
+				</div>
+
+				<div class="row form-group" id="encryption_pass_div" style="display:none">
+					<label class="col-sm-3" for="backup_encryption_pass"><?php esc_html_e('Backup Password','backupforwp-pro'); ?></label>
+					<div class="col-sm-9">
+						<input type="password" name="backup_encryption_pass" id="backup_encryption_pass" class="form-control" value="<?php esc_attr($backup_encryption_pass);?>">
+					</div>
+				</div>
+	
+				<p class="submit">
+					<input type="submit" name="featureSubmit" class="btn btn-primary" value="Save Settings" />
+				</p>
+			</form>
+		</div>
+	</div>
+<div class="tab-pane" id="db_remotebackups">
+<?php
+$update_msg = '';
+if ( true === isset( $_POST['wpdb_cd_s3'] ) && 'Y' === $_POST['wpdb_cd_s3'] ) {
+	// Validate that the contents of the form request came from the current site and not somewhere else added 21-08-15 V.3.4.
+	if ( ! isset( $_POST['wpdbbackup_update_cd_setting'] ) ) {
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
+	}
+	if ( ! wp_verify_nonce( $_POST['wpdbbackup_update_cd_setting'] , 'wpdbbackup-update-cd-setting' ) ) {
+		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
+	}
+
+	if ( true === isset( $_POST['wpdb_clouddrive_token'] ) ) {
+		update_option( 'wpdb_clouddrive_token', wp_db_filter_data( sanitize_text_field( wp_unslash( $_POST['wpdb_clouddrive_token'] ) ) ), false );
+	}
+	
+	// Put a "settings updated" message on the screen.
+	$update_msg = esc_html__('Your BackupforWP CloudDrive setting has been saved.' , 'wpdbbkp');
+}
+
+$wpdb_clouddrive_token = get_option( 'wpdb_clouddrive_token',null);
+
+$wpdbbkp_bb_s3_status			=	'<small><b>'.esc_html__('Status', 'wpdbbkp').'</b>: '.esc_html__('Not Configured', 'wpdbbkp').' </small> ';
+
+if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
+{
+	$wpdbbkp_bb_s3_status ='<small>'.esc_html__('Status', 'wpdbbkp').'</b>: <span class="dashicons dashicons-yes-alt" style="color:green;font-size:16px" title="'.esc_attr__('Destination enabled', 'wpdbbkp').'"></span><span class="configured">'.esc_html__('Configured', 'wpdbbkp').' </span> </small> ';
+}
+
+?>
+<h2 align="center"><strong><?php echo esc_html__('Remote Cloud Backups by BackupforWP', 'wpdbbkp') ?></strong></h2>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h4 class="panel-title">
+			<a data-toggle="collapse" data-parent="#accordion" href="#collapsebb">
+				<?php echo '<b>'.esc_html__('Remote Backups', 'wpdbbkp').'</b>'; ?> <?php echo wp_kses_post($wpdbbkp_bb_s3_status);?>
+
+			</a>
+		</h4>
+	</div>
+		<div class="panel-body">
+		<?php
+			if($update_msg){
+				echo '<div class="updated"><p><strong>'.esc_html( $update_msg ).'</strong></p></div>';
+			}
+			?>
+			<form  class="form-group" name="Clouddrive3" method="post" action="">
+			
+			<p style="padding:0 20px;"> 
+			<?php echo '<h2 style="padding:0 20px;">'.esc_html__('Getting started with our Remote backup service is simple.', 'wpdbbkp').'</h2>'; ?>
+			<ul style="list-style-type: style;">
+				<li style="margin-left: 30px;"><?php echo esc_html__('Sign up for a free account at', 'wpdbbkp'); ?> <a href="https://app.backupforwp.com/register" target="_blank"><?php  echo esc_html__('Backup for WP CloudDrive', 'wpdbbkp');?> </a></li>
+				<li style="margin-left: 30px;"><?php echo esc_html__('Add the website url', 'wpdbbkp'); ?> <a href="https://app.backupforwp.com/websites" target="_blank"><?php  echo esc_html__('Add Website here', 'wpdbbkp');?> </a></li>
+				<li style="margin-left: 30px;"><?php echo esc_html__('API token will be generated on adding website.', 'wpdbbkp'); ?></li>
+				<li style="margin-left: 30px;"><?php echo esc_html__('Copy the token here and Click Save.', 'wpdbbkp'); ?></li>
+			</ul>
+					
+			
+				<input type="hidden" name="wpdb_cd_s3" value="Y">
+				<input name="wpdbbackup_update_cd_setting" type="hidden" value="<?php echo esc_attr( wp_create_nonce( 'wpdbbackup-update-cd-setting' ) ); ?>" />
+				<?php wp_nonce_field( 'wp-database-backup' ); ?>
+				<div class="row form-group">
+					<label class="col-sm-3" for="wpdb_clouddrive_token"><?php echo esc_html__('BackforWP API Token', 'wpdbbkp') ?></label>
+					<div class="col-sm-6">
+
+						<input type="text" id="wpdb_clouddrive_token" class="form-control" name="wpdb_clouddrive_token" value="<?php echo esc_html( get_option( 'wpdb_clouddrive_token' ) ); ?>" size="25" placeholder="<?php esc_attr_e('26b18a624d2f5e01324bc81f90cfff63ba493bc15f00d790729fb437e90f54ea','wpdbbkp');?>">
+						<a href="https://app.backupforwp.com/websites" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
+					</div>
+				</div>
+				
+				<p style="padding-left:20px"><input type="submit" name="Submit" class="btn btn-primary" value="<?php esc_attr_e( 'Save' , 'wpdbbkp' ); ?>" />&nbsp;
+				</p>
+			</form>
+
+		</div>
+</div>
+
+
+</div>
 				<div class="tab-pane" id="db_help">
 						<div class="panel-group ">
 						        <div class="gn-flex-container row">
@@ -1266,8 +1370,7 @@ class Wpdb_Admin {
 									<?php
 									echo esc_attr( WP_MEMORY_LIMIT );
 									echo '(Max &nbsp;' . esc_attr( WP_MAX_MEMORY_LIMIT );
-									?>
-		)
+									?> )
 									</div>
 								</div>
 
@@ -1586,6 +1689,7 @@ class Wpdb_Admin {
 					}
 					$wp_db_remove_local_backup = get_option( 'wp_db_remove_local_backup' );
 					$wp_db_remove_on_uninstall = get_option( 'wp_db_remove_on_uninstall');
+					$wp_db_incremental_backup = get_option( 'wp_db_incremental_backup');
 					$wp_db_save_settings_in_backup = get_option( 'wp_db_save_settings_in_backup',1);
 					if ( 1 === (int) $wp_db_remove_local_backup ) {
 						$remove_local_backup = 'checked';
@@ -1596,6 +1700,11 @@ class Wpdb_Admin {
 						$remove_on_uninstall = 'checked';
 					} else {
 						$remove_on_uninstall = '';
+					}
+					if ( 1 === (int) $wp_db_incremental_backup ) {
+						$incremental_backup = 'checked';
+					} else {
+						$incremental_backup = '';
 					}
 					if ( 1 === (int) $wp_db_save_settings_in_backup ) {
 						$save_on_backup = 'checked';
@@ -1656,7 +1765,7 @@ class Wpdb_Admin {
 						
 							</p>
 						</div>
-						<hr>
+	
 						<?php
 						$remove_backup_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=removeallbackup&_wpnonce=' . esc_attr( $nonce ); ?>
 
@@ -1869,7 +1978,7 @@ class Wpdb_Admin {
 						}
 					}
 					else{
-						$result       = $wpdb->get_results( $wpdb->prepare("SELECT * FROM {$table}",), ARRAY_A  ); // phpcs:ignore
+						$result       = $wpdb->get_results( $wpdb->prepare("SELECT * FROM {$table}"), ARRAY_A  ); // phpcs:ignore
 					}
 					
 	
@@ -2766,6 +2875,9 @@ class Wpdb_Admin {
 			wp_register_script('wpdbbkp-admin-script', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin.js', array('jquery'), WPDB_VERSION, 'true' );
 			wp_localize_script('wpdbbkp-admin-script', 'wpdbbkp_script_vars', array(
 				'nonce' => wp_create_nonce( 'wpdbbkp-admin-nonce' ),
+				'siteurl' => base64_encode(site_url( )),
+				'ud'=>wpdbbkp_get_current_user_name_email(),
+				'is_subscribed'=>wpdbbkp_if_remote_active(),
 			));
 			wp_enqueue_script('wpdbbkp-admin-script');
 

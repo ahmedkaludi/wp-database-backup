@@ -3,7 +3,7 @@
  * Plugin Name: Backup For WP
  * Plugin URI:https://wordpress.org/plugins/wp-database-backup
  * Description: This plugin helps you to create/restore Unlimited  WordPress Database & Files backup.
- * Version: 6.12
+ * Version: 7.0
  * Author: Backup for WP
  * Author URI: https://backupforwp.com/
  * Text Domain: wpdbbkp
@@ -47,7 +47,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		 *
 		 * @var string
 		 */
-		public $version = '6.12';
+		public $version = '7.0';
 
 		/**
 		 * Plugin instance
@@ -110,16 +110,24 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		/**
 		 * Include Requred files and lib.
 		 */
-		private function includes() {
+		private function includes()
+		{
 			include_once 'includes/admin/mb-helper-functions.php';
 			include_once 'includes/admin/class-wpdb-admin.php';
 			include_once 'includes/admin/Destination/wp-backup-destination-upload-action.php';
 			include_once 'includes/class-wpdbbackuplog.php';
 			include_once 'includes/admin/filter.php';
 			include_once 'includes/admin/class-wpdbbkp-newsletter.php';
-			include_once 'includes/admin/cron-create-full-backup.php';
+			include_once 'includes/features.php';
+			$wp_db_incremental_backup = get_option('wp_db_incremental_backup');
+			$wpdb_clouddrive_cd = get_option('wpdb_clouddrive_token', false);
+			if ($wp_db_incremental_backup == 1 || ($wpdb_clouddrive_cd && !empty($wpdb_clouddrive_cd))) {
+				include_once 'includes/admin/cron-create-full-backup-incremental.php';
+			} else {
+				include_once 'includes/admin/cron-create-full-backup.php';
+			}
 			include_once 'includes/class-wpdbfullbackuplog.php';
-			
+
 		}
 		/**
 		 * Installation setting at time of activation.
@@ -140,6 +148,8 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			if($flag!=2){
 				add_option( 'wpdbbkp_activation_redirect', true, '' , false );
 			}
+
+			$this->create_processed_files_table();
 		}
 
 		/**
@@ -148,6 +158,29 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		public function logger() {
 			_deprecated_function( 'Wpekaplugin->logger', '1.0', 'new WPDB_Logger()' );
 			return new WPDB_Logger();
+		}
+
+		public function create_processed_files_table() {
+			global $wpdb;
+			$table_name = $wpdb->prefix . 'wpdbbkp_processed_files';
+			$charset_collate = $wpdb->get_charset_collate();
+		
+			// Check if the table already exists
+			//phpcs:ignore  -- Reason: Direct SQL execution is required here.
+			if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+				//phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange
+				$sql = "CREATE TABLE $table_name (
+					id mediumint(9) NOT NULL AUTO_INCREMENT,
+					file_path text NOT NULL,
+					processed_at TIMESTAMP on update CURRENT_TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+					status ENUM('added', 'updated', 'deleted') DEFAULT 'added' NOT NULL,
+					PRIMARY KEY  (id),
+					UNIQUE (file_path(250))
+				) $charset_collate;";
+		
+				require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+				dbDelta($sql);
+			}
 		}
 	}
 

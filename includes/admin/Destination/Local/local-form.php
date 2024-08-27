@@ -33,7 +33,7 @@ if($wpdbbkp_local_enabled==1 && !empty($wpdbbkp_local_path))
 							echo '<p>';
 							$ischecked = ( isset( $wp_db_local_backup ) && 1 === (int) $wp_db_local_backup ) ? 'checked' : '';
 							echo '<div class="row form-group">
-                                <label class="col-sm-2" for="wp_db_local_backup_path">'.esc_html__('Enable Local Backup','wpdbbkp').':</label>
+                                <label class="col-sm-2" for="wp_db_local_backup_path">'.esc_html__('Enable Local Backup','wpdbbkp').'</label>
                                 <div class="col-sm-6">
                                     <input type="checkbox" ' . esc_attr( $ischecked ) . ' id="wp_db_local_backup_path" name="wp_db_local_backup">
                                 </div>

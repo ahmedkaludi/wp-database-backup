@@ -281,9 +281,206 @@ document.querySelector('#wpdbbkp_sftp_sshkey').addEventListener('input', functio
   })
 
 if(jQuery("#create_backup")){
+
     jQuery("#create_backup").click(function(event) {
-        jQuery(".wpdbbkp_notification").hide();
-        jQuery("#backup_process").show();
-        jQuery("#create_backup").attr("disabled", true);
+       if(bkpforwp_token_check()){
+        return;
+       }
+        event.preventDefault();
+        let  wpdbbkp_offer_modal = jQuery('#wpdbbkp_offer_modal').modal({ keyboard: true , backdrop: 'true',});
+		wpdbbkp_offer_modal.show();
+		// When the user selects an option, set the cookie and hide the modal
+		document.getElementById("wpdbbkp_server_backup").addEventListener("click", function() {
+			wpdbbkp_offer_modal.hide();
+            jQuery(".wpdbbkp_notification").hide();
+            jQuery("#backup_process").show();
+            jQuery("#create_backup").attr("disabled", true);
+		});
+
+		document.getElementById("wpdbbkp_remote_backup").addEventListener("click", function() {
+            let register_url = 'https://app.backupforwp.com/register?token='+wpdbbkp_script_vars.siteurl+'&un='+wpdbbkp_script_vars.ud.name+'&ue='+wpdbbkp_script_vars.ud.email;
+            let loginWindow = window.open(register_url, '_blank', 'width=800,height=600,resizable=yes,scrollbars=yes,top=100,left=200');
+			
+            window.addEventListener('message', function(event) {
+				// Check the origin of the message to ensure it's from the expected source
+				if (event.origin === 'https://app.backupforwp.com') {
+					let  token = event.data;
+						$.ajax({
+							type: 'POST',
+							url: wpdbbkp_localize_admin_data.ajax_url,
+							data: {action: 'wpdbbkp_save_remote_token', token: token, wpdbbkp_security_nonce:wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce},
+							success: function(response){
+								response = JSON.parse(response);
+								console.log(response);
+								if(response.status=='success'){
+									loginWindow.close();
+									window.location.href = jQuery("#create_backup").attr("href");
+									
+								}
+							},
+							error: function(response){
+								console.log(response);
+							}
+
+						});
+				}
+			});
+			
+		});
+
     });
+}
+
+
+function bkpforwp_anonymization_logic(){
+	var anon_enable =document.getElementById('enable_anonymization');
+  if(anon_enable){
+		var anon_type = document.getElementById('anonymization_type_div');
+		if(anon_enable.checked){
+			if(anon_type){
+				anon_type.style.display="block";
+			}
+		}
+		else{
+			if(anon_type){
+				anon_type.style.display="none";
+			}
+		}
+		anon_enable.addEventListener('change',function(e){
+			bkpforwp_anonymization_logic();
+		});
+	}
+  }
+
+  function bkpforwp_anonymization_encypt_logic(){
+	var anon_type =document.getElementById('anonymization_type');
+	var anon_enable =document.getElementById('enable_anonymization');
+	var anon_ip =document.getElementById('anonymization_enc_ip');
+  if(anon_type && anon_enable){
+		if(anon_type.value=='encrypted_data' && anon_enable.checked){
+			if(anon_ip){
+				anon_ip.style.display="block";
+			}
+		}
+		else{
+			if(anon_ip){
+				anon_ip.style.display="none";
+			}
+		}
+		anon_type.addEventListener('change',function(e){
+			bkpforwp_anonymization_encypt_logic();
+		});
+	}
+  }
+  function bkpforwp_backup_encypt_logic(){
+	var anon_enable =document.getElementById('enable_backup_encryption');
+  if(anon_enable){
+		var anon_type = document.getElementById('encryption_pass_div');
+		if(anon_enable.checked){
+			if(anon_type){
+				anon_type.style.display="block";
+			}
+		}
+		else{
+			if(anon_type){
+				anon_type.style.display="none";
+			}
+		}
+		anon_enable.addEventListener('change',function(e){
+			bkpforwp_backup_encypt_logic();
+		});
+	}
+  }
+
+  
+
+  // Javascript to enable link to tab
+var hash = document.location.hash;
+var prefix = "tab_";
+if (hash) {
+    jQuery('.nav-tabs a[href="'+hash.replace(prefix,"")+'"]').tab('show');
+} 
+
+// Change hash for page-reload
+jQuery('.nav-tabs a').on('shown', function (e) {
+    window.location.hash = e.target.hash.replace("#", "#" + prefix);
+});
+jQuery('.nav-tabs a').on('click', function (e) {
+    window.location.hash = e.target.hash.replace("#", "#" + prefix);
+});
+
+
+function bkpforwp_database_schduler(){
+	var db_backups =document.getElementById('enable_autobackups');
+  if(db_backups){
+		if(db_backups.checked){
+			var autobackup_frequency = jQuery('#autobackup_frequency').val();
+			if(autobackup_frequency=='daily'){
+				jQuery('.database_autobackup').hide();
+				jQuery('.autobackup_time').show();
+			}else if(autobackup_frequency=='weekly'){
+				jQuery('.database_autobackup').hide();
+				jQuery('.autobackup_days').show();
+				jQuery('.autobackup_time').show();
+			}
+			else if(autobackup_frequency=='monthly'){
+				jQuery('.database_autobackup').hide();
+				jQuery('.autobackup_date').show();
+				jQuery('.autobackup_time').show();
+			}
+			else{
+				jQuery('.database_autobackup').hide();
+			}
+		}
+		else{
+			jQuery('.database_autobackup').hide();
+		}
+	}	
+
+}
+
+function modify_backup_frequency_pro(){
+	bkpforwp_database_schduler();
+}
+
+jQuery('#enable_autobackups').change(function(){
+    bkpforwp_database_schduler();
+});
+
+jQuery('#autobackup_frequency').change(function(){
+    autobackup_frequency_info_();
+});
+
+function autobackup_frequency_info_(){
+    var autobackup_frequency = jQuery('#autobackup_frequency').val();
+    if(jQuery('.autobackup_time').length>0){
+        if(autobackup_frequency=='daily'){
+            jQuery('.autobackup_frequency_pro').hide();
+            jQuery('.autobackup_daily_pro').parent().show();
+        }else if(autobackup_frequency=='weekly'){
+            jQuery('.autobackup_frequency_pro').hide();
+            jQuery('.autobackup_weekly_pro').parent().show();
+        } else if(autobackup_frequency=='monthly'){
+            jQuery('.autobackup_frequency_pro').hide();
+            jQuery('.autobackup_monthly_pro').parent().show();
+        }else{
+            jQuery('.autobackup_frequency_pro').hide();
+        }
+		jQuery('.database_autobackup').hide();
+		
+    
+    }
+}
+
+bkpforwp_anonymization_logic();
+bkpforwp_anonymization_encypt_logic();
+bkpforwp_backup_encypt_logic();
+bkpforwp_database_schduler();
+
+function bkpforwp_token_check() {
+    var wpdb_clouddrive_token = document.getElementById('wpdb_clouddrive_token');
+    if (wpdb_clouddrive_token && wpdb_clouddrive_token.value) {
+        return true;
+    }
+    return false;
 }

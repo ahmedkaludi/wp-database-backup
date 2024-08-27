@@ -477,10 +477,10 @@ bkpforwp_anonymization_encypt_logic();
 bkpforwp_backup_encypt_logic();
 bkpforwp_database_schduler();
 
-function bkpforwp_token_check(){
+function bkpforwp_token_check() {
     var wpdb_clouddrive_token = document.getElementById('wpdb_clouddrive_token');
-    if(wpdb_clouddrive_token && wpdb_clouddrive_token.length>0){
-    return true;
+    if (wpdb_clouddrive_token && wpdb_clouddrive_token.value) {
+        return true;
     }
     return false;
 }

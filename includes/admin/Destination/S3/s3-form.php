@@ -105,7 +105,7 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 				<div class="row form-group">
 					<label class="col-sm-2" for="wp_db_backup_destination_s3"><?php echo esc_html__('Enable Amazon S3 Destination', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
-						<input type="checkbox" id="wp_db_backup_destination_s3" <?php echo ( true === isset( $wp_db_backup_destination_s3 ) && 1 === $wp_db_backup_destination_s3 ) ? 'checked' : ''; ?> name="wp_db_backup_destination_s3">
+						<input type="checkbox" id="wp_db_backup_destination_s3" <?php echo ( true === isset( $wp_db_backup_destination_s3 ) && 1 === (int) $wp_db_backup_destination_s3 ) ? 'checked' : ''; ?> name="wp_db_backup_destination_s3">
 				</div>
 
 				</div>

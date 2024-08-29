@@ -568,7 +568,7 @@ function wpdbbkp_append_to_file( $file, $data ) {
  ************************/
 if(!function_exists('wpdbbkp_write_log')){
 	function wpdbbkp_write_log($logFile, $logMessage) {
-		return wpdbbkp_write_to_file($logFile,$logMessage,'',true);
+		return wpdbbkp_write_file_contents($logFile,$logMessage,true);
 	}
 }
 

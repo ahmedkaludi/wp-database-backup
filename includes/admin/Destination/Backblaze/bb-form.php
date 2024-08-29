@@ -37,6 +37,12 @@ if ( true === isset( $_POST['wpdb_bb_s3'] ) && 'Y' === $_POST['wpdb_bb_s3'] ) {
 	} else {
 		update_option( 'wp_db_backup_destination_bb', 0 , false);
 	}
+
+	if ( isset( $_POST['wp_db_incremental_backup'] ) ) {
+		update_option( 'wp_db_incremental_backup', 1 , false);
+	} else {
+		update_option( 'wp_db_incremental_backup', 0 , false);
+	}
 	// Put a "settings updated" message on the screen.
 	$update_msg = esc_html__('Your Blackblaze S3 setting has been saved.' , 'wpdbbkp');
 }

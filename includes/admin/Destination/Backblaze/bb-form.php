@@ -46,6 +46,11 @@ $wpdb_dest_bb_s3_bucket = get_option( 'wpdb_dest_bb_s3_bucket',null);
 $wpdb_dest_bb_s3_bucket_key = get_option( 'wpdb_dest_bb_s3_bucket_key',null);
 $wpdb_dest_bb_s3_bucket_secret = get_option( 'wpdb_dest_bb_s3_bucket_secret',null);
 $incremental_backup = get_option( 'wp_db_incremental_backup', 0 );
+if ( 1 === (int) $wp_db_incremental_backup ) {
+	$incremental_backup = 'checked';
+} else {
+	$incremental_backup = '';
+}
 
 $wpdbbkp_bb_s3_status			=	'<label><b>'.esc_html__('Status', 'wpdbbkp').'</b>: '.esc_html__('Not Configured', 'wpdbbkp').' </label> ';
 

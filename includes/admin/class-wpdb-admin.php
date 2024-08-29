@@ -81,8 +81,8 @@ class Wpdb_Admin {
 
 			add_submenu_page(
 				'wp-database-backup',
-				'Remote Backups',
-				'Remote Backups',
+				'Cloud Backup',
+				'Cloud Backup',
 				'manage_options',
 				'wp-database-backup#tab_db_remotebackups',
 				array($this, 'wp_db_backup_settings_page' ));
@@ -729,7 +729,7 @@ class Wpdb_Admin {
 			?><br>
 				<div class="alert alert-info " role="alert">
 		&nbsp;<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> 
-		<?php esc_html_e( 'Try Backup for WP Cloud Storage free for 14 days', 'wpdbbkp' ); ?> <a href="https://app.backupforwp.com/register"><?php echo esc_html__( 'Try now for free' , 'wpdbbkp'); ?></a>	</div>
+		<?php esc_html_e( 'Try Backup for WP Cloud Backup free for 14 days', 'wpdbbkp' ); ?> <a href="https://app.backupforwp.com/register"><?php echo esc_html__( 'Try now for free' , 'wpdbbkp'); ?></a>	</div>
 				<?php
 		}
 		?>
@@ -759,7 +759,7 @@ class Wpdb_Admin {
 				<div class="panel-body">
 					<ul class="nav nav-tabs wbdbbkp_has_nav">
 						<li class="active"><a href="#db_home" data-toggle="tab"><?php echo esc_html__('Backups', 'wpdbbkp') ?></a></li>
-						<li><a href="#db_remotebackups" data-toggle="tab"><?php echo esc_html__('Remote Backups', 'wpdbbkp') ?></a></li>
+						<li><a href="#db_remotebackups" data-toggle="tab"><?php echo esc_html__('Cloud Backup', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_schedul" data-toggle="tab"><?php echo esc_html__('Auto Scheduler', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_destination" data-toggle="tab"><?php echo esc_html__('Save Backups to', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_setting" data-toggle="tab"><?php echo esc_html__('Settings', 'wpdbbkp') ?></a></li>
@@ -842,12 +842,19 @@ class Wpdb_Admin {
 							'S3'         => 'glyphicon glyphicon-cloud-upload',
 							'Drive'      => 'glyphicon glyphicon-hdd',
 							'DropBox'    => 'glyphicon glyphicon-inbox',
-							'Backblaze'  => 'glyphicon glyphicon-cloud-upload'
+							'Backblaze'  => 'glyphicon glyphicon-cloud-upload',
+							'CloudDrive'  => 'glyphicon glyphicon-cloud-upload'
 						);
 						if(!empty($options) && is_array($options)){
 							foreach ( $options as $option ) {
-								if(!is_array($option)){
+								if (!is_array($option)) {
 									continue;
+								}
+
+								if (!empty($option['destination'])) {
+									if (strpos($option['destination'], 'CloudDrive') !== false) {
+										continue;
+									}
 								}
 								$size = isset( $option['size'])? $option['size'] : 0;
 								$str_class = ( 0 === (int) $size  ) ? 'text-danger' : 'wpdb_download';
@@ -1001,7 +1008,7 @@ class Wpdb_Admin {
           <span aria-hidden="true">&times;</span>
         </button>
   <h3 class="modal-title" id="wpdbbkp_offer_modalLabel"><img src="<?php echo esc_attr( WPDB_PLUGIN_URL ); ?>/assets/images/wp-database-backup.png" width="230px"></h3>
-		  <p style="padding:0 50px;"><?php echo esc_html__('Remote Backups offers a secure, reliable and affordable solution to backup your WP site to the cloud.','wpdbbkp');?></p>
+		  <p style="padding:0 50px;"><?php echo esc_html__('Cloud Backup offers a secure, reliable and affordable solution to backup your WP site to the cloud.','wpdbbkp');?></p>
 		<div class="wpdbbkp_offer_container">
 			<div class="wpdbbkp_server">
 				<h4><?php echo esc_html__('Server Backup','wpdbbkp');?></h4>
@@ -1015,7 +1022,7 @@ class Wpdb_Admin {
 				<button id="wpdbbkp_server_backup" class="btn btn-secondary"><?php echo esc_html__('Create a Backup on this Server','wpdbbkp');?></button>
 			</div>
 			<div class="wpdbbkp_remote">
-				<h4><?php echo esc_html__('Remote Backup','wpdbbkp');?></h4>
+				<h4><?php echo esc_html__('Cloud Backup','wpdbbkp');?></h4>
 				<p><?php echo esc_html__('Backup your site in the cloud','wpdbbkp');?></p>
 				<ul>
 					<li>&#10004; <?php echo esc_html__('Secure and reliable','wpdbbkp');?></li>
@@ -1023,7 +1030,7 @@ class Wpdb_Admin {
 					<li>&#10004; <?php echo esc_html__('High availability','wpdbbkp');?></li>
 				</ul>
 				<h4><?php echo esc_html__('$1 per 50GB','wpdbbkp');?> <small><?php echo esc_html__('per month','wpdbbkp');?></small></h4>
-				<button id="wpdbbkp_remote_backup" class="btn btn-primary"><?php echo esc_html__('Create a Backup on Remote Server','wpdbbkp');?></button>
+				<button id="wpdbbkp_remote_backup" class="btn btn-primary"><?php echo esc_html__('Create a Backup on Cloud Server','wpdbbkp');?></button>
 			</div>
 			
 		</div>
@@ -1116,7 +1123,7 @@ if ( true === isset( $_POST['wpdb_cd_s3'] ) && 'Y' === $_POST['wpdb_cd_s3'] ) {
 	}
 	
 	// Put a "settings updated" message on the screen.
-	$update_msg = esc_html__('Your BackupforWP CloudDrive setting has been saved.' , 'wpdbbkp');
+	$update_msg = esc_html__('Your BackupforWP Cloud Backup setting has been saved.' , 'wpdbbkp');
 }
 
 $wpdb_clouddrive_token = get_option( 'wpdb_clouddrive_token',null);
@@ -1129,12 +1136,12 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 }
 
 ?>
-<h2 align="center"><strong><?php echo esc_html__('Remote Cloud Backups by BackupforWP', 'wpdbbkp') ?></strong></h2>
+<h2 align="center"><strong><?php echo esc_html__('Cloud Backup by BackupforWP', 'wpdbbkp') ?></strong></h2>
 <div class="panel panel-default">
 	<div class="panel-heading">
 		<h4 class="panel-title">
 			<a data-toggle="collapse" data-parent="#accordion" href="#collapsebb">
-				<?php echo '<b>'.esc_html__('Remote Backups', 'wpdbbkp').'</b>'; ?> <?php echo wp_kses_post($wpdbbkp_bb_s3_status);?>
+				<?php echo '<b>'.esc_html__('Cloud Backup', 'wpdbbkp').'</b>'; ?> <?php echo wp_kses_post($wpdbbkp_bb_s3_status);?>
 
 			</a>
 		</h4>
@@ -1148,9 +1155,10 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 			<form  class="form-group" name="Clouddrive3" method="post" action="">
 			
 			<p style="padding:0 20px;"> 
-			<?php echo '<h2 style="padding:0 20px;">'.esc_html__('Getting started with our Remote backup service is simple.', 'wpdbbkp').'</h2>'; ?>
+			<?php echo '<h2 style="padding:0 20px;">'.esc_html__('Getting started with our Cloud Backup service is simple.', 'wpdbbkp').'</h2>'; ?>
+			
 			<ul style="list-style-type: style;">
-				<li style="margin-left: 30px;"><?php echo esc_html__('Sign up for a free account at', 'wpdbbkp'); ?> <a href="https://app.backupforwp.com/register" target="_blank"><?php  echo esc_html__('Backup for WP CloudDrive', 'wpdbbkp');?> </a></li>
+				<li style="margin-left: 30px;"><?php echo esc_html__('Sign up for a free account at', 'wpdbbkp'); ?> <a href="https://app.backupforwp.com/register" target="_blank"><?php  echo esc_html__(' Cloud Backup ', 'wpdbbkp');?> </a><?php  echo esc_html__('by Backup for WP', 'wpdbbkp');?></li>
 				<li style="margin-left: 30px;"><?php echo esc_html__('Add the website url', 'wpdbbkp'); ?> <a href="https://app.backupforwp.com/websites" target="_blank"><?php  echo esc_html__('Add Website here', 'wpdbbkp');?> </a></li>
 				<li style="margin-left: 30px;"><?php echo esc_html__('API token will be generated on adding website.', 'wpdbbkp'); ?></li>
 				<li style="margin-left: 30px;"><?php echo esc_html__('Copy the token here and Click Save.', 'wpdbbkp'); ?></li>
@@ -1172,7 +1180,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 				<p style="padding-left:20px"><input type="submit" name="Submit" class="btn btn-primary" value="<?php esc_attr_e( 'Save' , 'wpdbbkp' ); ?>" />&nbsp;
 				</p>
 			</form>
-
+			<h2 style="padding:20px;"><?php echo esc_html__('Access you  backups', 'wpdbbkp'); ?>  <a href="https://app.backupforwp.com/dashboard/" target="_blank">  <?php echo esc_html__('HERE', 'wpdbbkp'); ?> </a> </h2>
 		</div>
 </div>
 

@@ -1,8 +1,12 @@
+= 7.0.1 =
+* 28-08-2024
+* Fix: Backup not starting after update 7.0
+
 = 7.0 =
 * 27-08-2024
 * New: Data Anonymization 
 * New: Backup time and scheduling 
-* New: BackupforWP Remote Storage Service
+* New: BackupforWP Cloud Backup Service
 * New: Incremental backup for Backblaze
 
 = 6.12.1 =

@@ -225,11 +225,6 @@ class Wpdb_Admin {
 						} else {
 							update_option( 'wp_db_remove_on_uninstall', 0 , false);
 						}
-						if ( isset( $_POST['wp_db_incremental_backup'] ) ) {
-							update_option( 'wp_db_incremental_backup', 1 , false);
-						} else {
-							update_option( 'wp_db_incremental_backup', 0 , false);
-						}
 						if ( isset( $_POST['wp_db_remove_local_backup'] ) ) {
 							update_option( 'wp_db_remove_local_backup', 1 , false);
 						} else {

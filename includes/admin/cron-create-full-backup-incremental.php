@@ -7,18 +7,22 @@ if ( ! defined( 'ABSPATH' ) ) {
  **********************************/
 add_action( 'init','wp_db_fullbackup_scheduler_activation');
 
- function wp_db_fullbackup_scheduler_activation() {
-	$options = get_option( 'wp_db_backup_options' );
-	if ( ( ! wp_next_scheduled( 'wpdbkup_event_fullbackup' ) ) && ( true === isset( $options['enable_autobackups'] ) ) ) {
-		if(isset($options['autobackup_frequency']) && $options['autobackup_frequency'] != 'disabled' && isset($options['autobackup_type']) && ($options['autobackup_type'] == 'full' || $options['autobackup_type'] == 'files')){
-			if(isset($options['autobackup_full_time']) && !empty($options['autobackup_full_time'])){
-				wp_schedule_event( time(), 'thirty_minutes', 'wpdbkup_event_fullbackup' );
+function wp_db_fullbackup_scheduler_activation()
+{
+	$options = get_option('wp_db_backup_options');
+	if ((!wp_next_scheduled('wpdbkup_event_fullbackup')) && (true === isset($options['enable_autobackups']))) {
+		if (isset($options['autobackup_frequency']) && $options['autobackup_frequency'] != 'disabled' && isset($options['autobackup_type']) && ($options['autobackup_type'] == 'full' || $options['autobackup_type'] == 'files')) {
+			if (isset($options['autobackup_full_time']) && !empty($options['autobackup_full_time'])) {
+				wp_schedule_event(time(), 'thirty_minutes', 'wpdbkup_event_fullbackup');
+			} else {
+				wp_schedule_event(time(), $options['autobackup_frequency'], 'wpdbkup_event_fullbackup');
 			}
-			else{
-				wp_schedule_event( time(), $options['autobackup_frequency'], 'wpdbkup_event_fullbackup' );
-			}
-		  
+
+		} else {
+			wp_clear_scheduled_hook('wpdbkup_event_fullbackup');
 		}
+	} else {
+		wp_clear_scheduled_hook('wpdbkup_event_fullbackup');
 	}
 
 }
@@ -37,19 +41,24 @@ if ( ! function_exists( 'wpdbbkp_add_custom_cron_schedule_db' ) ) {
 }
 
 // Schedule the custom cron event
-if ( ! function_exists( 'wpdbbkp_schedule_backup_db' ) ) {
-	function wpdbbkp_schedule_backup_db() {
-		$db_process_check = get_transient( 'wpdbbkp_db_cron_event_check' );
-		if ( ! wp_next_scheduled( 'wpdbbkp_cron_backup_hook_db' ) && ! $db_process_check) {
+if (!function_exists('wpdbbkp_schedule_backup_db')) {
+	function wpdbbkp_schedule_backup_db()
+	{
+		$db_process_check = get_transient('wpdbbkp_db_cron_event_check');
+		$next_schedule = wp_next_scheduled('wpdbbkp_cron_backup_hook_db');
+		if (!$next_schedule && !$db_process_check) {
 			$path_info = wp_upload_dir();
 			$progressFile = $path_info['basedir'] . '/db-backup/db_progress.json';
-			$progress_json  = file_exists( $progressFile ) ? true : false ;
-			if($progress_json){
-				wp_schedule_event( time(), 'every_tweleve_minutes', 'wpdbbkp_cron_backup_hook_db' );
+			$progress_json = file_exists($progressFile) ? true : false;
+			if ($progress_json) {
+				$progress_json = json_decode(wpdbbkp_read_file_contents($progressFile), true);
+				wp_schedule_event(time(), 'every_tweleve_minutes', 'wpdbbkp_cron_backup_hook_db');
 			}
+		} else if ($next_schedule && $db_process_check) {
+			wp_clear_scheduled_hook('wpdbbkp_cron_backup_hook_db');
 		}
 	}
-	add_action( 'wp', 'wpdbbkp_schedule_backup_db' );
+	add_action('wp', 'wpdbbkp_schedule_backup_db');
 }
 
 if ( ! function_exists( 'wpdbbkp_cron_backup_hook_db' ) ) {

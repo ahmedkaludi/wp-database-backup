@@ -386,156 +386,131 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 
 		if ( isset( $args['logFile'], $args['FileName'] ) && 
 			! empty( $args['logFile'] ) && ! empty( $args['FileName'] ) && ! empty( $args['tables'] ) ) {
-					$tables = $args['tables'];
-					$count_tables = count($tables);
-					$single_item_percent = number_format(((1/$count_tables)*30),2,".","");
 
-					$table_check = isset($args['tableName'])? $args['tableName']:null;
-					$start_processing = false;
-					$progress = isset($args['progress'])? $args['progress']:4;
+			$tables = $args['tables'];
+			$count_tables = count($tables);
+			$single_item_percent = number_format(((1/$count_tables)*30), 2, ".", "");
+			$progress = isset($args['progress']) ? $args['progress'] : 4;
 
-					$options_backup  = get_option( 'wp_db_backup_backups' );
-					$settings_backup = get_option( 'wp_db_backup_options' );
-					delete_option( 'wp_db_backup_backups' );
-					delete_option( 'wp_db_backup_options' );
+			$table_check = isset($args['tableName']) ? $args['tableName'] : null;
+			$start_processing = false;
 
-					foreach($tables as $table){
-						if(!$table_check || ( $table == $table_check)){
-							$start_processing = true;
-						}
+			$options_backup  = get_option( 'wp_db_backup_backups' );
+			$settings_backup = get_option( 'wp_db_backup_options' );
+			delete_option( 'wp_db_backup_backups' );
+			delete_option( 'wp_db_backup_options' );
 
-						if(!$start_processing){
-							continue;
-						}
-
-						$args['tableName']= $table;
-						update_option('wpdbbkp_backupcron_current',$table, false);
-						$progress = $progress+$single_item_percent;
-						update_option('wpdbbkp_backupcron_progress',intval($progress), false);
-						set_transient('wpdbbkp_backup_status','active',600);
-
-						######################################################################
-
-
-						$logFile  = sanitize_text_field( $args['logFile'] );
-						$table    = sanitize_text_field( $args['tableName'] );
-						$FileName = sanitize_text_field( $args['FileName'] );
-						$filename = $FileName . '.sql';
-						$path_info = wp_upload_dir();
-						$filepath  = $path_info['basedir'] . '/db-backup/' . $filename;
-						$progressFile = $path_info['basedir'] . '/db-backup/db_progress.json';
-			
-						global $wpdb;
-			
-						$wp_db_exclude_table = get_option( 'wp_db_exclude_table', array() );
-						if(is_array($wp_db_exclude_table)){
-						 $wp_db_exclude_table[] = $wpdb->prefix . 'wpdbbkp_processed_files';   
-						}else{
-						  $wp_db_exclude_table = array($wpdb->prefix . 'wpdbbkp_processed_files');   
-						}
-						
-						$logMessage = "\n#--------------------------------------------------------\n";
-						$logMessage .= "\n Database Table Backup";
-						$logMessage .= "\n#--------------------------------------------------------\n";
-			
-						if ( ! empty( $wp_db_exclude_table ) ) {
-							$logMessage .= 'Exclude Table: ' . implode( ', ', $wp_db_exclude_table ) . "\n#--------------------------------------------------------\n";
-						}
-			
-						if ( empty( $wp_db_exclude_table ) || ! in_array( $table, $wp_db_exclude_table ) ) {
-							$logMessage .= "\nBacking up table: $table";
-			
-							$sub_limit  = 500;
-							$table      = esc_sql( $table );
-							//phpcs:ignore  -- Reason No caching is required and direct query is used because of custom table used
-							$check_count = intval( $wpdb->get_var( "SELECT COUNT(*) FROM `{$table}`" ) );
-			
-							// Get table structure for backup
-							//phpcs:ignore  -- Reason No caching is required and direct query is used because of custom table used
-							$row2    = $wpdb->get_row( "SHOW CREATE TABLE `{$table}`", ARRAY_N );
-							if( ! $row2 ) {
-								$logMessage .= "\nFailed to get table structure for table: {$table}";
-								wpdbbkp_write_log( $logFile, $logMessage );
-								continue;
-							}
-							$output  = "\n\n" . $row2[1] . ";\n\n";
-							wpdbbkp_append_to_file( $filepath, $output );
-							$output = '';
-							$offset = isset( $args['offset'] ) ? intval( $args['offset'] ) : 0;
-			
-							while ( $offset < $check_count ) {
-								//phpcs:ignore  -- Reason No caching is required and direct query is used because of custom table used
-								$sub_result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$table}` LIMIT %d OFFSET %d", $sub_limit, $offset ), ARRAY_A );
-								if ( $sub_result ) {
-									$output = wpdbbkp_create_sql_insert_statements( $table, $sub_result );
-									// Write chunk to file
-									$write_result = wpdbbkp_append_to_file( $filepath, $output );
-									if ( false === $write_result ) {
-										$logMessage .= "\nFailed to write to file: $filepath";
-										break;
-									}
-									// Clear output to free memory
-									$output = '';
-			
-									// Update progress
-									$offset += $sub_limit;
-									wpdbbkp_write_file_contents( $progressFile, json_encode( array( 'FileName'=>$FileName,'logFile'=>$logFile,'tableName'=>$table,'offset' => $offset ,'tables'=>$tables, 'progress'=>$progress) ) );
-									set_transient( 'wpdbbkp_db_cron_event_check', true, 600 );
-								}
-								sleep( 1 ); // Optional sleep to reduce server load
-							}
-			
-							$logMessage .= "\nBackup completed for table: {$table}";
-							// Remove progress file upon completion
-						}
-			
-						$wpdb->flush();
-						$logMessage .= "\n#--------------------------------------------------------\n";
-			
-						if ( get_option( 'wp_db_log' ) == 1 ) {
-							wpdbbkp_write_log( $logFile, $logMessage );
-							$upload_path['logfile'] = $logFile;
-						} else {
-							$upload_path['logfile'] = '';
-						}
-			
-						$logMessage = "\n# Database dump method: PHP\n";
-						if ( get_option( 'wp_db_log' ) == 1 ) {
-							wpdbbkp_write_log( $logFile, $logMessage );
-						}
-
-
-						###########################################################################################
-						
-						sleep(1);
-					}
-		
-
+			$logFile  = sanitize_text_field( $args['logFile'] );
+			$FileName = sanitize_text_field( $args['FileName'] );
+			$filename = $FileName . '.sql';
 			$path_info = wp_upload_dir();
-		
-			$sql_filename = isset($args['FileName'])? $path_info['basedir'] . '/db-backup/' . $args['FileName'].'.sql':null;
-			
-			if($sql_filename){
-				$tmp_args = [$sql_filename, $sql_filename, $args['logFile'] , $args['logMessage'],'Local,'];
-					WPDatabaseBackupBB::wp_db_backup_completed($tmp_args );
-					WPDatabaseBackupCD::wp_db_backup_completed($tmp_args );
+			$filepath  = $path_info['basedir'] . '/db-backup/' . $filename;
+			$progressFile = $path_info['basedir'] . '/db-backup/db_progress.json';
 
-					wp_delete_file($sql_filename);
-					wp_delete_file($path_info['basedir'] . '/db-backup/db_progress.json');
-					update_option('wpdbbkp_backupcron_current','DB Backed Up', false);
-				
-					if(isset($args['from_cron'])){
-						update_option('wpdbbkp_current_chunk_args',$args, false);
-						backup_files_cron_with_resume();
-					}
+			global $wpdb;
+
+			$wp_db_exclude_table = get_option( 'wp_db_exclude_table', array() );
+			if ( is_array( $wp_db_exclude_table ) ) {
+				$wp_db_exclude_table[] = $wpdb->prefix . 'wpdbbkp_processed_files';   
+			} else {
+				$wp_db_exclude_table = array( $wpdb->prefix . 'wpdbbkp_processed_files' );
 			}
-			
-			update_option('wp_db_backup_backups',$options_backup, false);
-			update_option('wp_db_backup_options',$settings_backup, false);
 
+			// 1. Collect the CREATE TABLE SQL statements for all tables
+			$create_table_sql = '';
+			foreach ( $tables as $table ) {
+				$table = esc_sql( $table );
+				if ( ! empty( $wp_db_exclude_table ) && in_array( $table, $wp_db_exclude_table ) ) {
+					continue;
+				}
+
+				
+				$row2 = $wpdb->get_row( "SHOW CREATE TABLE `{$table}`", ARRAY_N );
+				if ( $row2 ) {
+					$create_table_sql .= "\n\n" . $row2[1] . ";\n\n";
+				}
+			}
+
+			// 2. Write all collected CREATE TABLE SQL to the file at once
+			wpdbbkp_append_to_file( $filepath, $create_table_sql );
+
+		
+			foreach ( $tables as $table ) {
+				if ( ! $table_check || ( $table == $table_check ) ) {
+					$start_processing = true;
+				}
+
+				if ( ! $start_processing ) {
+					continue;
+				}
+
+				$args['tableName'] = $table;
+				update_option( 'wpdbbkp_backupcron_current', $table, false );
+				$progress += $single_item_percent;
+				update_option( 'wpdbbkp_backupcron_progress', intval( $progress ), false );
+				set_transient( 'wpdbbkp_backup_status', 'active', 600 );
+
+				$table = sanitize_text_field( $args['tableName'] );
+
+				if ( empty( $wp_db_exclude_table ) || ! in_array( $table, $wp_db_exclude_table ) ) {
+					$sub_limit  = 500;
+					$table      = esc_sql( $table );
+					$check_count = intval( $wpdb->get_var( "SELECT COUNT(*) FROM `{$table}`" ) );
+
+					$offset = isset( $args['offset'] ) ? intval( $args['offset'] ) : 0;
+
+					while ( $offset < $check_count ) {
+						$sub_result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$table}` LIMIT %d OFFSET %d", $sub_limit, $offset ), ARRAY_A );
+						if ( $sub_result ) {
+							$output = wpdbbkp_create_sql_insert_statements( $table, $sub_result );
+							$write_result = wpdbbkp_append_to_file( $filepath, $output );
+							if ( false === $write_result ) {
+								$logMessage .= "\nFailed to write to file: $filepath";
+								break;
+							}
+							$output = ''; // Clear output to free memory
+
+							$offset += $sub_limit;
+							wpdbbkp_write_file_contents( $progressFile, json_encode( array(
+								'FileName' => $FileName,
+								'logFile'  => $logFile,
+								'tableName' => $table,
+								'offset'   => $offset,
+								'tables'   => $tables,
+								'progress' => $progress
+							) ) );
+							set_transient( 'wpdbbkp_db_cron_event_check', true, 600 );
+						}
+						sleep( 1 ); // Optional sleep to reduce server load
+					}
+				}
+				$wpdb->flush();
+				sleep(1);
+			}
+
+			$sql_filename = $filepath;
+
+			if ( $sql_filename ) {
+				$tmp_args = [$sql_filename, $sql_filename, $args['logFile'], $args['logMessage'], 'Local,'];
+				WPDatabaseBackupBB::wp_db_backup_completed( $tmp_args );
+				WPDatabaseBackupCD::wp_db_backup_completed( $tmp_args );
+
+				wp_delete_file( $sql_filename );
+				wp_delete_file( $progressFile );
+				update_option( 'wpdbbkp_backupcron_current', 'DB Backed Up', false );
+
+				if ( isset( $args['from_cron'] ) ) {
+					update_option( 'wpdbbkp_current_chunk_args', $args, false );
+					backup_files_cron_with_resume();
+				}
+			}
+
+			update_option( 'wp_db_backup_backups', $options_backup, false );
+			update_option( 'wp_db_backup_options', $settings_backup, false );
 		}
 	}
 }
+
 	
 function wpdbbkp_append_to_file( $file, $data ) {
 	//phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- Need to write to file with fopen for performance reasons

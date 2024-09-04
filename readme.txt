@@ -45,7 +45,7 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 
 == Subscribe to Backup for WP Cloudstorage ==
 <ul>
-<li>We are excited to introduce a new feature for the Backup for WP plugin , our <a target="_blank" href="https://app.backupforwp.com/register">Backup For WP Cloudstorage</a>. </li>
+<li>We are excited to introduce a new feature for the Backup for WP plugin , our <a target="_blank" href="https://backupforwp.com/register">Backup For WP Cloudstorage</a>. </li>
 <li><strong>Affordable Pricing</strong>: Only $1 per 50GB of storage per website per month, with a flexible pay-as-you-go model. </li>
 <li><strong>14-Day Free Trial</strong>: Start with a 14-day free trial to experience the benefits of cloud storage without any upfront cost.  </li>
 <li><strong>Scalable Storage</strong>: Easily adjusts to your storage needs, providing as much space as required for your backups. </li>

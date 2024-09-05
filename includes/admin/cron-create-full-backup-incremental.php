@@ -267,7 +267,7 @@ function wpdbbkp_get_progress(){
 		update_option('wpdbbkp_backupcron_progress',intval($progress), false);
 		$tables= wpdbbkp_cron_mysqldump($config);
 		$common_args['tables'] = $tables['tables'];
-		wpdbbkp_cron_create_mysql_backup($common_args);
+		wpdbbkp_cron_create_mysql_backup($common_args,true);
 		}
 		update_option('wpdbbkp_current_chunk_args',$common_args, false);
 		backup_files_cron_with_resume();
@@ -382,13 +382,13 @@ if(!function_exists('wpdbbkp_cron_mysqldump')){
  * Create DB Backup
  ********************/
 if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
-	function wpdbbkp_cron_create_mysql_backup( $args ) {
+	function wpdbbkp_cron_create_mysql_backup( $args , $create_table = false ) {
 
 		if ( isset( $args['logFile'], $args['FileName'] ) && 
 			! empty( $args['logFile'] ) && ! empty( $args['FileName'] ) && ! empty( $args['tables'] ) ) {
 
 			$tables = $args['tables'];
-			$count_tables = count($tables);
+			$count_tables = count( $tables );
 			$single_item_percent = number_format(((1/$count_tables)*30), 2, ".", "");
 			$progress = isset($args['progress']) ? $args['progress'] : 4;
 
@@ -410,31 +410,31 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 			global $wpdb;
 
 			$wp_db_exclude_table = get_option( 'wp_db_exclude_table', array() );
-			if ( is_array( $wp_db_exclude_table ) ) {
-				$wp_db_exclude_table[] = $wpdb->prefix . 'wpdbbkp_processed_files';   
-			} else {
-				$wp_db_exclude_table = array( $wpdb->prefix . 'wpdbbkp_processed_files' );
-			}
+			if ( $create_table ) {
+				// 1. Collect the CREATE TABLE SQL statements for all tables
+				$create_table_sql = '';
+				foreach ( $tables as $table ) {
+					$table = esc_sql( $table );
+					if ( ! empty( $wp_db_exclude_table ) && in_array( $table, $wp_db_exclude_table ) ) {
+						continue;
+					}
 
-			// 1. Collect the CREATE TABLE SQL statements for all tables
-			$create_table_sql = '';
-			foreach ( $tables as $table ) {
-				$table = esc_sql( $table );
-				if ( ! empty( $wp_db_exclude_table ) && in_array( $table, $wp_db_exclude_table ) ) {
-					continue;
+					$row2 = $wpdb->get_row( "SHOW CREATE TABLE `{$table}`", ARRAY_N );
+					if ( $row2 ) {
+						$create_table_sql .= "\n\n" . $row2[1] . ";\n\n";
+					}
 				}
 
-				
-				$row2 = $wpdb->get_row( "SHOW CREATE TABLE `{$table}`", ARRAY_N );
-				if ( $row2 ) {
-					$create_table_sql .= "\n\n" . $row2[1] . ";\n\n";
-				}
+				// 2. Write all collected CREATE TABLE SQL to the file at once
+				wpdbbkp_append_to_file( $filepath, $create_table_sql );
 			}
 
-			// 2. Write all collected CREATE TABLE SQL to the file at once
-			wpdbbkp_append_to_file( $filepath, $create_table_sql );
+			// Load previous progress
+			$previous_progress = json_decode( wpdbbkp_read_file_contents( $progressFile ), true );
+			if ( $previous_progress && isset( $previous_progress['offset'] ) ) {
+				$args = array_merge( $args, $previous_progress ); // Merge with previous args
+			}
 
-		
 			foreach ( $tables as $table ) {
 				if ( ! $table_check || ( $table == $table_check ) ) {
 					$start_processing = true;
@@ -471,13 +471,15 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 							$output = ''; // Clear output to free memory
 
 							$offset += $sub_limit;
+
+							// Save progress to file
 							wpdbbkp_write_file_contents( $progressFile, json_encode( array(
-								'FileName' => $FileName,
-								'logFile'  => $logFile,
+								'FileName'  => $FileName,
+								'logFile'   => $logFile,
 								'tableName' => $table,
-								'offset'   => $offset,
-								'tables'   => $tables,
-								'progress' => $progress
+								'offset'    => $offset,
+								'tables'    => $tables,
+								'progress'  => $progress
 							) ) );
 							set_transient( 'wpdbbkp_db_cron_event_check', true, 600 );
 						}
@@ -510,6 +512,7 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 		}
 	}
 }
+
 
 	
 function wpdbbkp_append_to_file( $file, $data ) {

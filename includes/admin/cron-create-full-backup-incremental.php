@@ -485,6 +485,15 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 						}
 						sleep( 1 ); // Optional sleep to reduce server load
 					}
+
+					wpdbbkp_write_file_contents( $progressFile, json_encode( array(
+						'FileName'  => $FileName,
+						'logFile'   => $logFile,
+						'tableName' => $table,
+						'offset'    => 0,
+						'tables'    => $tables,
+						'progress'  => $progress
+					) ) );
 				}
 				$wpdb->flush();
 				sleep(1);

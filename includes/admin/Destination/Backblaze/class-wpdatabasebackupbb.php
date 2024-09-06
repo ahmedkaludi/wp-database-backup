@@ -92,7 +92,7 @@ public static function handle_large_file_upload($file_path, $file_name, $auth_to
     $root_path = str_replace('\\', '/', ABSPATH); // Normalize to forward slashes for consistency
     $file_name = str_replace($root_path, '', $file_name);
     $file_name = ltrim($file_name, '/'); // Ensure there is no leading slash
-    $file_name = 'wpdbbkp/'.$file_name;
+    $file_name = 'wpdbbkp/' . $file_name;
 
     // Start large file upload
     $start_large_file_url = get_transient('b2_api_url') . '/b2api/v2/b2_start_large_file';
@@ -114,36 +114,37 @@ public static function handle_large_file_upload($file_path, $file_name, $auth_to
 
     $data = json_decode(wp_remote_retrieve_body($response));
     $file_id = $data->fileId;
-    $get_upload_part_url = get_transient('b2_api_url') . '/b2api/v2/b2_get_upload_part_url';
-    $response_2 = wp_remote_post($get_upload_part_url, array(
-        'body' => wp_json_encode(array(
-            'fileId' => $file_id
-        )),
-        'headers' => array(
-            'Authorization' => $auth_token,
-            'Content-Type' => 'application/json'
-        ),
-        'timeout' => 60
-    ));
-
-    if (is_wp_error($response_2)) {
-        return array('success' => false, 'message' => esc_html__('Failed to start large file upload: ', 'wpdbbkp') . $response->get_error_message());
-    }
-
-    $data_2 = json_decode(wp_remote_retrieve_body($response_2));
-    $upload_part_url = $data_2->uploadUrl;
-    $upload_part_auth_token = $data_2->authorizationToken;
-
 
     $file_size = filesize($file_path);
-    $part_size = 100 * 1024 * 1024; // 50MB per part
+    $part_size = 100 * 1024 * 1024; // 100MB per part
     $num_parts = ceil($file_size / $part_size); // Calculate the number of parts
 
-
     $handle = fopen($file_path, 'rb');
-
     $part_sha1_array = array(); 
+
     for ($i = 0; $i < $num_parts; $i++) {
+        // Get a new upload part URL for each part
+        $get_upload_part_url = get_transient('b2_api_url') . '/b2api/v2/b2_get_upload_part_url';
+        $response_2 = wp_remote_post($get_upload_part_url, array(
+            'body' => wp_json_encode(array(
+                'fileId' => $file_id
+            )),
+            'headers' => array(
+                'Authorization' => $auth_token,
+                'Content-Type' => 'application/json'
+            ),
+            'timeout' => 60
+        ));
+
+        if (is_wp_error($response_2)) {
+            fclose($handle);
+            return array('success' => false, 'message' => esc_html__('Failed to get upload part URL: ', 'wpdbbkp') . $response_2->get_error_message());
+        }
+
+        $data_2 = json_decode(wp_remote_retrieve_body($response_2));
+        $upload_part_url = $data_2->uploadUrl;
+        $upload_part_auth_token = $data_2->authorizationToken;
+
         // Read the part from the file
         $file_part = fread($handle, $part_size);
         if ($file_part === false) {
@@ -152,15 +153,16 @@ public static function handle_large_file_upload($file_path, $file_name, $auth_to
         }
 
         $sha1_of_part = sha1($file_part);
-        $part_sha1_array[]= $sha1_of_part;
+        $part_sha1_array[] = $sha1_of_part;
+
         // Upload each part to Backblaze
         $response = wp_remote_post($upload_part_url, array(
             'body' => $file_part,
             'headers' => array(
                 'Authorization' => $upload_part_auth_token,
-                'X-Bz-Part-Number' => ($i+1),
+                'X-Bz-Part-Number' => ($i + 1),
                 'X-Bz-Content-Sha1' => $sha1_of_part,
-                'Content-Length'=> strlen($file_part)
+                'Content-Length' => strlen($file_part)
             ),
             'timeout' => 1800 // 15-minute timeout for large file uploads
         ));

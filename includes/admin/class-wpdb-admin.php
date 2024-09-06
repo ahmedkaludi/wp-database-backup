@@ -724,7 +724,7 @@ class Wpdb_Admin {
 			?><br>
 				<div class="alert alert-info " role="alert">
 		&nbsp;<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> 
-		<?php esc_html_e( 'Try Backup for WP Cloud Backup free for 14 days', 'wpdbbkp' ); ?> <a href="https://backupforwp.com/register"><?php echo esc_html__( 'Try now for free' , 'wpdbbkp'); ?></a>	</div>
+		<?php esc_html_e( 'Try Backup for WP Cloud Backup free for 14 days', 'wpdbbkp' ); ?> <a href="https://backupforwp.com/register" target="_blank"><?php echo esc_html__( 'Try now for free' , 'wpdbbkp'); ?></a>	</div>
 				<?php
 		}
 		?>

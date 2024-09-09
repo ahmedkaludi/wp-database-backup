@@ -121,7 +121,8 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			include_once 'includes/features.php';
 			$wp_db_incremental_backup = get_option('wp_db_incremental_backup');
 			$wpdb_clouddrive_cd = get_option('wpdb_clouddrive_token', false);
-			if ($wp_db_incremental_backup == 1 || ($wpdb_clouddrive_cd && !empty($wpdb_clouddrive_cd))) {
+			$wp_db_backup_destination_bb = get_option('wp_db_backup_destination_bb', false);
+			if (($wp_db_incremental_backup == 1 && $wp_db_backup_destination_bb ==1 )|| ($wpdb_clouddrive_cd && !empty($wpdb_clouddrive_cd))) {
 				include_once 'includes/admin/cron-create-full-backup-incremental.php';
 			} else {
 				include_once 'includes/admin/cron-create-full-backup.php';

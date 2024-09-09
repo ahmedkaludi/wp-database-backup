@@ -158,7 +158,7 @@ class Wpdb_Admin {
 	 */
 	public function wp_db_backup_completed_local( &$args ) {
 		$wp_db_remove_local_backup = get_option( 'wp_db_remove_local_backup' );
-		if ( 1 === $wp_db_remove_local_backup ) {
+		if ( isset( $wp_db_remove_local_backup ) && 1 === (int) $wp_db_remove_local_backup ) {
 			if ( file_exists( $args[1] ) ) {
 				wp_delete_file( $args[1] );// File path.
 			}

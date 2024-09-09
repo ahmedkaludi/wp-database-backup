@@ -65,8 +65,11 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 			if ( get_option( 'wpdb_dest_amazon_s3_bucket_key' ) && get_option( 'wpdb_dest_amazon_s3_bucket_secret' ) ) {
 
 				try {
-					if ( ! class_exists( 'S3' ) ) {
+					/*if ( ! class_exists( 'S3' ) ) {
 						require_once 'S3.php';
+					}*/
+					if ( ! class_exists( 'S3Compatible' ) ) {
+						require_once 'S3Compatible.php';
 					}
 
 					// AWS access info.
@@ -82,7 +85,8 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 						echo "ERROR: CURL extension not loaded\n\n";
 					}
 
-					$s3     = new S3( AWSACCESSKEY, AWSSECRETKEY );
+					//$s3     = new S3( AWSACCESSKEY, AWSSECRETKEY );
+					$s3          = new S3Compatible( AWSACCESSKEY, AWSSECRETKEY );
 					$result = $s3->listBuckets();
 					if ( get_option( 'wpdb_dest_amazon_s3_bucket' ) ) {
 						if (!empty($result) && false === in_array( get_option( 'wpdb_dest_amazon_s3_bucket' ), $result, true ) ) {
@@ -101,7 +105,7 @@ if($wp_db_backup_destination_s3==1 && !empty($wpdb_dest_amazon_s3_bucket) && !em
 				<div class="row form-group">
 					<label class="col-sm-2" for="wp_db_backup_destination_s3"><?php echo esc_html__('Enable Amazon S3 Destination', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
-						<input type="checkbox" id="wp_db_backup_destination_s3" <?php echo ( true === isset( $wp_db_backup_destination_s3 ) && 1 === $wp_db_backup_destination_s3 ) ? 'checked' : ''; ?> name="wp_db_backup_destination_s3">
+						<input type="checkbox" id="wp_db_backup_destination_s3" <?php echo ( true === isset( $wp_db_backup_destination_s3 ) && 1 === (int) $wp_db_backup_destination_s3 ) ? 'checked' : ''; ?> name="wp_db_backup_destination_s3">
 				</div>
 
 				</div>

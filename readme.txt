@@ -6,7 +6,7 @@ Tags: Database backup, db backup, cloud backup, files backup, wordpress backup.
 Requires at least: 3.1+
 Tested up to: 6.6
 Requires PHP: 5.6.20
-Stable tag: 7.0.1
+Stable tag: 7.1
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -45,7 +45,7 @@ WP Database Backup plugin helps you to Restore Database Backup easily on single 
 
 == Subscribe to Backup for WP Cloudstorage ==
 <ul>
-<li>We are excited to introduce a new feature for the Backup for WP plugin , our <a target="_blank" href="https://app.backupforwp.com/register">Backup For WP Cloudstorage</a>. </li>
+<li>We are excited to introduce a new feature for the Backup for WP plugin , our <a target="_blank" href="https://backupforwp.com/register">Backup For WP Cloudstorage</a>. </li>
 <li><strong>Affordable Pricing</strong>: Only $1 per 50GB of storage per website per month, with a flexible pay-as-you-go model. </li>
 <li><strong>14-Day Free Trial</strong>: Start with a 14-day free trial to experience the benefits of cloud storage without any upfront cost.  </li>
 <li><strong>Scalable Storage</strong>: Easily adjusts to your storage needs, providing as much space as required for your backups. </li>
@@ -77,6 +77,11 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 4. screenshot-4.png
 
 == Changelog ==
+
+= 7.1 =
+* 09-09-2024
+* Fix: Timeout and Write Failures Due to Large Database #96
+* Improvement: Incremental backup for Backblaze #85
 
 = 7.0.1 =
 * 28-08-2024

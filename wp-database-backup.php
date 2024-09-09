@@ -3,7 +3,7 @@
  * Plugin Name: Backup For WP
  * Plugin URI:https://wordpress.org/plugins/wp-database-backup
  * Description: This plugin helps you to create/restore Unlimited  WordPress Database & Files backup.
- * Version: 7.0.1
+ * Version: 7.1
  * Author: Backup for WP
  * Author URI: https://backupforwp.com/
  * Text Domain: wpdbbkp
@@ -38,7 +38,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 	 *
 	 * @class WPDatabaseBackup
 	 *
-	 * @version 1.1
+	 * @version 7.1
 	 */
 	final class WPDatabaseBackup {
 
@@ -47,7 +47,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		 *
 		 * @var string
 		 */
-		public $version = '7.0.1';
+		public $version = '7.1';
 
 		/**
 		 * Plugin instance
@@ -121,7 +121,8 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			include_once 'includes/features.php';
 			$wp_db_incremental_backup = get_option('wp_db_incremental_backup');
 			$wpdb_clouddrive_cd = get_option('wpdb_clouddrive_token', false);
-			if ($wp_db_incremental_backup == 1 || ($wpdb_clouddrive_cd && !empty($wpdb_clouddrive_cd))) {
+			$wp_db_backup_destination_bb = get_option('wp_db_backup_destination_bb', false);
+			if (($wp_db_incremental_backup == 1 && $wp_db_backup_destination_bb ==1 )|| ($wpdb_clouddrive_cd && !empty($wpdb_clouddrive_cd))) {
 				include_once 'includes/admin/cron-create-full-backup-incremental.php';
 			} else {
 				include_once 'includes/admin/cron-create-full-backup.php';

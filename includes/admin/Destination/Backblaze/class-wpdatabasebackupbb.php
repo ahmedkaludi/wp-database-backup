@@ -23,33 +23,31 @@ class WPDatabaseBackupBB {
 
 // Function to upload files to Backblaze B2
 public static function upload_backup_to_backblaze($file_path, $file_name) {
-
     global $wp_filesystem;
-    if(!function_exists('WP_Filesystem')){
-    require_once ( ABSPATH . '/wp-admin/includes/file.php' );
+
+    if (!function_exists('WP_Filesystem')) {
+        require_once(ABSPATH . '/wp-admin/includes/file.php');
     }
     WP_Filesystem();
 
     $s3_token = get_transient('b2_authorization_token');
     $api_url = get_transient('b2_api_url');
-    $bucket_id = get_option('wpdb_dest_bb_s3_bucket') ? get_option('wpdb_dest_bb_s3_bucket') : '';
-    if (!$s3_token) {
-        $key_id = get_option('wpdb_dest_bb_s3_bucket_key') ? get_option('wpdb_dest_bb_s3_bucket_key') : '';
-        $app_key = get_option('wpdb_dest_bb_s3_bucket_secret') ? get_option('wpdb_dest_bb_s3_bucket_secret') : '';
+    $bucket_id = get_option('wpdb_dest_bb_s3_bucket') ?: '';
 
+    if (!$s3_token) {
+        $key_id = get_option('wpdb_dest_bb_s3_bucket_key') ?: '';
+        $app_key = get_option('wpdb_dest_bb_s3_bucket_secret') ?: '';
         $b2_authorize_url = "https://api.backblazeb2.com/b2api/v2/b2_authorize_account";
         $credentials = base64_encode($key_id . ":" . $app_key);
 
         // Authorize account
         $response = wp_remote_get($b2_authorize_url, array(
-            'headers' => array(
-                'Authorization' => 'Basic ' . $credentials
-            ),
-            'timeout' => 60 // Extend timeout
+            'headers' => array('Authorization' => 'Basic ' . $credentials),
+            'timeout' => 60
         ));
 
         if (is_wp_error($response)) {
-            return array('success' => false, 'message' => esc_html__('Authorization request failed: ', 'wpdbbkp'). $response->get_error_message());
+            return array('success' => false, 'message' => esc_html__('Authorization request failed: ', 'wpdbbkp') . $response->get_error_message());
         }
 
         $body = wp_remote_retrieve_body($response);
@@ -60,35 +58,175 @@ public static function upload_backup_to_backblaze($file_path, $file_name) {
         }
 
         $auth_token = $data->authorizationToken;
-        $expiration = 1 * HOUR_IN_SECONDS; // 24 hours
-        $upload_url = $data->apiUrl . '/b2api/v2/b2_get_upload_url';
-
-        set_transient('b2_authorization_token', $auth_token, $expiration);
-        set_transient('b2_api_url', $data->apiUrl, $expiration);
+        set_transient('b2_authorization_token', $auth_token, 1 * HOUR_IN_SECONDS);
+        set_transient('b2_api_url', $data->apiUrl, 1 * HOUR_IN_SECONDS);
     } else {
         $auth_token = $s3_token;
-        $upload_url = $api_url . '/b2api/v2/b2_get_upload_url';
     }
 
+    // Handle large files via multipart upload
+    $file_size = filesize($file_path);
+    $max_part_size = 100 * 1024 * 1024; // 50MB max part size
+    $is_large_file = $file_size > $max_part_size;
+
+    if ($is_large_file) {
+        return self::handle_large_file_upload($file_path, $file_name, $auth_token, $bucket_id, $max_part_size);
+    }
+
+    // If it's not a large file, proceed with single file upload
+    return self::upload_single_file($file_path, $file_name, $auth_token, $bucket_id);
+}
+
+// Function to handle large file multipart upload
+public static function handle_large_file_upload($file_path, $file_name, $auth_token, $bucket_id, $max_part_size) {
+    global $wp_filesystem;
+    if (!function_exists('WP_Filesystem')) {
+        require_once(ABSPATH . '/wp-admin/includes/file.php');
+    }
+    WP_Filesystem();
+
+    if (!$wp_filesystem->exists($file_path)) {
+        return array('success' => false, 'message' => esc_html__('File does not exist: ', 'wpdbbkp') . $file_path);
+    }
+
+    $root_path = str_replace('\\', '/', ABSPATH); // Normalize to forward slashes for consistency
+    $file_name = str_replace($root_path, '', $file_name);
+    $file_name = ltrim($file_name, '/'); // Ensure there is no leading slash
+    $file_name = 'wpdbbkp/' . $file_name;
+
+    // Start large file upload
+    $start_large_file_url = get_transient('b2_api_url') . '/b2api/v2/b2_start_large_file';
+    $response = wp_remote_post($start_large_file_url, array(
+        'body' => wp_json_encode(array(
+            'bucketId' => $bucket_id,
+            'fileName' => $file_name,
+            'contentType' => 'b2/x-auto'
+        )),
+        'headers' => array(
+            'Authorization' => $auth_token,
+            'Content-Type' => 'application/json'
+        ),
+        'timeout' => 60
+    ));
+    if (is_wp_error($response)) {
+        return array('success' => false, 'message' => esc_html__('Failed to start large file upload: ', 'wpdbbkp') . $response->get_error_message());
+    }
+
+    $data = json_decode(wp_remote_retrieve_body($response));
+    $file_id = $data->fileId;
+
+    $file_size = filesize($file_path);
+    $part_size = 100 * 1024 * 1024; // 100MB per part
+    $num_parts = ceil($file_size / $part_size); // Calculate the number of parts
+
+    $handle = fopen($file_path, 'rb');
+    $part_sha1_array = array(); 
+
+    for ($i = 0; $i < $num_parts; $i++) {
+        // Get a new upload part URL for each part
+        $get_upload_part_url = get_transient('b2_api_url') . '/b2api/v2/b2_get_upload_part_url';
+        $response_2 = wp_remote_post($get_upload_part_url, array(
+            'body' => wp_json_encode(array(
+                'fileId' => $file_id
+            )),
+            'headers' => array(
+                'Authorization' => $auth_token,
+                'Content-Type' => 'application/json'
+            ),
+            'timeout' => 60
+        ));
+
+        if (is_wp_error($response_2)) {
+            fclose($handle);
+            return array('success' => false, 'message' => esc_html__('Failed to get upload part URL: ', 'wpdbbkp') . $response_2->get_error_message());
+        }
+
+        $data_2 = json_decode(wp_remote_retrieve_body($response_2));
+        $upload_part_url = $data_2->uploadUrl;
+        $upload_part_auth_token = $data_2->authorizationToken;
+
+        // Read the part from the file
+        $file_part = fread($handle, $part_size);
+        if ($file_part === false) {
+            fclose($handle);
+            return array('success' => false, 'message' => esc_html__('Failed to read part ', 'wpdbbkp') . $i . ' from file.');
+        }
+
+        $sha1_of_part = sha1($file_part);
+        $part_sha1_array[] = $sha1_of_part;
+
+        // Upload each part to Backblaze
+        $response = wp_remote_post($upload_part_url, array(
+            'body' => $file_part,
+            'headers' => array(
+                'Authorization' => $upload_part_auth_token,
+                'X-Bz-Part-Number' => ($i + 1),
+                'X-Bz-Content-Sha1' => $sha1_of_part,
+                'Content-Length' => strlen($file_part)
+            ),
+            'timeout' => 1800 // 15-minute timeout for large file uploads
+        ));
+
+        if (is_wp_error($response)) {
+            fclose($handle);
+            return array('success' => false, 'message' => esc_html__('Upload request failed for part ', 'wpdbbkp') . $i . ': ' . $response->get_error_message());
+        }
+
+        // Check response code
+        $response_code = wp_remote_retrieve_response_code($response);
+        if ($response_code != 200) {
+            fclose($handle);
+            return array('success' => false, 'message' => esc_html__('Failed to upload part ', 'wpdbbkp') . $i);
+        }
+    }
+
+    fclose($handle); // Close file after upload
+
+    // Finalize large file upload
+    $finish_large_file_url = get_transient('b2_api_url') . '/b2api/v2/b2_finish_large_file';
+    $response = wp_remote_post($finish_large_file_url, array(
+        'body' => wp_json_encode(array(
+            'fileId' => $file_id,
+            'partSha1Array' =>  $part_sha1_array
+        )),
+        'headers' => array(
+            'Authorization' => $auth_token,
+            'Content-Type' => 'application/json'
+        ),
+        'timeout' => 60
+    ));
+
+    if (is_wp_error($response)) {
+        return array('success' => false, 'message' => esc_html__('Failed to finalize large file upload: ', 'wpdbbkp') . $response->get_error_message());
+    }
+
+    return array('success' => true, 'message' => 'Large file ' . $file_name . esc_html__(' uploaded successfully to Backblaze.', 'wpdbbkp'));
+}
+
+
+public static function upload_single_file($file_path, $file_name, $auth_token, $bucket_id) {
+    global $wp_filesystem;
+    $root_path = str_replace('\\', '/', ABSPATH); // Normalize to forward slashes for consistency
+    $file_name = str_replace($root_path, '', $file_name);
+    $file_name = ltrim($file_name, '/'); // Ensure there is no leading slash
+    $file_name = 'wpdbbkp/'.$file_name;
     // Get upload URL
+    $upload_url = get_transient('b2_api_url') . '/b2api/v2/b2_get_upload_url';
     $response = wp_remote_post($upload_url, array(
         'body' => wp_json_encode(array('bucketId' => $bucket_id)),
         'headers' => array(
             'Authorization' => $auth_token,
             'Content-Type' => 'application/json'
         ),
-        'timeout' => 60 // Extend timeout
+        'timeout' => 60
     ));
 
     if (is_wp_error($response)) {
-        return array('success' => false, 'message' =>  esc_html__('Failed to get upload URL: ', 'wpdbbkp'). $response->get_error_message());
+        return array('success' => false, 'message' => esc_html__('Failed to get upload URL: ', 'wpdbbkp') . $response->get_error_message());
     }
 
     $body = wp_remote_retrieve_body($response);
     $data = json_decode($body);
-
-    if (isset($data->status) && $data->status != 200) return array('success' => false, 'message' =>  esc_html__('Failed to get upload URL: ' , 'wpdbbkp'). $data->message);
-
     if (empty($data->uploadUrl)) {
         return array('success' => false, 'message' => esc_html__('Failed to get upload URL from Backblaze.', 'wpdbbkp'));
     }
@@ -96,37 +234,28 @@ public static function upload_backup_to_backblaze($file_path, $file_name) {
     $upload_url = $data->uploadUrl;
     $upload_auth_token = $data->authorizationToken;
 
-    if (!$wp_filesystem) {
-        return array('success' => false, 'message' => esc_html__('Unable to initialize wp_filesystem : ' , 'wpdbbkp'). $file_path);
-    }
-
+    // Check if file exists
     if (!$wp_filesystem->exists($file_path)) {
-        return array('success' => false, 'message' => esc_html__('File does not exist: ' , 'wpdbbkp'). $file_path);
+        return array('success' => false, 'message' => esc_html__('File does not exist: ', 'wpdbbkp') . $file_path);
     }
 
-    $file_size = filesize($file_path);
-
-    $file_contents = $wp_filesystem->get_contents( $file_path );
-
+    $file_contents = $wp_filesystem->get_contents($file_path);
     if ($file_contents === false) {
         return array('success' => false, 'message' => esc_html__('Failed to read file: ', 'wpdbbkp') . $file_path);
     }
 
     $sha1_of_file_data = sha1($file_contents);
-    $root_path = str_replace('\\', '/', ABSPATH); // Normalize to forward slashes for consistency
-    $file_path = str_replace($root_path, '', $file_path);
-    $file_path = ltrim($file_path, '/'); // Ensure there is no leading slash
-    $file_path = 'wpdbbkp/'.$file_path;
 
+    // Upload the file
     $response = wp_remote_post($upload_url, array(
         'body' => $file_contents,
         'headers' => array(
             'Authorization' => $upload_auth_token,
-            'X-Bz-File-Name' => $file_path,
+            'X-Bz-File-Name' => $file_name,
             'Content-Type' => 'b2/x-auto',
             'X-Bz-Content-Sha1' => $sha1_of_file_data
         ),
-        'timeout' => 900,
+        'timeout' => 900
     ));
 
     if (is_wp_error($response)) {
@@ -136,7 +265,7 @@ public static function upload_backup_to_backblaze($file_path, $file_name) {
     $response_code = wp_remote_retrieve_response_code($response);
     if ($response_code != 200) {
         $response_body = wp_remote_retrieve_body($response);
-        return array('success' => false, 'message' => esc_html__('Failed to upload ' , 'wpdbbkp'). $file_name . ' to Backblaze. Response: ' . $response_body);
+        return array('success' => false, 'message' => esc_html__('Failed to upload ', 'wpdbbkp') . $file_name . '. Response: ' . $response_body);
     }
 
     return array('success' => true, 'message' => 'File ' . $file_name . esc_html__(' uploaded successfully to Backblaze.', 'wpdbbkp'));

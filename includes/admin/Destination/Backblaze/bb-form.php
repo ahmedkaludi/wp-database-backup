@@ -37,6 +37,12 @@ if ( true === isset( $_POST['wpdb_bb_s3'] ) && 'Y' === $_POST['wpdb_bb_s3'] ) {
 	} else {
 		update_option( 'wp_db_backup_destination_bb', 0 , false);
 	}
+
+	if ( isset( $_POST['wp_db_incremental_backup'] ) ) {
+		update_option( 'wp_db_incremental_backup', 1 , false);
+	} else {
+		update_option( 'wp_db_incremental_backup', 0 , false);
+	}
 	// Put a "settings updated" message on the screen.
 	$update_msg = esc_html__('Your Blackblaze S3 setting has been saved.' , 'wpdbbkp');
 }
@@ -141,7 +147,7 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 					<label class="col-sm-2" for="wpdb_dest_bb_s3_bucket"><?php echo esc_html__('Bucket ID', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 
-						<input type="text" id="wpdb_dest_bb_s3_bucket" class="form-control" name="wpdb_dest_bb_s3_bucket" value="<?php echo esc_html( get_option( 'wpdb_dest_bb_s3_bucket' ) ); ?>" size="25" placeholder="<?php esc_attr_e('Bucket ID', 'wpdbbkp');?>','wpdbbkp');?>">
+						<input type="text" id="wpdb_dest_bb_s3_bucket" class="form-control" name="wpdb_dest_bb_s3_bucket" value="<?php echo esc_html( get_option( 'wpdb_dest_bb_s3_bucket' ) ); ?>" size="25" placeholder="<?php esc_attr_e('Bucket ID', 'wpdbbkp');?>">
 						<a href="https://www.backblaze.com/apidocs/introduction-to-the-s3-compatible-api" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 					</div>
 				</div>
@@ -149,7 +155,7 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 				<div class="row form-group">
 					<label class="col-sm-2" for="wpdb_dest_bb_s3_bucket_key"><?php echo esc_html__('Key', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
-						<input type="text" id="wpdb_dest_bb_s3_bucket_key" class="form-control" name="wpdb_dest_bb_s3_bucket_key" value="<?php echo esc_html( get_option( 'wpdb_dest_bb_s3_bucket_key' ) ); ?>" size="25" placeholder="<?php esc_attr_e('your access key id', 'wpdbbkp');?>','wpdbbkp');?>">
+						<input type="text" id="wpdb_dest_bb_s3_bucket_key" class="form-control" name="wpdb_dest_bb_s3_bucket_key" value="<?php echo esc_html( get_option( 'wpdb_dest_bb_s3_bucket_key' ) ); ?>" size="25" placeholder="<?php esc_attr_e('your access key id', 'wpdbbkp');?>">
 						<a href="https://www.backblaze.com/apidocs/introduction-to-the-s3-compatible-api" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 					</div>
 				</div>
@@ -157,7 +163,7 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 				<div class="row form-group">
 					<label class="col-sm-2" for="wpdb_dest_bb_s3_bucket_secret"><?php echo esc_html__('Secret', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
-						<input type="text" id="wpdb_dest_bb_s3_bucket_secret" class="form-control" name="wpdb_dest_bb_s3_bucket_secret" value="<?php echo esc_html( get_option( 'wpdb_dest_bb_s3_bucket_secret' ) ); ?>" size="25" placeholder="<?php esc_attr_e('your secret access key', 'wpdbbkp');?>','wpdbbkp');?>">
+						<input type="text" id="wpdb_dest_bb_s3_bucket_secret" class="form-control" name="wpdb_dest_bb_s3_bucket_secret" value="<?php echo esc_html( get_option( 'wpdb_dest_bb_s3_bucket_secret' ) ); ?>" size="25" placeholder="<?php esc_attr_e('your secret access key', 'wpdbbkp');?>">
 						<a href="https://www.backblaze.com/apidocs/introduction-to-the-s3-compatible-api" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 					</div>
 				</div>

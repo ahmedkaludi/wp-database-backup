@@ -477,7 +477,7 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 								'FileName'  => $FileName,
 								'logFile'   => $logFile,
 								'tableName' => $table,
-								'offset'    => $offset,
+								'offset'    => $offset + 1,
 								'tables'    => $tables,
 								'progress'  => $progress
 							) ) );

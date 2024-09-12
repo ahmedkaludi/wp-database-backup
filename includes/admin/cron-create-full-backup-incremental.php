@@ -262,12 +262,13 @@ function wpdbbkp_get_progress(){
 
 		}
 		else{
-		update_option('wpdbbkp_backupcron_step','Fetching Tables', false);
-		$common_args['progress'] = $progress+4;
-		update_option('wpdbbkp_backupcron_progress',intval($progress), false);
-		$tables= wpdbbkp_cron_mysqldump($config);
-		$common_args['tables'] = $tables['tables'];
-		wpdbbkp_cron_create_mysql_backup($common_args,true);
+			update_option('wpdbbkp_backupcron_step','Fetching Tables', false);
+			$common_args['progress'] = $progress+4;
+			update_option('wpdbbkp_backupcron_progress',intval($progress), false);
+			$tables= wpdbbkp_cron_mysqldump($config);
+			$common_args['tables'] = $tables['tables'];
+			$common_args['from_cron'] = true;
+			wpdbbkp_cron_create_mysql_backup($common_args,true);
 		}
 		update_option('wpdbbkp_current_chunk_args',$common_args, false);
 		backup_files_cron_with_resume();
@@ -409,7 +410,14 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 
 			global $wpdb;
 
-			$wp_db_exclude_table = get_option( 'wp_db_exclude_table', array() );
+			$wp_db_exclude_table = get_option( 'wp_db_exclude_table');
+			if(!is_array($wp_db_exclude_table)){
+				$wp_db_exclude_table = array();
+			}
+			$wp_db_exclude_table_default = [ $wpdb->prefix . 'wpr_rucss_used_css',$wpdb->prefix . 'wpr_rocket_cache',$wpdb->prefix . 'actionscheduler_logs',$wpdb->prefix . 'wpdbbkp_processed_files',$wpdb->prefix . 'wpr_above_the_fold'];
+
+			$wp_db_exclude_table = array_unique( array_merge($wp_db_exclude_table,$wp_db_exclude_table_default ) );
+
 			if ( $create_table ) {
 				// 1. Collect the CREATE TABLE SQL statements for all tables
 				$create_table_sql = '';
@@ -509,10 +517,9 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 				wp_delete_file( $sql_filename );
 				wp_delete_file( $progressFile );
 				update_option( 'wpdbbkp_backupcron_current', 'DB Backed Up', false );
-
 				if ( isset( $args['from_cron'] ) ) {
 					update_option( 'wpdbbkp_current_chunk_args', $args, false );
-					backup_files_cron_with_resume();
+					backup_files_cron_with_resume(true);
 				}
 			}
 
@@ -950,8 +957,9 @@ function backup_files_cron_with_resume($bypass = false){
 
 	$root_path = ABSPATH;
 	// exclude directories
-	$exclude_dir = get_option('wp_db_backup_exclude_dir');
+	$exclude_dir = get_option('wp_db_backup_exclude_dir')?get_option('wp_db_backup_exclude_dir'):[];
 	$exclude_dir = explode('|', $exclude_dir);
+	$exclude_dir = array_merge($exclude_dir, ['cache', 'logs', 'wc-logs']);
     $iterator  = new RecursiveDirectoryIterator($root_path, RecursiveDirectoryIterator::SKIP_DOTS);
     $filter = new wpdbbkpExcludeFilter($iterator , $exclude_dir);
 	$files = new RecursiveIteratorIterator($filter, RecursiveIteratorIterator::SELF_FIRST);
@@ -999,7 +1007,7 @@ function backup_files_cron_with_resume($bypass = false){
 			$file_name = $file->getFilename();
 			$trasient_lock = get_transient( 'wpdbbkp_backup_status' );
 			$status_lock = get_option( 'wpdbbkp_backupcron_status','inactive');
-		if (($trasient_lock =='active' || $status_lock =='active' ) && $file->isFile() && !wpdbbkp_is_file_processed($file_path,$file->getMTime()) && strpos($file_name, 'error_log') === false && strpos($file_name, 'debug_log') === false) {
+		if (($trasient_lock =='active' || $status_lock =='active' ) && $file->isFile() && !wpdbbkp_is_file_processed($file_path,$file->getMTime()) && strpos($file_name, 'error_log') === false && strpos($file_name, 'debug.log') === false && strpos($file_name, 'errorlog') === false) {
 			$batch[] = ['file_path' => $file->getPathname(), 'file_name' => $file_name];
 			$total_size += $file->getSize();
 			$current_chunk++;
@@ -1166,7 +1174,7 @@ class wpdbbkpExcludeFilter extends RecursiveFilterIterator {
         $pathname = $current->getPathname();
 
         foreach ($this->excluded as $exclude) {
-            if (fnmatch($exclude, $pathname)) {
+            if ( strpos($pathname, DIRECTORY_SEPARATOR . $exclude . DIRECTORY_SEPARATOR) ) {
                 return false;
             }
         }

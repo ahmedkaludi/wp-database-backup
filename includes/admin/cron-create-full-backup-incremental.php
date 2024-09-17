@@ -66,18 +66,24 @@ if ( ! function_exists( 'wpdbbkp_cron_backup_hook_db' ) ) {
 		$path_info = wp_upload_dir();
 		$progressFile = $path_info['basedir'] . '/db-backup/db_progress.json';
 		$progress_json  = file_exists( $progressFile ) ? json_decode( wpdbbkp_read_file_contents( $progressFile ), true ) : null ;
+		
 		if($progress_json){
-			$args = array(
-				'logFile'   => $progress_json['logFile'], 
-				'tableName' => $progress_json['tableName'], 
-				'FileName'  => $progress_json['FileName'],
-				'offset'   => $progress_json['offset'],
-				'tables'   => $progress_json['tables'],
-				'progress' => $progress_json['progress'],
-				'from_cron' => true
 
-			);
-			wpdbbkp_cron_create_mysql_backup( $args );
+			$file_last_updated = filemtime($progressFile);
+			if (time() - $file_last_updated > 600) {
+				$args = array(
+					'logFile'   => $progress_json['logFile'], 
+					'tableName' => $progress_json['tableName'], 
+					'FileName'  => $progress_json['FileName'],
+					'offset'   => $progress_json['offset'],
+					'tables'   => $progress_json['tables'],
+					'progress' => $progress_json['progress'],
+					'from_cron' => true
+	
+				);
+				wpdbbkp_cron_create_mysql_backup( $args );
+
+			} 
 		}
 	}
 	add_action( 'wpdbbkp_cron_backup_hook_db', 'wpdbbkp_cron_backup_hook_db_cb' );

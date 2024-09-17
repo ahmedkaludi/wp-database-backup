@@ -3369,7 +3369,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 			if( ! $wpdbbkp_cloudbackup_notice ){
 				?>
 				<div class="notice notice-info is-dismissible">
-					<p><?php echo esc_html__('Take a free 14-day trial of BackupforWP Cloud Backup. Get Started in 2 Minutes. ', 'wpdbbkp').'<a href="'.esc_url('https://backupforwp.com/register').'" target="_blank">'.esc_html__('Get Started in 2 Minutes.', 'wpdbbkp'). '</a>';?></p>
+					<p><?php echo esc_html__('Take a free 14-day trial of BackupforWP Cloud Backup. Get Started in 2 Minutes. ', 'wpdbbkp').'<a href="'.esc_url('https://backupforwp.com/register?from=plugin_notice').'" target="_blank">'.esc_html__('Get Started in 2 Minutes.', 'wpdbbkp'). '</a>';?></p>
 				</div>
 				<?php
 			}

@@ -69,8 +69,7 @@ if ( ! function_exists( 'wpdbbkp_cron_backup_hook_db' ) ) {
 		
 		if($progress_json){
 
-			$file_last_updated = filemtime($progressFile);
-			if (time() - $file_last_updated > 600) {
+	
 				$args = array(
 					'logFile'   => $progress_json['logFile'], 
 					'tableName' => $progress_json['tableName'], 
@@ -82,9 +81,7 @@ if ( ! function_exists( 'wpdbbkp_cron_backup_hook_db' ) ) {
 	
 				);
 				wpdbbkp_cron_create_mysql_backup( $args );
-
-			} 
-		}
+			}
 	}
 	add_action( 'wpdbbkp_cron_backup_hook_db', 'wpdbbkp_cron_backup_hook_db_cb' );
 }

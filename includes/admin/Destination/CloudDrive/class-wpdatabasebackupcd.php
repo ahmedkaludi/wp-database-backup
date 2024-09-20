@@ -33,6 +33,10 @@ public static function upload_backup_to_clouddrive($file_path, $file_name) {
     $api_url ="https://app.backupforwp.com/public";
 
     $token = get_option('wpdb_clouddrive_token') ? get_option('wpdb_clouddrive_token') : '';
+
+    if(!$token){
+        return array('success' => false, 'message' => esc_html__('Cloud Backup token not found. Please enter your Cloud Backup token in the settings.', 'wpdbbkp'));
+    }
   
     $upload_auth_token = 'Bearer '.$token;
     $upload_url = $api_url . '/api/v1/file/upload';

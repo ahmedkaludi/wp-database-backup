@@ -37,6 +37,7 @@ class Wpdb_Admin {
 		add_action('wp_ajax_wpdbbkp_send_query_message', array( $this, 'wpdbbkp_send_query_message'));
 		add_filter( 'plugin_action_links_' . plugin_basename( WP_BACKUP_PLUGIN_FILE ), array( $this, 'add_settings_plugin_action_wp' ), 10, 4 );
 		add_action( 'admin_notices', array($this, 'check_ziparchive_avalable_admin_notice' ));
+		add_action( 'admin_notices', array($this, 'wpdbbkp_cloudbackup_notice' ) );
 		
 	}
 
@@ -717,14 +718,6 @@ class Wpdb_Admin {
 					</button>
 				</div>
 				</div>
-				<?php
-		}
-		$cloud_drive_flag =  get_option( 'wp_db_backup_destination_cd', false );
-		if ( !$cloud_drive_flag ) {
-			?><br>
-				<div class="alert alert-info " role="alert">
-		&nbsp;<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> 
-		<?php esc_html_e( 'Try Backup for WP Cloud Backup free for 14 days', 'wpdbbkp' ); ?> <a href="https://backupforwp.com/register" target="_blank"><?php echo esc_html__( 'Try now for free' , 'wpdbbkp'); ?></a>	</div>
 				<?php
 		}
 		?>
@@ -3369,6 +3362,17 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 			}
 		
 			return false;
+		}
+
+		public function wpdbbkp_cloudbackup_notice(){
+			$wpdbbkp_cloudbackup_notice = get_option( 'wpdb_clouddrive_token', false );
+			if( ! $wpdbbkp_cloudbackup_notice ){
+				?>
+				<div class="notice notice-info is-dismissible">
+					<p><?php echo esc_html__('Take a free 14-day trial of BackupforWP Cloud Backup.', 'wpdbbkp').'<a href="'.esc_url('https://backupforwp.com/register?from=plugin_notice').'" target="_blank">'.esc_html__('Get Started in 2 Minutes.', 'wpdbbkp'). '</a>';?></p>
+				</div>
+				<?php
+			}
 		}
 
 	}

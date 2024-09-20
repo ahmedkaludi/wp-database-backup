@@ -1,3 +1,8 @@
+= 7.2 =
+* 20-09-2024
+* Fix: Backup stuck on DB Backed up when using Incremental backup.
+* Improvement: Added resume capability to  DB backup for Incremental backup.
+
 = 7.1 =
 * 09-09-2024
 * Fix: Timeout and Write Failures Due to Large Database #96

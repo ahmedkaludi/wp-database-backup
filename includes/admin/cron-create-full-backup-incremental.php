@@ -472,6 +472,12 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 
 					while ( $offset < $check_count ) {
 						$sub_result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$table}` LIMIT %d OFFSET %d", $sub_limit, $offset ), ARRAY_A );
+
+						if ( false === $sub_result ) {
+							$logMessage .= "\nFailed to fetch data from table: $table";
+							break;
+						}
+
 						if ( $sub_result ) {
 							$output = wpdbbkp_create_sql_insert_statements( $table, $sub_result );
 							$write_result = wpdbbkp_append_to_file( $filepath, $output );
@@ -479,7 +485,8 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 								$logMessage .= "\nFailed to write to file: $filepath";
 								break;
 							}
-							$output = ''; // Clear output to free memory
+							$output = '';
+							$sub_result ='';
 
 							$offset += $sub_limit;
 
@@ -496,15 +503,7 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 						}
 						sleep( 1 ); // Optional sleep to reduce server load
 					}
-
-					wpdbbkp_write_file_contents( $progressFile, json_encode( array(
-						'FileName'  => $FileName,
-						'logFile'   => $logFile,
-						'tableName' => $table,
-						'offset'    => 0,
-						'tables'    => $tables,
-						'progress'  => $progress
-					) ) );
+					$args['offset'] = 0;
 				}
 				$wpdb->flush();
 				sleep(1);

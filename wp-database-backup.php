@@ -3,7 +3,7 @@
  * Plugin Name: Backup For WP
  * Plugin URI:https://wordpress.org/plugins/wp-database-backup
  * Description: This plugin helps you to create/restore Unlimited  WordPress Database & Files backup.
- * Version: 7.2
+ * Version: 7.3
  * Author: Backup for WP
  * Author URI: https://backupforwp.com/
  * Text Domain: wpdbbkp
@@ -38,7 +38,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 	 *
 	 * @class WPDatabaseBackup
 	 *
-	 * @version 7.1
+	 * @version 7.3
 	 */
 	final class WPDatabaseBackup {
 
@@ -47,7 +47,7 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		 *
 		 * @var string
 		 */
-		public $version = '7.2';
+		public $version = '7.3';
 
 		/**
 		 * Plugin instance

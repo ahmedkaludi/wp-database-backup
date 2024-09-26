@@ -1,3 +1,8 @@
+= 7.3 =
+* 26-09-2024
+* Improvement: DB Incremental Backup improvements.
+* Fix: Promo Notification dismiss issue #103
+
 = 7.2 =
 * 20-09-2024
 * Fix: Backup stuck on DB Backed up when using Incremental backup.

@@ -38,6 +38,7 @@ class Wpdb_Admin {
 		add_filter( 'plugin_action_links_' . plugin_basename( WP_BACKUP_PLUGIN_FILE ), array( $this, 'add_settings_plugin_action_wp' ), 10, 4 );
 		add_action( 'admin_notices', array($this, 'check_ziparchive_avalable_admin_notice' ));
 		add_action( 'admin_notices', array($this, 'wpdbbkp_cloudbackup_notice' ) );
+		add_action( 'wp_ajax_wpdbbkp_cloudbackup_dismiss_notice', array($this, 'wpdbbkp_cloudbackup_dismiss_notice' ) );
 		
 	}
 
@@ -3365,14 +3366,54 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 		}
 
 		public function wpdbbkp_cloudbackup_notice(){
+			$user_id = get_current_user_id();
 			$wpdbbkp_cloudbackup_notice = get_option( 'wpdb_clouddrive_token', false );
-			if( ! $wpdbbkp_cloudbackup_notice ){
+
+			if( $wpdbbkp_cloudbackup_notice ){
+				return;
+			}
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
+
+			if ( get_user_meta( $user_id, 'wpdbbkp_cloudbackup_notice_dismissed', true ) ) {
+				return;
+			}
+
+			$nonce = wp_create_nonce( 'wpdbbkp_cloudbackup_notice_dismissed' )
 				?>
-				<div class="notice notice-info is-dismissible">
+				<div class="notice notice-info is-dismissible" id="wpdbbkp_cloudbackup_dismiss">
 					<p><?php echo esc_html__('Take a free 14-day trial of BackupforWP Cloud Backup.', 'wpdbbkp').'<a href="'.esc_url('https://backupforwp.com/register?from=plugin_notice').'" target="_blank">'.esc_html__('Get Started in 2 Minutes.', 'wpdbbkp'). '</a>';?></p>
 				</div>
+				<script type="text/javascript">
+					jQuery(document).ready(function($) {
+						// Handle dismiss action
+						$(document).on('click', '#wpdbbkp_cloudbackup_dismiss .notice-dismiss', function() {
+							var ajaxurl = "<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>";
+							$.post(ajaxurl, {
+								action: 'wpdbbkp_cloudbackup_dismiss_notice',
+								nonce: '<?php echo esc_js( $nonce ); ?>'
+							});
+						});
+					});
+					</script>
 				<?php
+		}
+		public function wpdbbkp_cloudbackup_dismiss_notice() {
+			
+
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( esc_html__( 'Permission denied', 'wpdbbkp' ), '', [ 'response' => 403 ] );
 			}
+		
+			// Verify the nonce
+			if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'wpdbbkp_cloudbackup_notice_dismissed' ) ) {
+				wp_die( esc_html__( 'Invalid nonce', 'wpdbbkp' ), '', [ 'response' => 403 ] );
+			}
+
+			$user_id = get_current_user_id();
+			update_user_meta( $user_id, 'wpdbbkp_cloudbackup_notice_dismissed', 1 );
+			wp_die();
 		}
 
 	}

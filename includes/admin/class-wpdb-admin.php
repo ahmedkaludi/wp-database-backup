@@ -1151,6 +1151,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 				<li style="margin-left: 30px;"><?php echo esc_html__('Add the website url', 'wpdbbkp'); ?> <a href="https://app.backupforwp.com/websites" target="_blank"><?php  echo esc_html__('Add Website here', 'wpdbbkp');?> </a></li>
 				<li style="margin-left: 30px;"><?php echo esc_html__('API token will be generated on adding website.', 'wpdbbkp'); ?></li>
 				<li style="margin-left: 30px;"><?php echo esc_html__('Copy the token here and Click Save.', 'wpdbbkp'); ?></li>
+				<li style="margin-left: 30px;"><b><?php echo esc_html__('You can see your backup files from ', 'wpdbbkp'); ?><a href="https://app.backupforwp.com/dashboard/" target="_blank"><?php  echo esc_html__('here', 'wpdbbkp');?> </a></b></li>
 			</ul>
 					
 			
@@ -1169,7 +1170,6 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 				<p style="padding-left:20px"><input type="submit" name="Submit" class="btn btn-primary" value="<?php esc_attr_e( 'Save' , 'wpdbbkp' ); ?>" />&nbsp;
 				</p>
 			</form>
-			<h2 style="padding:20px;"><?php echo esc_html__('Access you  backups', 'wpdbbkp'); ?>  <a href="https://app.backupforwp.com/dashboard/" target="_blank">  <?php echo esc_html__('HERE', 'wpdbbkp'); ?> </a> </h2>
 		</div>
 </div>
 

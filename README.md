@@ -1,4 +1,4 @@
-## WP Database Backup - Unlimited Database & Files Backup by Backup for WP
+### WP Database Backup - Unlimited Database & Files Backup by Backup for WP
 Contributors: databasebackup  
 License: GPLv2 or later  
 License URI: http://www.gnu.org/licenses/gpl-2.0.html  
@@ -92,14 +92,15 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 #### How to restore database backup?
 
   Restore Backup:
+
   <br>Click on Restore Database Backup
   <br>OR
-  <br>1)Login to phpMyAdmin
-  <br>2)Click Databases and select the database that you will be importing your data into.
-  <br>3)Across the top of the screen will be a row of tabs. Click the Import tab.
-  <br>4)On the next screen will be a location of text file box, and next to that a button named Browse.
-  <br>5)Click Browse. Locate the backup file stored on your computer.
-  <br>6)Click the Go button
+  <br>1) Login to phpMyAdmin
+  <br>2) Click Databases and select the database that you will be importing your data into.
+  <br>3) Across the top of the screen will be a row of tabs. Click the Import tab.
+  <br>4) On the next screen will be a location of text file box, and next to that a button named Browse.
+  <br>5) Click Browse. Locate the backup file stored on your computer.
+  <br>6) Click the Go button
 
 #### Always get an empty (0 bits) backup file?
 

@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 $wpdbbkp_bg_notify = get_option('wpdbbkp_dashboard_notify',false);
 if (true === isset($_GET['notification']) && true === isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'wp-database-backup') || $wpdbbkp_bg_notify) { ?>
 
-	<div class="text-center wpdbbkp_notification"><img width="50" height="50" src="<?php echo esc_url(WPDB_PLUGIN_URL. "/assets/images/success.png"); ?>">
+	<div class="text-center wpdbbkp_notification"><img width="50" height="50" src="<?php echo esc_url(WPDB_PLUGIN_URL. "/assets/images/success.png"); /* phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage */ ?>">
 		<h4 class="text-success"><?php if ((isset($_GET['notification']) && 'create' === $_GET['notification']) || $wpdbbkp_bg_notify=='create') {
 							$backup_list = get_option('wp_db_backup_backups');
 							if(!empty($backup_list) && is_array($backup_list)){
@@ -49,7 +49,7 @@ if (true === isset($_GET['notification']) && true === isset($_GET['_wpnonce']) &
 <?php } ?>
 
 <div id="wpdb-backup-process" style="display:none">
-	<div class="text-center"><img width="50" height="50" src="<?php echo esc_url(WPDB_PLUGIN_URL . "/assets/images/icon_loading.gif"); ?>">
+	<div class="text-center"><img width="50" height="50" src="<?php echo esc_url(WPDB_PLUGIN_URL . "/assets/images/icon_loading.gif"); /* phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage */ ?>">
 		<h5 class="text-success"><strong><?php echo esc_html__('Backup process is working in background, it may take some time depending on size of your
 				website. You can close this tab if you want', 'wpdbbkp') ?></strong></h5>
 		<div class="progress">
@@ -63,7 +63,7 @@ if (true === isset($_GET['notification']) && true === isset($_GET['_wpnonce']) &
 </div>
 
 <div id="backup_process" style="display:none">
-	<div class="text-center"><img width="50" height="50" src="<?php echo esc_url(WPDB_PLUGIN_URL . "/assets/images/icon_loading.gif"); ?>">
+	<div class="text-center"><img width="50" height="50" src="<?php echo esc_url(WPDB_PLUGIN_URL . "/assets/images/icon_loading.gif"); /* phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage */ ?>">
 		<h4 class="text-success" id="wpdbbkup_process_stats"><?php echo esc_html__('Creating Database Backup...', 'wpdbbkp') ?></h4>
 		<h5 class="text-success"><strong><?php echo esc_html__('It may take some time depending on size of your
 				Database. Do not close this window.', 'wpdbbkp') ?></strong></h5>

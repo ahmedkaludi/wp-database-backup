@@ -996,7 +996,7 @@ class Wpdb_Admin {
    <button type="button" id="offer_close" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
-  <h3 class="modal-title" id="wpdbbkp_offer_modalLabel"><img src="<?php echo esc_attr( WPDB_PLUGIN_URL ); ?>/assets/images/wp-database-backup.png" width="230px"></h3>
+  <h3 class="modal-title" id="wpdbbkp_offer_modalLabel"><img src="<?php echo esc_attr( WPDB_PLUGIN_URL ); /* phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage */ ?>/assets/images/wp-database-backup.png" width="230px"></h3>
 		  <p style="padding:0 50px;"><?php echo esc_html__('Cloud Backup offers a secure, reliable and affordable solution to backup your WP site to the cloud.','wpdbbkp');?></p>
 		<div class="wpdbbkp_offer_container">
 			<div class="wpdbbkp_server">

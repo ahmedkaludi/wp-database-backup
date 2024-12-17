@@ -18,7 +18,7 @@ if (true === isset($_GET['notification']) && true === isset($_GET['_wpnonce']) &
 								$download_backup = end($backup_list);
 								if($download_backup && !empty($download_backup) && isset($download_backup['url']))
 								{ 
-									$backup_link = '<a href="' . esc_url($download_backup['url']) . '" style="color: #21759B;">' . __('Click Here to Download Backup.', 'wpdbbkp') . '</a>';
+									$backup_link = '<a href="' . esc_url(admin_url('?wpdbbkp_download='.basename($download_backup['url']))) . '" style="color: #21759B;">' . __('Click Here to Download Backup.', 'wpdbbkp') . '</a>';
 								}
 							}
 							

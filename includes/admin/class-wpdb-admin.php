@@ -30,7 +30,6 @@ class Wpdb_Admin {
 		add_filter( 'cron_schedules', array( $this, 'wp_db_backup_cron_schedules' ) );
 		add_action( 'wpdbbkp_db_backup_event', array( $this, 'wp_db_backup_event_process' ) );
 		add_action( 'init', array( $this, 'wp_db_backup_scheduler_activation' ) );
-		add_action( 'wp_logout', array( $this, 'wp_db_cookie_expiration' ) ); // Fixed Vulnerability 22-06-2016 for prevent direct download.
 		add_action( 'wp_db_backup_completed', array( $this, 'wp_db_backup_completed_local' ), 12 );
 		add_action('admin_enqueue_scripts', array( $this, 'wpdbbkp_admin_style'));
 		add_action('admin_enqueue_scripts', array( $this, 'wpdbbkp_admin_newsletter_script'));
@@ -39,6 +38,7 @@ class Wpdb_Admin {
 		add_action( 'admin_notices', array($this, 'check_ziparchive_avalable_admin_notice' ));
 		add_action( 'admin_notices', array($this, 'wpdbbkp_cloudbackup_notice' ) );
 		add_action( 'wp_ajax_wpdbbkp_cloudbackup_dismiss_notice', array($this, 'wpdbbkp_cloudbackup_dismiss_notice' ) );
+		add_action( 'admin_init', array($this, 'admin_backup_file_download' ));
 		
 	}
 
@@ -113,44 +113,6 @@ class Wpdb_Admin {
 					'wp-database-backup#tab_db_help',
 					array($this, 'wp_db_backup_settings_page' ));
 
-		// if(!defined('BKPFORWP_VERSION')){
-		// 	add_submenu_page(
-		// 		'wp-database-backup',
-		// 		'Upgrade to Premium',
-		// 		'Upgrade to Premium',
-		// 		'manage_options',
-		// 		'wp-database-backup#tab_db_upgrade',
-		// 		array($this, 'wp_db_backup_settings_page' ));
-		// }
-		// else{
-		// 	add_submenu_page(
-		// 		'wp-database-backup',
-		// 		'Modules',
-		// 		'Modules',
-		// 		'manage_options',
-		// 		'wp-database-backup#tab_db_features',
-		// 		array($this, 'wp_db_backup_settings_page' ));
-		// 		add_submenu_page(
-		// 			'wp-database-backup',
-		// 			'Licence',
-		// 			'Licence',
-		// 			'manage_options',
-		// 			'wp-database-backup#tab_db_licence',
-		// 			array($this, 'wp_db_backup_settings_page' ));
-		// }
-
-
-
-	}
-
-	/**
-	 * Start Fixed Vulnerability 22-06-2016 for prevent direct download.
-	 */
-	public function wp_db_cookie_expiration() {
-		setcookie( 'can_download', 0, time() - 300, COOKIEPATH, COOKIE_DOMAIN );
-		if ( SITECOOKIEPATH !== COOKIEPATH ) {
-			setcookie( 'can_download', 0, time() - 300, SITECOOKIEPATH, COOKIE_DOMAIN );
-		}
 	}
 
 	/**
@@ -185,19 +147,6 @@ class Wpdb_Admin {
 			if ( ! empty( $_POST ) && ! ( isset( $_POST['option_page'] ) && 'wp_db_backup_options' === $_POST['option_page'] ) ) {
 				if ( false === isset( $_REQUEST['_wpnonce'] ) || false === wp_verify_nonce( $_REQUEST['_wpnonce'] , 'wp-database-backup' ) ) {
 					wp_die( esc_html__('WPDB :: Invalid Access', 'wpdbbkp' ) );
-				}
-			}
-
-			// End Fixed Vulnerability 04-08-2016 for data save in options.
-			if ( isset( $_GET['page'] ) && 'wp-database-backup' === $_GET['page'] && current_user_can( 'manage_options' ) ) {
-				setcookie( 'can_download', 1, 0, COOKIEPATH, COOKIE_DOMAIN );
-				if ( SITECOOKIEPATH !== COOKIEPATH ) {
-					setcookie( 'can_download', 1, 0, SITECOOKIEPATH, COOKIE_DOMAIN );
-				}
-			} else {
-				setcookie( 'can_download', 0, time() - 300, COOKIEPATH, COOKIE_DOMAIN );
-				if ( SITECOOKIEPATH !== COOKIEPATH ) {
-					setcookie( 'can_download', 0, time() - 300, SITECOOKIEPATH, COOKIE_DOMAIN );
 				}
 			}
 			// End Fixed Vulnerability 22-06-2016 for prevent direct download.
@@ -891,7 +840,7 @@ class Wpdb_Admin {
 									echo '<td>Database</td>';
 								}
 								echo '<td>';
-								echo '<a class="btn btn-default" href="' . esc_url( $option['url'] ) . '" style="color: #21759B;border-color:#337ab7;">';
+								echo '<a class="btn btn-default" href="' . esc_url( admin_url('?wpdbbkp_download='.basename($option['url'])) ) . '" style="color: #21759B;border-color:#337ab7;">';
 								echo '<span class="glyphicon glyphicon-download-alt"></span> Download</a></td>';
 								echo '<td>' . esc_attr( $this->wp_db_backup_format_bytes( $option['size'] ) ) . '</td>';
 								$remove_backup_href = esc_url( site_url() ) . '/wp-admin/admin.php?page=wp-database-backup&action=removebackup&_wpnonce=' . esc_attr( $nonce ) . '&index=' . esc_attr( ( $count - 1 ) );
@@ -1857,7 +1806,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 								<br>
 								<div class="input-group">
 									<span class="input-group-addon" id="wp_db_backup_search_text"><?php echo esc_html__('Search For', 'wpdbbkp') ?></span>
-									<input type="text" name="wp_db_backup_search_text" value="<?php echo esc_html( $wp_db_backup_search_text ); ?>" class="form-control" placeholder="<?php esc_attr_e('http://localhost/wordpress','wpdbbkp'); //phpcs:ignore ?>" aria-describedby="wp_db_backup_search_text">
+									<input type="text" name="wp_db_backup_search_text" value="<?php echo esc_html( $wp_db_backup_search_text ); ?>" class="form-control" placeholder="<?php esc_attr_e('https://localhost/wordpress','wpdbbkp'); //phpcs:ignore ?>" aria-describedby="wp_db_backup_search_text">
 
 								</div>
 								<br>
@@ -2466,13 +2415,13 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 		// Added htaccess file 08-05-2015 for prevent directory listing.
 		// Fixed Vulnerability 22-06-2016 for prevent direct download.
 		if ( 1 === (int) get_option( 'wp_db_backup_enable_htaccess' ) ) {
-				$htaccess_content = '#These next two lines will already exist in your .htaccess file
-				RewriteEngine On
-				RewriteBase /
-				# Add these lines right after the preceding two
-				RewriteCond %{REQUEST_FILENAME} ^.*(.zip)$
-				RewriteCond %{HTTP_COOKIE} !^.*can_download.*$ [NC]
-				RewriteRule . - [R=403,L]';
+				$htaccess_content = '# BEGIN Backup Folder Protection
+					<IfModule mod_rewrite.c>
+					RewriteEngine On
+					RewriteCond %{REQUEST_FILENAME} -f
+					RewriteRule ^.*$ - [F,L]
+					</IfModule>
+					# END Backup Folder Protection';
 				$wp_filesystem->put_contents( $path_info['basedir'] . '/db-backup/.htaccess', $htaccess_content, FS_CHMOD_FILE );
 			
 		}
@@ -3414,6 +3363,34 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 			$user_id = get_current_user_id();
 			update_user_meta( $user_id, 'wpdbbkp_cloudbackup_notice_dismissed', 1 );
 			wp_die();
+		}
+
+		public function admin_backup_file_download() {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return;
+			}
+		
+			// Check for a specific query parameter, e.g., ?download_backup=filename.zip
+			if ( isset( $_GET['wpdbbkp_download'] ) && ! empty( $_GET['wpdbbkp_download'] ) ) {
+				$path_info = wp_upload_dir();
+				$backup_dir = $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/';
+				$file_name  = basename( sanitize_text_field( $_GET['wpdbbkp_download'] ) );
+				$file_path  = trailingslashit( $backup_dir ) . $file_name;
+
+		
+				// Check if file exists
+				if ( file_exists( $file_path ) ) {
+					// Serve the file
+					header( 'Content-Description: File Transfer' );
+					header( 'Content-Type: application/octet-stream' );
+					header( 'Content-Disposition: attachment; filename="' . $file_name . '"' );
+					header( 'Content-Length: ' . filesize( $file_path ) );
+					readfile( $file_path );
+					exit;
+				} else {
+					wp_die( esc_html__( 'Backup file not found.', 'text-domain' ) );
+				}
+			}
 		}
 
 	}

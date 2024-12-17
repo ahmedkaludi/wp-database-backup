@@ -291,13 +291,13 @@ if(!function_exists('wpdbbkp_wp_cron_config_path')){
 			wpdbbkp_write_file_contents($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/index.php','');
 	        //added htaccess file 08-05-2015 for prevent directory listing
 	        //Fixed Vulnerability 22-06-2016 for prevent direct download
-	        $htaccess_content = "#These next two lines will already exist in your .htaccess file
-			RewriteEngine On
-			RewriteBase /
-			# Add these lines right after the preceding two
-			RewriteCond %{REQUEST_FILENAME} ^.*(.zip)$
-			RewriteCond %{HTTP_COOKIE} !^.*can_download.*$ [NC]
-			RewriteRule . - [R=403,L]";
+	        $htaccess_content = "# BEGIN Backup Folder Protection
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^.*$ - [F,L]
+</IfModule>
+# END Backup Folder Protection";
 			wpdbbkp_write_file_contents($path_info['basedir']  . '/' . WPDB_BACKUPS_DIR . '/.htaccess',$htaccess_content);
 
 	        $siteName = preg_replace('/[^\p{L}\p{M}]+/u', '_', get_bloginfo('name')); //added in v2.1 for Backup zip labeled with the site name(Help when backing up multiple sites).

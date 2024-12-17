@@ -134,50 +134,50 @@ function bkpforwp_database_backup_options()
 
 
   <div class="row form-group autobackup_days database_autobackup" style="display:none">
-    <label class="col-sm-3" for="autobackup_days"><?php esc_html_e('Database Backup Days', 'backupforwp-pro'); ?></label>
+    <label class="col-sm-3" for="autobackup_days"><?php esc_html_e('Database Backup Days', 'wpdbbkp'); ?></label>
     <div class="col-sm-9">
       <select id="autobackup_days" class="form-control bkpforwp_multiselect"
         name="wp_db_backup_options[autobackup_days][]" multiple>
         <option value="Mon" <?php if (strpos($autobackup_days, 'Mon') !== false) {
           echo 'selected';
         } ?>>
-          <?php esc_html_e('Monday', 'backupforwp-pro'); ?></option>
+          <?php esc_html_e('Monday', 'wpdbbkp'); ?></option>
         <option value="Tue" <?php if (strpos($autobackup_days, 'Tue') !== false) {
           echo 'selected';
         } ?>>
-          <?php esc_html_e('Tuesday', 'backupforwp-pro'); ?></option>
+          <?php esc_html_e('Tuesday', 'wpdbbkp'); ?></option>
         <option value="Wed" <?php if (strpos($autobackup_days, 'Wed') !== false) {
           echo 'selected';
         } ?>>
-          <?php esc_html_e('Wednesday', 'backupforwp-pro'); ?></option>
+          <?php esc_html_e('Wednesday', 'wpdbbkp'); ?></option>
         <option value="Thu" <?php if (strpos($autobackup_days, 'Thu') !== false) {
           echo 'selected';
         } ?>>
-          <?php esc_html_e('Thursday', 'backupforwp-pro'); ?></option>
+          <?php esc_html_e('Thursday', 'wpdbbkp'); ?></option>
         <option value="Fri" <?php if (strpos($autobackup_days, 'Fri') !== false) {
           echo 'selected';
         } ?>>
-          <?php esc_html_e('Friday', 'backupforwp-pro'); ?></option>
+          <?php esc_html_e('Friday', 'wpdbbkp'); ?></option>
         <option value="Sat" <?php if (strpos($autobackup_days, 'Sat') !== false) {
           echo 'selected';
         } ?>>
-          <?php esc_html_e('Saturday', 'backupforwp-pro'); ?></option>
+          <?php esc_html_e('Saturday', 'wpdbbkp'); ?></option>
         <option value="Sun" <?php if (strpos($autobackup_days, 'Sun') !== false) {
           echo 'selected';
         } ?>>
-          <?php esc_html_e('Sunday', 'backupforwp-pro'); ?></option>
+          <?php esc_html_e('Sunday', 'wpdbbkp'); ?></option>
       </select>
     </div>
   </div>
   <div class="row form-group autobackup_date database_autobackup" style="display:none">
-    <label class="col-sm-3" for="autobackup_date"><?php esc_html_e('Database Backup Date', 'backupforwp-pro'); ?></label>
+    <label class="col-sm-3" for="autobackup_date"><?php esc_html_e('Database Backup Date', 'wpdbbkp'); ?></label>
     <div class="col-sm-9">
       <input type="date" id="autobackup_date" value="<?php echo esc_attr($autobackup_date); ?>"
         class="form-control bkpforwp_multiselect" name="wp_db_backup_options[autobackup_date]">
     </div>
   </div>
   <div class="row form-group autobackup_time database_autobackup" style="display:none">
-    <label class="col-sm-3" for="autobackup_time"><?php esc_html_e('Database Backup Time', 'backupforwp-pro'); ?></label>
+    <label class="col-sm-3" for="autobackup_time"><?php esc_html_e('Database Backup Time', 'wpdbbkp'); ?></label>
     <div class="col-sm-9">
       <input type="time" id="autobackup_time" value="<?php echo esc_attr($autobackup_time); ?>"
         class="form-control bkpforwp_multiselect" name="wp_db_backup_options[autobackup_time]">
@@ -200,50 +200,50 @@ function bkpforwp_full_backup_options()
   if ($senable_exact_backup_time) {
     ?>
     <div class="row form-group autobackup_full_days full_autobackup" style="display:none">
-      <label class="col-sm-3" for="autobackup_full_days"><?php esc_html_e('Full Backup Days', 'backupforwp-pro'); ?></label>
+      <label class="col-sm-3" for="autobackup_full_days"><?php esc_html_e('Full Backup Days', 'wpdbbkp'); ?></label>
       <div class="col-sm-9">
         <select id="autobackup_full_days" class="form-control bkpforwp_multiselect"
           name="wp_db_backup_options[autobackup_full_days][]" multiple>
           <option value="Mon" <?php if (strpos($autobackup_days, 'Mon') !== false) {
             echo 'selected';
           } ?>>
-            <?php esc_html_e('Monday', 'backupforwp-pro'); ?></option>
+            <?php esc_html_e('Monday', 'wpdbbkp'); ?></option>
           <option value="Tue" <?php if (strpos($autobackup_days, 'Tue') !== false) {
             echo 'selected';
           } ?>>
-            <?php esc_html_e('Tuesday', 'backupforwp-pro'); ?></option>
+            <?php esc_html_e('Tuesday', 'wpdbbkp'); ?></option>
           <option value="Wed" <?php if (strpos($autobackup_days, 'Wed') !== false) {
             echo 'selected';
           } ?>>
-            <?php esc_html_e('Wednesday', 'backupforwp-pro'); ?></option>
+            <?php esc_html_e('Wednesday', 'wpdbbkp'); ?></option>
           <option value="Thu" <?php if (strpos($autobackup_days, 'Thu') !== false) {
             echo 'selected';
           } ?>>
-            <?php esc_html_e('Thursday', 'backupforwp-pro'); ?></option>
+            <?php esc_html_e('Thursday', 'wpdbbkp'); ?></option>
           <option value="Fri" <?php if (strpos($autobackup_days, 'Fri') !== false) {
             echo 'selected';
           } ?>>
-            <?php esc_html_e('Friday', 'backupforwp-pro'); ?></option>
+            <?php esc_html_e('Friday', 'wpdbbkp'); ?></option>
           <option value="Sat" <?php if (strpos($autobackup_days, 'Sat') !== false) {
             echo 'selected';
           } ?>>
-            <?php esc_html_e('Saturday', 'backupforwp-pro'); ?></option>
+            <?php esc_html_e('Saturday', 'wpdbbkp'); ?></option>
           <option value="Sun" <?php if (strpos($autobackup_days, 'Sun') !== false) {
             echo 'selected';
           } ?>>
-            <?php esc_html_e('Sunday', 'backupforwp-pro'); ?></option>
+            <?php esc_html_e('Sunday', 'wpdbbkp'); ?></option>
         </select>
       </div>
     </div>
     <div class="row form-group autobackup_full_date full_autobackup" style="display:none">
-      <label class="col-sm-3" for="autobackup_full_date"><?php esc_html_e('Full Backup Date', 'backupforwp-pro'); ?></label>
+      <label class="col-sm-3" for="autobackup_full_date"><?php esc_html_e('Full Backup Date', 'wpdbbkp'); ?></label>
       <div class="col-sm-9">
         <input type="date" id="autobackup_full_date" value="<?php echo esc_attr($autobackup_date); ?>" class="form-control"
           name="wp_db_backup_options[autobackup_full_date]">
       </div>
     </div>
     <div class="row form-group autobackup_full_time full_autobackup" style="display:none">
-      <label class="col-sm-3" for="autobackup_full_time"><?php esc_html_e('Full Backup Time', 'backupforwp-pro'); ?></label>
+      <label class="col-sm-3" for="autobackup_full_time"><?php esc_html_e('Full Backup Time', 'wpdbbkp'); ?></label>
       <div class="col-sm-9">
         <input type="time" id="autobackup_full_time" value="<?php echo esc_attr($autobackup_time); ?>" class="form-control"
           name="wp_db_backup_options[autobackup_full_time]">

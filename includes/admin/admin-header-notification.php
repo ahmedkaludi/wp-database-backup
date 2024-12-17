@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
 	exit;
 } // Exit if accessed directly
 $wpdbbkp_bg_notify = get_option('wpdbbkp_dashboard_notify',false);
-if (true === isset($_GET['notification']) && true === isset($_GET['_wpnonce']) && wp_verify_nonce($_GET['_wpnonce'], 'wp-database-backup') || $wpdbbkp_bg_notify) { ?>
+if (true === isset($_GET['notification']) && true === isset($_GET['_wpnonce']) && wp_verify_nonce( wp_unslash( $_GET['_wpnonce']) , 'wp-database-backup') || $wpdbbkp_bg_notify) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce ?> 
 
 	<div class="text-center wpdbbkp_notification"><img width="50" height="50" src="<?php echo esc_url(WPDB_PLUGIN_URL. "/assets/images/success.png"); /* phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage */ ?>">
 		<h4 class="text-success"><?php if ((isset($_GET['notification']) && 'create' === $_GET['notification']) || $wpdbbkp_bg_notify=='create') {

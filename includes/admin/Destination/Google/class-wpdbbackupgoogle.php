@@ -39,7 +39,6 @@ public static function wp_db_backup_completed( &$args ) {
 
     if ( ! empty( $auth_code ) && ! empty( $client_id ) && ! empty( $client_secret ) ) {
         update_option( 'wpdbbkp_backupcron_current', 'Processing Google Backup', false );
-        set_time_limit( 0 );
 
         // Initialize the Google API client
         require_once 'google-api-php-client/src/Google_Client.php';

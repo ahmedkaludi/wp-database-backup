@@ -15,7 +15,7 @@ if ( true === isset( $_POST['wpdb_cd_s3'] ) && 'Y' === $_POST['wpdb_cd_s3'] ) {
 	if ( ! isset( $_POST['wpdbbackup_update_cd_setting'] ) ) {
 		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
-	if ( ! wp_verify_nonce( $_POST['wpdbbackup_update_cd_setting'] , 'wpdbbackup-update-cd-setting' ) ) {
+	if ( ! wp_verify_nonce( wp_unslash( $_POST['wpdbbackup_update_cd_setting'] ), 'wpdbbackup-update-cd-setting' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
 

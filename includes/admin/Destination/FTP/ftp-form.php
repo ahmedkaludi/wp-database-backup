@@ -63,7 +63,7 @@ if ( true === isset( $_POST[ $hidden_field_name3 ] ) && 'Y' === $_POST[ $hidden_
 	if ( ! isset( $_POST['wpdbbackup_update_setting'] ) ) {
 		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
-	if ( ! wp_verify_nonce( $_POST['wpdbbackup_update_setting'] , 'wpdbbackup-update-setting' ) ) {
+	if ( ! wp_verify_nonce( wp_unslash($_POST['wpdbbackup_update_setting'] ), 'wpdbbackup-update-setting' ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
 	// Read their posted value.
@@ -86,7 +86,7 @@ if ( isset( $_POST[ $hidden_field_name ] ) && 'Y' === $_POST[ $hidden_field_name
 	if ( ! isset( $_POST['wpdbbackup_update_setting'] ) ) {
 		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
-	if ( ! wp_verify_nonce(  $_POST['wpdbbackup_update_setting'] , 'wpdbbackup-update-setting' ) ) {
+	if ( ! wp_verify_nonce(  wp_unslash( $_POST['wpdbbackup_update_setting'] ), 'wpdbbackup-update-setting' ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
 	// Read their posted value.
@@ -137,7 +137,7 @@ if ( isset( $_POST[ $hidden_field_name ] ) && 'Test Connection' === $_POST[ $hid
 	if ( ! isset( $_POST['wpdbbackup_update_setting'] ) ) {
 		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
-	if ( ! wp_verify_nonce( $_POST['wpdbbackup_update_setting'] , 'wpdbbackup-update-setting' ) ) {
+	if ( ! wp_verify_nonce( wp_unslash( $_POST['wpdbbackup_update_setting'] ) , 'wpdbbackup-update-setting' ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
 	include plugin_dir_path( __FILE__ ) . 'test-ftp.php';

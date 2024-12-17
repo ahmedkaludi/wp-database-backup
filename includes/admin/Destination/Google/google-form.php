@@ -16,7 +16,7 @@ if ( isset( $_POST['wpdb_google_drive'] ) && 'Y' === $_POST['wpdb_google_drive']
 	if ( ! isset( $_POST['wpdbbackup_update_google_setting'] ) ) {
 		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
-	if ( ! wp_verify_nonce( $_POST['wpdbbackup_update_google_setting'] , 'wpdbbackup-update-google-setting' ) ) {
+	if ( ! wp_verify_nonce( wp_unslash( $_POST['wpdbbackup_update_google_setting'] ) , 'wpdbbackup-update-google-setting' ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
 	$client_id     = '';

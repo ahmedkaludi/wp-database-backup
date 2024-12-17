@@ -29,17 +29,9 @@ function wpdbbkp_is_plugins_page()
 function wpdbbkp_get_current_url()
 {
 
-    $link = "http";
+    global $wp;
 
-    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') {
-        $link = "https";
-    }
-
-    $link .= "://";
-    $link .= $_SERVER['HTTP_HOST'];
-    $link .= $_SERVER['REQUEST_URI'];
-
-    return $link;
+    return esc_url( home_url( $wp->request ) );
 }
 
 /**
@@ -79,16 +71,16 @@ function wpdbbkp_send_feedback()
     if (!isset($_POST['wpdbbkp_security_nonce'])) {
         return;
     }
-    if (!wp_verify_nonce($_POST['wpdbbkp_security_nonce'], 'wpdbbkp-pub-nonce')) {
+    if (!wp_verify_nonce(wp_unslash($_POST['wpdbbkp_security_nonce']), 'wpdbbkp-pub-nonce')) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
         return;
     }
 
     if (!current_user_can('manage_options')) {
         return;
     }
-
-    if (isset($_POST['data'])) {
-        parse_str($_POST['data'], $form);
+    $data = isset($_POST['data']) ? sanitize_text_field(wp_unslash($_POST['data'])) : false;
+    if ( $data ) {
+        parse_str($data, $form);
     }
 
     $text = '';
@@ -231,9 +223,9 @@ function wpdbbkp_write_file_contents($filename, $data, $append = false)
             fwrite($file, $data);
             //phpcs:ignore -- using native PHP functions for large files.
             fclose($file);
-        } else {
-            error_log("Failed to open file for writing: $filename");
-        }
+        }  else {
+            return false;
+        }   
     }
 }
 
@@ -337,11 +329,12 @@ function wpdbbkp_save_remote_token()
 {
 
     $json_response = array('status' => 'fail', 'message' => 'Something went wrong, please try again later.');
-    if (!isset($_POST['wpdbbkp_security_nonce'])) {
+    $nonce = isset($_POST['wpdbbkp_security_nonce']) ? wp_unslash($_POST['wpdbbkp_security_nonce']) : false; //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
+    if ( ! $nonce ) {
         $json_response['message'] = 'Invalid request';
         return;
     }
-    if (!wp_verify_nonce($_POST['wpdbbkp_security_nonce'], 'wpdbbkp_ajax_check_nonce')) {
+    if (!wp_verify_nonce($nonce, 'wpdbbkp_ajax_check_nonce')) {  
         $json_response['message'] = 'Invalid request';
         return;
     }
@@ -351,10 +344,10 @@ function wpdbbkp_save_remote_token()
         return;
     }
 
-    $token = isset($_POST['token']) ? wp_unslash($_POST['token']) : '';
+    $token = isset($_POST['token']) ? sanitize_text_field(wp_unslash($_POST['token'])) : '';
 
     if ($token) {
-        update_option('wpdb_clouddrive_token', sanitize_text_field($token));
+        update_option('wpdb_clouddrive_token', $token);
         update_option('wp_db_backup_destination_cd', 1);
         $json_response['status'] = 'success';
         $json_response['message'] = 'Token Saved';

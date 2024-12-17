@@ -145,13 +145,13 @@ class Wpdb_Admin {
 		// Start Fixed Vulnerability 04-08-2016 for data save in options.
 		if ( isset( $_GET['page'] ) && 'wp-database-backup' === $_GET['page'] ) {
 			if ( ! empty( $_POST ) && ! ( isset( $_POST['option_page'] ) && 'wp_db_backup_options' === $_POST['option_page'] ) ) {
-				if ( false === isset( $_REQUEST['_wpnonce'] ) || false === wp_verify_nonce( $_REQUEST['_wpnonce'] , 'wp-database-backup' ) ) {
+				if ( false === isset( $_REQUEST['_wpnonce'] ) || false === wp_verify_nonce( wp_unslash( $_REQUEST['_wpnonce'] ) , 'wp-database-backup' ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 					wp_die( esc_html__('WPDB :: Invalid Access', 'wpdbbkp' ) );
 				}
 			}
 			// End Fixed Vulnerability 22-06-2016 for prevent direct download.
 			if ( is_admin() && current_user_can( 'manage_options' ) ) {
-				if ( isset( $_REQUEST['_wpnonce'] ) && wp_verify_nonce(  $_REQUEST['_wpnonce'] , 'wp-database-backup' ) ) {
+				if ( isset( $_REQUEST['_wpnonce'] ) && wp_verify_nonce(  wp_unslash( $_REQUEST['_wpnonce'] ) , 'wp-database-backup' ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce	
 					if ( isset( $_POST['wpsetting_search'] ) ) {
 						if ( isset( $_POST['wp_db_backup_search_text'] ) ) {
 							update_option( 'wp_db_backup_search_text', sanitize_text_field( wp_unslash( $_POST['wp_db_backup_search_text'] ) ), false );
@@ -280,17 +280,17 @@ class Wpdb_Admin {
 						}
 					
 						if ( isset( $_POST['anonymization_type'] ) ) {
-						  update_option( 'bkpforwp_anonymization_type', wp_db_filter_data( sanitize_text_field( $_POST['anonymization_type'] ) ) );
+						  update_option( 'bkpforwp_anonymization_type', wp_db_filter_data( sanitize_text_field( wp_unslash( $_POST['anonymization_type'] ) ) ) );
 						  
 						}
 					
 						if ( isset( $_POST['anonymization_pass'] )) {
-						  update_option( 'bkpforwp_anonymization_pass', wp_db_filter_data( sanitize_text_field( $_POST['anonymization_pass'] ) ) );
+						  update_option( 'bkpforwp_anonymization_pass', wp_db_filter_data( sanitize_text_field( wp_unslash($_POST['anonymization_pass'] ) ) ) );
 						  
 						}
 					
 						if ( isset( $_POST['backup_encryption_pass'] )) {
-						  update_option( 'bkpforwp_backup_encryption_pass', wp_db_filter_data( sanitize_text_field( $_POST['backup_encryption_pass'] ) ) );
+						  update_option( 'bkpforwp_backup_encryption_pass', wp_db_filter_data( sanitize_text_field( wp_unslash($_POST['backup_encryption_pass'] ) ) ) );
 						  
 						}
 					  }
@@ -490,7 +490,7 @@ class Wpdb_Admin {
 								}
 
 								// End for extract zip file V.3.3.0.
-								set_time_limit( 0 );
+								set_time_limit( 0 ); // phpcs:ignore -- needed for long running process
 								ignore_user_abort(true);
 								if ('' !== trim($database_name) && '' !== trim($database_user) && '' !== trim($database_host)) {
 									$wpdb->db_connect();
@@ -544,12 +544,8 @@ class Wpdb_Admin {
 															}
 														}
 				
-												} else {
-														error_log("Failed to Open file :".esc_html($database_file));
-												}
-											} else {
-												error_log("Failed to initialize WP_Filesystem");
-											}
+												} 
+											} 
 									}
 								}
 								
@@ -988,23 +984,23 @@ class Wpdb_Admin {
 				$backup_encryption_pass = get_option('bkpforwp_encryption_pass','');
 				$enable_exact_backup_time = get_option('bkpforwp_enable_exact_backup_time',false);
 				?>
-				<div class="row form-group"><label class="col-sm-3" for="enable_anonymization"><?php esc_html_e('Data Anonymization','backupforwp-pro'); ?></label>
+				<div class="row form-group"><label class="col-sm-3" for="enable_anonymization"><?php esc_html_e('Data Anonymization','wpdbbkp'); ?></label>
 					<div class="col-sm-9"><input type="checkbox" id="enable_anonymization"
 							name="enable_anonymization" value="1" <?php checked($enable_anonymization,1,1); ?> />
 					
 						<div class="alert alert-default" role="alert">
-							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> <?php esc_html_e('Data anonymization is protecting private or sensitive information by erasing or encrypting identifiers that connect an individual to stored data.','backupforwp-pro'); ?><a href="https://backupforwp.com/" target="_blank">Learn More</a></div>
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> <?php esc_html_e('Data anonymization is protecting private or sensitive information by erasing or encrypting identifiers that connect an individual to stored data.','wpdbbkp'); ?><a href="https://backupforwp.com/" target="_blank">Learn More</a></div>
 					</div>
 					</div>
 				<div class="row form-group" id="anonymization_type_div" style="display:none">
-					<label class="col-sm-3" for="anonymization_type"><?php esc_html_e('Data Anonymization Type','backupforwp-pro'); ?> </label>
+					<label class="col-sm-3" for="anonymization_type"><?php esc_html_e('Data Anonymization Type','wpdbbkp'); ?> </label>
 					<div class="col-sm-9"><select id="anonymization_type" class="form-control"
 							name="anonymization_type">
-							<option value="masked_data" <?php selected('masked_data', $anonymization_type, true) ?>> <?php esc_html_e('Masked Data','backupforwp-pro'); ?>
+							<option value="masked_data" <?php selected('masked_data', $anonymization_type, true) ?>> <?php esc_html_e('Masked Data','wpdbbkp'); ?>
 							</option>
-							<option value="fake_data" <?php selected('fake_data', $anonymization_type, true) ?>> <?php esc_html_e('Fake Data','backupforwp-pro'); ?>
+							<option value="fake_data" <?php selected('fake_data', $anonymization_type, true) ?>> <?php esc_html_e('Fake Data','wpdbbkp'); ?>
 							</option>
-							<option value="encrypted_data" <?php selected('encrypted_data', $anonymization_type, true) ?>> <?php esc_html_e('Encrypted Data','backupforwp-pro'); ?>
+							<option value="encrypted_data" <?php selected('encrypted_data', $anonymization_type, true) ?>> <?php esc_html_e('Encrypted Data','wpdbbkp'); ?>
 							</option>
 						</select>
 						<?php echo wp_kses_post('<table class="bkpforwp-infotable">
@@ -1017,22 +1013,22 @@ class Wpdb_Admin {
 				</div>
 			
 					<div class="row form-group" id="anonymization_enc_ip" style="display:none">
-					<label class="col-sm-3" for="anonymization_pass"><?php esc_html_e('Encrypted Data','backupforwp-pro'); ?> <?php esc_html_e('Anonymization Password','backupforwp-pro'); ?></label>
+					<label class="col-sm-3" for="anonymization_pass"><?php esc_html_e('Encrypted Data','wpdbbkp'); ?> <?php esc_html_e('Anonymization Password','wpdbbkp'); ?></label>
 					<div class="col-sm-9">
 						<input type="password" name="anonymization_pass" id="anonymization_pass" class="form-control" value="<?php esc_attr($anonymization_pass);?>"> 
 						<div class="alert alert-default" role="alert">
-							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> <?php esc_html_e('Please enter the encryption password. If you lose this pass then you can not recover the encrypted data','backupforwp-pro'); ?></div>
+							<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> <?php esc_html_e('Please enter the encryption password. If you lose this pass then you can not recover the encrypted data','wpdbbkp'); ?></div>
 					</div>
 					
 				</div>
 
-				<div class="row form-group" style="display:none"><label class="col-sm-3" for="enable_backup_encryption"><?php esc_html_e('Backup File Encrpytion','backupforwp-pro'); ?></label>
+				<div class="row form-group" style="display:none"><label class="col-sm-3" for="enable_backup_encryption"><?php esc_html_e('Backup File Encrpytion','wpdbbkp'); ?></label>
 					<div class="col-sm-9"><input type="checkbox" id="enable_backup_encryption"
 							name="enable_backup_encryption" value="1" <?php checked($enable_backup_encryption,1,1); ?> /></div>
 				</div>
 
 				<div class="row form-group" id="encryption_pass_div" style="display:none">
-					<label class="col-sm-3" for="backup_encryption_pass"><?php esc_html_e('Backup Password','backupforwp-pro'); ?></label>
+					<label class="col-sm-3" for="backup_encryption_pass"><?php esc_html_e('Backup Password','wpdbbkp'); ?></label>
 					<div class="col-sm-9">
 						<input type="password" name="backup_encryption_pass" id="backup_encryption_pass" class="form-control" value="<?php esc_attr($backup_encryption_pass);?>">
 					</div>
@@ -1052,7 +1048,7 @@ if ( true === isset( $_POST['wpdb_cd_s3'] ) && 'Y' === $_POST['wpdb_cd_s3'] ) {
 	if ( ! isset( $_POST['wpdbbackup_update_cd_setting'] ) ) {
 		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
-	if ( ! wp_verify_nonce( $_POST['wpdbbackup_update_cd_setting'] , 'wpdbbackup-update-cd-setting' ) ) {
+	if ( ! wp_verify_nonce( wp_unslash( $_POST['wpdbbackup_update_cd_setting'] ) , 'wpdbbackup-update-cd-setting' ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
 
@@ -1171,7 +1167,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 						<div class="panel-heading">
 								<a class="toggle_anchor" data-toggle="collapse" data-parent="#accordion" href="#collapsedb">
 								<h4 class="panel-title">
-									<?php esc_attr_e( 'System Check', 'wpdbbk' ); ?>
+									<?php esc_attr_e( 'System Check', 'wpdbbkp' ); ?>
 									</h4>
 								</a>
 						</div>
@@ -1272,7 +1268,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 									<div class="col-md-1"><a href="" target="_blank" title="Help"><span
 												class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 									</div>
-									<div class="col-md-3"><?php esc_attr_e( 'Upload directory URL', 'wpdbbk' ); ?></div>
+									<div class="col-md-3"><?php esc_attr_e( 'Upload directory URL', 'wpdbbkp' ); ?></div>
 									<div class="col-md-5">
 									<?php
 										$upload_dir = wp_upload_dir();
@@ -1291,7 +1287,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 									<div class="col-md-1"><a href="" target="_blank" title="Help"><span
 												class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 									</div>
-									<div class="col-md-3"><?php esc_attr_e( 'Upload directory', 'wpdbbk' ); ?></div>
+									<div class="col-md-3"><?php esc_attr_e( 'Upload directory', 'wpdbbkp' ); ?></div>
 									<div class="col-md-5"><?php echo esc_attr( $upload_dir['basedir'] ); ?></div>
 									<div class="col-md-1">
 										<?php echo esc_attr( substr( sprintf( '%o', fileperms( $upload_dir['basedir'] ) ), -4 ) ); ?></div>
@@ -1325,7 +1321,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 									<div class="col-md-1"><a href="" target="_blank" title="Help"><span
 												class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 									</div>
-									<div class="col-md-3"><?php esc_attr_e( 'Max Execution Time', 'wpdbbk' ); ?></div>
+									<div class="col-md-3"><?php esc_attr_e( 'Max Execution Time', 'wpdbbkp' ); ?></div>
 									<div class="col-md-5"> <?php echo esc_attr( ini_get( 'max_execution_time' ) ); ?></div>
 									<div class="col-md-1"></div>
 									<div
@@ -1335,7 +1331,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 									<div class="col-md-1"><a href="" target="_blank" title="Help"><span
 												class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 									</div>
-									<div class="col-md-3"><?php esc_attr_e( 'Database backup directory', 'wpdbbk' ); ?></div>
+									<div class="col-md-3"><?php esc_attr_e( 'Database backup directory', 'wpdbbkp' ); ?></div>
 									<div
 										class="col-md-5"> <?php echo esc_attr( $upload_dir['basedir'] . '/db-backup' ); ?></div>
 									<div
@@ -1348,7 +1344,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 									<div class="col-md-1"><a href="" target="_blank" title="Help"><span
 												class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 									</div>
-									<div class="col-md-3"><?php esc_attr_e( 'Class ZipArchive Present : ', 'wpdbbk' ); ?></div>
+									<div class="col-md-3"><?php esc_attr_e( 'Class ZipArchive Present : ', 'wpdbbkp' ); ?></div>
 									<div class="col-md-5"> 
 									<?php
 										echo ( class_exists( 'ZipArchive' ) ) ? 'Yes </p>' : '<p class="">No</p>';
@@ -1361,7 +1357,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 									<div class="col-md-1"><a href="" target="_blank" title="Help"><span
 												class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 									</div>
-									<div class="col-md-3"><?php esc_attr_e( 'mysqldump (cmd) Present : ', 'wpdbbk' ); ?></div>
+									<div class="col-md-3"><?php esc_attr_e( 'mysqldump (cmd) Present : ', 'wpdbbkp' ); ?></div>
 									<div class="col-md-5"> 
 									<?php
 										$wpdb_admin = new Wpdb_Admin();
@@ -1806,7 +1802,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 								<br>
 								<div class="input-group">
 									<span class="input-group-addon" id="wp_db_backup_search_text"><?php echo esc_html__('Search For', 'wpdbbkp') ?></span>
-									<input type="text" name="wp_db_backup_search_text" value="<?php echo esc_html( $wp_db_backup_search_text ); ?>" class="form-control" placeholder="<?php esc_attr_e('https://localhost/wordpress','wpdbbkp'); //phpcs:ignore ?>" aria-describedby="wp_db_backup_search_text">
+									<input type="text" name="wp_db_backup_search_text" value="<?php echo esc_html( $wp_db_backup_search_text ); ?>" class="form-control" placeholder="<?php esc_attr_e('https://example.com/wordpress','wpdbbkp'); ?>" aria-describedby="wp_db_backup_search_text">
 
 								</div>
 								<br>
@@ -1821,7 +1817,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 									<?php echo esc_html__("Leave blank those fields if you don't want use this feature and want only regular Database backup.", 'wpdbbkp') ?>
 									<br>
 									<?php echo esc_html__('Ex:', 'wpdbbkp') ?>
-									<br><?php echo esc_html__('Search For:', 'wpdbbkp') ?> <?php echo esc_url('http://localhost/wordpress/', 'wpdbbkp'); //phpcs:ignore ?>
+									<br><?php echo esc_html__('Search For:', 'wpdbbkp') ?> <?php echo esc_url('http://example.com/wordpress/', 'wpdbbkp'); ?>
 									<br><?php echo esc_html__('Replace With:', 'wpdbbkp') ?> <?php echo esc_url('http://domain.com/', 'wpdbbkp') ?>
 
 									<br><br>
@@ -2399,7 +2395,6 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 		WP_Filesystem();
 
 		if(!$wp_filesystem){
-			error_log('Could not initialize WP_Filesystem');
 			return false;
 		}
 
@@ -2605,7 +2600,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 			return false;
 		}
 
-		set_time_limit( 0 );
+		set_time_limit( 0 ); //phpcs:ignore -- increase time limit for backup process.
 		ignore_user_abort(true);
 
 		$details = $this->wp_db_backup_create_archive();
@@ -2918,7 +2913,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 			if ( ! isset( $_POST['wpdbbkp_security_nonce'] ) ){
 			   return; 
 			}
-			if ( !wp_verify_nonce( $_POST['wpdbbkp_security_nonce'], 'wpdbbkp-admin-nonce' ) ){
+			if ( !wp_verify_nonce( 	wp_unslash($_POST['wpdbbkp_security_nonce']), 'wpdbbkp-admin-nonce' ) ){ // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- used as nonce
 			   return;  
 			}
 
@@ -2926,8 +2921,8 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 				return;
 			 }
 			   
-			$message        = $this->wpdbbkp_sanitize_textarea_field($_POST['message']); 
-			$email          = $this->wpdbbkp_sanitize_textarea_field($_POST['email']);   
+			$message        = isset($_POST['message']) ? $this->wpdbbkp_sanitize_textarea_field(wp_unslash($_POST['message'])) : ''; //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized using custom function
+			$email          = isset($_POST['email']) ? $this->wpdbbkp_sanitize_textarea_field(wp_unslash($_POST['email'])) : ''; //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized using custom function  
 									
 			if(function_exists('wp_get_current_user')){
 		
@@ -2968,7 +2963,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 		}
 		public function add_settings_plugin_action_wp( $actions, $plugin_file, $plugin_data, $context ) {
 			$plugin_actions['settings'] = sprintf(
-			  '<a href="%s">' . _x( 'Settings', 'wpdbbkp' ) . '</a>',
+			  '<a href="%s">' . _x( 'Settings', 'Content translation' ,'wpdbbkp' ) . '</a>',
 			  admin_url( 'options-general.php?page=wp-database-backup' )
 			);
 			$actions = array_merge( $actions, $plugin_actions );
@@ -3076,10 +3071,9 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 
 	        // Zip up $this->root without excludes
 	        else {
-	          //  error_log('without exclude rule');
+	    
 	            $stderr = shell_exec('cd ' . escapeshellarg($this->get_root()) . ' && ' . escapeshellcmd($this->get_zip_command_path()) . ' -rq ' . escapeshellarg($WPDBFileName) . ' ./' . ' 2>&1');
 	        }
-	        error_log($stderr);
 	        if (!empty($stderr))
 	            $this->warning($this->get_archive_method(), $stderr);
 
@@ -3356,7 +3350,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 			}
 		
 			// Verify the nonce
-			if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'wpdbbkp_cloudbackup_notice_dismissed' ) ) {
+			if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( wp_unslash( $_POST['nonce'] ), 'wpdbbkp_cloudbackup_notice_dismissed' ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 				wp_die( esc_html__( 'Invalid nonce', 'wpdbbkp' ), '', [ 'response' => 403 ] );
 			}
 
@@ -3371,10 +3365,10 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 			}
 		
 			// Check for a specific query parameter, e.g., ?download_backup=filename.zip
-			if ( isset( $_GET['wpdbbkp_download'] ) && ! empty( $_GET['wpdbbkp_download'] ) ) {
+			if ( isset( $_GET['wpdbbkp_download'] ) && ! empty( $_GET['wpdbbkp_download'] ) ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no form submission
 				$path_info = wp_upload_dir();
 				$backup_dir = $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/';
-				$file_name  = basename( sanitize_text_field( $_GET['wpdbbkp_download'] ) );
+				$file_name  = basename( sanitize_text_field( wp_unslash( $_GET['wpdbbkp_download'] ) ) ); //phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no form submission
 				$file_path  = trailingslashit( $backup_dir ) . $file_name;
 
 		
@@ -3385,10 +3379,10 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 					header( 'Content-Type: application/octet-stream' );
 					header( 'Content-Disposition: attachment; filename="' . $file_name . '"' );
 					header( 'Content-Length: ' . filesize( $file_path ) );
-					readfile( $file_path );
+					readfile( $file_path ); //phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- readfile is used to read the file with buffer
 					exit;
 				} else {
-					wp_die( esc_html__( 'Backup file not found.', 'text-domain' ) );
+					wp_die( esc_html__( 'Backup file not found.', 'wpdbbkp' ) );
 				}
 			}
 		}

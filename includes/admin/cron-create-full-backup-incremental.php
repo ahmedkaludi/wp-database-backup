@@ -92,12 +92,12 @@ function wp_db_fullbackup_add_cron_schedules($schedules){
     if(!isset($schedules["ten_minutes"])){
         $schedules["ten_minutes"] = array(
             'interval' => 10*60,
-            'display' => __('Once every 10 minutes'));
+            'display' => __('Once every 10 minutes','wpdbbkp'));
     }
 	if(!isset($schedules["thirty_minutes"])){
         $schedules["thirty_minutes"] = array(
             'interval' => 30*60,
-            'display' => __('Once every 30 minutes'));
+            'display' => __('Once every 30 minutes' , 'wpdbbkp'));
     }
     return $schedules;
 }
@@ -162,7 +162,7 @@ add_action('wp_ajax_wpdbbkp_check_fullbackup_stat', 'wpdbbkp_check_fullbackup_st
 
 function wpdbbkp_check_fullbackup_stat(){
 	$wpdbbkp_fullbackup_stat=['status'=>esc_html__('inactive','wpdbbkp')];
-	if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce')){
+	if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce(wp_unslash($_POST['wpdbbkp_admin_security_nonce']), 'wpdbbkp_ajax_check_nonce')){ //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 	 $stat=get_option('wpdbbkp_backupcron_status',false);
 	 if($stat=='active'){
 		$wpdbbkp_fullbackup_stat['status']=esc_html__('active','wpdbbkp'); 
@@ -182,7 +182,7 @@ add_action('wp_ajax_wpdbbkp_start_cron_manual', 'wpdbbkp_start_cron_manual');
 
 function wpdbbkp_start_cron_manual(){
 	$wpdbbkp_cron_manual=['status'=>esc_html('fail'),'msg'=>esc_html__('Invalid Action','wpdbbkp')];
-	if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce')){
+	if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce(wp_unslash( $_POST['wpdbbkp_admin_security_nonce'] ), 'wpdbbkp_ajax_check_nonce')){ //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 	$wpdbbkp_cron_manual=['status'=>esc_html('success'),'msg'=>esc_html__('Cron Started','wpdbbkp')];
 	$token=wpdbbkp_token_gen();
 	update_option('wpdbbkp_api_token',$token, false);
@@ -216,7 +216,7 @@ function wpdbbkp_start_cron_manual(){
 add_action('wp_ajax_wpdbbkp_get_progress', 'wpdbbkp_get_progress');
 function wpdbbkp_get_progress(){
 	$wpdbbkp_progress=['status'=>esc_html('fail'),'msg'=>esc_html__('Unable to track progress, try reloading the page','wpdbbkp')];
-	if(isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce') && current_user_can( 'manage_options' )){
+	if(isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce(wp_unslash( $_POST['wpdbbkp_admin_security_nonce'] ), 'wpdbbkp_ajax_check_nonce') && current_user_can( 'manage_options' )){ //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 		$wpdbbkp_progress['backupcron_status']=esc_html(get_option('wpdbbkp_backupcron_status',false));
 		$wpdbbkp_progress['backupcron_step']=esc_html(get_option('wpdbbkp_backupcron_step',false));
 		$wpdbbkp_progress['backupcron_current']=esc_html(get_option('wpdbbkp_backupcron_current',false));
@@ -245,7 +245,7 @@ function wpdbbkp_get_progress(){
 			wp_die();
 		}
 	    ignore_user_abort(true);
-		set_time_limit(0);
+		set_time_limit(0); // phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- Need to run in background
 		$progress = 0.00;
 	    set_transient('wpdbbkp_backup_status','active',600);
 		update_option('wpdbbkp_backupcron_status','active', false);
@@ -428,7 +428,7 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 					if ( ! empty( $wp_db_exclude_table ) && in_array( $table, $wp_db_exclude_table ) ) {
 						continue;
 					}
-
+					//phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- We are just fetching the data for backup purpose
 					$row2 = $wpdb->get_row( "SHOW CREATE TABLE `{$table}`", ARRAY_N );
 					if ( $row2 ) {
 						$create_table_sql .= "\n\n" . $row2[1] . ";\n\n";
@@ -465,11 +465,13 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 				if ( empty( $wp_db_exclude_table ) || ! in_array( $table, $wp_db_exclude_table ) ) {
 					$sub_limit  = 500;
 					$table      = esc_sql( $table );
+					//phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Need to fetch data from custom tables
 					$check_count = intval( $wpdb->get_var( "SELECT COUNT(*) FROM `{$table}`" ) );
 
 					$offset = isset( $args['offset'] ) ? intval( $args['offset'] ) : 0;
 
 					while ( $offset < $check_count ) {
+						//phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Need to fetch data from custom tables
 						$sub_result = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM `{$table}` LIMIT %d OFFSET %d", $sub_limit, $offset ), ARRAY_A );
 
 						if ( false === $sub_result ) {
@@ -954,7 +956,7 @@ function backup_files_cron_with_resume($bypass = false){
 	}
 	
 	ignore_user_abort(true);
-	set_time_limit(0);
+	set_time_limit(0); //phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged
 
 	$root_path = ABSPATH;
 	// exclude directories
@@ -1067,7 +1069,7 @@ function backup_files_cron_with_resume($bypass = false){
 
  function wpdbbkp_stop_cron_manual(){
 	 $wpdbbkp_cron_manual=['status'=>esc_html('fail'),'msg'=>esc_html__('Invalid Action','wpdbbkp')];
-	 if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce')){
+	 if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce(wp_unslash( $_POST['wpdbbkp_admin_security_nonce']), 'wpdbbkp_ajax_check_nonce')){ //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		update_option('wpdbbkp_force_stop',true, false);
 		update_option('wpdbbkp_backupcron_status','inactive',false);
 		update_option('wpdbbkp_backupcron_step','Initialization',false);

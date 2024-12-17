@@ -32,9 +32,6 @@ class Wpdbbkp_Restore {
                 if($id && isset($options[$id]['type']) && isset($options[$id]['dir'])){
                         $this->type = $options[$id]['type'];
                         $this->path = $options[$id]['dir'];
-                        error_log("Restore Backup");
-                        error_log($this->type);   
-                        error_log($this->path);   
                         $this->restore();
                 } 
                
@@ -59,7 +56,6 @@ class Wpdbbkp_Restore {
         }
 
         public function restore_complete() {
-                error_log("Inside restore_complete");
                 $filename = basename( $this->path, '.zip' ) . '.sql';
                 $file_path = ABSPATH . $filename;
 
@@ -95,10 +91,10 @@ class Wpdbbkp_Restore {
                 $database_password = $this->wp_backup_get_config_data('DB_PASSWORD');
                 $database_host = $this->wp_backup_get_config_data('DB_HOST');
             
-                ini_set("max_execution_time", "5000");
-                ini_set("max_input_time", "5000");
-                ini_set('memory_limit', '1000M');
-                set_time_limit(0);
+                ini_set("max_execution_time", "5000"); //phpcs:ignore --Make sure the restore script doesn't timeout
+                ini_set("max_input_time", "5000"); //phpcs:ignore --Make sure the restore script doesn't timeout
+                ini_set('memory_limit', '1000M'); //phpcs:ignore --Make sure the restore script doesn't timeout
+                set_time_limit(0); //phpcs:ignore  --Make sure the restore script doesn't timeout
                 ignore_user_abort(true);
             
                 if ('' !== trim($database_name) && '' !== trim($database_user) && '' !== trim($database_host)) {
@@ -155,12 +151,8 @@ class Wpdbbkp_Restore {
                                             }
                                         }
 
-                                } else {
-                                        error_log("Failed to Open file :".esc_html($database_file));
-                                }
-                            } else {
-                                error_log("Failed to initialize WP_Filesystem");
-                            }
+                                } 
+                            } 
                     }
                 }
             
@@ -169,7 +161,6 @@ class Wpdbbkp_Restore {
             
 
         public function restore_files( $file = null ) {
-                error_log("Inside restore_files");
                 if ( ! $file){
                         $archive = new PclZip( $this->path );
                 }

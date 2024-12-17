@@ -1,4 +1,5 @@
-<?php // phpcs:ignore
+<?php
+// phpcs:ignoreFile -- Reason: Thirdparty Library
 /**
 * $Id$
 *

@@ -16,7 +16,7 @@ if(!$unsub_token){
 $message = '<div bgcolor="#e3e3e3" style="font-family:Arial;color:#707070;font-size:12px;background-color:#e3e3e3;margin:0;padding:0px">
 <div align="center" style="font-family:Arial;width:600px;background-color:#ffffff;margin:0 auto;padding:0px">
     <div style="font-family:Arial;border-bottom-color:#cccccc;border-bottom-width:1px;border-bottom-style:solid;background-color:#eee;margin:0px;padding:4px">
-       <a href="https://backupforwp.com/"><img src="'. esc_url( WPDB_PLUGIN_URL.'/assets/images/wp-database-backup.png') .'" alt="Backup for WP" /></a>
+       <a href="https://backupforwp.com/"><img src="'. esc_url( WPDB_PLUGIN_URL.'/assets/images/wp-database-backup.png') /* phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage */ .'" alt="Backup for WP" /></a>
     </div>
 
     <div align="left" style="font-family:Arial;text-align:left;margin:0px;padding:10px">

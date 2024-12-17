@@ -69,7 +69,7 @@ public static function upload_backup_to_clouddrive($file_path, $file_name) {
 
     $headers = array(
         'Authorization' => $upload_auth_token,
-        'domain'=> $_SERVER['HTTP_HOST'],
+        'domain'=> parse_url(get_site_url(), PHP_URL_HOST),
         'Content-Type' => 'multipart/form-data; boundary=' . $boundary,
     );
 

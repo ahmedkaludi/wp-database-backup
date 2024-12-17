@@ -1,3 +1,12 @@
+= 7.4 =
+* 17-12-2024
+* Improvement: Improve UX #97
+* Improvement: Modify the UI of the "Access your Data" button under the Cloud Backup section #105
+* Improvement: Change tag on wordpress plugin page #107
+* Improvement: Code Improvement Part 3 #108
+* Security Fix: Unauthenticated BackUp Exposure disclosed by Noah Stead (TurtleBurg)
+* Test: Tested upto WP 6.7
+
 = 7.3 =
 * 26-09-2024
 * Improvement: DB Incremental Backup improvements.

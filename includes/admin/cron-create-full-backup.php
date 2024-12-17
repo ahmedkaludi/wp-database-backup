@@ -46,12 +46,12 @@ function wp_db_fullbackup_add_cron_schedules($schedules){
     if(!isset($schedules["ten_minutes"])){
         $schedules["ten_minutes"] = array(
             'interval' => 10*60,
-            'display' => __('Once every 10 minutes'));
+            'display' => __('Once every 10 minutes', 'wpdbkup'));
     }
 	if(!isset($schedules["thirty_minutes"])){
         $schedules["thirty_minutes"] = array(
             'interval' => 30*60,
-            'display' => __('Once every 30 minutes'));
+            'display' => __('Once every 30 minutes', 'wpdbkup'));
     }
     return $schedules;
 }
@@ -99,7 +99,7 @@ add_action('wp_ajax_wpdbbkp_check_fullbackup_stat', 'wpdbbkp_check_fullbackup_st
 
 function wpdbbkp_check_fullbackup_stat(){
 	$wpdbbkp_fullbackup_stat=['status'=>'inactive'];
-	if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce')){
+	if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce(wp_unslash($_POST['wpdbbkp_admin_security_nonce']), 'wpdbbkp_ajax_check_nonce')){ //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 	 $stat=get_option('wpdbbkp_backupcron_status',false);
 	 if($stat=='active'){
 		$wpdbbkp_fullbackup_stat['status']='active'; 
@@ -119,7 +119,7 @@ add_action('wp_ajax_wpdbbkp_start_cron_manual', 'wpdbbkp_start_cron_manual');
 
 function wpdbbkp_start_cron_manual(){
 	$wpdbbkp_cron_manual=['status'=>'fail','msg'=>esc_html__('Invalid Action','wpdbbkp')];
-	if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce')){
+	if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce(wp_unslash( $_POST['wpdbbkp_admin_security_nonce']), 'wpdbbkp_ajax_check_nonce')){ //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 	$wpdbbkp_cron_manual=['status'=>'success','msg'=>esc_html__('Cron Started','wpdbbkp')];
 	$token=wpdbbkp_token_gen();
 	update_option('wpdbbkp_api_token',$token, false);
@@ -152,7 +152,7 @@ function wpdbbkp_start_cron_manual(){
 add_action('wp_ajax_wpdbbkp_get_progress', 'wpdbbkp_get_progress');
 function wpdbbkp_get_progress(){
 	$wpdbbkp_progress=['status'=>'fail','msg'=>esc_html__('Unable to track progress, try reloading the page','wpdbbkp')];
-	if(isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce') && current_user_can( 'manage_options' )){
+	if(isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce(wp_unslash( $_POST['wpdbbkp_admin_security_nonce'] ), 'wpdbbkp_ajax_check_nonce') && current_user_can( 'manage_options' )){ //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 		$wpdbbkp_progress['backupcron_status']=esc_html(get_option('wpdbbkp_backupcron_status',false));
 		$wpdbbkp_progress['backupcron_step']=esc_html(get_option('wpdbbkp_backupcron_step',false));
 		$wpdbbkp_progress['backupcron_current']=esc_html(get_option('wpdbbkp_backupcron_current',false));
@@ -182,7 +182,7 @@ function wpdbbkp_get_progress(){
 			wp_die();
 		}
 	    ignore_user_abort(true);
-		set_time_limit(0);
+		set_time_limit(0); //phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- need to set time limit for cron
 		$progress = 0.00;
 	    set_transient('wpdbbkp_backup_status','active',600);
 		update_option('wpdbbkp_backupcron_status','active', false);
@@ -259,9 +259,6 @@ function wpdbbkp_get_progress(){
 				update_option('wpdbbkp_current_chunk_args',$common_args, false);
 				wpdbbkp_backup_files_cron_with_resume();
 			}
-			else{
-				error_log('No files were found to backup');
-			}
 		}
 		else{
 			update_option('wpdbbkp_backupcron_step','Creating Backup', false);
@@ -291,17 +288,18 @@ if(!function_exists('wpdbbkp_wp_cron_config_path')){
 			wpdbbkp_write_file_contents($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/index.php','');
 	        //added htaccess file 08-05-2015 for prevent directory listing
 	        //Fixed Vulnerability 22-06-2016 for prevent direct download
-	        $htaccess_content = "#These next two lines will already exist in your .htaccess file
-			RewriteEngine On
-			RewriteBase /
-			# Add these lines right after the preceding two
-			RewriteCond %{REQUEST_FILENAME} ^.*(.zip)$
-			RewriteCond %{HTTP_COOKIE} !^.*can_download.*$ [NC]
-			RewriteRule . - [R=403,L]";
+	        $htaccess_content = "# Disable public access to this folder
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    Deny from all
+</IfModule>";
 			wpdbbkp_write_file_contents($path_info['basedir']  . '/' . WPDB_BACKUPS_DIR . '/.htaccess',$htaccess_content);
 
 	        $siteName = preg_replace('/[^\p{L}\p{M}]+/u', '_', get_bloginfo('name')); //added in v2.1 for Backup zip labeled with the site name(Help when backing up multiple sites).
-	        $FileName = $siteName . '_' . gmdate("Y_m_d") . '_' . Time() .'_'. substr(md5(AUTH_KEY), 0, 7).'_wpall';
+	        $FileName = $siteName . '_' . gmdate("Y_m_d") . '_' . Time() .'_'. substr(md5(wp_rand(100,9999999)), 0, 9).'_wpall';
 	        $WPDBFileName = $FileName . '.zip';
 	        $wp_all_backup_type = get_option('wp_db_backup_backup_type');
 	        $logFile = $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/' . $FileName . '.txt';
@@ -745,7 +743,10 @@ if(!function_exists('wpdbbkp_cron_execute_file_backup_else')){
 		            // Create the archive
 		            $v_list = $archive->create($v_dir, PCLZIP_OPT_REMOVE_PATH, $v_remove);
 		            if ($v_list == 0) {
-		                error_log("ERROR : '" . $archive->errorInfo(true) . "'");
+						// if debug is enabled in WordPress
+						if (defined('WP_DEBUG') && WP_DEBUG) {
+		                	error_log("ERROR : '" . $archive->errorInfo(true) . "'"); //phpcs:ignore -- error will be logged only in debug mode
+						}
 		            }
 		        } else {
 		            $v_dir = $wpdbbkp_admin_class_obj->wp_db_backup_wp_config_path();
@@ -754,7 +755,9 @@ if(!function_exists('wpdbbkp_cron_execute_file_backup_else')){
 					update_option('wpdbbkp_backupcron_current','Backing up files', false);
 		            $v_list = $archive->create($v_dir, PCLZIP_OPT_REMOVE_PATH, $v_remove);
 		            if ($v_list == 0) {
-		                error_log("Error : " . $archive->errorInfo(true));
+						if (defined('WP_DEBUG') && WP_DEBUG) {
+		               	 error_log("Error : " . $archive->errorInfo(true)); //phpcs:ignore -- error will be logged only in debug mode
+						}
 		            }
 		        }
 		        $update_backup_info = $wpdbbkp_admin_class_obj->wpdbbkp_update_backup_info($FileName, $logFile, $logMessage);
@@ -966,7 +969,7 @@ function wpdbbkp_backup_files_cron_with_resume(){
 		return false;
 	}
 	ignore_user_abort(true);
-	set_time_limit(0);
+	set_time_limit(0); //phpcs:ignore Squiz.PHP.DiscouragedFunctions.Discouraged -- set_time_limit is required here to process the backup
 	
 	$total_chunk 	= get_option( 'wpdbbkp_total_chunk_cnt',false );
 	$current_chunk  = get_option( 'wpdbbkp_current_chunk_cnt',0 );
@@ -1013,7 +1016,7 @@ function wpdbbkp_backup_files_cron_with_resume(){
 
  function wpdbbkp_stop_cron_manual(){
 	 $wpdbbkp_cron_manual=['status'=>'fail','msg'=>esc_html__('Invalid Action','wpdbbkp')];
-	 if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce($_POST['wpdbbkp_admin_security_nonce'], 'wpdbbkp_ajax_check_nonce')){
+	 if(current_user_can('manage_options') && isset($_POST['wpdbbkp_admin_security_nonce']) && wp_verify_nonce(wp_unslash( $_POST['wpdbbkp_admin_security_nonce'] ) , 'wpdbbkp_ajax_check_nonce')){ //phpcs:ignore -- nonce verification
 		update_option('wpdbbkp_backupcron_status','inactive',false);
 		update_option('wpdbbkp_backupcron_step','Initialization',false);
 		update_option('wpdbbkp_backupcron_current','Fetching Config',false);

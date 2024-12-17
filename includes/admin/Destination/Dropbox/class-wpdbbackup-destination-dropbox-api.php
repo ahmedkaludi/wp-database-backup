@@ -1,4 +1,5 @@
-<?php // phpcs:ignore
+<?php
+//phpcs:ignoreFile -- Thirdparty code.
 /**
  * Class for communicating with Dropbox API V2.
  *

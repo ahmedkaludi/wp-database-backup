@@ -25,7 +25,7 @@ if ( isset( $_GET['action'] ) && 'deleteauth' === $_GET['action'] ) {
 
 $dropbox          = new WPDBBackup_Destination_Dropbox_API( 'dropbox' );
 $dropbox_auth_url = $dropbox->oAuthAuthorize();
-if ( true === isset( $_POST['_wpnonce'] ) && wp_verify_nonce( $_POST['_wpnonce'] , 'wp-database-backup' ) ) {
+if ( true === isset( $_POST['_wpnonce'] ) && wp_verify_nonce( wp_unslash( $_POST['_wpnonce'] ) , 'wp-database-backup' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 	if ( isset( $_POST['wpdb_dropbbox_code'] ) && ! empty( $_POST['wpdb_dropbbox_code'] ) ) {
 		$dropboxtoken = $dropbox->oAuthToken( sanitize_text_field( wp_unslash( $_POST['wpdb_dropbbox_code'] ) ) );
 		$dropboxtoken = update_option( 'wpdb_dropboxtoken', maybe_serialize( $dropboxtoken ) , false);

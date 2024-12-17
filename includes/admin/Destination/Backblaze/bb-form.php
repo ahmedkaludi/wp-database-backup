@@ -15,7 +15,7 @@ if ( true === isset( $_POST['wpdb_bb_s3'] ) && 'Y' === $_POST['wpdb_bb_s3'] ) {
 	if ( ! isset( $_POST['wpdbbackup_update_bb_setting'] ) ) {
 		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
-	if ( ! wp_verify_nonce( $_POST['wpdbbackup_update_bb_setting'] , 'wpdbbackup-update-bb-setting' ) ) {
+	if ( ! wp_verify_nonce( wp_unslash( $_POST['wpdbbackup_update_bb_setting'] ) , 'wpdbbackup-update-bb-setting' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 		wp_die( esc_html__('Invalid form data. form request came from the somewhere else not current site!','wpdbbkp') );
 	}
 
@@ -122,7 +122,7 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 			}
 			?>
 			<p> <?php echo esc_html__('Back up WordPress to Blackblaze.', 'wpdbbkp') ?></p>
-			<p><?php echo esc_html__('Enter your Blackblaze S3 details for your offsite backup. Leave these blank for local backups OR Disable Blackblaze S3 Destination', 'wpdbbkp') ?></p>
+			<p><?php echo esc_html__('Enter your Blackblaze details for your offsite backup. Leave these blank for local backups OR Disable Blackblaze Destination', 'wpdbbkp') ?></p>
 			<form  class="form-group" name="Blackblazes3" method="post" action="">
 
 				<div class="row form-group">
@@ -135,7 +135,7 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 				<input type="hidden" name="wpdb_bb_s3" value="Y">
 				<input name="wpdbbackup_update_bb_setting" type="hidden" value="<?php echo esc_attr( wp_create_nonce( 'wpdbbackup-update-bb-setting' ) ); ?>" />
 				<?php wp_nonce_field( 'wp-database-backup' ); ?>
-				<div class="row form-group">
+				<div class="row form-group conditional_fields">
 					<label class="col-sm-2" for="wpdb_dest_bb_s3_bucket"><?php echo esc_html__('Bucket Endpoint', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 
@@ -143,7 +143,7 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 						<a href="https://www.backblaze.com/apidocs/introduction-to-the-s3-compatible-api" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
 					</div>
 				</div>
-				<div class="row form-group">
+				<div class="row form-group conditional_fields">
 					<label class="col-sm-2" for="wpdb_dest_bb_s3_bucket"><?php echo esc_html__('Bucket ID', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 
@@ -152,7 +152,7 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 					</div>
 				</div>
 
-				<div class="row form-group">
+				<div class="row form-group conditional_fields">
 					<label class="col-sm-2" for="wpdb_dest_bb_s3_bucket_key"><?php echo esc_html__('Key', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 						<input type="text" id="wpdb_dest_bb_s3_bucket_key" class="form-control" name="wpdb_dest_bb_s3_bucket_key" value="<?php echo esc_html( get_option( 'wpdb_dest_bb_s3_bucket_key' ) ); ?>" size="25" placeholder="<?php esc_attr_e('your access key id', 'wpdbbkp');?>">
@@ -160,7 +160,7 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 					</div>
 				</div>
 
-				<div class="row form-group">
+				<div class="row form-group conditional_fields">
 					<label class="col-sm-2" for="wpdb_dest_bb_s3_bucket_secret"><?php echo esc_html__('Secret', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
 						<input type="text" id="wpdb_dest_bb_s3_bucket_secret" class="form-control" name="wpdb_dest_bb_s3_bucket_secret" value="<?php echo esc_html( get_option( 'wpdb_dest_bb_s3_bucket_secret' ) ); ?>" size="25" placeholder="<?php esc_attr_e('your secret access key', 'wpdbbkp');?>">
@@ -168,7 +168,7 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 					</div>
 				</div>
 
-				<div class="row form-group">
+				<div class="row form-group conditional_fields">
 					<label class="col-sm-2" for="wpdb_dest_bb_s3_bucket"><?php echo esc_html__('Enable Incremental backup', 'wpdbbkp') ?></label>
 					<div class="col-sm-10">
 
@@ -182,6 +182,22 @@ if($wp_db_backup_destination_bb == 1 && !empty($wpdb_dest_bb_s3_bucket) && !empt
 				<p><input type="submit" name="Submit" class="btn btn-primary" value="<?php esc_attr_e( 'Save' , 'wpdbbkp' ); ?>" />&nbsp;
 				</p>
 			</form>
+			<script>
+				jQuery(document).ready(function(){
+					if(jQuery('#wp_db_backup_destination_bb').is(':checked')){
+						jQuery('.conditional_fields').show();
+					}else{
+						jQuery('.conditional_fields').hide();
+					}
+					jQuery('#wp_db_backup_destination_bb').change(function(){
+						if(jQuery(this).is(':checked')){
+							jQuery('.conditional_fields').show();
+						}else{
+							jQuery('.conditional_fields').hide();
+						}
+					});
+				});
+			</script>
 
 		</div>
 	</div>

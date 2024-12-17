@@ -2,11 +2,11 @@
 Contributors: databasebackup
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Tags: Database backup, db backup, cloud backup, files backup, wordpress backup.
+Tags: Database backup, backup, cloud backup, files backup, wordpress backup.
 Requires at least: 3.1+
-Tested up to: 6.6
+Tested up to: 6.7
 Requires PHP: 5.6.20
-Stable tag: 7.3
+Stable tag: 7.4
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -77,6 +77,15 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 4. screenshot-4.png
 
 == Changelog ==
+
+= 7.4 =
+* 17-12-2024
+* Improvement: Improve UX #97
+* Improvement: Modify the UI of the "Access your Data" button under the Cloud Backup section #105
+* Improvement: Change tag on wordpress plugin page #107
+* Improvement: Code Improvement Part 3 #108
+* Security Fix: Unauthenticated BackUp Exposure disclosed by Noah Stead (TurtleBurg)
+* Test: Tested upto WP 6.7
 
 = 7.3 =
 * 26-09-2024
@@ -183,10 +192,6 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 * Fixed: When we configued the email backup, then local backup is getting unconfigued. #37
 * Fixed: Escaping is missing #40
 * Fixed: Fatal error: Uncaught TypeError: ftp_quit(): Argument #1 ($ftp) must be of type FTP\Connection, bool given #41
-
-= 6.1 =
-* 21-01-2023
-* Added Feature - Added full backup files and database
 
 Full changelog available [ at changelog.txt](https://plugins.svn.wordpress.org/wp-database-backup/trunk/changelog.txt)
 

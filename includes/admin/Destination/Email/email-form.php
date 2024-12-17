@@ -18,7 +18,7 @@ if($wpdbbkp_email_enabled==1 && !empty($wpdbbkp_email_id))
 if ( isset( $_POST[ 'email_notification_submit' ] ) && 'Save Settings' === $_POST[ 'email_notification_submit' ] ) {
 
 	// This is a hidden field used to validate the form.
-	if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'wp-database-backup' ) ) {
+	if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( wp_unslash( $_POST['_wpnonce'] ), 'wp-database-backup' ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
 		return;
 	}
 	if ( isset( $_POST['wp_db_backup_destination_Email'] ) ) {
@@ -28,11 +28,11 @@ if ( isset( $_POST[ 'email_notification_submit' ] ) && 'Save Settings' === $_POS
 	}
 
 	if ( isset( $_POST['wp_db_backup_email_attachment'] ) ) {
-		update_option( 'wp_db_backup_email_attachment', sanitize_text_field($_POST['wp_db_backup_email_attachment']) , false);
+		update_option( 'wp_db_backup_email_attachment', sanitize_text_field(wp_unslash($_POST['wp_db_backup_email_attachment'])) , false);
 	} 
 
 	if ( isset( $_POST['wp_db_backup_email_id'] ) ) {
-		update_option( 'wp_db_backup_email_id', sanitize_email( $_POST['wp_db_backup_email_id'] ) , false);
+		update_option( 'wp_db_backup_email_id', sanitize_email( wp_unslash( $_POST['wp_db_backup_email_id']) ) , false);
 	} 
 
 } // end if.

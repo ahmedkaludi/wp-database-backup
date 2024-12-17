@@ -23,7 +23,7 @@ class Wpdbbkp_Newsletter {
                 if ( ! isset( $_POST['wpdbbkp_security_nonce'] ) ){
                     return; 
                 }
-                if ( !wp_verify_nonce( $_POST['wpdbbkp_security_nonce'], 'wpdbbkp_ajax_check_nonce' ) ){
+                if ( !wp_verify_nonce( wp_unslash( $_POST['wpdbbkp_security_nonce']), 'wpdbbkp_ajax_check_nonce' ) ){ //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
                    return;  
                 }
                 if( ! current_user_can( 'manage_options' ) ) { 
@@ -35,9 +35,9 @@ class Wpdbbkp_Newsletter {
                     $api_url = 'http://magazine3.company/wp-json/api/central/email/subscribe';
 
 		    $api_params = array(
-		        'name'    => sanitize_text_field($_POST['name']),
-		        'email'   => sanitize_email($_POST['email']),
-		        'website' => sanitize_text_field($_POST['website']),
+		        'name'    => isset($_POST['name']) ? sanitize_text_field(wp_unslash($_POST['name'])):'',
+		        'email'   => sanitize_email(wp_unslash($_POST['email'])),
+		        'website' => isset($_POST['website']) ? sanitize_text_field(wp_unslash($_POST['website'])) : site_url(),
 		        'type'    => 'wpdbbkp'
                     );
                     
@@ -71,7 +71,7 @@ class Wpdbbkp_Newsletter {
                 global $current_user;                
 		$tour     = array ();
                 //phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verification is not required here.
-                $tab      = isset($_GET['tab']) ? esc_attr(wp_unslash($_GET['tab'])) : '';                   
+                $tab      = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : '';                   
                 
                 if (!array_key_exists($tab, $tour)) {                
 			                                           			            	

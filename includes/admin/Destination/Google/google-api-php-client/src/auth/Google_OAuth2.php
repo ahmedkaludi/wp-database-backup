@@ -1,4 +1,5 @@
 <?php
+//phpcs:ignoreFile -- Thirdparty code.
 /*
  * Copyright 2008 Google Inc.
  *

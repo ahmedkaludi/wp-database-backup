@@ -338,7 +338,7 @@ function wpdbbkp_fix_htaccess_on_update()
 {
   static $wpdbbkp_htaccess_fix = false;
 
-  if (!$wpdbbkp_htaccess_fix && version_compare(WPDB_VERSION, '7.4', '<')) {
+  if (!$wpdbbkp_htaccess_fix && version_compare(WPDB_VERSION, '7.4', '<=')) {
     $wpdbbkp_htaccess_fix = true;
     $option_name = 'wpdbbkp_htaccess_fix';
     if (get_option($option_name, false)) {
@@ -357,7 +357,6 @@ function wpdbbkp_fix_htaccess_on_update()
     }
     // Define the .htaccess content
     $htaccess_content = "
-# BEGIN Backup Folder Protection
 # Disable public access to this folder
 <IfModule mod_authz_core.c>
     Require all denied
@@ -366,8 +365,6 @@ function wpdbbkp_fix_htaccess_on_update()
 <IfModule !mod_authz_core.c>
     Deny from all
 </IfModule>
-
-# END Backup Folder Protection
 ";
 
     $path_info = wp_upload_dir();

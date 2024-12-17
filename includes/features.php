@@ -338,7 +338,7 @@ function wpdbbkp_fix_htaccess_on_update()
 {
   static $wpdbbkp_htaccess_fix = false;
 
-  if (!$wpdbbkp_htaccess_fix && version_compare(WPDB_VERSION, '7.4', '<=')) {
+  if (!$wpdbbkp_htaccess_fix && version_compare(WPDB_VERSION, '7.4', '>=')) {
     $wpdbbkp_htaccess_fix = true;
     $option_name = 'wpdbbkp_htaccess_fix';
     if (get_option($option_name, false)) {

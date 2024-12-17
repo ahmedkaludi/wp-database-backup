@@ -311,13 +311,14 @@ if(!function_exists('wpdbbkp_wp_cron_config_path')){
 	        //added htaccess file 08-05-2015 for prevent directory listing
 	        //Fixed Vulnerability 22-06-2016 for prevent direct download
 	        //fclose(fopen($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR .'/.htaccess', $htassesText));
-			$htaccess_content = " # BEGIN Backup Folder Protection
-  <IfModule mod_rewrite.c>
-	RewriteEngine On
-	RewriteCond %{REQUEST_FILENAME} -f
-	RewriteRule ^.*$ - [F,L]
-  </IfModule>
-  # END Backup Folder Protection";
+			$htaccess_content = "# Disable public access to this folder
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    Deny from all
+</IfModule>";
 			wpdbbkp_write_file_contents($path_info['basedir']  . '/' . WPDB_BACKUPS_DIR . '/.htaccess',$htaccess_content);
 
 	        $siteName = preg_replace('/[^\p{L}\p{M}]+/u', '_', get_bloginfo('name')); //added in v2.1 for Backup zip labeled with the site name(Help when backing up multiple sites).

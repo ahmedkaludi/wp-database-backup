@@ -2409,17 +2409,17 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 
 		// Added htaccess file 08-05-2015 for prevent directory listing.
 		// Fixed Vulnerability 22-06-2016 for prevent direct download.
-		if ( 1 === (int) get_option( 'wp_db_backup_enable_htaccess' ) ) {
-				$htaccess_content = '# BEGIN Backup Folder Protection
-					<IfModule mod_rewrite.c>
-					RewriteEngine On
-					RewriteCond %{REQUEST_FILENAME} -f
-					RewriteRule ^.*$ - [F,L]
-					</IfModule>
-					# END Backup Folder Protection';
+		
+				$htaccess_content = '# Disable public access to this folder
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+
+<IfModule !mod_authz_core.c>
+    Deny from all
+</IfModule>';
 				$wp_filesystem->put_contents( $path_info['basedir'] . '/db-backup/.htaccess', $htaccess_content, FS_CHMOD_FILE );
 			
-		}
 		// Begin : Generate SQL DUMP and save to file database.sql.
 		$wp_site_name = preg_replace('/[^\p{L}\p{M}]+/u', '_', get_bloginfo('name'));
 		$wp_db_file_name = $wp_site_name . '_' . gmdate( 'Y_m_d' ) . '_' . time() . '_' . substr( md5( AUTH_KEY ), 0, 7 ) . '_wpdb';

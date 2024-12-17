@@ -358,11 +358,15 @@ function wpdbbkp_fix_htaccess_on_update()
     // Define the .htaccess content
     $htaccess_content = "
 # BEGIN Backup Folder Protection
-<IfModule mod_rewrite.c>
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^.*$ - [F,L]
+# Disable public access to this folder
+<IfModule mod_authz_core.c>
+    Require all denied
 </IfModule>
+
+<IfModule !mod_authz_core.c>
+    Deny from all
+</IfModule>
+
 # END Backup Folder Protection
 ";
 

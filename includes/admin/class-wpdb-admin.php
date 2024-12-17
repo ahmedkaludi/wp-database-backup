@@ -192,16 +192,6 @@ class Wpdb_Admin {
 							update_option( 'wp_db_backup_enable_auto_upgrade', 0 , false);
 						}
 
-						if ( isset( $_POST['wp_db_backup_enable_htaccess'] ) ) {
-							update_option( 'wp_db_backup_enable_htaccess', 1 , false);
-						} else {
-							update_option( 'wp_db_backup_enable_htaccess', 0 , false);
-							$path_info = wp_upload_dir();
-							if ( file_exists( $path_info['basedir'] . '/db-backup/.htaccess' ) ) {
-								wp_delete_file( $path_info['basedir'] . '/db-backup/.htaccess' );
-							}
-						}
-
 						if ( isset( $_POST['wp_db_exclude_table'] ) ) {
 							update_option( 'wp_db_exclude_table', $this->recursive_sanitize_text_field( wp_unslash( $_POST['wp_db_exclude_table'] ) ) , false); // phpcs:ignore
 						} else {

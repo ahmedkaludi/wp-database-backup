@@ -5,6 +5,7 @@
 * Improvement: Change tag on wordpress plugin page #107
 * Improvement: Code Improvement Part 3 #108
 * Fix: Unauthenticated BackUp Exposure disclosed by Noah Stead (TurtleBurg)
+* Test: Tested upto WP 6.7
 
 = 7.3 =
 * 26-09-2024

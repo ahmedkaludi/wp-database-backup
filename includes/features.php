@@ -356,7 +356,7 @@ function wpdbbkp_fix_htaccess_on_update()
       return;
     }
     // Define the .htaccess content
-    $htaccess_content = <<<HTACCESS
+    $htaccess_content = "
 # BEGIN Backup Folder Protection
 <IfModule mod_rewrite.c>
 RewriteEngine On
@@ -364,7 +364,7 @@ RewriteCond %{REQUEST_FILENAME} -f
 RewriteRule ^.*$ - [F,L]
 </IfModule>
 # END Backup Folder Protection
-HTACCESS;
+";
 
     $path_info = wp_upload_dir();
     $backup_folder = $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/';

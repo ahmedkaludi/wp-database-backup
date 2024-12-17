@@ -2412,7 +2412,7 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 			
 		// Begin : Generate SQL DUMP and save to file database.sql.
 		$wp_site_name = preg_replace('/[^\p{L}\p{M}]+/u', '_', get_bloginfo('name'));
-		$wp_db_file_name = $wp_site_name . '_' . gmdate( 'Y_m_d' ) . '_' . time() . '_' . substr( md5( wp_rand(100,9999999) ), 0, 7 ) . '_wpdb';
+		$wp_db_file_name = $wp_site_name . '_' . gmdate( 'Y_m_d' ) . '_' . time() . '_' . substr( md5( wp_rand(100,9999999) ), 0, 9 ) . '_wpdb';
 		$sql_filename    = $wp_db_file_name . '.sql';
 		$filename        = $wp_db_file_name . '.zip';
 		$logname        = $wp_db_file_name . '.txt';

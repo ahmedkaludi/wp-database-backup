@@ -5,8 +5,6 @@
  * @package wpdbbkp
  */
 
-// Set up variables.
-
 require __DIR__ . '/vendor/autoload.php';
 use phpseclib3\Net\SFTP;
 use phpseclib3\Crypt\PublicKeyLoader;

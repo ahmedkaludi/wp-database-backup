@@ -2,7 +2,225 @@
 
 // Anonimization code
 add_filter('wpdbbkp_process_db_fields', 'bkpforwp_anonimize_database', 10, 3);
+add_action( 'rest_api_init', 'wpdbbkp_register_api');
 
+function wpdbbkp_register_api(){
+	register_rest_route('wpdbbkp/v1', '/upload-chunk', array(
+        'methods' => 'POST',
+        'callback' => 'wpdbbkp_handle_chunk_upload',
+        'permission_callback' => '__return_true'
+    ));
+
+    register_rest_route('wpdbbkp/v1', '/finalize-upload', array(
+        'methods' => 'POST',
+        'callback' => 'wpdbbkp_finalize_upload',
+        'permission_callback' => '__return_true'
+    ));
+}
+function wpdbbkp_handle_chunk_upload(WP_REST_Request $request) {
+  $file = $request->get_file_params()['file'];
+  $chunkIndex = $request->get_param('chunkIndex');
+  $fileName = sanitize_file_name($request->get_param('fileName'));
+  
+  $upload_dir = wp_upload_dir();
+  $temp_dir = $upload_dir['basedir'] . "/wpdbbkp/temp/";
+
+  if (!file_exists($temp_dir)) {
+      mkdir($temp_dir, 0755, true);
+  }
+
+  $chunk_path = $temp_dir . $fileName . ".part" . $chunkIndex;
+  move_uploaded_file($file['tmp_name'], $chunk_path);
+
+  return rest_ensure_response(['success' => true, 'chunk' => $chunkIndex]);
+}
+function wpdbbkp_finalize_upload(WP_REST_Request $request) {
+  global $wpdb;
+  $fileName = sanitize_file_name($request->get_param('fileName'));
+  $upload_dir = wp_upload_dir();
+  $temp_dir = $upload_dir['basedir'] . "/wpdbbkp/temp/";
+  $final_path = $upload_dir['basedir'] . "/wpdbbkp/" . $fileName;
+
+  $chunks = glob($temp_dir . $fileName . ".part*");
+  if (!$chunks) {
+      return rest_ensure_response(['success' => false, 'message' => 'No chunks found']);
+  }
+
+  natsort($chunks); // Ensure correct order
+
+  $output = fopen($final_path, "wb");
+  foreach ($chunks as $chunk) {
+      $input = fopen($chunk, "rb");
+      while ($buffer = fread($input, 4096)) {
+          fwrite($output, $buffer);
+      }
+      fclose($input);
+      unlink($chunk); // Remove chunk after merging
+  }
+  fclose($output);
+  rmdir($temp_dir); // Cleanup
+  
+
+  // Source ZIP and target WordPress path
+  $sourceZip = $final_path; // Path to the WordPress ZIP file
+  
+  
+  $zip = new ZipArchive;
+  
+  if ($zip->open($sourceZip) === TRUE) {
+      // Directories for plugins and themes
+      $pluginFolder = 'wp-content/plugins/';
+      $themeFolder = 'wp-content/themes/';
+      $targetPlugins = WP_PLUGIN_DIR  . '/';
+      $targetThemes = get_theme_root().'/';
+  
+      // Plugins and themes to ignore
+      $ignorePlugins = ['wp-datbase-backup'];
+      $ignoreThemes = [];
+      $ignoreTables = ['wp_users', 'wp_usermeta'];
+      // Track plugins and themes found in the source
+      $sourcePlugins = [];
+      $sourceThemes = [];
+  
+      // Iterate through files in the ZIP
+      $sqlFileContent = '';
+      for ($i = 0; $i < $zip->numFiles; $i++) {
+          $fileName = $zip->getNameIndex($i);
+          $is_sql = false;
+          if (pathinfo($fileName, PATHINFO_EXTENSION) === 'sql') {
+            $is_sql = true;
+              // Step 3: Read the .sql file directly
+              $sqlFileContent = $zip->getFromIndex($i);
+              if(!empty($sqlFileContent)){
+                $sqlStatements = explode(';', $sqlFileContent);
+                foreach ($sqlStatements as &$statement) {
+                    $trimmedStatement = trim($statement);
+                   // Skip if the table is one of the ignored tables (wp_users, wp_usermeta)
+                    foreach ($ignoreTables as $ignoredTable) {
+                        if (stripos($trimmedStatement, 'CREATE TABLE `' . $ignoredTable . '`') !== false) {
+                            // Skip the table creation
+                            continue 2;  // Skip this iteration of the outer loop
+                        }
+                        if (stripos($trimmedStatement, 'TRUNCATE TABLE `' . $ignoredTable . '`') !== false) {
+                            // Skip truncating the table
+                            continue 2;  // Skip this iteration of the outer loop
+                        }
+                        if (stripos($trimmedStatement, 'INSERT INTO `' . $ignoredTable . '`') !== false) {
+                          // Skip INSERT INTO statements for these tables
+                          continue 2;  // Skip this iteration of the outer loop
+                        }
+                    }
+        
+                    // Check if the statement contains CREATE TABLE and modify it to IF NOT EXISTS
+                    if (stripos($statement, 'CREATE TABLE') !== false) {
+                        $tableName = '';
+                        if (preg_match('/CREATE TABLE `?(.*?)`?/i', $trimmedStatement, $matches)) {
+                            $tableName = $matches[1];
+                        }
+                        // Add the TRUNCATE TABLE statement
+                        $truncateStatement = "TRUNCATE TABLE `$tableName`;";
+                        // Adding "IF NOT EXISTS" to the CREATE TABLE statement
+                        $statement = preg_replace('/CREATE TABLE (.+?)(\()/i', 'CREATE TABLE IF NOT EXISTS $1$2', $statement). "\n" .$truncateStatement;
+                    }
+                }
+                foreach ($sqlStatements as $statement) {
+                    $trimmedStatement = trim($statement);
+        
+                    if (!empty($trimmedStatement)) {
+                        $result = $wpdb->query($trimmedStatement);
+                        if ($result === false) {
+                           // error_log("Failed to execute SQL: " . $wpdb->last_error);
+                        }
+                    }
+                }
+              }
+              
+          }
+          if($is_sql==true){
+            continue;
+          }
+          // Handle Plugins
+          if (strpos($fileName, $pluginFolder) === 0 && substr($fileName, -1) !== '/') {
+              $relativePath = substr($fileName, strlen($pluginFolder));
+              $pluginName = explode('/', $relativePath)[0];
+              $destination = $targetPlugins . $relativePath;
+  
+              // Add plugin to source list
+              $sourcePlugins[$pluginName] = true;
+  
+              // Check if plugin should be copied
+              if (!in_array($pluginName, $ignorePlugins) && !is_dir($targetPlugins . $pluginName)) {
+                  $fileContent = $zip->getFromIndex($i);
+                  wpdbbkp_ensure_dir(dirname($destination));
+                  file_put_contents($destination, $fileContent);
+              }
+          }
+  
+          // Handle Themes
+          if (strpos($fileName, $themeFolder) === 0 && substr($fileName, -1) !== '/') {
+              $relativePath = substr($fileName, strlen($themeFolder));
+              $themeName = explode('/', $relativePath)[0];
+              $destination = $targetThemes . $relativePath;
+  
+              // Add theme to source list
+              $sourceThemes[$themeName] = true;
+  
+              // Check if theme should be copied
+              if (!in_array($themeName, $ignoreThemes) && !is_dir($targetThemes . $themeName)) {
+                  $fileContent = $zip->getFromIndex($i);
+                  wpdbbkp_ensure_dir(dirname($destination));
+                  file_put_contents($destination, $fileContent);
+              }
+          }
+      }
+      
+      
+      $zip->close();
+  
+      // Remove plugins not in source
+      $existingPlugins = scandir($targetPlugins);
+      foreach ($existingPlugins as $plugin) {
+          if ($plugin !== '.' && $plugin !== '..' && is_dir($targetPlugins . $plugin)) {
+              if (!isset($sourcePlugins[$plugin]) && !in_array($plugin, $ignorePlugins)) {
+                  wpdbbkp_delete_directory($targetPlugins . $plugin);
+                 // echo "Removed plugin: $plugin\n";
+              }
+          }
+      }
+  
+      // Remove themes not in source
+      $existingThemes = scandir($targetThemes);
+      foreach ($existingThemes as $theme) {
+          if ($theme !== '.' && $theme !== '..' && is_dir($targetThemes . $theme)) {
+              if (!isset($sourceThemes[$theme]) && !in_array($theme, $ignoreThemes)) {
+                  wpdbbkp_delete_directory($targetThemes . $theme);
+                 // echo "Removed theme: $theme\n";
+              }
+          }
+      }
+  
+  }
+  return rest_ensure_response(['success' => true, 'file' => $final_path]);
+}
+// Helper function to create directories recursively
+function wpdbbkp_ensure_dir($dir)
+{
+    if (!is_dir($dir)) {
+        mkdir($dir, 0777, true);
+    }
+}
+
+// Helper function to delete directories recursively
+function wpdbbkp_delete_directory($dir)
+{
+    if (!is_dir($dir)) return;
+    $files = array_diff(scandir($dir), ['.', '..']);
+    foreach ($files as $file) {
+        $path = "$dir/$file";
+        is_dir($path) ? wpdbbkp_delete_directory($path) : unlink($path);
+    }
+    rmdir($dir);
+}
 function bkpforwp_anonimize_database($value, $table, $column)
 {
   $enable_anonymization = get_option('bkpforwp_enable_anonymization', false);

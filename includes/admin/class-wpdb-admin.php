@@ -89,6 +89,14 @@ class Wpdb_Admin {
 				'wp-database-backup#tab_db_remotebackups',
 				array($this, 'wp_db_backup_settings_page' ));
 
+			add_submenu_page(
+				'wp-database-backup',
+				'Migration',
+				'Migration',
+				'manage_options',
+				'wp-database-backup#tab_db_migrate',
+				array($this, 'wp_db_backup_settings_page' ));
+
 		add_submenu_page(
 			'wp-database-backup',
 			'Settings',
@@ -684,6 +692,7 @@ class Wpdb_Admin {
 					<ul class="nav nav-tabs wbdbbkp_has_nav">
 						<li class="active"><a href="#db_home" data-toggle="tab"><?php echo esc_html__('Backups', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_remotebackups" data-toggle="tab"><?php echo esc_html__('Cloud Backup', 'wpdbbkp') ?></a></li>
+						<li><a href="#db_migrate" data-toggle="tab"><?php echo esc_html__('Migration', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_schedul" data-toggle="tab"><?php echo esc_html__('Auto Scheduler', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_destination" data-toggle="tab"><?php echo esc_html__('Save Backups to', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_setting" data-toggle="tab"><?php echo esc_html__('Settings', 'wpdbbkp') ?></a></li>
@@ -1110,6 +1119,100 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 
 
 </div>
+<div class="tab-pane" id="db_migrate">
+	<ul class="nav nav-tabs">
+		<li class="msub-tab active" id="msub-tab-export" onclick="handleNavigateChildTab(event, 'export')" style="cursor:pointer">
+			<a href="#" data-toggle="tab"><?php echo esc_html__('Export', 'wpdbbkp') ?></a>
+		</li>
+		<li class="msub-tab" id="msub-tab-import" onclick="handleNavigateChildTab(event, 'import')" style="cursor:pointer">
+			<a href="#" data-toggle="tab"><?php echo esc_html__('Import', 'wpdbbkp') ?></a>
+		</li>
+	</ul>
+	<?php
+		$nonce                     = wp_create_nonce( 'wp-database-backup' );
+		$wp_db_backup_search_text  = get_option( 'wp_db_backup_search_text' );
+		$wp_db_backup_replace_text = get_option( 'wp_db_backup_replace_text' );
+	?>
+	<div class="msub-tab-block" id="msub-tab-block-export" style="padding:20px;">
+		<div style="width: 500px;border: 5px dotted #204d74;margin: 0 auto;padding: 20px;border-radius: 10px;
+text-align: center;">
+	<?php
+		$wpdbbkp_export_notify = get_option('wpdbbkp_export_notify',false);
+		if($wpdbbkp_export_notify==false){
+		?>
+			<a href="#" id="wpdbbkp-create-full-export" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> <?=esc_html__('Start Export', 'wpdbbkp')?></a>
+		<?php }?>
+		<div id="wpdb-export-process" style="display:none">
+			<div class="text-center"><img width="50" height="50" src="<?php echo esc_url(WPDB_PLUGIN_URL . "/assets/images/icon_loading.gif"); /* phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage */ ?>">
+				<h5 class="text-success"><strong><?php echo esc_html__('Import process is working in background, it may take some time depending on size of your
+						website. You can close this tab if you want', 'wpdbbkp') ?></strong></h5>
+				<div class="progress">
+					<div id="wpdbbkp_export_progressbar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+						style="width:0%">
+						0%
+					</div>
+				</div>
+				<h4 class="text-success" id="wpdbbkup_export_process_stats"><?php echo esc_html__('Processing...', 'wpdbbkp') ?></h4>
+			</div>
+		</div>
+		<?php
+			
+			if($wpdbbkp_export_notify){
+		?>
+			<div class="text-center wpdbbkp_notification"><img width="50" height="50" src="<?php echo esc_url(WPDB_PLUGIN_URL. "/assets/images/success.png"); /* phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage */ ?>">
+			<h4 class="text-success">
+				<?php if ($wpdbbkp_export_notify=='create') {
+					$backup_link = false;
+						$backup_list = get_option('wp_db_backup_backups');
+						if(!empty($backup_list) && is_array($backup_list)){
+							$download_backup = end($backup_list);
+							if($download_backup && !empty($download_backup) && isset($download_backup['url']))
+							{ 
+								$backup_link = '<a href="' . esc_url(admin_url('?wpdbbkp_download='.basename($download_backup['url']))) . '" style="color: #21759B;">' . __('Click here to Download', 'wpdbbkp') . '</a>';
+							}
+						}
+						update_option('wpdbbkp_export_notify',false);
+						esc_html_e('Export Completed. ', 'wpdbbkp');
+					}
+				?>
+				</h4>
+				<?php if ($backup_link) { ?>
+					<h5 class="text-success"><strong><?php echo wp_kses_post($backup_link); ?> </strong></h5>
+				<?php } ?>
+		</div>
+		<?php }?>
+		<p>If you like <b>WP Database Backup</b> please leave us a <a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/wp-database-backup" title="Rating" sl-processed="1"> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> rating </a>. Many thanks in advance!</p>
+	</div>
+	</div>
+	<div class="msub-tab-block" id="msub-tab-block-import" style="padding:20px;display:none">
+	<div style="width: 500px;border: 5px dotted #5cb85c;margin: 0 auto;padding: 20px;border-radius: 10px;
+text-align: center;">
+		<input type="file"  accept=".zip,.rar,.7zip" id="wpdbbkp-upload-import" style="display:none"y/>
+		<a href="#" id="wpdbbkp-create-full-import" class="btn btn-success"> <span class="glyphicon glyphicon-plus-sign"></span> <?=esc_html__('Start Import', 'wpdbbkp')?></a>
+		<a href="#" id="wpdbbkp-stop-full-import" class="btn btn-danger wpdbbkp-cancel-btn" style="display:none;margin-bottom: 20px;margin-left: 10px;" > <span class="glyphicon glyphicon-ban"></span><?= esc_html__('Stop Backup Process', 'wpdbbkp')?></a>
+		<p style="font-weight: bold;font-size: 14px;margin-top: 5px;color:#5cb85c" id="imported-file-name"></p>
+
+		<div id="wpdb-import-process" style="display:none">
+			<div class="text-center"><img width="50" height="50" src="<?php echo esc_url(WPDB_PLUGIN_URL . "/assets/images/icon_loading.gif"); /* phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage */ ?>">
+				<h5 class="text-success"><strong><?php echo esc_html__('Import process is working, it may take some time depending on size of import file.', 'wpdbbkp') ?></strong></h5>
+				<div class="progress">
+					<div id="wpdbbkp_import_progressbar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+						style="width:0%;text-align:center">
+						0%
+					</div>
+				</div>
+				<h4 class="text-success" id="wpdbbkup_import_process_stats"><?php echo esc_html__('Processing...', 'wpdbbkp') ?></h4>
+			</div>
+		</div>
+		<p>If you like <b>WP Database Backup</b> please leave us a <a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/wp-database-backup" title="Rating" sl-processed="1"> 
+			<?php for($i=0;$i<5;$i++){?>
+			<span class="glyphicon glyphicon-star" aria-hidden="true" style="color:#5cb85c"></span>
+			<?php }?>
+			 rating </a>. Many thanks in advance!</p>
+	</div>
+	</div>
+</div>
+
 				<div class="tab-pane" id="db_help">
 						<div class="panel-group ">
 						        <div class="gn-flex-container row">
@@ -2816,11 +2919,14 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 	        $local = array(                    
 	                'ajax_url'                     => admin_url( 'admin-ajax.php' ),            
 	                'wpdbbkp_admin_security_nonce'     => wp_create_nonce('wpdbbkp_ajax_check_nonce'),
+					'home_url' =>get_home_url()
 	        ); 
 			wp_register_script('wpdbbkp-admin-fb', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin-cron-backup.js', array(), WPDB_VERSION , true );  
-
+			
 	        wp_localize_script('wpdbbkp-admin-fb', 'wpdbbkp_localize_admin_data', $local );        
 	        wp_enqueue_script('wpdbbkp-admin-fb');
+			wp_register_script('wpdbbkp-admin-export', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin-cron-export.js', array(), WPDB_VERSION , true );  
+	        wp_enqueue_script('wpdbbkp-admin-export');
 	        // Custom Js ends
 		}
 	}

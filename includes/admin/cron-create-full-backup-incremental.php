@@ -154,6 +154,7 @@ function wpdbbkp_cron_backup_api(){
 	));
 }
 
+
 /************************************************
  * Adding ajax call to check if any cron is working
  ************************************************/
@@ -868,6 +869,7 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 			wpdbbkp_fullbackup_log($args2);
 			wpdbbkp_backup_completed_notification($args2);
 			update_option('wpdbbkp_dashboard_notify','create', false);
+			update_option('wpdbbkp_export_notify','create', false);
 			update_option('wpdbbkp_backupcron_status','inactive', false);
 			update_option('wpdbbkp_backupcron_progress',100, false);
 			update_option('wpdbbkp_backupcron_current','Backup Completed', false);

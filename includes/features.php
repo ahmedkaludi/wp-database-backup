@@ -2,48 +2,47 @@
 
 // Anonimization code
 add_filter('wpdbbkp_process_db_fields', 'bkpforwp_anonimize_database', 10, 3);
-add_action( 'rest_api_init', 'wpdbbkp_register_api');
-
-function wpdbbkp_register_api(){
-	register_rest_route('wpdbbkp/v1', '/upload-chunk', array(
-        'methods' => 'POST',
-        'callback' => 'wpdbbkp_handle_chunk_upload',
-        'permission_callback' => '__return_true'
-    ));
-
-    register_rest_route('wpdbbkp/v1', '/finalize-upload', array(
-        'methods' => 'POST',
-        'callback' => 'wpdbbkp_finalize_upload',
-        'permission_callback' => '__return_true'
-    ));
-}
-function wpdbbkp_handle_chunk_upload(WP_REST_Request $request) {
-  $file = $request->get_file_params()['file'];
-  $chunkIndex = $request->get_param('chunkIndex');
-  $fileName = sanitize_file_name($request->get_param('fileName'));
+add_action('wp_ajax_wpdbbkp_upload_chunk', 'wpdbbkp_upload_chunk');
+function wpdbbkp_upload_chunk() {
   
-  $upload_dir = wp_upload_dir();
-  $temp_dir = $upload_dir['basedir'] . "/wpdbbkp/temp/";
-
-  if (!file_exists($temp_dir)) {
-      mkdir($temp_dir, 0755, true);
+  if( current_user_can('manage_options') && isset( $_POST['nonce']) && ! wp_verify_nonce( wp_unslash( $_POST['nonce'] ), 'wpdbbkp_ajax_check_nonce' ) ){
+    echo wp_json_encode(['success' => true, 'message' => esc_html__( 'Failed to verify nonce','wpdbbkp')]);  
+    die;
   }
-
-  $chunk_path = $temp_dir . $fileName . ".part" . $chunkIndex;
-  move_uploaded_file($file['tmp_name'], $chunk_path);
-
-  return rest_ensure_response(['success' => true, 'chunk' => $chunkIndex]);
+  if ( !empty($_FILES['file'] ) ) {
+    $file = $_FILES['file'];
+    $chunkIndex = sanitize_file_name( $_POST['chunkIndex'] );
+    $fileName = sanitize_file_name( $_POST['fileName'] );
+    
+    $upload_dir = wp_upload_dir();
+    $temp_dir = $upload_dir['basedir'] . "/wpdbbkp/temp/";
+  
+    if (!file_exists($temp_dir)) {
+        mkdir($temp_dir, 0755, true);
+    }
+  
+    $chunk_path = $temp_dir . $fileName . ".part" . $chunkIndex;
+    move_uploaded_file($file['tmp_name'], $chunk_path);
+    echo wp_json_encode(['success' => true, 'chunk' => $chunkIndex]);  
+    die;
+  }
 }
-function wpdbbkp_finalize_upload(WP_REST_Request $request) {
+add_action('wp_ajax_wpdbbkp_finalize_upload', 'wpdbbkp_finalize_upload');
+function wpdbbkp_finalize_upload() {
+  if( current_user_can('manage_options') && isset( $_POST['nonce']) && ! wp_verify_nonce( wp_unslash( $_POST['nonce'] ), 'wpdbbkp_ajax_check_nonce' ) ){
+    echo wp_json_encode(['success' => true, 'message' => esc_html__( 'Failed to verify nonce','wpdbbkp')]);  
+    die;
+  }
   global $wpdb;
-  $fileName = sanitize_file_name($request->get_param('fileName'));
+  $fileName = sanitize_file_name( $_POST[ 'fileName' ] );
   $upload_dir = wp_upload_dir();
   $temp_dir = $upload_dir['basedir'] . "/wpdbbkp/temp/";
   $final_path = $upload_dir['basedir'] . "/wpdbbkp/" . $fileName;
 
   $chunks = glob($temp_dir . $fileName . ".part*");
   if (!$chunks) {
-      return rest_ensure_response(['success' => false, 'message' => 'No chunks found']);
+    echo wp_json_encode(['success' => false, 'message' =>esc_html__( 'No chunks found','wpdbbkp')]);
+    die;
   }
 
   natsort($chunks); // Ensure correct order
@@ -200,7 +199,8 @@ function wpdbbkp_finalize_upload(WP_REST_Request $request) {
       }
   
   }
-  return rest_ensure_response(['success' => true, 'file' => $final_path]);
+  echo wp_json_encode(['success' => true, 'file' => $final_path]);  
+  die;
 }
 // Helper function to create directories recursively
 function wpdbbkp_ensure_dir($dir)

@@ -34,6 +34,8 @@ document.getElementById('wpdbbkp-upload-import').addEventListener('change', func
 
         const chunk = file.slice(start, start + chunkSize);
         const formData = new FormData();
+        formData.append("action", 'wpdbbkp_upload_chunk');
+        formData.append("nonce", wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce);
         formData.append("file", chunk);
         formData.append("chunkIndex", chunkIndex);
         formData.append("fileName", file.name);
@@ -43,7 +45,9 @@ document.getElementById('wpdbbkp-upload-import').addEventListener('change', func
 		if(chunkIndex>0){
 			calculate_progress = (chunkIndex / totalChunks) * 100;
 		}
-        fetch(wpdbbkp_localize_admin_data.home_url+"/wp-json/wpdbbkp/v1/upload-chunk", {
+		//wpdbbkp_localize_admin_data.ajax_url
+		//wpdbbkp_localize_admin_data.ajax_url+"/wp-json/wpdbbkp/v1/upload-chunk"
+        fetch(wpdbbkp_localize_admin_data.ajax_url, {
             method: "POST",
             body: formData,
         })
@@ -77,11 +81,16 @@ function finalizeUpload(fileName) {
 		document.getElementById('wpdbbkp_import_progressbar').innerHTML = calculate_progress + '%';
 		calculate_progress++;
 	}, 1500);
+	const formData = new FormData();
+	formData.append("action", 'wpdbbkp_finalize_upload');
+	formData.append("nonce", wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce);
+	formData.append("fileName", fileName);
+	
+
 	document.getElementById('wpdbbkup_import_process_stats').innerHTML = 'Finalize Upload';
-    fetch(wpdbbkp_localize_admin_data.home_url+"/wp-json/wpdbbkp/v1/finalize-upload", {
+    fetch(wpdbbkp_localize_admin_data.ajax_url, {
         method: "POST",
-        body: JSON.stringify({ fileName }),
-        headers: { "Content-Type": "application/json" }
+        body: formData,
     })
     .then(response => response.json())
     .then(data => {

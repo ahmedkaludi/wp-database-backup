@@ -16,7 +16,7 @@ function handleNavigateChildTab(event,type){
 function countSlices(fileSize, chunkSize) {
     return Math.ceil(fileSize / chunkSize);
 }
-document.getElementById('wpdbbkp-upload-import').addEventListener('change', function (event) {
+/* document.getElementById('wpdbbkp-upload-import').addEventListener('change', function (event) {
 	document.getElementById('wpdbbkp-upload-import').setAttribute('disabled', true);
     const file = event.target.files[0];
     if (!file) return;
@@ -98,12 +98,81 @@ function finalizeUpload(fileName) {
 		document.getElementById('wpdbbkp_import_progressbar').style.width = '100%';
 		document.getElementById('wpdbbkp_import_progressbar').innerHTML = '100%';
 		setTimeout(() => {
-			window.location.reload()
+			//window.location.reload()
 		}, 500);
 	})
     .catch(error => console.error("Error:", error));
-}
+} */
+	jQuery(document).ready(function($) {
+		let chunkSize = 2 * 1024 * 1024; // 2MB chunk size
+		let fileInput = $('#wpdbbkp-upload-import');
+		//let uploadProgress = $('#uploadProgress');
+		let file;
 
+		$('#wpdbbkp-start-full-import').click(function() {
+			if (fileInput[0].files.length === 0) {
+				alert("Please select a ZIP file to upload.");
+				return;
+			}
+
+			file = fileInput[0].files[0];
+			uploadFileInChunks(0);
+		});
+
+		function uploadFileInChunks(offset) {
+			let chunk = file.slice(offset, offset + chunkSize);
+			let formData = new FormData();
+			formData.append("action", "wpdbbkp_upload_site_chunk");
+			formData.append("file", chunk);
+			formData.append("fileName", file.name);
+			formData.append("offset", offset);
+
+			$.ajax({
+				url: ajaxurl,
+				type: 'POST',
+				data: formData,
+				contentType: false,
+				processData: false,
+				success: function(response) {
+					if (response.success) {
+						let nextOffset = offset + chunkSize;
+						let progress = Math.min((nextOffset / file.size) * 100, 100).toFixed(2);
+						//uploadProgress.html("Uploading: " + progress + "%");
+
+						if (nextOffset < file.size) {
+							uploadFileInChunks(nextOffset);
+						} else {
+							//uploadProgress.html("Upload Completed! <button id='extractFile'>Extract & Restore</button>");
+							finalizeExtractProcess();
+						}
+					} else {
+						//uploadProgress.html("Upload failed: " + response.data);
+					}
+				},
+				error: function() {
+					//uploadProgress.html("Chunk upload failed.");
+				}
+			});
+		}
+
+		function finalizeExtractProcess(){
+			$.ajax({
+				url: ajaxurl,
+				type: 'POST',
+				data: { action: "wpdbbkp_extract_uploaded_site", fileName: file.name },
+				success: function(response) {
+					if (response.success) {
+						//$('#uploadProgress').html("Extraction & Restore Completed!");
+					} else {
+						//$('#uploadProgress').html("Extraction failed: " + response.data);
+					}
+				},
+				error: function() {
+					//$('#uploadProgress').html("Extraction error.");
+				}
+			});
+		}
+	});
 jQuery(document).ready(function($){
 	
 	$(document).on('click', '#wpdbbkp-create-full-import', function(e){

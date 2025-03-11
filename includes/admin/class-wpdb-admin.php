@@ -1193,7 +1193,8 @@ text-align: center;">
 	<div style="width: 500px;border: 5px dotted #5cb85c;margin: 0 auto;padding: 20px;border-radius: 10px;
 text-align: center;">
 		<input type="file"  accept=".zip,.rar,.7zip" id="wpdbbkp-upload-import" style="display:none"y/>
-		<a href="#" id="wpdbbkp-create-full-import" class="btn btn-success"> <span class="glyphicon glyphicon-plus-sign"></span> <?=esc_html__('Start Import', 'wpdbbkp')?></a>
+		<a href="#" id="wpdbbkp-create-full-import" class="btn btn-success"> <span class="glyphicon glyphicon-plus-sign"></span> <?=esc_html__('Select File to Import', 'wpdbbkp')?></a>
+		<a href="#" id="wpdbbkp-start-full-import" class="btn btn-success"> <span class="glyphicon glyphicon-plus-sign"></span> <?=esc_html__('Start Import', 'wpdbbkp')?></a>
 		<a href="#" id="wpdbbkp-stop-full-import" class="btn btn-danger wpdbbkp-cancel-btn" style="display:none;margin-bottom: 20px;margin-left: 10px;" > <span class="glyphicon glyphicon-ban"></span><?= esc_html__('Stop Backup Process', 'wpdbbkp')?></a>
 		<p style="font-weight: bold;font-size: 14px;margin-top: 5px;color:#5cb85c" id="imported-file-name"></p>
 

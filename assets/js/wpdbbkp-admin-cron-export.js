@@ -116,9 +116,11 @@ function finalizeUpload(fileName) {
 			}
 
 			file = fileInput[0].files[0];
-			uploadFileInChunks(0);
+			//uploadFileInChunks(0);
+			finalizeExtractProcess();
 		});
-
+		
+		
 		function uploadFileInChunks(offset) {
 			let chunk = file.slice(offset, offset + chunkSize);
 			let formData = new FormData();
@@ -137,12 +139,16 @@ function finalizeUpload(fileName) {
 					if (response.success) {
 						let nextOffset = offset + chunkSize;
 						let progress = Math.min((nextOffset / file.size) * 100, 100).toFixed(2);
-						//uploadProgress.html("Uploading: " + progress + "%");
-
+						
+						document.getElementById('wpdb-import-process').style.display = '';
+						document.getElementById('wpdbbkp_import_progressbar').style.width = progress + '%';
+						document.getElementById('wpdbbkp_import_progressbar').innerHTML = progress + '%';
 						if (nextOffset < file.size) {
 							uploadFileInChunks(nextOffset);
 						} else {
 							//uploadProgress.html("Upload Completed! <button id='extractFile'>Extract & Restore</button>");
+								
+
 							finalizeExtractProcess();
 						}
 					} else {
@@ -156,13 +162,15 @@ function finalizeUpload(fileName) {
 		}
 
 		function finalizeExtractProcess(){
+			document.getElementById('wpdbbkp_import_progressbar').style.width =  '100%';
+			document.getElementById('wpdbbkp_import_progressbar').innerHTML =  'Upload Completed ! Working on extraction process, it may take more time depending upon uploaded file size, be patience utnill process completes';
 			$.ajax({
 				url: ajaxurl,
 				type: 'POST',
 				data: { action: "wpdbbkp_extract_uploaded_site", fileName: file.name },
 				success: function(response) {
 					if (response.success) {
-						//$('#uploadProgress').html("Extraction & Restore Completed!");
+						document.getElementById('wpdbbkp_import_progressbar').innerHTML =  'Extraction & Restore Completed!';
 					} else {
 						//$('#uploadProgress').html("Extraction failed: " + response.data);
 					}

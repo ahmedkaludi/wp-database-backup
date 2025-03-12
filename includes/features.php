@@ -5,7 +5,7 @@ add_filter('wpdbbkp_process_db_fields', 'bkpforwp_anonimize_database', 10, 3);
 add_action('wp_ajax_wpdbbkp_upload_site_chunk', 'wpdbbkp_upload_site_chunk');
 function wpdbbkp_upload_site_chunk() {
   
-  if (!isset($_FILES['file']) || !isset($_POST['fileName']) || !isset($_POST['offset'])) {
+   if (!isset($_FILES['file']) || !isset($_POST['fileName']) || !isset($_POST['offset'])) {
       wp_send_json_error("Invalid request.");
   }
 
@@ -23,137 +23,344 @@ function wpdbbkp_upload_site_chunk() {
   wp_send_json_success("Chunk uploaded successfully.");
 }
 add_action('wp_ajax_wpdbbkp_extract_uploaded_site', 'wpdbbkp_extract_uploaded_site');
-
 function wpdbbkp_extract_uploaded_site() {
-    try {
-        error_log("AJAX extraction started");
+  try {
+      ini_set('max_execution_time', 0); // No time limit
+      set_time_limit(0);
+      error_log("AJAX extraction started");
 
-        if (!isset($_POST['fileName'])) {
-            throw new Exception("No file provided.");
-        }
+      if (!isset($_POST['fileName'])) {
+          throw new Exception("No file provided.");
+      }
 
-        $upload_dir = WP_CONTENT_DIR . '/uploads/wpdbbkp/temp';
-        $backup_file = $upload_dir . '/' . sanitize_file_name($_POST['fileName']);
+      $upload_dir = WP_CONTENT_DIR . '/uploads/wpdbbkp/temp';
+      $backup_file = $upload_dir . '/' . sanitize_file_name($_POST['fileName']);
 
-        if (!file_exists($backup_file)) {
-            throw new Exception("Backup file not found.");
-        }
+      if (!file_exists($backup_file)) {
+          throw new Exception("Backup file not found.");
+      }
 
-        $zip = new ZipArchive();
-        if ($zip->open($backup_file) === TRUE) {
-            $extract_path = $upload_dir . '/extracted/';
-            if (!file_exists($extract_path)) {
-                mkdir($extract_path, 0755, true);
-            }
+      $extract_path = $upload_dir . '/extracted/';
+    /*   $zip = new ZipArchive();
+      if ($zip->open($backup_file) !== TRUE) {
+          throw new Exception("Failed to open the ZIP archive.");
+      }
 
-            for ($i = 0; $i < $zip->numFiles; $i++) {
-                $entry = $zip->getNameIndex($i);
-                if (strpos($entry, 'plugins/') === 0 || strpos($entry, 'themes/') === 0 || 
-                    pathinfo($entry, PATHINFO_EXTENSION) === 'sql' || basename($entry) === 'wp-config.php') {
-                    $zip->extractTo($extract_path, $entry);
-                }
-            }
+      if (!file_exists($extract_path)) {
+          mkdir($extract_path, 0755, true);
+      }
 
-            $zip->close();
+      error_log("ZIP contains " . $zip->numFiles . " files");
 
-            $ignore_plugins = ['plugin-to-ignore-1', 'plugin-to-ignore-2'];
+      
+      $root_folder = '';
+      for ($i = 0; $i < $zip->numFiles; $i++) {
+          $entry = $zip->getNameIndex($i);
+          if (preg_match('#^(.*?)/wp-content/#', $entry, $matches)) {
+              $root_folder = $matches[1] . '/';
+              break;
+          }
+      }
+      error_log("Detected root folder: $root_folder");
 
-            wpdbbkp_move_extracted_files($extract_path . 'plugins/', WP_CONTENT_DIR . '/plugins/', $ignore_plugins);
-            wpdbbkp_move_extracted_files($extract_path . 'themes/', WP_CONTENT_DIR . '/themes/');
+      
+      for ($i = 0; $i < $zip->numFiles; $i++) {
+          $entry = $zip->getNameIndex($i);
+          $normalized_entry = str_replace($root_folder, '', $entry);
 
-            $sql_file = wpdbbkp_find_sql_file($extract_path);
-            if ($sql_file) {
-                $table_prefix = wpdbbkp_extract_table_prefix($sql_file);
-                wpdbbkp_update_wp_config_table_prefix($table_prefix);
-                wpdbbkp_restore_database($sql_file);
-            }
+          if (preg_match('#^wp-content/plugins/#', $normalized_entry) ||
+              preg_match('#^wp-content/themes/#', $normalized_entry) ||
+              $normalized_entry === 'wp-config.php' ||
+              (pathinfo($normalized_entry, PATHINFO_EXTENSION) === 'sql' && substr_count($normalized_entry, '/') === 0)
+          ) {
+              if ($zip->extractTo($extract_path, $entry)) {
+                  error_log("Successfully extracted: $entry");
 
-           // wpdbbkp_delete_directory($extract_path);
+              } else {
+                  error_log("Extraction failed: $entry");
+              }
+          }
+      }
 
-            error_log("Extraction completed successfully");
-            wp_send_json_success("Plugins, Themes, Database & wp-config.php Table Prefix Updated!");
+      $zip->close(); */
 
-        } else {
-            throw new Exception("Failed to extract backup.");
-        }
+      // Define correct source paths inside the extracted folder
+      $source_file = $extract_path.str_replace('.zip','',sanitize_file_name($_POST['fileName']));
+      $plugins_path = $source_file . '/wp-content/plugins/';
+      $themes_path = $source_file . '/wp-content/themes/';
+      
+      // Move extracted files to wp-content
+      $ignore_plugins = ['wp-database-backup'];
 
-    } catch (Exception $e) {
-        error_log("Error: " . $e->getMessage());
-        wp_send_json_error($e->getMessage());
-    }
+      if (file_exists($plugins_path)) {
+        //  wpdbbkp_move_extracted_files($plugins_path, WP_CONTENT_DIR . '/plugins/', $ignore_plugins);
+      } else {
+          error_log("Plugins directory not found in extracted folder.");
+      }
+
+      if (file_exists($themes_path)) {
+       //   wpdbbkp_move_extracted_files($themes_path, WP_CONTENT_DIR . '/themes/');
+      } else {
+          error_log("Themes directory not found in extracted folder OR extraction failed.");
+      }
+
+      // Process SQL file if found
+      $sql_file = wpdbbkp_find_sql_file($source_file);
+      if ($sql_file) {
+          $wp_config_prefix = wpdbbkp_get_wp_config_table_prefix();
+          wpdbbkp_update_sql_table_prefix($sql_file, $wp_config_prefix);
+          wpdbbkp_restore_database($sql_file);
+         // wpdbbkp_update_user_url();
+      } else {
+          error_log("No SQL file found in extracted folder.");
+      }
+
+      error_log("Extraction completed successfully");
+      wp_send_json_success("Plugins, Themes, Database & Table Prefix Updated!");
+
+  } catch (Exception $e) {
+      error_log("Error: " . $e->getMessage());
+      wp_send_json_error($e->getMessage());
+  }
 }
 
-function wpdbbkp_move_extracted_files($source, $destination, $ignore_list = []) {
-    if (!file_exists($source)) return;
 
-    $files = scandir($source);
-    foreach ($files as $file) {
-        if ($file !== '.' && $file !== '..') {
-            if (in_array($file, $ignore_list)) {
-                error_log("Skipping ignored plugin/theme: $file");
-                continue;
-            }
-
-            if (file_exists($destination . $file)) {
-                error_log("Skipping existing plugin/theme: $file");
-                continue;
-            }
-
-            rename($source . $file, $destination . $file);
-        }
-    }
-}
-
-function wpdbbkp_find_sql_file($dir) {
-    $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
-
+function wpdbbkp_find_sql_file($directory) {
+    $files = scandir($directory);
     foreach ($files as $file) {
         if (pathinfo($file, PATHINFO_EXTENSION) === 'sql') {
-            return $file->getPathname();
+            return $directory . '/' . $file;
         }
     }
-
     return false;
 }
 
-function wpdbbkp_extract_table_prefix($sql_file) {
-    $sql_content = file_get_contents($sql_file);
-    if (preg_match("/CREATE TABLE `([^`]*)_.*`/", $sql_content, $matches)) {
-        return $matches[1] . '_';
+function wpdbbkp_get_wp_config_table_prefix() {
+    $config_file = ABSPATH . 'wp-config.php';
+    if (!file_exists($config_file)) {
+        return 'wp_';
+    }
+    $config_contents = file_get_contents($config_file);
+    if (preg_match("/\$table_prefix\s*=\s*'([^']+)'/", $config_contents, $matches)) {
+        return $matches[1];
     }
     return 'wp_';
 }
 
-function wpdbbkp_restore_database($sql_file) {
-    global $wpdb;
-
-    if (!file_exists($sql_file)) {
-        error_log("SQL file not found: $sql_file");
-        return;
-    }
-
+function wpdbbkp_update_sql_table_prefix($sql_file, $new_prefix) {
     $sql_content = file_get_contents($sql_file);
-    $queries = explode(";\n", $sql_content);
-
-    foreach ($queries as $query) {
-        $query = trim($query);
-        if (!empty($query)) {
-            $wpdb->query($query);
-        }
+    if (preg_match("/CREATE TABLE `([^`]*)`/", $sql_content, $matches)) {
+        $old_prefix = explode('_', $matches[1])[0] . '_';
+        $sql_content = str_replace("`$old_prefix", "`$new_prefix", $sql_content);
+        file_put_contents($sql_file, $sql_content);
     }
-
-    error_log("Database restoration completed from: $sql_file");
 }
 
-function wpdbbkp_update_wp_config_table_prefix($new_prefix) {
-    $config_file = ABSPATH . 'wp-config.php';
-    
-    if (file_exists($config_file)) {
-        $config_content = file_get_contents($config_file);
-        $config_content = preg_replace("/\$table_prefix\s*=\s*'([^']+)';/", "$table_prefix = '$new_prefix';", $config_content);
-        file_put_contents($config_file, $config_content);
-        error_log("wp-config.php table_prefix updated successfully to: $new_prefix");
+function wpdbbkp_move_extracted_files($source, $destination, $ignore = []) {
+  error_log('plugin src '.$source );
+  error_log('is plugin exist '.file_exists($source) );
+    if (!file_exists($source)) return;
+
+    if (!file_exists($destination)) {
+        mkdir($destination, 0755, true);
     }
+
+    $files = array_diff(scandir($source), array('.', '..'));
+    foreach ($files as $file) {
+        $srcFile = $source . $file;
+        $destFile = $destination . $file;
+
+        if (in_array($file, $ignore)) {
+            continue;
+        }
+
+        if (is_dir($srcFile)) {
+            if (!file_exists($destFile)) {
+                rename($srcFile, $destFile);
+            }
+        } else {
+            if (!file_exists($destFile)) {
+                rename($srcFile, $destFile);
+            }
+        }
+    }
+}
+function wpdbbkp_restore_database($sql_file) {
+  global $wpdb;
+  $new_site_url = get_site_url();
+
+  if (!file_exists($sql_file)) {
+      error_log("[ERROR] SQL file not found: $sql_file");
+      return false;
+  }
+
+  $sql_content = file_get_contents($sql_file);
+  if (!$sql_content) {
+      error_log("[ERROR] Failed to read SQL file: $sql_file");
+      return false;
+  }
+
+  // Fetch old site URL from wp_options before updating
+  $old_site_url = $wpdb->get_var("SELECT option_value FROM {$wpdb->options} WHERE option_name = 'siteurl'");
+
+  if (!$old_site_url) {
+      error_log("[ERROR] Failed to fetch old site URL.");
+      return false;
+  }
+
+  error_log("[INFO] Old Site URL detected: $old_site_url");
+
+  // Split SQL statements properly
+  $queries = preg_split('/;\s*\n/', $sql_content, -1, PREG_SPLIT_NO_EMPTY);
+
+  // Tables to exclude (e.g., Users and Usermeta for security reasons)
+  $excluded_tables = ['users','usermeta'];
+
+  $wpdb->query('SET foreign_key_checks = 0'); // Disable FK checks
+  $wpdb->query('START TRANSACTION'); // Start transaction
+
+  try {
+      foreach ($queries as $query) {
+          $query = trim($query);
+          if (empty($query)) continue;
+
+          // Check for CREATE TABLE and extract table name
+          if (preg_match('/CREATE TABLE `([^`]*)`/', $query, $matches)) {
+              $table_name = $matches[1];
+
+              // Skip excluded tables
+              foreach ($excluded_tables as $excluded) {
+                  if (strpos($table_name, $excluded) !== false) {
+                      error_log("[SKIPPED] Table excluded: $table_name");
+                      continue 2;
+                  }
+              }
+
+              // Drop existing table before restoring
+              $wpdb->query("DROP TABLE IF EXISTS `$table_name`");
+              error_log("[DROPPED] Table: $table_name");
+          }
+
+          // Skip execution of queries for excluded tables
+          foreach ($excluded_tables as $excluded) {
+              if (strpos($query, $excluded) !== false) {
+                  error_log("[SKIPPED] Query contains excluded table reference.");
+                  continue 2;
+              }
+          }
+
+          // Execute the query
+          $result = $wpdb->query($query);
+          if ($result === false) {
+              throw new Exception("[ERROR] Failed to execute query: " . $wpdb->last_error);
+          }
+      }
+
+      // **Update siteurl and home in wp_options**
+      $update_siteurl = $wpdb->update(
+          $wpdb->options,
+          ['option_value' => $new_site_url],
+          ['option_name' => 'siteurl'],
+          ['%s'],
+          ['%s']
+      );
+
+      $update_home = $wpdb->update(
+          $wpdb->options,
+          ['option_value' => $new_site_url],
+          ['option_name' => 'home'],
+          ['%s'],
+          ['%s']
+      );
+
+      if ($update_siteurl === false || $update_home === false) {
+          throw new Exception("[ERROR] Failed to update siteurl and home.");
+      } else {
+          error_log("[SUCCESS] Updated siteurl and home to: $new_site_url");
+      }
+
+      // **Find and replace old URLs in all tables**
+      $tables = $wpdb->get_results("SHOW TABLES", ARRAY_N);
+      foreach ($tables as $table) {
+          $table_name = $table[0];
+
+          // Skip excluded tables
+          foreach ($excluded_tables as $excluded) {
+              if (strpos($table_name, $excluded) !== false) {
+                  error_log("[SKIPPED] URL Replacement in: $table_name");
+                  continue 2;
+              }
+          }
+
+          // Get all columns for the table
+          $columns = $wpdb->get_results("SHOW COLUMNS FROM `$table_name`", ARRAY_A);
+          foreach ($columns as $column) {
+              $column_name = $column['Field'];
+
+              // Update all occurrences of old URL in text-based columns
+              $wpdb->query(
+                  $wpdb->prepare(
+                      "UPDATE `$table_name` SET `$column_name` = REPLACE(`$column_name`, %s, %s) WHERE `$column_name` LIKE %s",
+                      $old_site_url,
+                      $new_site_url,
+                      '%' . $wpdb->esc_like($old_site_url) . '%'
+                  )
+              );
+          }
+      }
+
+      // **Set Default Theme (e.g., "twentytwentythree")**
+      $default_theme = 'twentytwentythree';
+
+      $wpdb->update(
+          $wpdb->options,
+          ['option_value' => $default_theme],
+          ['option_name' => 'template'],
+          ['%s'],
+          ['%s']
+      );
+
+      $wpdb->update(
+          $wpdb->options,
+          ['option_value' => $default_theme],
+          ['option_name' => 'stylesheet'],
+          ['%s'],
+          ['%s']
+      );
+
+      $wpdb->update(
+          $wpdb->options,
+          ['option_value' => 'twentytwentythree'],
+          ['option_name' => 'current_theme'],
+          ['%s'],
+          ['%s']
+      );
+
+      error_log("[SUCCESS] Default theme set to: $default_theme");
+
+      $wpdb->query('COMMIT'); // Commit transaction
+      error_log("[SUCCESS] Database restoration and URL replacement completed from: $sql_file");
+      return true;
+
+  } catch (Exception $e) {
+      $wpdb->query('ROLLBACK'); // Rollback in case of an error
+      error_log($e->getMessage());
+      return false;
+  } finally {
+      $wpdb->query('SET foreign_key_checks = 1'); // Re-enable FK checks
+  }
+}
+
+
+
+function wpdbbkp_update_user_url() {
+    global $wpdb;
+    $site_url = get_site_url();
+    $table_prefix = wpdbbkp_get_wp_config_table_prefix();
+  //  $wpdb->query($wpdb->prepare("UPDATE `{$table_prefix}users` SET `user_url` = %s", $site_url));
+    update_option('siteurl', $site_url);
+    update_option('home', $site_url);
+    error_log("User URLs updated to: $site_url");
 }
 
 function wpdbbkp_delete_directory($dir) {
@@ -166,6 +373,9 @@ function wpdbbkp_delete_directory($dir) {
     }
     rmdir($dir);
 }
+
+
+
 
 
 function bkpforwp_anonimize_database($value, $table, $column)

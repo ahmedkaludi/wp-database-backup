@@ -1190,11 +1190,11 @@ text-align: center;">
 	</div>
 	</div>
 	<div class="msub-tab-block" id="msub-tab-block-import" style="padding:20px;display:none">
-	<div style="width: 500px;border: 5px dotted #5cb85c;margin: 0 auto;padding: 20px;border-radius: 10px;
+	<div style="border: 5px dotted #5cb85c;margin: 0 auto;padding: 20px;border-radius: 10px;
 text-align: center;">
 		<input type="file"  accept=".zip,.rar,.7zip" id="wpdbbkp-upload-import" style="display:none"y/>
 		<a href="#" id="wpdbbkp-create-full-import" class="btn btn-success"> <span class="glyphicon glyphicon-plus-sign"></span> <?=esc_html__('Select File to Import', 'wpdbbkp')?></a>
-		<a href="#" id="wpdbbkp-start-full-import" class="btn btn-success"> <span class="glyphicon glyphicon-plus-sign"></span> <?=esc_html__('Start Import', 'wpdbbkp')?></a>
+		<a href="#" id="wpdbbkp-start-full-import" class="btn btn-success" style="display:none"> <span class="glyphicon glyphicon-plus-sign"></span> <?=esc_html__('Start Import', 'wpdbbkp')?></a>
 		<a href="#" id="wpdbbkp-stop-full-import" class="btn btn-danger wpdbbkp-cancel-btn" style="display:none;margin-bottom: 20px;margin-left: 10px;" > <span class="glyphicon glyphicon-ban"></span><?= esc_html__('Stop Backup Process', 'wpdbbkp')?></a>
 		<p style="font-weight: bold;font-size: 14px;margin-top: 5px;color:#5cb85c" id="imported-file-name"></p>
 
@@ -1207,7 +1207,7 @@ text-align: center;">
 						0%
 					</div>
 				</div>
-				<h4 class="text-success" id="wpdbbkup_import_process_stats"><?php echo esc_html__('Processing...', 'wpdbbkp') ?></h4>
+				<h4 class="text-success" id="wpdbbkup_import_process_stats" style="font-size:12px"><?php echo esc_html__('Processing...', 'wpdbbkp') ?></h4>
 			</div>
 		</div>
 		<p><?php echo esc_html__('If you like ','wpdbbkp'); ?> <b> <?php echo esc_html__('WP Database Backup ','wpdbbkp'); ?></b> <?php echo esc_html__('please leave us a  ','wpdbbkp'); ?><a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/wp-database-backup" title="<?php echo esc_html__('Rating','wpdbbkp'); ?>" sl-processed="1"> 

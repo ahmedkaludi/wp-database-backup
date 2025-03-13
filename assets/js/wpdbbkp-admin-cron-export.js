@@ -16,93 +16,15 @@ function handleNavigateChildTab(event,type){
 function countSlices(fileSize, chunkSize) {
     return Math.ceil(fileSize / chunkSize);
 }
-/* document.getElementById('wpdbbkp-upload-import').addEventListener('change', function (event) {
-	document.getElementById('wpdbbkp-upload-import').setAttribute('disabled', true);
+document.getElementById('wpdbbkp-upload-import').addEventListener('change', function (event) {
+	
     const file = event.target.files[0];
     if (!file) return;
 	var filename = file.name;
 	document.getElementById('imported-file-name').innerHTML = filename;
-    const chunkSize = 1024 * 1024; // 1MB
-    let start = 0;
-    let chunkIndex = 0;
-
-    function uploadChunk() {
-        if (start >= file.size) {
-            finalizeUpload(file.name);
-            return;
-        }
-
-        const chunk = file.slice(start, start + chunkSize);
-        const formData = new FormData();
-        formData.append("action", 'wpdbbkp_upload_chunk');
-        formData.append("nonce", wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce);
-        formData.append("file", chunk);
-        formData.append("chunkIndex", chunkIndex);
-        formData.append("fileName", file.name);
-
-		const totalChunks = countSlices(file.size, chunkSize);
-		let calculate_progress = 0;
-		if(chunkIndex>0){
-			calculate_progress = (chunkIndex / totalChunks) * 100;
-		}
-		//wpdbbkp_localize_admin_data.ajax_url
-		//wpdbbkp_localize_admin_data.ajax_url+"/wp-json/wpdbbkp/v1/upload-chunk"
-        fetch(wpdbbkp_localize_admin_data.ajax_url, {
-            method: "POST",
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-			calculate_progress = Math.round(calculate_progress);
-			document.getElementById('wpdb-import-process').style.display = '';
-			document.getElementById('wpdbbkp_import_progressbar').style.width = calculate_progress + '%';
-			document.getElementById('wpdbbkp_import_progressbar').innerHTML = calculate_progress + '%';
-            if (data.success) {
-                start += chunkSize;
-                chunkIndex++;
-                uploadChunk(); // Upload next chunk
-            } else {
-                console.error("Chunk upload failed", data);
-            }
-        })
-        .catch(error => console.error("Error:", error));
-    }
-
-    uploadChunk();
+	document.getElementById('wpdbbkp-start-full-import').style.display='';
 });
 
-function finalizeUpload(fileName) {
-	let calculate_progress = 0;
-	setInterval(() => {
-		if(calculate_progress==101){
-			calculate_progress = 0;
-		}
-		document.getElementById('wpdbbkp_import_progressbar').style.width = calculate_progress + '%';
-		document.getElementById('wpdbbkp_import_progressbar').innerHTML = calculate_progress + '%';
-		calculate_progress++;
-	}, 1500);
-	const formData = new FormData();
-	formData.append("action", 'wpdbbkp_finalize_upload');
-	formData.append("nonce", wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce);
-	formData.append("fileName", fileName);
-	
-
-	document.getElementById('wpdbbkup_import_process_stats').innerHTML = 'Finalize Upload';
-    fetch(wpdbbkp_localize_admin_data.ajax_url, {
-        method: "POST",
-        body: formData,
-    })
-    .then(response => response.json())
-    .then(data => {
-		calculate_progress = 100;
-		document.getElementById('wpdbbkp_import_progressbar').style.width = '100%';
-		document.getElementById('wpdbbkp_import_progressbar').innerHTML = '100%';
-		setTimeout(() => {
-			//window.location.reload()
-		}, 500);
-	})
-    .catch(error => console.error("Error:", error));
-} */
 	jQuery(document).ready(function($) {
 		let chunkSize = 2 * 1024 * 1024; // 2MB chunk size
 		let fileInput = $('#wpdbbkp-upload-import');
@@ -116,8 +38,9 @@ function finalizeUpload(fileName) {
 			}
 
 			file = fileInput[0].files[0];
-			//uploadFileInChunks(0);
-			finalizeExtractProcess();
+			uploadFileInChunks(0);
+			//finalizeExtractProcess();
+			//checkExtractStatus();
 		});
 		
 		
@@ -128,7 +51,7 @@ function finalizeUpload(fileName) {
 			formData.append("file", chunk);
 			formData.append("fileName", file.name);
 			formData.append("offset", offset);
-
+			formData.append("wpdbbkp_admin_security_nonce", wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce);
 			$.ajax({
 				url: ajaxurl,
 				type: 'POST',
@@ -146,9 +69,6 @@ function finalizeUpload(fileName) {
 						if (nextOffset < file.size) {
 							uploadFileInChunks(nextOffset);
 						} else {
-							//uploadProgress.html("Upload Completed! <button id='extractFile'>Extract & Restore</button>");
-								
-
 							finalizeExtractProcess();
 						}
 					} else {
@@ -162,21 +82,44 @@ function finalizeUpload(fileName) {
 		}
 
 		function finalizeExtractProcess(){
+			checkExtractStatus();
 			document.getElementById('wpdbbkp_import_progressbar').style.width =  '100%';
 			document.getElementById('wpdbbkp_import_progressbar').innerHTML =  'Upload Completed ! Working on extraction process, it may take more time depending upon uploaded file size, be patience utnill process completes';
 			$.ajax({
 				url: ajaxurl,
 				type: 'POST',
-				data: { action: "wpdbbkp_extract_uploaded_site", fileName: file.name },
+				data: { action: "wpdbbkp_extract_uploaded_site", fileName: file.name,wpdbbkp_admin_security_nonce: wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce },
 				success: function(response) {
 					if (response.success) {
 						document.getElementById('wpdbbkp_import_progressbar').innerHTML =  'Extraction & Restore Completed!';
+						setTimeout(() => {
+							window.location.reload();
+						}, 1500);
 					} else {
 						//$('#uploadProgress').html("Extraction failed: " + response.data);
 					}
 				},
 				error: function() {
-					//$('#uploadProgress').html("Extraction error.");
+					
+				}
+			});
+		}
+		function checkExtractStatus(){
+			document.getElementById('wpdb-import-process').style.display = '';
+			document.getElementById('wpdbbkp_import_progressbar').style.width =  '0%';
+			$.ajax({
+				url: ajaxurl,
+				type: 'POST',
+				data: { action: "wpdbbkp_check_extract_status",wpdbbkp_admin_security_nonce: wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce},
+				success: function(response) {
+					if (response.success) {
+						checkExtractStatus();
+						document.getElementById('wpdbbkp_import_progressbar').style.width =  '100%';
+						document.getElementById('wpdbbkup_import_process_stats').innerHTML = response.data.message;
+					}
+				},
+				error: function() {
+					
 				}
 			});
 		}

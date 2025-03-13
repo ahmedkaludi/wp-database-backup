@@ -2,9 +2,26 @@
 
 // Anonimization code
 add_filter('wpdbbkp_process_db_fields', 'bkpforwp_anonimize_database', 10, 3);
+add_action('wp_ajax_wpdbbkp_check_extract_status', 'wpdbbkp_check_extract_status');
+function wpdbbkp_check_extract_status(){
+  if ( !isset( $_POST['wpdbbkp_admin_security_nonce'] ) || !wp_verify_nonce( 	wp_unslash($_POST['wpdbbkp_admin_security_nonce']), 'wpdbbkp_ajax_check_nonce' ) ){ 
+    wp_send_json_success(esc_html__('Invalid nonce check.', 'wpdbbkp'));
+    return;  
+ }
+  $get_progress = get_transient('wpdbbkp_track_progress');
+  if($get_progress==false){
+    wp_send_json_success(['success'=>1,'message'=>esc_html__('Starring Extraction Process', 'wpdbbkp')]);
+  }else{
+    wp_send_json_success(['success'=>1,'message'=>$get_progress]);
+  }
+}
+
 add_action('wp_ajax_wpdbbkp_upload_site_chunk', 'wpdbbkp_upload_site_chunk');
 function wpdbbkp_upload_site_chunk() {
-  
+    if ( !isset( $_POST['wpdbbkp_admin_security_nonce'] ) || !wp_verify_nonce( 	wp_unslash($_POST['wpdbbkp_admin_security_nonce']), 'wpdbbkp_ajax_check_nonce' ) ){ 
+      wp_send_json_success(esc_html__('Invalid nonce check.', 'wpdbbkp'));
+      return;  
+  }
    if (!isset($_FILES['file']) || !isset($_POST['fileName']) || !isset($_POST['offset'])) {
       wp_send_json_error("Invalid request.");
   }
@@ -20,11 +37,15 @@ function wpdbbkp_upload_site_chunk() {
   // Append chunk to the file
   file_put_contents($file_path, file_get_contents($_FILES['file']['tmp_name']), FILE_APPEND);
 
-  wp_send_json_success("Chunk uploaded successfully.");
+  wp_send_json_success(esc_html__('Chunk uploaded successfully.', 'wpdbbkp'));
 }
 add_action('wp_ajax_wpdbbkp_extract_uploaded_site', 'wpdbbkp_extract_uploaded_site');
 function wpdbbkp_extract_uploaded_site() {
   try {
+      if ( !isset( $_POST['wpdbbkp_admin_security_nonce'] ) || !wp_verify_nonce( 	wp_unslash($_POST['wpdbbkp_admin_security_nonce']), 'wpdbbkp_ajax_check_nonce' ) ){ 
+        wp_send_json_success(esc_html__('Invalid nonce check.', 'wpdbbkp'));
+        return;  
+    }
       ini_set('max_execution_time', 0); // No time limit
       set_time_limit(0);
       error_log("AJAX extraction started");
@@ -41,7 +62,7 @@ function wpdbbkp_extract_uploaded_site() {
       }
 
       $extract_path = $upload_dir . '/extracted/';
-    /*   $zip = new ZipArchive();
+       $zip = new ZipArchive();
       if ($zip->open($backup_file) !== TRUE) {
           throw new Exception("Failed to open the ZIP archive.");
       }
@@ -73,7 +94,8 @@ function wpdbbkp_extract_uploaded_site() {
               $normalized_entry === 'wp-config.php' ||
               (pathinfo($normalized_entry, PATHINFO_EXTENSION) === 'sql' && substr_count($normalized_entry, '/') === 0)
           ) {
-              if ($zip->extractTo($extract_path, $entry)) {
+            if ($zip->extractTo($extract_path, $entry)) {
+                  set_transient('wpdbbkp_track_progress', $entry, 3600);
                   error_log("Successfully extracted: $entry");
 
               } else {
@@ -82,8 +104,8 @@ function wpdbbkp_extract_uploaded_site() {
           }
       }
 
-      $zip->close(); */
-
+      $zip->close();
+      set_transient('wpdbbkp_track_progress', 'Extraction of files completed. Now taking live plugins & themes', 3600);
       // Define correct source paths inside the extracted folder
       $source_file = $extract_path.str_replace('.zip','',sanitize_file_name($_POST['fileName']));
       $plugins_path = $source_file . '/wp-content/plugins/';
@@ -93,13 +115,13 @@ function wpdbbkp_extract_uploaded_site() {
       $ignore_plugins = ['wp-database-backup'];
 
       if (file_exists($plugins_path)) {
-        //  wpdbbkp_move_extracted_files($plugins_path, WP_CONTENT_DIR . '/plugins/', $ignore_plugins);
+          wpdbbkp_move_extracted_files($plugins_path, WP_CONTENT_DIR . '/plugins/', $ignore_plugins);
       } else {
           error_log("Plugins directory not found in extracted folder.");
       }
 
       if (file_exists($themes_path)) {
-       //   wpdbbkp_move_extracted_files($themes_path, WP_CONTENT_DIR . '/themes/');
+          wpdbbkp_move_extracted_files($themes_path, WP_CONTENT_DIR . '/themes/');
       } else {
           error_log("Themes directory not found in extracted folder OR extraction failed.");
       }
@@ -107,16 +129,16 @@ function wpdbbkp_extract_uploaded_site() {
       // Process SQL file if found
       $sql_file = wpdbbkp_find_sql_file($source_file);
       if ($sql_file) {
+          set_transient('wpdbbkp_track_progress', 'Migrating Database...', 3600);
           $wp_config_prefix = wpdbbkp_get_wp_config_table_prefix();
           wpdbbkp_update_sql_table_prefix($sql_file, $wp_config_prefix);
           wpdbbkp_restore_database($sql_file);
-         // wpdbbkp_update_user_url();
       } else {
           error_log("No SQL file found in extracted folder.");
       }
-
+      delete_transient('wpdbbkp_track_progress');
       error_log("Extraction completed successfully");
-      wp_send_json_success("Plugins, Themes, Database & Table Prefix Updated!");
+      wp_send_json_success(esc_html__('Plugins, Themes, Database & Table Prefix Updated!', 'wpdbbkp'));
 
   } catch (Exception $e) {
       error_log("Error: " . $e->getMessage());
@@ -157,8 +179,7 @@ function wpdbbkp_update_sql_table_prefix($sql_file, $new_prefix) {
 }
 
 function wpdbbkp_move_extracted_files($source, $destination, $ignore = []) {
-  error_log('plugin src '.$source );
-  error_log('is plugin exist '.file_exists($source) );
+  
     if (!file_exists($source)) return;
 
     if (!file_exists($destination)) {
@@ -173,7 +194,7 @@ function wpdbbkp_move_extracted_files($source, $destination, $ignore = []) {
         if (in_array($file, $ignore)) {
             continue;
         }
-
+        set_transient('wpdbbkp_track_progress', 'Copying : '.$destFile, 3600);
         if (is_dir($srcFile)) {
             if (!file_exists($destFile)) {
                 rename($srcFile, $destFile);
@@ -214,7 +235,7 @@ function wpdbbkp_restore_database($sql_file) {
   $queries = preg_split('/;\s*\n/', $sql_content, -1, PREG_SPLIT_NO_EMPTY);
 
   // Tables to exclude (e.g., Users and Usermeta for security reasons)
-  $excluded_tables = ['users','usermeta'];
+  $excluded_tables = ['users','usermeta','options'];
 
   $wpdb->query('SET foreign_key_checks = 0'); // Disable FK checks
   $wpdb->query('START TRANSACTION'); // Start transaction
@@ -223,7 +244,7 @@ function wpdbbkp_restore_database($sql_file) {
       foreach ($queries as $query) {
           $query = trim($query);
           if (empty($query)) continue;
-
+          $query = str_replace('options','option_tmp',$query);
           // Check for CREATE TABLE and extract table name
           if (preg_match('/CREATE TABLE `([^`]*)`/', $query, $matches)) {
               $table_name = $matches[1];
@@ -256,22 +277,6 @@ function wpdbbkp_restore_database($sql_file) {
           }
       }
 
-      // **Update siteurl and home in wp_options**
-      $update_siteurl = $wpdb->update(
-          $wpdb->options,
-          ['option_value' => $new_site_url],
-          ['option_name' => 'siteurl'],
-          ['%s'],
-          ['%s']
-      );
-
-      $update_home = $wpdb->update(
-          $wpdb->options,
-          ['option_value' => $new_site_url],
-          ['option_name' => 'home'],
-          ['%s'],
-          ['%s']
-      );
 
       if ($update_siteurl === false || $update_home === false) {
           throw new Exception("[ERROR] Failed to update siteurl and home.");
@@ -309,35 +314,16 @@ function wpdbbkp_restore_database($sql_file) {
           }
       }
 
-      // **Set Default Theme (e.g., "twentytwentythree")**
-      $default_theme = 'twentytwentythree';
-
-      $wpdb->update(
-          $wpdb->options,
-          ['option_value' => $default_theme],
-          ['option_name' => 'template'],
-          ['%s'],
-          ['%s']
-      );
-
-      $wpdb->update(
-          $wpdb->options,
-          ['option_value' => $default_theme],
-          ['option_name' => 'stylesheet'],
-          ['%s'],
-          ['%s']
-      );
-
-      $wpdb->update(
-          $wpdb->options,
-          ['option_value' => 'twentytwentythree'],
-          ['option_name' => 'current_theme'],
-          ['%s'],
-          ['%s']
-      );
-
-      error_log("[SUCCESS] Default theme set to: $default_theme");
-
+      $blogname = $wpdb->get_var("SELECT option_value FROM {$wpdb->prefix}option_tmp WHERE option_name = 'blogname'");
+        if ($blogname) {
+            $wpdb->query(
+                $wpdb->prepare(
+                    "UPDATE {$wpdb->prefix}options SET option_value = %s WHERE option_name = 'blogname'",
+                    $blogname
+                )
+            );
+            error_log("[SUCCESS] Updated wp_options with blogname from option_tmp");
+        }
       $wpdb->query('COMMIT'); // Commit transaction
       error_log("[SUCCESS] Database restoration and URL replacement completed from: $sql_file");
       return true;
@@ -350,19 +336,6 @@ function wpdbbkp_restore_database($sql_file) {
       $wpdb->query('SET foreign_key_checks = 1'); // Re-enable FK checks
   }
 }
-
-
-
-function wpdbbkp_update_user_url() {
-    global $wpdb;
-    $site_url = get_site_url();
-    $table_prefix = wpdbbkp_get_wp_config_table_prefix();
-  //  $wpdb->query($wpdb->prepare("UPDATE `{$table_prefix}users` SET `user_url` = %s", $site_url));
-    update_option('siteurl', $site_url);
-    update_option('home', $site_url);
-    error_log("User URLs updated to: $site_url");
-}
-
 function wpdbbkp_delete_directory($dir) {
     if (!file_exists($dir)) return;
 
@@ -373,11 +346,6 @@ function wpdbbkp_delete_directory($dir) {
     }
     rmdir($dir);
 }
-
-
-
-
-
 function bkpforwp_anonimize_database($value, $table, $column)
 {
   $enable_anonymization = get_option('bkpforwp_enable_anonymization', false);

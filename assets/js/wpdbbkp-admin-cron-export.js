@@ -90,14 +90,12 @@ document.getElementById('wpdbbkp-upload-import').addEventListener('change', func
 				type: 'POST',
 				data: { action: "wpdbbkp_extract_uploaded_site", fileName: file.name,wpdbbkp_admin_security_nonce: wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce },
 				success: function(response) {
-					if (response.success) {
-						document.getElementById('wpdbbkp_import_progressbar').innerHTML =  'Extraction & Restore Completed!';
-						setTimeout(() => {
-							window.location.reload();
-						}, 1500);
-					} else {
-						//$('#uploadProgress').html("Extraction failed: " + response.data);
-					}
+				
+					document.getElementById('wpdbbkp_import_progressbar').innerHTML =  'Extraction & Restore Completed!';
+					setTimeout(() => {
+						window.location.reload();
+					}, 1500);
+				
 				},
 				error: function() {
 					

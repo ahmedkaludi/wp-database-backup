@@ -12,6 +12,9 @@ function wpdbbkp_check_extract_status(){
   if($get_progress==false){
     wp_send_json_success(['success'=>1,'message'=>esc_html__('Starring Extraction Process', 'wpdbbkp')]);
   }else{
+    if($get_progress=='Process Completed'){
+      delete_transient('wpdbbkp_track_progress');
+    }
     wp_send_json_success(['success'=>1,'message'=>$get_progress]);
   }
 }
@@ -235,7 +238,7 @@ function wpdbbkp_extract_uploaded_site() {
           wpdbbkp_delete_folder($wpdbbkp_folder);
           error_log("Deleted wpdbbkp folder after successful migration.");
       }
-      delete_transient('wpdbbkp_track_progress');
+      set_transient('wpdbbkp_track_progress', 'Process Completed', 3600);
       wp_send_json_success(esc_html__('Plugins, Themes, Database & Table Prefix Updated!', 'wpdbbkp'));
 
 
@@ -656,6 +659,25 @@ function wpdbbkp_restore_database($sql_file) {
             );
 
             error_log("[SUCCESS] Updated wp_options with blogname from option_tmp");
+
+        }
+      $active_plugins = $wpdb->get_var("SELECT option_value FROM {$wpdb->prefix}option_tmp WHERE option_name = 'active_plugins'");
+
+        if ($active_plugins) {
+
+            $wpdb->query(
+
+                $wpdb->prepare(
+
+                    "UPDATE {$wpdb->prefix}options SET option_value = %s WHERE option_name = 'active_plugins'",
+
+                    $active_plugins
+
+                )
+
+            );
+
+            error_log("[SUCCESS] Updated wp_options with active_plugins from option_tmp");
 
         }
 

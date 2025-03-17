@@ -104,16 +104,17 @@ document.getElementById('wpdbbkp-upload-import').addEventListener('change', func
 		}
 		function checkExtractStatus(){
 			document.getElementById('wpdb-import-process').style.display = '';
-			document.getElementById('wpdbbkp_import_progressbar').style.width =  '0%';
+			//document.getElementById('wpdbbkp_import_progressbar').style.width =  '100%';
 			$.ajax({
 				url: ajaxurl,
 				type: 'POST',
 				data: { action: "wpdbbkp_check_extract_status",wpdbbkp_admin_security_nonce: wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce},
 				success: function(response) {
 					if (response.success) {
-						checkExtractStatus();
-						document.getElementById('wpdbbkp_import_progressbar').style.width =  '100%';
 						document.getElementById('wpdbbkup_import_process_stats').innerHTML = response.data.message;
+						if(response.data.message!=='Process Completed'){
+							checkExtractStatus();
+						}
 					}
 				},
 				error: function() {

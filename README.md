@@ -17,8 +17,8 @@ WP Database Backup plugin helps you to create Database Backup and Restore Databa
 ### Features
 
 <ul>
-<li>Create Database Backup
-WP Database Backup plugin helps you to create Database Backup easily on single click.</li>
+<li>Create Website Migration
+WP Database Backup plugin helps you to Migrate Website easily on single click.</li>
 
 <li>Auto Backup
 Backup automatically on a repeating <strong>schedule</strong></li>

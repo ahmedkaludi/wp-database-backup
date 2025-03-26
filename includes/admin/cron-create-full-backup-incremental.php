@@ -882,15 +882,15 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 }
 
 function wpdbbkp_backup_completed_notification($args){
-			if( get_option( 'wp_db_backup_destination_Email')  != 1 ){
+			if ( get_option( 'wp_db_backup_destination_Email')  != 1 ) {
 				return;
 			}
-			$to = get_option( 'wp_db_backup_email_id' ,'' );
-			if(!empty($to)){
+			$to = get_option( 'wp_db_backup_email_id', '' );
+			if ( !empty( $to ) ) {
 				$to                     = sanitize_email( $to );
 				$subject                = 'Full Website Backup (' . get_bloginfo( 'name' ) . ')';
-				$filename               = esc_html($args[0]);
-				$filesize                =  esc_html($args[3]);
+				$filename               = esc_html( $args[0] );
+				$filesize                =  esc_html( $args[3] );
 				$site_url               = site_url();
 				$log_message_attachment = '';
 				$message                = '';

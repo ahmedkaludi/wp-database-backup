@@ -2726,6 +2726,7 @@ text-align: center;">
 
 		$args = array( $details['filename'], $details['dir'], $log_message, $details['size'], $destination );
 		do_action_ref_array( 'wp_db_backup_completed', array( &$args ) );
+		WPDatabaseBackupCD::wp_db_backup_completed( $args );
 
 		$options[]                 = array(
 			'date'           => time(),

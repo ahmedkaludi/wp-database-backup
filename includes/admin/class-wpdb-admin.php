@@ -89,6 +89,14 @@ class Wpdb_Admin {
 				'wp-database-backup#tab_db_remotebackups',
 				array($this, 'wp_db_backup_settings_page' ));
 
+			add_submenu_page(
+				'wp-database-backup',
+				'Migration',
+				'Migration',
+				'manage_options',
+				'wp-database-backup#tab_db_migrate',
+				array($this, 'wp_db_backup_settings_page' ));
+
 		add_submenu_page(
 			'wp-database-backup',
 			'Settings',
@@ -684,6 +692,7 @@ class Wpdb_Admin {
 					<ul class="nav nav-tabs wbdbbkp_has_nav">
 						<li class="active"><a href="#db_home" data-toggle="tab"><?php echo esc_html__('Backups', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_remotebackups" data-toggle="tab"><?php echo esc_html__('Cloud Backup', 'wpdbbkp') ?></a></li>
+						<li><a href="#db_migrate" data-toggle="tab"><?php echo esc_html__('Migration', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_schedul" data-toggle="tab"><?php echo esc_html__('Auto Scheduler', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_destination" data-toggle="tab"><?php echo esc_html__('Save Backups to', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_setting" data-toggle="tab"><?php echo esc_html__('Settings', 'wpdbbkp') ?></a></li>
@@ -854,10 +863,12 @@ class Wpdb_Admin {
                                 </div>
                                   </div>';
 					} else {
-						echo '<p>No Database Backups Created!</p>';
+						echo '<p>'. esc_html__('No Database Backups Created!','wpdbbkp').'</p>';
 					}
+		?>
 		
-						echo '<p>If you like <b>WP Database Backup</b> please leave us a <a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/wp-database-backup" title="Rating" sl-processed="1"> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> rating </a>. Many thanks in advance!</p>';
+						<p><?php echo esc_html__('If you like ','wpdbbkp')?><b> <?php echo esc_html__('WP Database Backup ','wpdbbkp')?> </b> <?php echo esc_html__('please leave us a ','wpdbbkp')?><a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/wp-database-backup" title="Rating" sl-processed="1"> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> rating </a>. <?php echo esc_html__('Many thanks in advance!','wpdbbkp')?> </p>
+		<?php
 					echo '</div>';
 
 					echo '<div class="tab-pane" id="db_schedul">';
@@ -882,22 +893,22 @@ class Wpdb_Admin {
 						$autobackup_type = $settings['autobackup_type'];
 					}
 
-					echo '<div class="row form-group"><label class="col-sm-3" for="enable_autobackups">Enable Auto Backups</label>';
+					echo '<div class="row form-group"><label class="col-sm-3" for="enable_autobackups">'. esc_html__('Enable Auto Backups','wpdbbkp') .'</label>';
 					echo '<div class="col-sm-9"><input type="checkbox" id="enable_autobackups" name="wp_db_backup_options[enable_autobackups]" value="1" ' . checked( 1, $enable_autobackups, false ) . '/>';
-					echo '<div class="alert alert-default" role="alert"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> AutoBackups will be based on Wordpress Cron so it can have execution delay of +/- 30 mins . If you have disabled Wordpress Cron then autobackup will not work until you have set Server Cron for wordpress.</div>';
+					echo '<div class="alert alert-default" role="alert"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>'. esc_html__('AutoBackups will be based on Wordpress Cron so it can have execution delay of +/- 30 mins . If you have disabled Wordpress Cron then autobackup will not work until you have set Server Cron for wordpress.','wpdbbkp') .'</div>';
 					echo '</div>';
 					echo '</div>';
 
-					echo '<div class="row form-group autobackup_type" style="display:none"><label class="col-sm-3" for="autobackup_frequency">Which part should we backup for you ?</label>';
+					echo '<div class="row form-group autobackup_type" style="display:none"><label class="col-sm-3" for="autobackup_frequency">'. esc_html__('Which part should we backup for you ?','wpdbbkp').'</label>';
 					echo '<div class="col-sm-9"><select id="autobackup_type" class="form-control" name="wp_db_backup_options[autobackup_type]">';
-					echo '<option value="">Select Backup Type</option>';
+					echo '<option value="">'.esc_html__('Select Backup Type','wpdbbkp').'</option>';
 					echo '<option value="full" ' . selected( 'full', $autobackup_type, false ) . '>Full(Files + DB)</option>';
 					echo '<option value="files" ' . selected( 'files', $autobackup_type, false ) . '>Files Only</option>';
 					echo '<option value="db" ' . selected( 'db', $autobackup_type, false ) . '>Database Only</option>';
 					echo '</select>';
 					echo '</div></div>';
 
-					echo '<div class="row form-group autobackup_frequency" style="display:none"><label class="col-sm-3" for="autobackup_frequency">How  often should we run Automatically?</label>';
+					echo '<div class="row form-group autobackup_frequency" style="display:none"><label class="col-sm-3" for="autobackup_frequency">'.esc_html__('How  often should we run Automatically?','wpdbbkp'). '</label>';
 					echo '<div class="col-sm-9"><select id="autobackup_frequency" class="form-control" name="wp_db_backup_options[autobackup_frequency]">';
 					echo '<option value="daily" ' . selected( 'daily', $autobackup_frequency, false ) . '>Daily</option>';
 					echo '<option value="weekly" ' . selected( 'weekly', $autobackup_frequency, false ) . '>Weekly</option>';
@@ -905,13 +916,13 @@ class Wpdb_Admin {
 					echo '</select>';
 					echo '</div></div>';
 
-					echo '<div class="row form-group autobackup_frequency_lite" style="display:none"><label class="col-sm-12 autobackup_daily_lite" >We will automatically backup at 00:00 AM daily.  <b><a href="javascript:modify_backup_frequency();">Change Back Frequency Timings</a></b></label></div>';
-					echo '<div class="row form-group autobackup_frequency_lite" style="display:none"><label class="col-sm-12 autobackup_weekly_lite" >We will automatically backup every Sunday on weekly basis. <b><a href="javascript:modify_backup_frequency();">Change Back Frequency Timings</a></b></label></div>';
-					echo '<div class="row form-group autobackup_frequency_lite" style="display:none"><label class="col-sm-12 autobackup_monthly_lite" >We will automatically backup on 1st on Monday on monthly basis. <b><a href="javascript:modify_backup_frequency();">Change Back Frequency Timings</a></b></label></div>';
+					echo '<div class="row form-group autobackup_frequency_lite" style="display:none"><label class="col-sm-12 autobackup_daily_lite" >'.esc_html__('We will automatically backup at 00:00 AM daily.  ','wpdbbkp'). '<b><a href="javascript:modify_backup_frequency();">'.esc_html__('Change Back Frequency Timings','wpdbbkp') .'</a></b></label></div>';
+					echo '<div class="row form-group autobackup_frequency_lite" style="display:none"><label class="col-sm-12 autobackup_weekly_lite" >'.esc_html__('We will automatically backup every Sunday on weekly basis.','wpdbbkp') . '<b><a href="javascript:modify_backup_frequency();">'.esc_html__('Change Back Frequency Timings','wpdbbkp') .'</a></b></label></div>';
+					echo '<div class="row form-group autobackup_frequency_lite" style="display:none"><label class="col-sm-12 autobackup_monthly_lite" >'.esc_html__('We will automatically backup on 1st on Monday on monthly basis.','wpdbbkp') . ' <b><a href="javascript:modify_backup_frequency();">'.esc_html__('Change Back Frequency Timings','wpdbbkp') . '</a></b></label></div>';
 
 					do_action('wpdbbkp_database_backup_options');
 					echo '<p class="submit">';
-					echo '<input type="submit" name="Submit" class="btn btn-primary" value="Save Settings" />';
+					echo '<input type="submit" name="'.esc_html__('Submit','wpdbbkp') . '" class="btn btn-primary" value="'.esc_html__('Save Settings','wpdbbkp') . '" />';
 					echo '</p>';
 					echo '</form>';
 					echo '</div>';
@@ -1110,6 +1121,104 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 
 
 </div>
+<div class="tab-pane" id="db_migrate">
+	<ul class="nav nav-tabs">
+		<li class="msub-tab active" id="msub-tab-export" onclick="handleNavigateChildTab(event, 'export')" style="cursor:pointer">
+			<a href="#" data-toggle="tab"><?php echo esc_html__('Export', 'wpdbbkp') ?></a>
+		</li>
+		<li class="msub-tab" id="msub-tab-import" onclick="handleNavigateChildTab(event, 'import')" style="cursor:pointer">
+			<a href="#" data-toggle="tab"><?php echo esc_html__('Import', 'wpdbbkp') ?></a>
+		</li>
+	</ul>
+	<?php
+		$nonce                     = wp_create_nonce( 'wp-database-backup' );
+		$wp_db_backup_search_text  = get_option( 'wp_db_backup_search_text' );
+		$wp_db_backup_replace_text = get_option( 'wp_db_backup_replace_text' );
+	?>
+	<div class="msub-tab-block" id="msub-tab-block-export" style="padding:20px;">
+		<div style="width: 500px;border: 5px dotted #204d74;margin: 0 auto;padding: 20px;border-radius: 10px;
+text-align: center;">
+	<?php
+		$wpdbbkp_export_notify = get_option('wpdbbkp_export_notify',false);
+		if($wpdbbkp_export_notify==false){
+		?>
+			<a href="#" id="wpdbbkp-create-full-export" class="btn btn-primary"> <span class="glyphicon glyphicon-plus-sign"></span> <?=esc_html__('Start Export', 'wpdbbkp')?></a>
+		<?php }?>
+		<div id="wpdb-export-process" style="display:none">
+			<div class="text-center"><img width="50" height="50" src="<?php echo esc_url(WPDB_PLUGIN_URL . "/assets/images/icon_loading.gif"); /* phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage */ ?>">
+				<h5 class="text-success"><strong><?php echo esc_html__('Import process is working in background, it may take some time depending on size of your
+						website. You can close this tab if you want', 'wpdbbkp') ?></strong></h5>
+				<div class="progress">
+					<div id="wpdbbkp_export_progressbar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+						style="width:0%">
+						0%
+					</div>
+				</div>
+				<h4 class="text-success" id="wpdbbkup_export_process_stats"><?php echo esc_html__('Processing...', 'wpdbbkp') ?></h4>
+			</div>
+		</div>
+		<?php
+			
+			if($wpdbbkp_export_notify){
+		?>
+			<div class="text-center wpdbbkp_notification"><img width="50" height="50" src="<?php echo esc_url(WPDB_PLUGIN_URL. "/assets/images/success.png"); /* phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage */ ?>">
+			<h4 class="text-success">
+				<?php if ($wpdbbkp_export_notify=='create') {
+					$backup_link = false;
+						$backup_list = get_option('wp_db_backup_backups');
+						if(!empty($backup_list) && is_array($backup_list)){
+							$download_backup = end($backup_list);
+							if($download_backup && !empty($download_backup) && isset($download_backup['url']))
+							{ 
+								$backup_link = '<a href="' . esc_url(admin_url('?wpdbbkp_download='.basename($download_backup['url']))) . '" style="color: #21759B;">' . __('Click here to Download', 'wpdbbkp') . '</a>';
+							}
+						}
+						update_option('wpdbbkp_export_notify',false);
+						esc_html_e('Export Completed. ', 'wpdbbkp');
+					}
+				?>
+				</h4>
+				<?php if ($backup_link) { ?>
+					<h5 class="text-success"><strong><?php echo wp_kses_post($backup_link); ?> </strong></h5>
+				<?php } ?>
+		</div>
+		<?php }?>
+		<p><?php echo esc_html__('If you like ','wpdbbkp');?>
+			<b><?php echo esc_html__('WP Database Backup','wpdbbkp');?> </b> 
+			<?php echo esc_html__('please leave us a','wpdbbkp');?>
+			 <a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/wp-database-backup" title="Rating" sl-processed="1"> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> <?php echo esc_html__('rating','wpdbbkp');?> </a>. <?php echo esc_html__('Many thanks in advance!','wpdbbkp');?></p>
+	</div>
+	</div>
+	<div class="msub-tab-block" id="msub-tab-block-import" style="padding:20px;display:none">
+	<div style="border: 5px dotted #5cb85c;margin: 0 auto;padding: 20px;border-radius: 10px;
+text-align: center;">
+		<input type="file"  accept=".zip,.rar,.7zip" id="wpdbbkp-upload-import" style="display:none"y/>
+		<a href="#" id="wpdbbkp-create-full-import" class="btn btn-success"> <span class="glyphicon glyphicon-plus-sign"></span> <?=esc_html__('Select File to Import', 'wpdbbkp')?></a>
+		<a href="#" id="wpdbbkp-start-full-import" class="btn btn-success" style="display:none"> <span class="glyphicon glyphicon-plus-sign"></span> <?=esc_html__('Start Import', 'wpdbbkp')?></a>
+		<a href="#" id="wpdbbkp-stop-full-import" class="btn btn-danger wpdbbkp-cancel-btn" style="display:none;margin-bottom: 20px;margin-left: 10px;" > <span class="glyphicon glyphicon-ban"></span><?= esc_html__('Stop Backup Process', 'wpdbbkp')?></a>
+		<p style="font-weight: bold;font-size: 14px;margin-top: 5px;color:#5cb85c" id="imported-file-name"></p>
+
+		<div id="wpdb-import-process" style="display:none">
+			<div class="text-center"><img width="50" height="50" src="<?php echo esc_url(WPDB_PLUGIN_URL . "/assets/images/icon_loading.gif"); /* phpcs:ignore PluginCheck.CodeAnalysis.ImageFunctions.NonEnqueuedImage */ ?>">
+				<h5 class="text-success"><strong><?php echo esc_html__('Import process is working, it may take some time depending on size of import file.', 'wpdbbkp') ?></strong></h5>
+				<div class="progress">
+					<div id="wpdbbkp_import_progressbar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+						style="width:0%;text-align:center">
+						0%
+					</div>
+				</div>
+				<h4 class="text-success" id="wpdbbkup_import_process_stats" style="font-size:12px"><?php echo esc_html__('Processing...', 'wpdbbkp') ?></h4>
+			</div>
+		</div>
+		<p><?php echo esc_html__('If you like ','wpdbbkp'); ?> <b> <?php echo esc_html__('WP Database Backup ','wpdbbkp'); ?></b> <?php echo esc_html__('please leave us a  ','wpdbbkp'); ?><a target="_blank" href="http://wordpress.org/support/view/plugin-reviews/wp-database-backup" title="<?php echo esc_html__('Rating','wpdbbkp'); ?>" sl-processed="1"> 
+			<?php for($i=0;$i<5;$i++){?>
+			<span class="glyphicon glyphicon-star" aria-hidden="true" style="color:#5cb85c"></span>
+			<?php }?>
+			 <?php echo esc_html__('rating','wpdbbkp'); ?> </a>. <?php echo esc_html__('Many thanks in advance!','wpdbbkp'); ?></p>
+	</div>
+	</div>
+</div>
+
 				<div class="tab-pane" id="db_help">
 						<div class="panel-group ">
 						        <div class="gn-flex-container row">
@@ -2816,11 +2925,14 @@ if($wpdb_clouddrive_token && !empty($wpdb_clouddrive_token))
 	        $local = array(                    
 	                'ajax_url'                     => admin_url( 'admin-ajax.php' ),            
 	                'wpdbbkp_admin_security_nonce'     => wp_create_nonce('wpdbbkp_ajax_check_nonce'),
+					'home_url' =>get_home_url()
 	        ); 
 			wp_register_script('wpdbbkp-admin-fb', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin-cron-backup.js', array(), WPDB_VERSION , true );  
-
+			
 	        wp_localize_script('wpdbbkp-admin-fb', 'wpdbbkp_localize_admin_data', $local );        
 	        wp_enqueue_script('wpdbbkp-admin-fb');
+			wp_register_script('wpdbbkp-admin-export', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin-cron-export.js', array(), WPDB_VERSION , true );  
+	        wp_enqueue_script('wpdbbkp-admin-export');
 	        // Custom Js ends
 		}
 	}

@@ -154,6 +154,7 @@ function wpdbbkp_cron_backup_api(){
 	));
 }
 
+
 /************************************************
  * Adding ajax call to check if any cron is working
  ************************************************/
@@ -868,11 +869,13 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 			wpdbbkp_fullbackup_log($args2);
 			wpdbbkp_backup_completed_notification($args2);
 			update_option('wpdbbkp_dashboard_notify','create', false);
+			update_option('wpdbbkp_export_notify','create', false);
 			update_option('wpdbbkp_backupcron_status','inactive', false);
 			update_option('wpdbbkp_backupcron_progress',100, false);
 			update_option('wpdbbkp_backupcron_current','Backup Completed', false);
 			update_option('wpdbbkp_current_chunk_cnt',0, false);
 			update_option('wpdbbkp_current_chunk_args',[], false);
+			delete_option('wpdbbkp_total_chunk_cnt');
 			delete_transient('wpdbbkp_backup_status');
 		}
 	
@@ -1180,18 +1183,39 @@ function wpdbbkp_is_file_processed($file_path = null, $timestamp = 0) {
 class wpdbbkpExcludeFilter extends RecursiveFilterIterator {
     private $excluded;
 
+    /**
+     * Constructor for the exclusion filter.
+     *
+     * @param RecursiveIterator $iterator The iterator to wrap.
+     * @param array $excluded List of directories to exclude.
+     */
     public function __construct(RecursiveIterator $iterator, array $excluded) {
         parent::__construct($iterator);
-        $this->excluded = $excluded;
+
+        // Normalize excluded paths for consistency
+        $this->excluded = array_filter(array_map(static function($exclude) {
+            return trim($exclude, DIRECTORY_SEPARATOR);
+        }, $excluded));
     }
 
-	#[\ReturnTypeWillChange]
+    /**
+     * Determines if the current item should be included.
+     *
+     * @return bool
+     */
+    #[\ReturnTypeWillChange]
     public function accept() {
         $current = $this->current();
         $pathname = $current->getPathname();
 
         foreach ($this->excluded as $exclude) {
-            if ( strpos($pathname, DIRECTORY_SEPARATOR . $exclude . DIRECTORY_SEPARATOR) ) {
+            // Check if the directory matches any excluded path
+            if (stripos($pathname, DIRECTORY_SEPARATOR . $exclude . DIRECTORY_SEPARATOR) !== false) {
+                return false;
+            }
+
+            // Special case: If the exclusion is a file or root-level directory
+            if (stripos($pathname, DIRECTORY_SEPARATOR . $exclude) === strlen($pathname) - strlen($exclude)) {
                 return false;
             }
         }
@@ -1199,11 +1223,17 @@ class wpdbbkpExcludeFilter extends RecursiveFilterIterator {
         return true;
     }
 
-	#[\ReturnTypeWillChange]
+    /**
+     * Get children for the current node.
+     *
+     * @return RecursiveFilterIterator
+     */
+    #[\ReturnTypeWillChange]
     public function getChildren() {
         return new self($this->getInnerIterator()->getChildren(), $this->excluded);
     }
 }
+
 
  function wpdbbkp_get_foldersize ($dir)
 {

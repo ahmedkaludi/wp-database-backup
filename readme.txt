@@ -6,7 +6,7 @@ Tags: Database backup, backup, cloud backup, files backup, wordpress backup.
 Requires at least: 3.1+
 Tested up to: 6.7
 Requires PHP: 5.6.20
-Stable tag: 7.4
+Stable tag: 7.5
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -19,8 +19,8 @@ WP Database Backup plugin helps you to create Database Backup and Restore Databa
 <li>Create Database Backup
 WP Database Backup plugin helps you to create Database Backup easily on single click.</li>
 
-<li>Auto Backup
-Backup automatically on a repeating <strong>schedule</strong></li>
+<li>Auto Backup - Backup automatically on a repeating <strong>schedule</strong></li>
+<li>Website Migration - Migration Your Site with Just One Click!</li>
 
 <li>Download backup file direct from your WordPress dashboard</li>
 
@@ -77,6 +77,9 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 4. screenshot-4.png
 
 == Changelog ==
+= 7.5 =
+* 18-03-2025
+* New: Feature of Website Migration
 
 = 7.4 =
 * 17-12-2024

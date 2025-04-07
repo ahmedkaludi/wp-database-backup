@@ -2727,9 +2727,10 @@ text-align: center;">
 		$destination               = ( 1 === (int) $wp_db_remove_local_backup ) ? '' : 'Local, ';
 
 		$args = array( $details['filename'], $details['dir'], $log_message, $details['size'], $destination );
-		do_action_ref_array( 'wp_db_backup_completed', array( &$args ) );
+		
 		WPDatabaseBackupCD::wp_db_backup_completed( $args );
-
+		do_action_ref_array( 'wp_db_backup_completed', array( &$args ) );
+		
 		$options[]                 = array(
 			'date'           => time(),
 			'filename'       => $details['filename'],

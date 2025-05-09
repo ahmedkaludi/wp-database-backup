@@ -4,9 +4,9 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html  
 Tags: Database backup, db backup, cloud backup, files backup, wordpress backup.  
 Requires at least: 3.1+  
-Tested up to: 6.6  
+Tested up to: 6.8  
 Requires PHP: 5.6.20  
-Stable tag: 7.3  
+Stable tag: 7.6  
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 

@@ -47,34 +47,8 @@ jQuery(document).ready(function($){
 		});
 
 		document.getElementById("wpdbbkp_remote_backup").addEventListener("click", function() {
-			let register_url = 'https://app.backupforwp.com/register?token='+wpdbbkp_script_vars.siteurl+'&un='+wpdbbkp_script_vars.ud.name+'&ue='+wpdbbkp_script_vars.ud.email;
-            let loginWindow = window.open(register_url, '_blank', 'width=800,height=600,resizable=yes,scrollbars=yes,top=100,left=200');
-			
-			window.addEventListener('message', function(event) {
-				// Check the origin of the message to ensure it's from the expected source
-				if (event.origin === 'https://app.backupforwp.com') {
-					let  token = event.data;
-						$.ajax({
-							type: 'POST',
-							url: wpdbbkp_localize_admin_data.ajax_url,
-							data: {action: 'wpdbbkp_save_remote_token', token: token, wpdbbkp_security_nonce:wpdbbkp_localize_admin_data.wpdbbkp_admin_security_nonce},
-							success: function(response){
-								response = JSON.parse(response);
-								console.log(response);
-								if(response.status=='success'){
-									loginWindow.close();
-									$('#wpdbbkp_offer_modal').hide();
-									bkpforwp_cron_start();
-								
-								}
-							},
-							error: function(response){
-								console.log(response);
-							}
-
-						});
-				}
-			});
+			window.location.href = wpdbbkp_localize_admin_data.home_url+'/wp-admin/admin.php?page=wp-database-backup#tab_db_upgrade';
+			window.location.reload();
 		});
 			
 	}

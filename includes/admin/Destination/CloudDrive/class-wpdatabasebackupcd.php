@@ -39,7 +39,7 @@ public static function upload_backup_to_clouddrive($file_path, $file_name) {
     }
   
     $upload_auth_token = 'Bearer '.$token;
-    $upload_url = $api_url . '/api/v1/file/upload';
+    $upload_url = apply_filters('wpdbbkp_upload_url', $api_url . '/api/v1/file/upload');
     
 
     if (!$wp_filesystem) {
@@ -57,11 +57,10 @@ public static function upload_backup_to_clouddrive($file_path, $file_name) {
     if ($file_contents === false) {
         return array('success' => false, 'message' => esc_html__('Failed to read file: ', 'wpdbbkp') . $file_path);
     }
-
-    $root_path = str_replace('\\', '/', ABSPATH); // Normalize to forward slashes for consistency
-    $file_path = str_replace($root_path, '', $file_path);
+    $root_path_1 = ABSPATH;
+    $root_path_2 = str_replace('\\', '/', ABSPATH);
+    $file_path = str_replace(array($root_path,$root_path_1), array('',''), $file_path);
     $file_path = ltrim($file_path, '/'); // Ensure there is no leading slash
-
 
     $file_data = $file_contents;
 
@@ -87,7 +86,6 @@ public static function upload_backup_to_clouddrive($file_path, $file_name) {
         'body'    => $body,
         'timeout' => 300,
     ) );
-
 
     if (is_wp_error($response)) {
         return array('success' => false, 'message' => esc_html__('Upload request failed: ', 'wpdbbkp') . $response->get_error_message());

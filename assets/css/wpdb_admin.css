@@ -223,7 +223,6 @@ html {
   .pri-tb{background:#fff;text-align:center;border:1px solid #f9f9f9;position:relative;}
   .pri-tb:hover{border:1px solid #e04371;}
   .pri-tb a:hover .pri-by{background:#e04371;}
-  .pri-tb a:hover .amt{color:#7241a7;}
   .pri-tb a{display:inline-block;text-decoration:none;color:#222;padding:20px 12px;}
   .pri-tb h5{margin:0 0 20px 0;font-size:13px;line-height:1.2;letter-spacing:2px;font-weight:400;color:#000;}
   .pri-tb span{display:inline-block;}
@@ -419,4 +418,18 @@ html {
 #wpdbbkp_offer_modal{
   background-color: #000000a1;
   z-index: 9999999;
+}
+.bootstrap-wrapper a:hover, .bootstrap-wrapper a:focus {
+  color:#fff !important;
+}
+.pri-lst .rec .pri-by, .pri-tb a:hover .pri-by{
+  background : #e04371 !important
+}
+ .tru-us a:hover{
+ color :#000 !important;
+
+}
+a.wpdbbkp-upgrade-a {
+  background-color: rgba(234, 76, 137, 1) !important;
+  color: #fff !important;
 }

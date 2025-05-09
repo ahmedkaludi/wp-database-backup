@@ -104,6 +104,16 @@ class Wpdb_Admin {
 			'manage_options',
 			'wp-database-backup#tab_db_setting',
 			array($this, 'wp_db_backup_settings_page' ));
+		// if backup is not premium then show this
+		if ( ! is_plugin_active( 'wp-database-backup-premium/wp-database-backup-premium.php' ) ) {
+			add_submenu_page(
+				'wp-database-backup',
+				'Upgrade to Premium',
+				'Upgrade to Premium',
+				'manage_options',
+				'wp-database-backup#tab_db_upgrade',
+				array($this, 'wp_db_backup_settings_page' ));
+			}
 			add_submenu_page(
 				'wp-database-backup',
 				'Search and Replace',
@@ -624,8 +634,12 @@ class Wpdb_Admin {
 		if(!function_exists('WP_Filesystem')){
 			require_once ( ABSPATH . '/wp-admin/includes/file.php' );
 		}
+		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		WP_Filesystem();
-
+		$wp_db_is_pro = false;
+		if ( is_plugin_active( 'wp-database-backup-premium/wp-database-backup-premium.php' ) ) {
+			$wp_db_is_pro = true;
+		}
 		$options  = get_option( 'wp_db_backup_backups' );
 		$options = wpdbbkp_filter_unique_filenames( $options );
 		$settings = get_option( 'wp_db_backup_options' ); 
@@ -691,7 +705,11 @@ class Wpdb_Admin {
 				<div class="panel-body">
 					<ul class="nav nav-tabs wbdbbkp_has_nav">
 						<li class="active"><a href="#db_home" data-toggle="tab"><?php echo esc_html__('Backups', 'wpdbbkp') ?></a></li>
-						<li><a href="#db_remotebackups" data-toggle="tab"><?php echo esc_html__('Cloud Backup', 'wpdbbkp') ?></a></li>
+						<?php if($wp_db_is_pro){ 
+							do_action('wpdbbkp_pro_tab_links');
+						 } else { ?>
+							<li><a href="#db_remotebackups" data-toggle="tab"><?php echo esc_html__('Cloud Backup', 'wpdbbkp') ?></a></li>	
+						<?php } ?>
 						<li><a href="#db_migrate" data-toggle="tab"><?php echo esc_html__('Migration', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_schedul" data-toggle="tab"><?php echo esc_html__('Auto Scheduler', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_destination" data-toggle="tab"><?php echo esc_html__('Save Backups to', 'wpdbbkp') ?></a></li>
@@ -700,6 +718,9 @@ class Wpdb_Admin {
 						<li><a href="#db_features" data-toggle="tab"><?php echo esc_html__('Modules', 'wpdbbkp') ?></a></li>
 						<li title="System Info"><a href="#db_info" data-toggle="tab"><?php echo esc_html__('Usage', 'wpdbbkp') ?></a></li>
 						<li><a href="#db_help" data-toggle="tab"><?php echo esc_html__('Help &amp; Support', 'wpdbbkp') ?></a></li>
+						<?php if( ! $wp_db_is_pro ){ ?> 
+							<li><a href="#db_upgrade" class="wpdbbkp-upgrade-a" data-toggle="tab"><?php echo esc_html__('Upgrade to Premium', 'wpdbbkp') ?></a></li>
+						<?php } ?>
 						
 						
 					</ul>
@@ -961,14 +982,16 @@ class Wpdb_Admin {
 				<p><?php echo esc_html__('Backup your site in the cloud','wpdbbkp');?></p>
 				<ul>
 					<li>&#10004; <?php echo esc_html__('Secure and reliable','wpdbbkp');?></li>
-					<li>&#10004; <?php echo esc_html__('Only pay for what you use','wpdbbkp');?></li>
+					<li>&#10004; <?php echo esc_html__('Unlimited Storage *','wpdbbkp');?></li>
 					<li>&#10004; <?php echo esc_html__('High availability','wpdbbkp');?></li>
 				</ul>
-				<h4><?php echo esc_html__('$1 per 50GB','wpdbbkp');?> <small><?php echo esc_html__('per month','wpdbbkp');?></small></h4>
+				<h4><?php echo esc_html__('$49','wpdbbkp');?> <small><?php echo esc_html__('per month onwards','wpdbbkp');?></small></h4>
 				<button id="wpdbbkp_remote_backup" class="btn btn-primary"><?php echo esc_html__('Create a Backup on Cloud Server','wpdbbkp');?></button>
+				
 			</div>
 			
 		</div>
+		<br><small><?php echo esc_html__('* Fair Usage Policies applies','wpdbbkp');?></small>
       </div>
     </div>
   </div>
@@ -1258,6 +1281,231 @@ text-align: center;">
 				</div>
 						        </div>
 						</div>
+					</div>
+
+					<div class="tab-pane" id="db_upgrade">
+						<style> .fe-t h4,.fe-t img{vertical-align:middle}.pri-tb h5,.rcm{letter-spacing:2px}.ampfaq h4,.f-cnt,.pr-btn,.pri-tb,.wpdb-tlt,.tru-us,.upg-t,.wpdbbkp-feature,.wpdbbkp-hero{text-align:center}.f-cnt a,.pr-btn a,.pri-tb a,.tru-us a{text-decoration:none}.wpdbbkp-hero{background:#337ab7;color:#fff;padding:100px 20px 80px;position:relative}.wpdbbkp-hero::after{content:"";position:absolute;inset:0}.d-amt sup,.pri-lst .rec,.pri-tb,.pri-tb .amt sup,.wpdb,.wpdb-tlt span{position:relative}.wpdbbkp-hero-content{position:relative;z-index:1}.wpdbbkp-hero-content h1{font-size:48px;margin:0 0 20px}.wpdbbkp-hero-content p{font-size:18px;margin-bottom:30px}.wpdbbkp-btn{background:#7ed957;color:#fff;padding:14px 28px;font-size:16px;border:none;border-radius:25px;cursor:pointer}.wpdbbkp-features{display:flex!important;justify-content:space-around;padding:60px 20px;background:#f9f9f9;flex-wrap:wrap}.wpdbbkp-feature{max-width:300px;margin:20px}.wpdbbkp-feature-icon{font-size:40px;color:#8b5cf6;margin-bottom:15px}.wpdbbkp-feature h3{margin-bottom:10px;font-size:22px}.wpdbbkp-feature p{font-size:15px;color:#555}.ex-1 h4,.fe-2,.fr-fe,.upg-t{color:#222}.wpdb{top:-16px;border:1px solid #eee;padding-bottom:40px}.ext{display:grid;grid-template-columns:1fr 1fr 1fr;background:#f9f9f9;padding:45px 0 45px 25px}.wpdb-cnt,.wpdb-tlt span{display:inline-block}.ex-1{width:250px}.ampfaq,.fet,.pr-btn,.pri-lst,.wpdb-cnt,.wpdb-tlt{width:100%}.ex-1 h4{margin:15px 0 12px;font-size:18px;font-weight:500}.ex-1 p{font-size:14px;color:#555;font-weight:400;margin:0}.e-1 img{width:65px!important}.e-2 img{width:45px!important}.e-3 img{width:49px!important}.wpdb-tlt{margin:70px 0 60px}.wpdb-tlt h2{font-size:36px;line-height:1.4;color:#000;font-weight:500;margin:0}.wpdb-tlt span{font-size:16px;color:#000;margin-top:15px;top:4px}.wpdb-cmp{display:grid;grid-template-columns:1fr 2fr}.fr{border-right:1px solid #eee}.fr h1,.pr h1{font-size:36px;font-weight:700;line-height:1.5;border-bottom:1px solid #efefef;padding:0 0 20px 35px}.lt,.pr h1{padding-left:50px}.fr-fe{padding-top:10px}.fe-1{padding:22px 35px 35px}.fe-1 h4{margin:0 0 10px;font-size:20px;line-height:1.4;font-weight:400;color:#000}.fe-1 p{font-size:15px;line-height:1.4;margin:0;color:#333}.pr-fe{padding:34px 35px 35px}.pr-fe span{font-family:georgia;font-size:16px;font-weight:700;color:#000;font-style:italic;line-height:1.3}.fe-2 p,.fe-t h4{line-height:1.4;margin:0}.fet{display:grid;grid-template-columns:1fr 1fr;grid-gap:25px;margin-top:40px}.fe-t h4,.fe-t img,.pr-btn,.pr-btn a,.upg-t>span{display:inline-block}.fe-t img{width:22px!important}.fe-t h4{font-size:19px;color:#000;font-weight:400;padding-left:8px}.fe-2 p{font-size:15px;color:#555;padding-top:8px}.pr-btn{margin:50px 0 25px}.pr-btn a{color:#fff;padding:12px 35px 17px;border-radius:5px;font-size:28px;line-height:1.2;background:#eb3349;font-weight:600;margin-top:0;box-shadow:0 .15em .65em 0 rgba(0,0,0,.25)}.Backup for WP-upg{background:#f5f5f5;padding:60px 10px 0}.upg-t h2{margin:0;font-size:35px;color:#060606;line-height:1.3;font-weight:500}.pri-by,.pri-tb h5,.upg-t>span{line-height:1.2}.upg-t>span{font-size:14px;margin-top:15px;color:#666}.pri-lst{display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;margin-top:70px;grid-gap:1px;box-shadow:0 10px 15px 1px #ddd}.pri-tb{background:#fff;border:1px solid #f9f9f9}.f-cnt a,.pri-by{background:#333;display:inline-block}.pri-tb:hover{border:1px solid #489bff}.pri-lst .rec .pri-by,.pri-tb a:hover .pri-by{background:#1e8fff}.pri-tb a{display:inline-block;color:#222;padding:20px 12px}.pri-tb h5{margin:0 0 20px;font-size:13px;font-weight:400;color:#000}.pri-by,.pri-tb .amt,.pri-tb .d-amt,.pri-tb .s-amt,.tru-us h2{font-weight:500}.pri-tb span{display:inline-block}.pri-tb .amt{font-size:40px;margin-bottom:20px;display:block}.pri-tb .d-amt{font-size:24px;color:#666;margin-bottom:15px;display:none;text-decoration:line-through}.d-amt sup{line-height:0;top:7px}.pri-tb .s-amt{font-size:13px;color:#4caf50;margin-bottom:10px;display:block}.pri-tb .amt sup{font-size:22px;padding:0 4px 0 0;top:7px}.pri-tb .bil{color:#aaa;font-size:12px;margin-bottom:20px}.pri-tb .e,.pri-tb .f,.pri-tb .s{font-size:14px;margin-bottom:15px;color:#3b4750}.pri-tb .sv{font-size:12px;color:#fff;background:#4caf50;margin:0 auto;padding:1px 7px 2px;border-radius:45px;display:none}.pri-by{font-size:15px;border-radius:2px;padding:9px 18px 10px;color:#fff;margin-top:29px}.pri-lst .rec{box-shadow:0 1px 40px 0 #ccc;background:#fff;z-index:9;margin-top:-20px}.pri-lst .rec:hover .rcm{background:#e04371;color:#fff}.rcm{background:#dedede;color:#888;position:absolute;top:-20px;left:0;right:-1px;bottom:auto;padding:2px 0;font-size:11px}.tru-us{padding:60px 0;margin:0 auto;font-size:16px;color:#222}.tru-us h2{margin:20px 0 0;font-size:28px}.tru-us p{font-size:17px;margin:19px 15% 18px;color:#666;line-height:29px}.tru-us a{font-size:18px;color:#489bff;font-weight:400}.ampfaq h4,.f-cnt a,.f-cnt span{font-weight:500}.ampfaq{margin:25px 0}.ampfaq h4{margin:0;font-size:20px;color:#333}.faq-lst{margin-top:50px;display:grid;grid-template-columns:1fr 1fr}.lt,.rt{width:70%}.lt ul,.rt ul{margin:0}.lt ul li,.rt ul li{color:#222;margin-bottom:30px!important}.lt span,.rt span{font-size:17px;font-weight:500;margin-bottom:6px;display:inline-block}.lt p,.rt p{font-size:15px;margin:0}.f-cnt{margin-top:20px;color:#222}.f-cnt span{font-size:17px;margin:8px 0}.f-cnt p{font-size:15px;margin:6px 0}.faq-lst li span,h4{font-weight:600}.f-cnt a{color:#fff;padding:15px 30px;font-size:18px;margin-top:15px}@media (max-width:1366px){.Backup for WP-upg{padding:60px 0 0}}@media (max-width:768px){.ext,.faq-lst,.wpdb-cmp{grid-template-columns:1fr}.ext{grid-gap:30px 0px;padding:30px}.wpdb-tlt h2{font-size:26px}.pr-btn a{font-size:22px}.pri-lst{grid-template-columns:1fr 1fr 1fr}.ex-1{width:100%}.rt{padding-left:50px}}
+						.wpdbbkp-hero-content a {color:#fff;font-size:24px;font-weight:500;text-decoration:none}.wpdbbkp-hero-content a:hover{color:#fff;text-decoration:underline}.wpdbbkp-hero-content h1{font-size:48px;margin:0 0 20px}.wpdbbkp-hero-content p{font-size:18px;margin-bottom:30px}.wpdbbkp-btn a{color:#fff;text-decoration:none}.wpdbbkp-btn a:hover{color:#fff;text-decoration:underline}.wpdb-tlt h3{font-weight: bold;}.wpdb-tlt{color:#000;}
+						</style>
+						<div class="panel-group ">
+	<div class="wpdb">
+        <div class="wpdb-cnt">
+            <div class="wpdb-tlt">
+			    <h1>Upgrade for Unlimited Storage</h1>
+                <h3>Compare Pro vs. Free Version</h3>
+                <span>See what you'll get with the professional version</span>
+            </div>
+            <div class="wpdb-cmp">
+                <div class="fr">
+                    <h1>FREE</h1>
+                    <div class="fr-fe">
+                        <div class="fe-1">
+                            <h4>Continuous Development</h4>
+                            <p>We take bug reports and feature requests seriously. We're continuously developing & improving this product for the last 2 years with passion and love.</p>
+                        </div>
+                        <div class="fe-1">
+                            <h4>50+ Features</h4>
+                            <p>We're constantly expanding the plugin and make it more useful. We have wide variety of features which will fit any use-case.</p>
+                        </div>
+                        <div class="fe-1">
+                            <h4>Technical Support</h4>
+                            <p>We have a full time team which helps you with each and every issue regarding Backup for WP.</p>
+                        </div>
+                    </div><!-- /. fr-fe -->
+                </div><!-- /. fr -->
+                <div class="pr">
+                    <h1>PRO</h1>
+                    <div class="pr-fe">
+                        <span>Everything in Free, and:</span>
+                        <div class="fet">
+                            <div class="fe-2">
+                                <div class="fe-t"><img src="<?php echo esc_url(WPDB_PLUGIN_URL.'/assets/images/right-tick.png'); ?>" />
+                                    <h4>Unlimited Backup<sup>*</sup></h4>
+                                </div>
+                                <p>Unlimited Storage for your websites</p>
+                            </div>
+                            <div class="fe-2">
+                                <div class="fe-t"><img src="<?php echo esc_url(WPDB_PLUGIN_URL.'/assets/images/right-tick.png'); ?>" />
+                                    <h4>Secure and reliable</h4>
+                                </div>
+                                <p>We follow industry-best practices to safeguard against unauthorized access, corruption, and loss</p>
+                            </div>
+							<div class="fe-2">
+                                <div class="fe-t"><img src="<?php echo esc_url(WPDB_PLUGIN_URL.'/assets/images/right-tick.png'); ?>" />
+                                    <h4>High availability</h4>
+                                </div>
+                                <p>Our system is built on a globally distributed cloud infrastructure with 99% uptime</p>
+                            </div>
+
+							
+                            <div class="fe-2">
+                                <div class="fe-t"><img src="<?php echo esc_url(WPDB_PLUGIN_URL.'/assets/images/right-tick.png'); ?>" />
+                                    <h4>Dedicated Support</h4>
+                                </div>
+                                <p>With a Dedicated person helping you with the extension setup and questions.</p>
+                            </div>
+                            <div class="fe-2">
+                                <div class="fe-t"><img src="<?php echo esc_url(WPDB_PLUGIN_URL.'/assets/images/right-tick.png'); ?>" />
+                                    <h4>Continious Updates</h4>
+                                </div>
+                                <p>We're continiously updating our premium features and releasing them.</p>
+                            </div>
+                            <div class="fe-2">
+                                <div class="fe-t"><img src="<?php echo esc_url(WPDB_PLUGIN_URL.'/assets/images/right-tick.png'); ?>" />
+                                    <h4>Innovation</h4>
+                                </div>
+                                <p>Be the first one to get the innovative features that we build in the future.</p>
+                            </div>
+                        </div><!-- /. fet -->
+                        <div class="pr-btn">
+                            <a href="#upgrade">Upgrade to Pro</a>
+                        </div><!-- /. pr-btn -->
+                    </div><!-- /. pr-fe -->
+                </div><!-- /.pr -->
+            </div><!-- /. wpdb-cmp -->
+        </div><!-- /. wpdb-cnt -->
+        <div id="upgrade" class="Backup for WP-upg">
+            <div class="upg-t">
+                <h2>Let's Get Your Backups Ready</h2>
+                <span>Choose your plan and upgrade in minutes!</span>
+            </div>
+            <div class="pri-lst">
+                <div class="pri-tb">
+                    <a href="https://backupforwp.com/checkout?edd_action=add_to_cart&download_id=1123&edd_options[price_id]=1">
+                        <h5>PERSONAL</h5>
+                        <span class="d-amt"><sup>$</sup>49</span>
+                        <span class="amt"><sup>$</sup>49</span>
+                        <span class="s-amt">(Save $59)</span>
+                        <span class="bil">Billed Annually</span>
+                        <span class="s">1 Site License</span>
+                        <span class="e">E-mail support</span>
+                        <span class="f">Pro Features</span>
+                        <span class="sv">Save $800+</span>
+                        <span class="pri-by">Buy Now</span>
+                    </a>
+                </div>
+                <div class="pri-tb rec">
+                    <a href="https://backupforwp.com/checkout?edd_action=add_to_cart&download_id=1123&edd_options[price_id]=2">
+                        <h5>MULTIPLE</h5>
+                        <span class="d-amt"><sup>$</sup>99</span>
+                        <span class="amt"><sup>$</sup>99</span>
+                        <span class="s-amt">(Save $79)</span>
+                        <span class="bil">Billed Annually</span>
+                        <span class="s">3 Site License</span>
+                        <span class="e">E-mail support</span>
+                        <span class="f">Pro Features</span>
+                        <span class="sv">Save 55%</span>
+                        <span class="pri-by">Buy Now</span>
+                        <span class="rcm">RECOMMENDED</span>
+                    </a>
+                </div>
+                <div class="pri-tb">
+                    <a href="https://backupforwp.com/checkout?edd_action=add_to_cart&download_id=1123&edd_options[price_id]=3">
+                        <h5>WEBMASTER</h5>
+                        <span class="d-amt"><sup>$</sup>199</span>
+                        <span class="amt"><sup>$</sup>199</span>
+                        <span class="s-amt">(Save $99)</span>
+                        <span class="bil">Billed Annually</span>
+                        <span class="s">10 Site License</span>
+                        <span class="e">E-mail support</span>
+                        <span class="f">Pro Features</span>
+                        <span class="sv">Save 83%</span>
+                        <span class="pri-by">Buy Now</span>
+                    </a>
+                </div>
+                <div class="pri-tb">
+                    <a href="https://backupforwp.com/checkout?edd_action=add_to_cart&download_id=1123&edd_options[price_id]=4">
+                        <h5>FREELANCER</h5>
+                        <span class="d-amt"><sup>$</sup>299</span>
+                        <span class="amt"><sup>$</sup>299</span>
+                        <span class="s-amt">(Save $119)</span>
+                        <span class="bil">Billed Annually</span>
+                        <span class="s">25 Site License</span>
+                        <span class="e">E-mail support</span>
+                        <span class="f">Pro Features</span>
+                        <span class="sv">Save 90%</span>
+                        <span class="pri-by">Buy Now</span>
+                    </a>
+                </div>
+                <div class="pri-tb">
+                    <a href="https://backupforwp.com/checkout?edd_action=add_to_cart&download_id=1123&edd_options[price_id]=5">
+                        <h5>AGENCY</h5>
+                        <span class="d-amt"><sup>$</sup>499</span>
+                        <span class="amt"><sup>$</sup>499</span>
+                        <span class="s-amt">(Save $199)</span>
+                        <span class="bil">Billed Annually</span>
+                        <span class="s">Unlimited</span>
+                        <span class="e">E-mail support</span>
+                        <span class="f">Pro Features</span>
+                        <span class="sv">UNLIMITED</span>
+                        <span class="pri-by">Buy Now</span>
+                    </a>
+                </div>
+            </div><!-- /.pri-lst -->
+            <div class="tru-us"><img src="<?php echo esc_url(WPDB_PLUGIN_URL.'/assets/images/rating.png'); ?>" />
+			
+                <h2>Trusted by more that 30000+ Users!</h2>
+                <p>More than 30k Websites, Blogs & E-Commerce website are powered by our Backup for WP making it the #1 Rated Backup for WP plugin in WordPress Community.</p>
+                <a href="https://wordpress.org/support/plugin/wp-database-backup/reviews/?filter=5" target="_blank">Read The Reviews</a>
+            </div>
+        </div><!--/ .Backup for WP-upg -->
+        <div class="ampfaq">
+            <h4>Frequently Asked Questions</h4>
+            <div class="faq-lst">
+                <div class="lt">
+                    <ul>
+                        <li>
+                            <span>Is there a setup fee?</span>
+                            <p>No. There are no setup fees on any of our plans</p>
+                        </li>
+                        <li>
+                            <span>What's the time span for your contracts?</span>
+                            <p>All the plans are year-to-year which are subscribed annually.</p>
+                        </li>
+                        <li>
+                            <span>What payment methods are accepted?</span>
+                            <p>We accepts PayPal and Credit Card payments.</p>
+                        </li>
+                        <li>
+                            <span>Do you offer support if I need help?</span>
+                            <p>Yes! Top-notch customer support for our paid customers is key for a quality product, so we’ll do our very best to resolve any issues you encounter via our support page.</p>
+                        </li>
+                        <li>
+                            <span>Can I use the plugins after my subscription is expired?</span>
+                            <p>Yes, you can use the plugins but you will not get future updates for those plugins.</p>
+                        </li>
+                    </ul>
+                </div>
+                <div class="rt">
+                    <ul>
+                        <li>
+                            <span>Can I cancel my membership at any time?</span>
+                            <p>Yes. You can cancel your membership by contacting us.</p>
+                        </li>
+                        <li>
+                            <span>Can I change my plan later on?</span>
+                            <p>Yes. You can upgrade or downgrade your plan by contacting us.</p>
+                        </li>
+                        <li>
+                            <span>Do you offer refunds?</span>
+                            <p>You are fully protected by our 100% Money Back Guarantee Unconditional. If during the next 14 days you experience an issue that makes the plugin unusable and we are unable to resolve it, we’ll happily offer a full refund.</p>
+                        </li>
+                        <li>
+                            <span>Do I get updates for the premium plugin?</span>
+                            <p>Yes, you will get updates for all the premium plugins until your subscription is active.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div><!-- /.faq-lst -->
+            <div class="f-cnt">
+                <span>I have other pre-sale questions, can you help?</span>
+                <p>All the plans are year-to-year which are subscribed annually.</p>
+                <a href="https://backupforwp.com/contact/?utm_medium=freevspro&utm_campaign=Plugin" target="_blank"> Contact a Human</a>
+            </div><!-- /.f-cnt -->
+        </div><!-- /.faq -->
+    </div><!-- /. wpdb -->
+						        </div>
+					
 					</div>
 
 				<div class="tab-pane" id="db_info">
@@ -1958,7 +2206,7 @@ text-align: center;">
 	*/
 	public function wp_db_backup_premium_interface_render()
 	{
-		wp_redirect("https://backupforwp.com/pricing/");
+		wp_redirect("https://backupforwp.com/pricing/#price");
 		exit;
 	}
 

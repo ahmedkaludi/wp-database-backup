@@ -4,9 +4,9 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: Database backup, backup, cloud backup, files backup, wordpress backup.
 Requires at least: 3.1+
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 5.6.20
-Stable tag: 7.5
+Stable tag: 7.6
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -77,6 +77,11 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 4. screenshot-4.png
 
 == Changelog ==
+= 7.6 =
+* 09-05-2025
+* Test: Tested upto WP 6.8
+* New: Added Premium Plugin option
+
 = 7.5 =
 * 18-03-2025
 * New: Feature of Website Migration
@@ -186,15 +191,6 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 * Fixed: Google Drive backup is not being configured, and there are also multiple issues. #44
 * Improvement: FullBack process will work in background and will show current progess. #46
 * Improvement: UI/UX Improvement for notifications. #46
-
-
-= 6.2 =
-* 04-04-2023
-* Fixed: Undefinded variable $database_file error #33
-* Added: ziparchive is not enable so show message #36
-* Fixed: When we configued the email backup, then local backup is getting unconfigued. #37
-* Fixed: Escaping is missing #40
-* Fixed: Fatal error: Uncaught TypeError: ftp_quit(): Argument #1 ($ftp) must be of type FTP\Connection, bool given #41
 
 Full changelog available [ at changelog.txt](https://plugins.svn.wordpress.org/wp-database-backup/trunk/changelog.txt)
 

@@ -504,8 +504,9 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
  ************************/
 if(!function_exists('wpdbbkp_write_log')){
 	function wpdbbkp_write_log($logFile, $logMessage) {
-	    // Actually write the log file
-	    if (wpdbbkp_is_writable($logFile) || !wpdbbkp_file_exists($logFile)) {
+	    // Actually write the log file	$logDir = dirname( $logFile );
+		$logDir = dirname($logFile);		
+	    if (wpdbbkp_is_writable($logDir) || !wpdbbkp_file_exists($logFile)) {
 			wpdbbkp_write_file_contents( $logFile, $logMessage, true );
 	        return true;
 	    }

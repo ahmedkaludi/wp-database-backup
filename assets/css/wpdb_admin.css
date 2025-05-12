@@ -419,9 +419,6 @@ html {
   background-color: #000000a1;
   z-index: 9999999;
 }
-.bootstrap-wrapper a:hover, .bootstrap-wrapper a:focus {
-  color:#fff !important;
-}
 .pri-lst .rec .pri-by, .pri-tb a:hover .pri-by{
   background : #e04371 !important
 }
@@ -432,4 +429,8 @@ html {
 a.wpdbbkp-upgrade-a {
   background-color: rgba(234, 76, 137, 1) !important;
   color: #fff !important;
+}
+.wbdbbkp_has_nav a:hover,
+.wbdbbkp_has_nav a:focus {
+    color: #fff;
 }

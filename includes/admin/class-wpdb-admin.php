@@ -19,6 +19,8 @@ class Wpdb_Admin {
 	public $mysqldump_command_path;
 	public $root;
 	public $files;
+	public $mysqldump_method;
+	public $mysqldump_verified;
 
 	/**
 	 * Construct.
@@ -822,7 +824,7 @@ class Wpdb_Admin {
 									echo '<td class="wpdb_log" align="center">';
 								if (!empty($option['log'])) {
 									if(isset($option['type']) && ($option['type'] == 'complete' || $option['type'] == 'database')){
-								echo '<a href="' . esc_url($option['log']) . '" target="_blank" class="label label-warning" title="There might be partial backup. Please check Log File for verify backup.">';
+								echo '<a href="' . esc_url( admin_url('?wpdbbkp_log='.basename($option['log'])) ) . '" target="_blank" class="label label-warning" title="There might be partial backup. Please check Log File for verify backup.">';
 								echo  '<span class="glyphicon glyphicon-list-alt"></span>';
 								echo '</a>';
 									}else{
@@ -2971,6 +2973,7 @@ text-align: center;">
 		} else {
 			$log_message = '';
 		}
+		error_log('logging enabled '.$log_message);
 		$wp_db_remove_local_backup = get_option( 'wp_db_remove_local_backup' );
 		$destination               = ( 1 === (int) $wp_db_remove_local_backup ) ? '' : 'Local, ';
 
@@ -2994,10 +2997,14 @@ text-align: center;">
 			$options = wpdbbkp_filter_unique_filenames( $options );
 			update_option( 'wp_db_backup_backups', $options , false);
 		}
+
 		if(isset($details['log_dir']) && !empty($details['log_dir']))
 		{
-			if ($wp_filesystem->is_writable($details['log_dir']) || file_exists($details['log_dir'])) {
-				$wp_filesystem->put_contents( $details['log_dir'], str_replace(array("<br>","<b>","</b>"), array("\n","",""), $args[2]), FS_CHMOD_FILE );
+			$log_file_path = $details['log_dir'];
+            $log_dir = dirname($log_file_path);
+
+			if ( $wp_filesystem->is_writable( $log_dir ) ) {
+				$wp_filesystem->put_contents( $log_file_path, str_replace(array("<br>","<b>","</b>"), array("\n","",""), $args[2]), FS_CHMOD_FILE );
 			}
 		}
 	}
@@ -3354,13 +3361,16 @@ text-align: center;">
 
 		private function write_log($logFile, $logMessage) {
 	        // Actually write the log file
+			if ( empty( $logMessage ) || empty( $logFile ) ) {
+			return false;
+		   }
 			global $wp_filesystem;
 			if(!function_exists('WP_Filesystem')){
 				require_once ( ABSPATH . '/wp-admin/includes/file.php' );
 			}
 			WP_Filesystem();
-
-	        if ($wp_filesystem && $wp_filesystem->is_writable($logFile) || !$wp_filesystem->exists($logFile)) {
+			$logDir = dirname( $logFile );
+	        if ($wp_filesystem && $wp_filesystem->is_writable($logDir)) {
 				$wp_filesystem->put_contents( $logFile, $logMessage, FS_CHMOD_FILE );
 	            return true;
 	        }
@@ -3722,6 +3732,27 @@ text-align: center;">
 				$path_info = wp_upload_dir();
 				$backup_dir = $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/';
 				$file_name  = basename( sanitize_text_field( wp_unslash( $_GET['wpdbbkp_download'] ) ) ); //phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no form submission
+				$file_path  = trailingslashit( $backup_dir ) . $file_name;
+
+		
+				// Check if file exists
+				if ( file_exists( $file_path ) ) {
+					// Serve the file
+					header( 'Content-Description: File Transfer' );
+					header( 'Content-Type: application/octet-stream' );
+					header( 'Content-Disposition: attachment; filename="' . $file_name . '"' );
+					header( 'Content-Length: ' . filesize( $file_path ) );
+					readfile( $file_path ); //phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile -- readfile is used to read the file with buffer
+					exit;
+				} else {
+					wp_die( esc_html__( 'Backup file not found.', 'wpdbbkp' ) );
+				}
+			}
+				// Check for a specific query parameter, e.g., ?download_backup=filename.zip
+			if ( isset( $_GET['wpdbbkp_log'] ) && ! empty( $_GET['wpdbbkp_log'] ) ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no form submission
+				$path_info = wp_upload_dir();
+				$backup_dir = $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/';
+				$file_name  = basename( sanitize_text_field( wp_unslash( $_GET['wpdbbkp_log'] ) ) ); //phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no form submission
 				$file_path  = trailingslashit( $backup_dir ) . $file_name;
 
 		

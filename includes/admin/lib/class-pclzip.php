@@ -207,7 +207,7 @@
   //   Note that no real action is taken, if the archive does not exist it is not
   //   created. Use create() for that.
   // --------------------------------------------------------------------------------
-  function PclZip($p_zipname)
+  function __construct($p_zipname)
   {
 
     // ----- Tests the zlib
@@ -215,7 +215,6 @@
     {
       wp_die(esc_html__('Abort','wpdbbkp').esc_html(basename(__FILE__)).esc_html__(' : Missing zlib extensions','wpdbbkp'));
     }
-
     // ----- Set the attributes
     $this->zipname = $p_zipname;
     $this->zip_fd = 0;
@@ -1828,12 +1827,12 @@
 
     if($last == 'g')
         //$v_memory_limit = $v_memory_limit*1024*1024*1024;
-        $v_memory_limit = $v_memory_limit*1073741824;
+        $v_memory_limit = (int) $v_memory_limit*1073741824;
     if($last == 'm')
         //$v_memory_limit = $v_memory_limit*1024*1024;
-        $v_memory_limit = $v_memory_limit*1048576;
+        $v_memory_limit = (int) $v_memory_limit*1048576;
     if($last == 'k')
-        $v_memory_limit = $v_memory_limit*1024;
+        $v_memory_limit = (int) $v_memory_limit*1024;
 
     $p_options[PCLZIP_OPT_TEMP_FILE_THRESHOLD] = floor($v_memory_limit*PCLZIP_TEMPORARY_FILE_RATIO);
 
@@ -2052,16 +2051,16 @@
               $wp_all_backup_exclude_dir=get_option('wp_all_backup_exclude_dir');
 						if(empty($wp_all_backup_exclude_dir))
 						{
-							 $excludes = WPALLBK_BACKUPS_DIR;
+							 $excludes = WPDB_BACKUPS_DIR;
 						}else{
-							 $excludes = WPALLBK_BACKUPS_DIR.'|'.$wp_all_backup_exclude_dir;
+							 $excludes = WPDB_BACKUPS_DIR.'|'.$wp_all_backup_exclude_dir;
 						}	
                                                 
                                                  // Excludes                                             
                                                   if ( preg_match( '(' . $excludes . ')',$v_item_handler) ){
                                                        continue;
                                                       }			   
-            if (($v_item_handler == '.') || ($v_item_handler == '..') || ($v_item_handler == WPALLBK_BACKUPS_DIR)) { 
+            if (($v_item_handler == '.') || ($v_item_handler == '..') || ($v_item_handler == WPDB_BACKUPS_DIR)) { 
                 continue;
             }
 
@@ -2349,7 +2348,6 @@
       // ----- Return
       return PclZip::errorCode();
     }
-
     // ----- Open the zip file
     if (($this->zip_fd = @fopen($this->zipname, $p_mode)) == 0)
     {
@@ -2659,9 +2657,14 @@
           PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, "Unable to open file '$p_filename' in binary read mode");
           return PclZip::errorCode();
         }
-
-        // ----- Read the file content
-        $v_content = @fread($v_file, $p_header['size']);
+        if ($p_header['size'] > 0) {
+          // ----- Read the file content
+          $v_content = @fread($v_file, $p_header['size']);
+        }
+        else {
+          // ----- Set the file content to ''
+          $v_content = '';
+        }
 
         // ----- Close the file
         @fclose($v_file);

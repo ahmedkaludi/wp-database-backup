@@ -2918,20 +2918,8 @@ text-align: center;">
 	 * Config Path.
 	 */
 	public function wp_db_backup_wp_config_path() {
-		$base = dirname( __FILE__ );
-		$path = false;
-		if ( file_exists( dirname( dirname( $base ) ) . '/wp-config.php' ) ) {
-			$path = dirname( dirname( $base ) );
-		} else {
-			if ( file_exists( dirname( dirname( dirname( $base ) ) ) . '/wp-config.php' ) ) {
-				$path = dirname( dirname( dirname( $base ) ) );
-			} else {
-				$path = false;
-			}
-		}
-		if ( false !== $path ) {
-			$path = str_replace( '\\', '/', $path );
-		}
+		$path = str_replace('\\', '/', ABSPATH);
+
 		return $path;
 	}
 

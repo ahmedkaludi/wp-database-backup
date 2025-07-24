@@ -6,7 +6,7 @@ Tags: Database backup, backup, cloud backup, files backup, wordpress backup.
 Requires at least: 3.1+
 Tested up to: 6.8
 Requires PHP: 5.6.20
-Stable tag: 7.6
+Stable tag: 7.7
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -77,6 +77,15 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 4. screenshot-4.png
 
 == Changelog ==
+= 7.7 =
+* 24-07-2025
+* Fix: Receiving Backup Completion Emails Despite Email Notifications Not Being Configured #118
+* Fix: Notification e-mails - URL of website is not clickable #124
+* Fix: Notification e-mails - Website information is formatted with escaped HTML tags #125
+* Fix: Log files are not created #128
+* Improvement: Performance improvements #131
+* Compatibility: PHP warning in PHP 8+ #130
+
 = 7.6 =
 * 09-05-2025
 * Test: Tested upto WP 6.8
@@ -181,16 +190,6 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 * 03-07-2023
 * Fixed: The backup progress bar gets stuck while creating the backup #53
 * Fixed: A Fatal error appears after clicking on "Create New Database backup" #52
-
-= 6.3 =
-* 06-06-2023
-* Added: Added a option for scheduling the Complete Backup. #29
-* Fixed: Issue related to timezone #47
-* Fixed: Compatible with PHP Compatibility Checker plugin #45
-* Fixed: After deleting list backup files, notice keeps showing even after reloading the page #38
-* Fixed: Google Drive backup is not being configured, and there are also multiple issues. #44
-* Improvement: FullBack process will work in background and will show current progess. #46
-* Improvement: UI/UX Improvement for notifications. #46
 
 Full changelog available [ at changelog.txt](https://plugins.svn.wordpress.org/wp-database-backup/trunk/changelog.txt)
 

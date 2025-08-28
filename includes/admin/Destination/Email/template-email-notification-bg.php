@@ -72,7 +72,7 @@ $message = '<div bgcolor="#e3e3e3" style="font-family:Arial;color:#707070;font-s
 
     <div style="font-family:Arial;border-top-width:1px;border-top-color:#cccccc;border-top-style:solid;background-color:#eee;margin:0px;padding:10px">
         '.esc_html__('You\'re receiving this email because you have active Email Notification on your site','wpdbbkp').'(' . esc_url($site_url) . ').
-		<br>'.esc_html__('If you don\'t like to receieve a Email Notification then','wpdbbkp').' <a href="'.esc_url(admin_url('admin-ajax.php?action=wpdbbkp_email_unsubscribe&unsubscribe_token='.esc_attr($unsub_token))).'">'.esc_html__('Click Here to unsubcribe','wpdbbkp').'</a>.
+		<br>'.esc_html__('If you don\'t like to receive a Email Notification then','wpdbbkp').' <a href="'.esc_url(admin_url('admin-ajax.php?action=wpdbbkp_email_unsubscribe&unsubscribe_token='.esc_attr($unsub_token))).'">'.esc_html__('Click Here to unsubcribe','wpdbbkp').'</a>.
 		<div class="yj6qo"></div><div class="adL">
     </div></div><div class="adL">
 </div></div><div class="adL">

@@ -330,14 +330,14 @@ if(!function_exists('wpdbbkp_wp_cron_config_path')){
 			$upload_folder = str_replace(site_url(),'',$path_info['basedir']);
 			$logFileUrl = $path_info['baseurl'].'/'.WPDB_BACKUPS_DIR . '/log/' . $FileName . '.txt';
 
-	        $logMessage = "\n#--------------------------------------------------------\n";
-	        $logMessage .= "NOTICE: Do NOT post to public sites or forums\n";
-	        $logMessage .= "#--------------------------------------------------------\n";
-	        $logMessage .= " Backup File Name : " . $WPDBFileName."\n";
-	        $logMessage .= " Backup File Path : " . $path_info['baseurl'] . '/' . WPDB_BACKUPS_DIR . '/' . $WPDBFileName."\n";
-	        $logMessage .= " Backup Type : " . $wp_all_backup_type."\n";
-	        $logMessage .= "#--------------------------------------------------------\n";
-   
+	        $logMessage = "#--------------------------------------------------------".PHP_EOL;
+	        $logMessage .= "NOTICE: Do NOT post to public sites or forums".PHP_EOL;
+	        $logMessage .= "#--------------------------------------------------------".PHP_EOL;
+	        $logMessage .= " Backup File Name : " . $WPDBFileName.PHP_EOL;
+	        $logMessage .= " Backup File Path : " . $path_info['baseurl'] . '/' . WPDB_BACKUPS_DIR . '/' . $WPDBFileName.PHP_EOL;
+	        $logMessage .= " Backup Type : " . $wp_all_backup_type.PHP_EOL;
+	        $logMessage .= "#--------------------------------------------------------".PHP_EOL;
+
 	        $return_data['files_added'] = $files_added;
 	        $return_data['siteName'] = $siteName;
 	        $return_data['FileName'] = $FileName;

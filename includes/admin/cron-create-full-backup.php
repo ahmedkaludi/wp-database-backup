@@ -504,8 +504,9 @@ if(!function_exists('wpdbbkp_cron_create_mysql_backup')){
  ************************/
 if(!function_exists('wpdbbkp_write_log')){
 	function wpdbbkp_write_log($logFile, $logMessage) {
-	    // Actually write the log file
-	    if (wpdbbkp_is_writable($logFile) || !wpdbbkp_file_exists($logFile)) {
+	    // Actually write the log file	$logDir = dirname( $logFile );
+		$logDir = dirname($logFile);		
+	    if (wpdbbkp_is_writable($logDir) || !wpdbbkp_file_exists($logFile)) {
 			wpdbbkp_write_file_contents( $logFile, $logMessage, true );
 	        return true;
 	    }
@@ -615,13 +616,13 @@ if(!function_exists('wpdbbkp_cron_files_backup')){
 				$path_info = wp_upload_dir();
 				$total_chunk_cnt = intval($args['total_chunk_cnt']);
 	            $zip = new ZipArchive;
-	            $zip->open($path_info['basedir'] . '/db-backup/' . $WPDBFileName, ZipArchive::CREATE);
+	            $zip->open($path_info['basedir'] . '/db-backup/' . $WPDBFileName,  ZipArchive::CREATE);
 	            if (get_option('wp_db_backup_backup_type') == 'File' || get_option('wp_db_backup_backup_type') == 'complete') {
 	                $wp_all_backup_exclude_dir = get_option('wp_db_backup_exclude_dir');
 	                if (empty($wp_all_backup_exclude_dir)) {
 	                    $excludes = WPDB_BACKUPS_DIR;
 	                } else {
-	                    $excludes = WPDB_BACKUPS_DIR . '|' . $wp_all_backup_exclude_dir;
+	                    $excludes = WPDB_BACKUPS_DIR . '|' . $wp_all_backup_exclude_dir.'|.opcache|backwpup';
 	                }
 	            	
 	                $file_object = array();
@@ -657,6 +658,7 @@ if(!function_exists('wpdbbkp_cron_files_backup')){
 
 		            if(!empty($file_object)){
 			            if(is_array($file_object)){
+							
 				            foreach ($file_object as $file) {
 					            if(!empty($file->getPathname())){
 					                    // Skip dot files,
@@ -677,10 +679,12 @@ if(!function_exists('wpdbbkp_cron_files_backup')){
 				                    if ($file->isDir()){
 				                        $zip->addEmptyDir(trailingslashit(str_ireplace(trailingslashit($wpdbbkp_admin_class_obj->get_root()), '', conform_dir($file->getPathname()))));
 				                    }
-				                    elseif ($file->isFile()) {
-				                        $zip->addFile($file->getPathname(), str_ireplace(trailingslashit($wpdbbkp_admin_class_obj->get_root()), '', conform_dir($file->getPathname())));
-				                        $logMessage .= "\n Added File: " . $file->getPathname();
-				                    }
+				                   elseif ($file->isFile()) {
+										$relative_path = str_ireplace(trailingslashit($wpdbbkp_admin_class_obj->get_root()), '', conform_dir($file->getPathname()));
+										$zip->addFile($file->getPathname(), $relative_path);
+			
+										$logMessage .= "\n Added File: " . $file->getPathname();
+									}
 
 				                }
 			                }
@@ -732,7 +736,6 @@ if(!function_exists('wpdbbkp_cron_execute_file_backup_else')){
 		            $excludes = WPDB_BACKUPS_DIR . '|' . $wp_all_backup_exclude_dir;
 		        }
 		        $logMessage.="\n Exclude Folders and Files : $excludes";
-
 		        // Set the dir to archive
 		        if (get_option('wp_db_backup_backup_type') == 'Database') {
 		            $filename = $FileName . '.sql';
@@ -750,10 +753,42 @@ if(!function_exists('wpdbbkp_cron_execute_file_backup_else')){
 		            }
 		        } else {
 		            $v_dir = $wpdbbkp_admin_class_obj->wp_db_backup_wp_config_path();
-		            $v_remove = $v_dir;
-		            // Create the archive
-					update_option('wpdbbkp_backupcron_current','Backing up files', false);
-		            $v_list = $archive->create($v_dir, PCLZIP_OPT_REMOVE_PATH, $v_remove);
+		            $db_file = $path_info['basedir'] . '/db-backup/' . $FileName . '.sql';
+		            
+					$included_files = [];
+					update_option('wpdbbkp_backupcron_current','Backing up files (It will take some time)', false);
+					$v_list = $archive->create($db_file,PCLZIP_OPT_REMOVE_PATH, $v_dir);
+					$directory = new RecursiveDirectoryIterator($v_dir, RecursiveDirectoryIterator::SKIP_DOTS);
+					$iterator = new RecursiveIteratorIterator($directory);
+					$exclude_patterns = explode('|', $excludes);
+					$counter = 0;
+					foreach ($iterator as $file) {
+						$filePath = $file->getPathname();
+						$relativePath = str_replace($v_dir . DIRECTORY_SEPARATOR, '', $filePath);
+
+						$exclude = false;
+						
+						foreach ($exclude_patterns as $pattern) {
+							if (strpos($relativePath, $pattern) !== false) {
+								$exclude = true;
+								break;
+							}
+						}
+
+						if (!$exclude) {
+
+
+							$included_files[] = $filePath;
+							$archive->add($filePath,PCLZIP_OPT_REMOVE_PATH, $v_dir);
+						    $counter++;
+							if ($counter % 1000 == 0) {
+								// Sleep for a short duration to avoid memory issues
+								update_option('wpdbbkp_backupcron_current','Backed up files ('.$counter.')', false);
+								sleep(1);
+							}
+						}
+					}
+					
 		            if ($v_list == 0) {
 						if (defined('WP_DEBUG') && WP_DEBUG) {
 		               	 error_log("Error : " . $archive->errorInfo(true)); //phpcs:ignore -- error will be logged only in debug mode

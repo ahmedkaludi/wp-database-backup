@@ -1,3 +1,12 @@
+= 7.7 =
+* 24-07-2025
+* Fix: Receiving Backup Completion Emails Despite Email Notifications Not Being Configured #118
+* Fix: Notification e-mails - URL of website is not clickable #124
+* Fix: Notification e-mails - Website information is formatted with escaped HTML tags #125
+* Fix: Log files are not created #128
+* Improvement: Performance improvements #131
+* Compatibility: PHP warning in PHP 8+ #130
+
 = 7.6 =
 * 09-05-2025
 * Test: Tested upto WP 6.8

@@ -112,22 +112,22 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 		 */
 		private function includes()
 		{
-			include_once 'includes/admin/mb-helper-functions.php';
-			include_once 'includes/admin/class-wpdb-admin.php';
-			include_once 'includes/admin/Destination/wp-backup-destination-upload-action.php';
-			include_once 'includes/class-wpdbbackuplog.php';
-			include_once 'includes/admin/filter.php';
-			include_once 'includes/admin/class-wpdbbkp-newsletter.php';
-			include_once 'includes/features.php';
+			include_once WPDB_PATH .'includes/admin/mb-helper-functions.php';
+			include_once WPDB_PATH .'includes/admin/class-wpdb-admin.php';
+			include_once WPDB_PATH .'includes/admin/Destination/wp-backup-destination-upload-action.php';
+			include_once WPDB_PATH .'includes/class-wpdbbackuplog.php';
+			include_once WPDB_PATH .'includes/admin/filter.php';
+			include_once WPDB_PATH .'includes/admin/class-wpdbbkp-newsletter.php';
+			include_once WPDB_PATH .'includes/features.php';
 			$wp_db_incremental_backup = get_option('wp_db_incremental_backup');
 			$wpdb_clouddrive_cd = get_option('wpdb_clouddrive_token', false);
 			$wp_db_backup_destination_bb = get_option('wp_db_backup_destination_bb', false);
 			if (($wp_db_incremental_backup == 1 && $wp_db_backup_destination_bb ==1 )|| ($wpdb_clouddrive_cd && !empty($wpdb_clouddrive_cd))) {
-				include_once 'includes/admin/cron-create-full-backup-incremental.php';
+				include_once WPDB_PATH .'includes/admin/cron-create-full-backup-incremental.php';
 			} else {
-				include_once 'includes/admin/cron-create-full-backup.php';
+				include_once WPDB_PATH .'includes/admin/cron-create-full-backup.php';
 			}
-			include_once 'includes/class-wpdbfullbackuplog.php';
+			include_once WPDB_PATH .'includes/class-wpdbfullbackuplog.php';
 
 		}
 		/**

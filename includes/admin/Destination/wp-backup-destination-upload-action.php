@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	require plugin_dir_path( __FILE__ ) . '/Email/class-wpdbbackupemail.php';
 	require plugin_dir_path( __FILE__ ) . '/Google/class-wpdbbackupgoogle.php';
 	require plugin_dir_path( __FILE__ ) . '/S3/class-wpdatabasebackups3.php';
+	require plugin_dir_path( __FILE__ ) . '/GenericS3/class-wpdatabasebackupgenerics3.php';
 	require plugin_dir_path( __FILE__ ) . '/Dropbox/class-wpdbbackupdropbox.php';
 	require plugin_dir_path( __FILE__ ) . '/CloudDrive/class-wpdatabasebackupcd.php';
 	require plugin_dir_path( __FILE__ ) . '/Backblaze/class-wpdatabasebackupbb.php';

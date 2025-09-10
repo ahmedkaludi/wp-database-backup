@@ -886,6 +886,25 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 			$options = get_option('wp_db_backup_backups');
 
 	        $Destination.="Local, ";
+		// Append enabled remote destinations so the table shows correct icons
+		if ( get_option( 'wp_db_backup_destination_generics3' ) == 1 ) {
+			$Destination .= 'GenericS3, ';
+		}
+		if ( get_option( 'wp_db_backup_destination_bb' ) == 1 ) {
+			$Destination .= 'Backblaze, ';
+		}
+		if ( get_option( 'wp_db_backup_destination_s3' ) == 1 ) {
+			$Destination .= 'S3, ';
+		}
+		if ( get_option( 'wp_db_backup_destination_SFTP' ) == 1 ) {
+			$Destination .= 'SFTP, ';
+		}
+		if ( get_option( 'wp_db_backup_destination_FTP' ) == 1 ) {
+			$Destination .= 'FTP, ';
+		}
+		if ( get_option( 'wp_db_backup_destination_Email' ) == 1 ) {
+			$Destination .= 'Email, ';
+		}
 			$path_info = wp_upload_dir();
 			$filesize = @filesize($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/' . $details['filename']);
 	        $options[] = array(
@@ -908,6 +927,7 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 			WPDBBackupGoogle::wp_db_backup_completed($args2);
 			WPDBBackupDropbox::wp_db_backup_completed($args2);
 			WPDatabaseBackupS3::wp_db_backup_completed($args2);
+			WPDatabaseBackupGenericS3::wp_db_backup_completed($args2);
 			WPDBBackupSFTP::wp_db_backup_completed($args2);
 			WPDatabaseBackupBB::wp_db_backup_completed($args2);
 			WPDatabaseBackupCD::wp_db_backup_completed($args2);

@@ -799,7 +799,8 @@ class Wpdb_Admin {
 							'Drive'      => 'glyphicon glyphicon-hdd',
 							'DropBox'    => 'glyphicon glyphicon-inbox',
 							'Backblaze'  => 'glyphicon glyphicon-cloud-upload',
-							'CloudDrive'  => 'glyphicon glyphicon-cloud-upload'
+							'CloudDrive'  => 'glyphicon glyphicon-cloud-upload',
+							'GenericS3'  => 'glyphicon glyphicon-cloud-upload'
 						);
 						if(!empty($options) && is_array($options)){
 							foreach ( $options as $option ) {
@@ -836,15 +837,19 @@ class Wpdb_Admin {
 								echo '<td>';
 								if ( ! empty( $option['destination'] ) ) {
 									$destination = ( explode( ',', $option['destination'] ) );
-									if(!empty($destination) && is_array($destination)){
+									if ( ! empty( $destination ) && is_array( $destination ) ) {
 										foreach ( $destination as $dest ) {
 											$key = trim( $dest );
-											if ( ! empty( $dest ) && array_key_exists( $key, $destination_icon ) ) {
-												echo '<span class="' . esc_attr( $destination_icon[ $key ] ) . '" title="' . esc_attr( $dest ) . '"></span> ';
+											if ( empty( $key ) ) {
+												continue;
 											}
+											// Icon
+											if ( array_key_exists( $key, $destination_icon ) ) {
+												echo '<span class="' . esc_attr( $destination_icon[ $key ] ) . '" title="' . esc_attr( $key ) . '"></span> ';
+											}
+											// Do not add any text label; icon-only for all destinations
 										}
 									}
-									
 								}
 								echo '</td>';
 								if(isset($option['type']) && !empty($option['type'])){
@@ -2969,6 +2974,27 @@ text-align: center;">
 		
 		do_action_ref_array( 'wp_db_backup_completed', array( &$args ) );
 		
+		// Ensure enabled destinations are reflected in the saved Destination string for table display
+		$destination_for_table = $args[4];
+		if ( get_option( 'wp_db_backup_destination_generics3' ) == 1 ) {
+			$destination_for_table .= 'GenericS3, ';
+		}
+		if ( get_option( 'wp_db_backup_destination_bb' ) == 1 ) {
+			$destination_for_table .= 'Backblaze, ';
+		}
+		if ( get_option( 'wp_db_backup_destination_s3' ) == 1 ) {
+			$destination_for_table .= 'S3, ';
+		}
+		if ( get_option( 'wp_db_backup_destination_SFTP' ) == 1 ) {
+			$destination_for_table .= 'SFTP, ';
+		}
+		if ( get_option( 'wp_db_backup_destination_FTP' ) == 1 ) {
+			$destination_for_table .= 'FTP, ';
+		}
+		if ( get_option( 'wp_db_backup_destination_Email' ) == 1 ) {
+			$destination_for_table .= 'Email, ';
+		}
+
 		$options[]                 = array(
 			'date'           => time(),
 			'filename'       => $details['filename'],
@@ -2979,7 +3005,7 @@ text-align: center;">
 			'sqlfile'        => $details['sqlfile'],
 			'size'           => $details['size'],
 			'type'			 =>'database',
-			'destination'    => $args[4]
+			'destination'    => $destination_for_table
 		);
 		if ( 1 !== (int) $wp_db_remove_local_backup ) {
 			$options = wpdbbkp_filter_unique_filenames( $options );

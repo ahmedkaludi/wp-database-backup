@@ -71,10 +71,10 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 
 == Screenshots ==
 
-1. screenshot-1.png
-2. screenshot-2.png
-3. screenshot-3.png
-4. screenshot-4.png
+1. Database and full backup history with options to download, restore, or remove backups.
+2. Auto scheduler settings with options to enable automatic backups and set database or full backup frequency.
+3. Configure options for FTP, local backup, and email, with Google Drive, Amazon S3, and Dropbox.
+4. Backup for WP plugin settings screen showing backup and log configuration options.
 
 == Changelog ==
 = 7.7 =

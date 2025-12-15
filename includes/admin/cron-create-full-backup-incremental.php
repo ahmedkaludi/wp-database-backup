@@ -518,6 +518,7 @@ if ( ! function_exists( 'wpdbbkp_cron_create_mysql_backup' ) ) {
 				$tmp_args = [$sql_filename, $sql_filename, $args['logFile'], $args['logMessage'], 'Local,'];
 				WPDatabaseBackupBB::wp_db_backup_completed( $tmp_args );
 				WPDatabaseBackupCD::wp_db_backup_completed( $tmp_args );
+				WPDatabaseBackupGenericS3::wp_db_backup_completed( $tmp_args );
 
 				wp_delete_file( $sql_filename );
 				wp_delete_file( $progressFile );
@@ -852,6 +853,10 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 			$destination_s3 = get_option( 'wp_db_backup_destination_bb' );
 			if ( $destination_s3 == 1 ) {
 				$Destination .= 'Backblaze,';
+			}
+			$destination_generics3 = get_option( 'wp_db_backup_destination_generics3' );
+			if ( $destination_generics3 == 1 ) {
+				$Destination .= 'GenericS3,';
 			}
 	        $options[] = array(
 	            'date' => time(),

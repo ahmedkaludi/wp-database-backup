@@ -33,13 +33,13 @@ if($wpdbbkp_local_enabled==1 && !empty($wpdbbkp_local_path))
 							echo '<p>';
 							$ischecked = ( isset( $wp_db_local_backup ) && 1 === (int) $wp_db_local_backup ) ? 'checked' : '';
 							echo '<div class="row form-group">
-                                <label class="col-sm-2" for="wp_db_local_backup_path">'.esc_html__('Enable Local Backup','wpdbbkp').'</label>
+                                <label class="col-sm-2" for="wp_db_local_backup">'.esc_html__('Enable Local Backup','wpdbbkp').'</label>
                                 <div class="col-sm-6">
-                                    <input type="checkbox" ' . esc_attr( $ischecked ) . ' id="wp_db_local_backup_path" name="wp_db_local_backup">
+                                    <input type="checkbox" ' . esc_attr( $ischecked ) . ' id="wp_db_local_backup" name="wp_db_local_backup">
                                 </div>
                             </div>';
-							echo '<div class="row form-group"><label class="col-sm-2" for="wp_db_backup_email_id">'.esc_html__('Local Backup Path','wpdbbkp').'</label>';
-							echo '<div class="col-sm-6"><input type="text" id="wp_db_backup_email_id" class="form-control" name="wp_db_local_backup_path" value="' . esc_url( $wp_db_local_backup_path ) . '" placeholder="'.esc_attr__('Directory Path','wpdbbkp').'"></div>';
+							echo '<div class="row form-group"><label class="col-sm-2" for="wp_db_local_backup_path">'.esc_html__('Local Backup Path','wpdbbkp').'</label>';
+							echo '<div class="col-sm-6"><input type="text" id="wp_db_local_backup_path" class="form-control" name="wp_db_local_backup_path" value="' . esc_attr( $wp_db_local_backup_path ) . '" placeholder="'.esc_attr__('Directory Path','wpdbbkp').'"></div>';
 							echo '<div class="col-sm-4">'.esc_html__('Leave blank if you don\'t want use this feature or Disable Local Backup','wpdbbkp').'</div></div>';
 							echo '<div class="row form-group">';
 							echo '<div class="col-sm-12">';

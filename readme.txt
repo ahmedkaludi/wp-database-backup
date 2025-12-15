@@ -4,9 +4,9 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: Database backup, backup, cloud backup, files backup, wordpress backup.
 Requires at least: 3.1+
-Tested up to: 6.8
+Tested up to: 6.9
 Requires PHP: 5.6.20
-Stable tag: 7.7
+Stable tag: 7.8
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -71,12 +71,20 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 
 == Screenshots ==
 
-1. screenshot-1.png
-2. screenshot-2.png
-3. screenshot-3.png
-4. screenshot-4.png
+1. Database and full backup history with options to download, restore, or remove backups.
+2. Auto scheduler settings with options to enable automatic backups and set database or full backup frequency.
+3. Configure options for FTP, local backup, and email, with Google Drive, Amazon S3, and Dropbox.
+4. Backup for WP plugin settings screen showing backup and log configuration options.
 
 == Changelog ==
+= 7.8 =
+* 15-12-2025
+* New: Support for Generic S3 API connections #48
+* Improvement: Make includes absolute/relative #111
+* Improvement: Performance improvements #131
+* Fix: Setting 'Local Backup Path' has no effect #132
+* Test: Tested upto Wordpress 6.9
+
 = 7.7 =
 * 24-07-2025
 * Fix: Receiving Backup Completion Emails Despite Email Notifications Not Being Configured #118
@@ -185,11 +193,6 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 * 26-07-2023
 * Fixed: Dropbox says "Not Configured" but its connected and authenticated. #51
 * Added: Data anonymous on the clone website for the GDPR integration. #20
-
-= 6.4 =
-* 03-07-2023
-* Fixed: The backup progress bar gets stuck while creating the backup #53
-* Fixed: A Fatal error appears after clicking on "Create New Database backup" #52
 
 Full changelog available [ at changelog.txt](https://plugins.svn.wordpress.org/wp-database-backup/trunk/changelog.txt)
 

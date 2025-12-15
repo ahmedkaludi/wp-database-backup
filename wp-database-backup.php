@@ -107,29 +107,61 @@ if ( ! class_exists( 'WPDatabaseBackup' ) ) :
 			}
 		}
 
-		/**
-		 * Include Requred files and lib.
-		 */
-		private function includes()
-		{
-			include_once WPDB_PATH .'includes/admin/mb-helper-functions.php';
-			include_once WPDB_PATH .'includes/admin/class-wpdb-admin.php';
-			include_once WPDB_PATH .'includes/admin/Destination/wp-backup-destination-upload-action.php';
-			include_once WPDB_PATH .'includes/class-wpdbbackuplog.php';
-			include_once WPDB_PATH .'includes/admin/filter.php';
-			include_once WPDB_PATH .'includes/admin/class-wpdbbkp-newsletter.php';
-			include_once WPDB_PATH .'includes/features.php';
-			$wp_db_incremental_backup = get_option('wp_db_incremental_backup');
-			$wpdb_clouddrive_cd = get_option('wpdb_clouddrive_token', false);
-			$wp_db_backup_destination_bb = get_option('wp_db_backup_destination_bb', false);
-			if (($wp_db_incremental_backup == 1 && $wp_db_backup_destination_bb ==1 )|| ($wpdb_clouddrive_cd && !empty($wpdb_clouddrive_cd))) {
-				include_once WPDB_PATH .'includes/admin/cron-create-full-backup-incremental.php';
-			} else {
-				include_once WPDB_PATH .'includes/admin/cron-create-full-backup.php';
-			}
-			include_once WPDB_PATH .'includes/class-wpdbfullbackuplog.php';
-
+	/**
+	 * Include Requred files and lib.
+	 */
+	private function includes()
+	{
+		// Ensure WPDB_PATH is defined - if not, define it now
+		if ( ! defined( 'WPDB_PATH' ) ) {
+			define( 'WPDB_PATH', plugin_dir_path( __FILE__ ) );
 		}
+		
+		// Use plugin_dir_path directly to ensure we always have a valid absolute path
+		// This prevents issues if WPDB_PATH constant is empty or not set correctly
+		$plugin_path = plugin_dir_path( __FILE__ );
+		
+		$admin_path = $plugin_path . 'includes/admin/';
+		$includes_path = $plugin_path . 'includes/';
+		
+		if ( file_exists( $admin_path . 'mb-helper-functions.php' ) ) {
+			include_once $admin_path . 'mb-helper-functions.php';
+		}
+		if ( file_exists( $admin_path . 'class-wpdb-admin.php' ) ) {
+			include_once $admin_path . 'class-wpdb-admin.php';
+		}
+		if ( file_exists( $admin_path . 'Destination/wp-backup-destination-upload-action.php' ) ) {
+			include_once $admin_path . 'Destination/wp-backup-destination-upload-action.php';
+		}
+		if ( file_exists( $includes_path . 'class-wpdbbackuplog.php' ) ) {
+			include_once $includes_path . 'class-wpdbbackuplog.php';
+		}
+		if ( file_exists( $admin_path . 'filter.php' ) ) {
+			include_once $admin_path . 'filter.php';
+		}
+		if ( file_exists( $admin_path . 'class-wpdbbkp-newsletter.php' ) ) {
+			include_once $admin_path . 'class-wpdbbkp-newsletter.php';
+		}
+		if ( file_exists( $includes_path . 'features.php' ) ) {
+			include_once $includes_path . 'features.php';
+		}
+		$wp_db_incremental_backup = get_option('wp_db_incremental_backup');
+		$wpdb_clouddrive_cd = get_option('wpdb_clouddrive_token', false);
+		$wp_db_backup_destination_bb = get_option('wp_db_backup_destination_bb', false);
+		if (($wp_db_incremental_backup == 1 && $wp_db_backup_destination_bb ==1 )|| ($wpdb_clouddrive_cd && !empty($wpdb_clouddrive_cd))) {
+			if ( file_exists( $admin_path . 'cron-create-full-backup-incremental.php' ) ) {
+				include_once $admin_path . 'cron-create-full-backup-incremental.php';
+			}
+		} else {
+			if ( file_exists( $admin_path . 'cron-create-full-backup.php' ) ) {
+				include_once $admin_path . 'cron-create-full-backup.php';
+			}
+		}
+		if ( file_exists( $includes_path . 'class-wpdbfullbackuplog.php' ) ) {
+			include_once $includes_path . 'class-wpdbfullbackuplog.php';
+		}
+
+	}
 		/**
 		 * Installation setting at time of activation.
 		 */

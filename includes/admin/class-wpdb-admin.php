@@ -808,11 +808,6 @@ class Wpdb_Admin {
 									continue;
 								}
 
-								if (!empty($option['destination'])) {
-									if (strpos($option['destination'], 'CloudDrive') !== false) {
-										continue;
-									}
-								}
 								$size = isset( $option['size'])? $option['size'] : 0;
 								$str_class = ( 0 === (int) $size  ) ? 'text-danger' : 'wpdb_download';
 								echo '<tr class="' . ( ( 0 === ( $count % 2 ) ) ? esc_attr( $str_class ) . ' alternate' : esc_attr( $str_class ) ) . '">';

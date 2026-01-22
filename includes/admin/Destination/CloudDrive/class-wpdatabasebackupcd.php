@@ -30,7 +30,7 @@ public static function upload_backup_to_clouddrive($file_path, $file_name) {
     }
     WP_Filesystem();
 
-    $api_url ="https://app.backupforwp.com/public";
+    $api_url ="https://app.backupforwp.com";
 
     $token = get_option('wpdb_clouddrive_token') ? get_option('wpdb_clouddrive_token') : '';
 
@@ -69,6 +69,7 @@ public static function upload_backup_to_clouddrive($file_path, $file_name) {
 
     $headers = array(
         'Authorization' => $upload_auth_token,
+        'X-Backup-Token' => $upload_auth_token,
         'domain'=> parse_url(get_site_url(), PHP_URL_HOST),
         'Content-Type' => 'multipart/form-data; boundary=' . $boundary,
     );

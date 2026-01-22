@@ -78,7 +78,7 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 
 == Changelog ==
 = 7.9 =
-* 22-01-2025
+* 22-01-2026
 * Fix: Conflict issue with PHP 5.6 version. #129
 * Fix: 0 bytes showing in the website list #122
 * Test: Proper Testing of cloud backup #119

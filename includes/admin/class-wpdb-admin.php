@@ -2970,23 +2970,24 @@ text-align: center;">
 		do_action_ref_array( 'wp_db_backup_completed', array( &$args ) );
 		
 		// Ensure enabled destinations are reflected in the saved Destination string for table display
+		// Note: Hook handlers may have already added destinations, so check before appending
 		$destination_for_table = $args[4];
-		if ( get_option( 'wp_db_backup_destination_generics3' ) == 1 ) {
+		if ( get_option( 'wp_db_backup_destination_generics3' ) == 1 &&  !empty(get_option( 'wpdb_dest_generics3_bucket_key' ) ) && !empty(get_option( 'wpdb_dest_generics3_bucket_secret' ) ) ) {
 			$destination_for_table .= 'GenericS3, ';
 		}
-		if ( get_option( 'wp_db_backup_destination_bb' ) == 1 ) {
+		if ( get_option( 'wp_db_backup_destination_bb' ) == 1 && !empty(get_option( 'wpdb_dest_bb_s3_bucket_key' ) ) ) {
 			$destination_for_table .= 'Backblaze, ';
 		}
-		if ( get_option( 'wp_db_backup_destination_s3' ) == 1 ) {
+		if ( get_option( 'wp_db_backup_destination_s3' ) == 1 && !empty(get_option( 'wpdb_dest_amazon_s3_bucket_key' ) ) && !empty(get_option( 'wpdb_dest_amazon_s3_bucket_secret' ) ) ) {
 			$destination_for_table .= 'S3, ';
 		}
-		if ( get_option( 'wp_db_backup_destination_SFTP' ) == 1 ) {
+		if ( get_option( 'wp_db_backup_destination_SFTP' ) == 1 && !empty(get_option( 'wpdb_dest_sftp_host' ) ) && !empty(get_option( 'wpdb_dest_sftp_port' ) ) && !empty(get_option( 'wpdb_dest_sftp_username' ) ) && !empty(get_option( 'wpdb_dest_sftp_password' ) ) ) {
 			$destination_for_table .= 'SFTP, ';
 		}
-		if ( get_option( 'wp_db_backup_destination_FTP' ) == 1 ) {
+		if ( get_option( 'wp_db_backup_destination_FTP' ) == 1 && !empty(get_option( 'wpdb_dest_ftp_host' ) ) && !empty(get_option( 'wpdb_dest_ftp_port' ) ) && !empty(get_option( 'wpdb_dest_ftp_username' ) ) && !empty(get_option( 'wpdb_dest_ftp_password' ) ) ) {
 			$destination_for_table .= 'FTP, ';
 		}
-		if ( get_option( 'wp_db_backup_destination_Email' ) == 1 ) {
+		if ( get_option( 'wp_db_backup_destination_Email' ) == 1 && strpos( $destination_for_table, 'Email' ) === false ) {
 			$destination_for_table .= 'Email, ';
 		}
 

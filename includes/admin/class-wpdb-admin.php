@@ -503,6 +503,18 @@ class Wpdb_Admin {
 								set_time_limit( 0 ); // phpcs:ignore -- needed for long running process
 								ignore_user_abort(true);
 								if ('' !== trim($database_name) && '' !== trim($database_user) && '' !== trim($database_host)) {
+									// Ensure we use WP's global DB connection.
+									global $wpdb;
+									if ( ! isset( $wpdb ) || ! is_object( $wpdb ) ) {
+										$wpdb = isset( $GLOBALS['wpdb'] ) ? $GLOBALS['wpdb'] : null;
+									}
+									if ( ! is_object( $wpdb ) ) {
+										wp_die(
+											esc_html__( 'Database connection is not available. Please reload the page and try again.', 'wpdbbkp' ),
+											esc_html__( 'Database Error', 'wpdbbkp' )
+										);
+									}
+
 									$wpdb->db_connect();
 									$wpdb->select($database_name);
 							

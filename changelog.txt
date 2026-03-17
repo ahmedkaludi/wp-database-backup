@@ -1,3 +1,9 @@
+= 7.10 =
+* 17-03-2026
+* Fix: Backup list shows wrong or duplicated destinations #138
+* Fix: Fatal error - Call to a member function db_connect() on null on restoring backup #140
+* Improvement: Improvement in tabs #139
+
 = 7.9 =
 * 22-01-2026
 * Fix: Conflict issue with PHP 5.6 version. #129

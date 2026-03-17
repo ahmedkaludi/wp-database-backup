@@ -929,7 +929,7 @@
 .bootstrap-wrapper .input-group-btn:last-child>.btn, .bootstrap-wrapper .input-group-btn:last-child>.btn-group{z-index:2;margin-left:-1px}
 .bootstrap-wrapper .nav{margin-bottom:0;padding-left:0;list-style:none}
 .bootstrap-wrapper .nav>li{position:relative;display:block}
-.bootstrap-wrapper .nav>li>a{position:relative;display:block;padding:10px 15px}
+.bootstrap-wrapper .nav>li>a{position:relative;display:block;padding:8px 10px}
 .bootstrap-wrapper .nav>li>a:hover, .bootstrap-wrapper .nav>li>a:focus{text-decoration:none;background-color:#1d2327;box-shadow:none;color:#fff;}
 .bootstrap-wrapper .nav>li.disabled>a{color:#777}
 .bootstrap-wrapper .nav>li.disabled>a:hover, .bootstrap-wrapper .nav>li.disabled>a:focus{color:#777;text-decoration:none;background-color:transparent;cursor:not-allowed}

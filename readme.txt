@@ -4,9 +4,9 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: Database backup, backup, cloud backup, files backup, wordpress backup.
 Requires at least: 3.1+
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 5.6.20
-Stable tag: 7.12
+Stable tag: 7.13
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -77,6 +77,11 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 4. Backup for WP plugin settings screen showing backup and log configuration options.
 
 == Changelog ==
+= 7.13 =
+* 24-08-2026
+* Fix: Authenticated arbitrary file upload disclosed by Wordfence
+* Test: Test with WordPress 7.1 and update readme.txt
+
 = 7.12 =
 * 16-06-2026
 * Fix: Authenticated (Administrator+) OS Command Injection via 'wp_db_exclude_table' Parameter disclosed by Irwan Kusuma ( Wordfence )

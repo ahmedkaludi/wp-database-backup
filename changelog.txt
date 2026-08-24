@@ -1,3 +1,7 @@
+= 7.12 =
+* 16-06-2026
+* Fix: Authenticated (Administrator+) OS Command Injection via 'wp_db_exclude_table' Parameter disclosed by Irwan Kusuma ( Wordfence )
+
 = 7.11 =
 * 19-05-2026
 * Improvement: Improved code according to latest PCP guildelines #144

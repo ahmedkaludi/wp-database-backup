@@ -213,7 +213,8 @@ class Wpdb_Admin {
 						}
 
 						if ( isset( $_POST['wp_db_exclude_table'] ) ) {
-							update_option( 'wp_db_exclude_table', $this->recursive_sanitize_text_field( wp_unslash( $_POST['wp_db_exclude_table'] ) ) , false); // phpcs:ignore
+							$exclude_tables = $this->recursive_sanitize_text_field( wp_unslash( $_POST['wp_db_exclude_table'] ) ); // phpcs:ignore
+							update_option( 'wp_db_exclude_table', $this->filter_valid_exclude_tables( $exclude_tables ), false );
 						} else {
 							update_option( 'wp_db_exclude_table', '', false );
 						}
@@ -2637,11 +2638,10 @@ text-align: center;">
 		// The file we're saving too.
 		$cmd .= ' -r ' . escapeshellarg( $sql_filename );
 
-		$wp_db_exclude_table = array();
 		$wp_db_exclude_table = get_option( 'wp_db_exclude_table' );
-		if ( ! empty( $wp_db_exclude_table ) ) {
-			foreach ( $wp_db_exclude_table as $wp_db_exclude_table ) {
-				$cmd .= ' --ignore-table=' . DB_NAME . '.' . $wp_db_exclude_table;
+		if ( ! empty( $wp_db_exclude_table ) && is_array( $wp_db_exclude_table ) ) {
+			foreach ( $this->filter_valid_exclude_tables( $wp_db_exclude_table ) as $exclude_table ) {
+				$cmd .= ' --ignore-table=' . escapeshellarg( DB_NAME . '.' . $exclude_table );
 			}
 		}
 
@@ -3122,6 +3122,38 @@ text-align: center;">
 			return $matches[1];
 		}
 		return '';
+	}
+
+	/**
+	 * Restrict exclude-table names to tables that exist in the database.
+	 *
+	 * @param array|string $exclude_tables Tables requested for exclusion.
+	 *
+	 * @return array
+	 */
+	public function filter_valid_exclude_tables( $exclude_tables ) {
+		global $wpdb;
+
+		if ( ! is_array( $exclude_tables ) ) {
+			return array();
+		}
+
+		$valid_tables = $wpdb->get_col( 'SHOW TABLES' ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		if ( empty( $valid_tables ) ) {
+			return array();
+		}
+
+		$valid_tables = array_flip( $valid_tables );
+		$filtered     = array();
+
+		foreach ( $exclude_tables as $exclude_table ) {
+			if ( is_string( $exclude_table ) && isset( $valid_tables[ $exclude_table ] ) ) {
+				$filtered[] = $exclude_table;
+			}
+		}
+
+		return array_values( array_unique( $filtered ) );
 	}
 
 	/**

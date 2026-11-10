@@ -32,7 +32,8 @@ class Wpdb_Admin {
 		add_filter( 'cron_schedules', array( $this, 'wp_db_backup_cron_schedules' ) );
 		add_action( 'wpdbbkp_db_backup_event', array( $this, 'wp_db_backup_event_process' ) );
 		add_action( 'init', array( $this, 'wp_db_backup_scheduler_activation' ) );
-		add_action( 'wpdbbkp_db_backup_completed', array( $this, 'wp_db_backup_completed_local' ), 12 );
+		// Run last so destinations (FTP/S3/etc.) finish — and verify — before local file is removed.
+		add_action( 'wpdbbkp_db_backup_completed', array( $this, 'wp_db_backup_completed_local' ), 999 );
 		add_action('admin_enqueue_scripts', array( $this, 'wpdbbkp_admin_style'));
 		add_action('admin_enqueue_scripts', array( $this, 'wpdbbkp_admin_newsletter_script'));
 		add_action('wp_ajax_wpdbbkp_send_query_message', array( $this, 'wpdbbkp_send_query_message'));
@@ -142,10 +143,19 @@ class Wpdb_Admin {
 	 */
 	public function wp_db_backup_completed_local( &$args ) {
 		$wp_db_remove_local_backup = get_option( 'wp_db_remove_local_backup' );
-		if ( 1 === $wp_db_remove_local_backup ) {
-			if ( file_exists( $args[1] ) ) {
-				wp_delete_file( $args[1] );// File path.
-			}
+		if ( 1 !== (int) $wp_db_remove_local_backup ) {
+			return;
+		}
+
+		// Never delete the local file unless at least one remote destination succeeded.
+		$destination = isset( $args[4] ) ? (string) $args[4] : '';
+		$has_remote  = (bool) preg_match( '/FTP|SFTP|S3|Dropbox|Google|Email|Backblaze|GenericS3|CloudDrive|Local Path/i', $destination );
+		if ( ! $has_remote ) {
+			return;
+		}
+
+		if ( ! empty( $args[1] ) && file_exists( $args[1] ) ) {
+			wp_delete_file( $args[1] );
 		}
 	}
 
@@ -2977,32 +2987,10 @@ text-align: center;">
 		$destination               = ( 1 === (int) $wp_db_remove_local_backup ) ? '' : 'Local, ';
 
 		$args = array( $details['filename'], $details['dir'], $log_message, $details['size'], $destination );
-		
-		do_action_ref_array( 'wpdbbkp_db_backup_completed', array( &$args ) );
-		
-		// Ensure enabled destinations are reflected in the saved Destination string for table display
-		// Note: Hook handlers may have already added destinations, so check before appending
-		$destination_for_table = $args[4];
-		if ( get_option( 'wp_db_backup_destination_generics3' ) == 1 &&  !empty(get_option( 'wpdb_dest_generics3_bucket_key' ) ) && !empty(get_option( 'wpdb_dest_generics3_bucket_secret' ) ) ) {
-			$destination_for_table .= 'GenericS3, ';
-		}
-		if ( get_option( 'wp_db_backup_destination_bb' ) == 1 && !empty(get_option( 'wpdb_dest_bb_s3_bucket_key' ) ) ) {
-			$destination_for_table .= 'Backblaze, ';
-		}
-		if ( get_option( 'wp_db_backup_destination_s3' ) == 1 && !empty(get_option( 'wpdb_dest_amazon_s3_bucket_key' ) ) && !empty(get_option( 'wpdb_dest_amazon_s3_bucket_secret' ) ) ) {
-			$destination_for_table .= 'S3, ';
-		}
-		if ( get_option( 'wp_db_backup_destination_SFTP' ) == 1 && !empty(get_option( 'wpdb_dest_sftp_host' ) ) && !empty(get_option( 'wpdb_dest_sftp_port' ) ) && !empty(get_option( 'wpdb_dest_sftp_username' ) ) && !empty(get_option( 'wpdb_dest_sftp_password' ) ) ) {
-			$destination_for_table .= 'SFTP, ';
-		}
-		if ( get_option( 'wp_db_backup_destination_FTP' ) == 1 && !empty(get_option( 'wpdb_dest_ftp_host' ) ) && !empty(get_option( 'wpdb_dest_ftp_port' ) ) && !empty(get_option( 'wpdb_dest_ftp_username' ) ) && !empty(get_option( 'wpdb_dest_ftp_password' ) ) ) {
-			$destination_for_table .= 'FTP, ';
-		}
-		if ( get_option( 'wp_db_backup_destination_Email' ) == 1 && strpos( $destination_for_table, 'Email' ) === false ) {
-			$destination_for_table .= 'Email, ';
-		}
 
-		$options[]                 = array(
+		// Save backup record before destination hooks so log/destination updates can find it.
+		// Local file may still be removed later when "Remove local backup" is enabled.
+		$options[] = array(
 			'date'           => time(),
 			'filename'       => $details['filename'],
 			'url'            => $details['url'],
@@ -3011,13 +2999,13 @@ text-align: center;">
 			'search_replace' => $is_search_replace_flag,
 			'sqlfile'        => $details['sqlfile'],
 			'size'           => $details['size'],
-			'type'			 =>'database',
-			'destination'    => $destination_for_table
+			'type'           => 'database',
+			'destination'    => $destination,
 		);
-		if ( 1 !== (int) $wp_db_remove_local_backup ) {
-			$options = wpdbbkp_filter_unique_filenames( $options );
-			update_option( 'wp_db_backup_backups', $options , false);
-		}
+		$options = wpdbbkp_filter_unique_filenames( $options );
+		update_option( 'wp_db_backup_backups', $options, false );
+
+		do_action_ref_array( 'wpdbbkp_db_backup_completed', array( &$args ) );
 
 		if(isset($details['log_dir']) && !empty($details['log_dir']))
 		{

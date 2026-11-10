@@ -71,7 +71,7 @@ class WPDatabaseBackupGenericS3 {
 
 		// Test basic signature generation
 		$test_headers = array(
-			'host' => parse_url( $endpoint, PHP_URL_HOST ),
+			'host' => wp_parse_url( $endpoint, PHP_URL_HOST ),
 			'x-amz-date' => gmdate( 'Ymd\THis\Z' ),
 			'x-amz-content-sha256' => hash( 'sha256', '' ),
 		);
@@ -394,10 +394,10 @@ class WPDatabaseBackupGenericS3Client {
 		$url = rtrim( $this->endpoint, '/' );
 
 		// For AWS S3-like endpoints, the bucket is part of the domain
-		if ( strpos( $this->endpoint, 'amazonaws.com' ) !== false && ! empty( $bucket ) ) {
+		if ( strpos( $this->endpoint, 'amazonaws.com' ) !== false && ! empty( $bucket ) ) { // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- User-configured S3 API host, not an offloaded asset.
 			$url = str_replace( 's3.', 's3-' . $bucket . '.', $url );
 			$url .= $resource;
-		} elseif ( strpos( $this->endpoint, 'amazonaws.com' ) !== false && empty( $bucket ) ) {
+		} elseif ( strpos( $this->endpoint, 'amazonaws.com' ) !== false && empty( $bucket ) ) { // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- User-configured S3 API host, not an offloaded asset.
 			// For AWS S3 bucket listing, use the base endpoint
 			$url .= $resource;
 		} else {
@@ -420,7 +420,7 @@ class WPDatabaseBackupGenericS3Client {
 		$service = 's3';
 
 		$headers['x-amz-date'] = $amz_date;
-		$headers['Host'] = parse_url( $this->endpoint, PHP_URL_HOST );
+		$headers['Host'] = wp_parse_url( $this->endpoint, PHP_URL_HOST );
 
 		// Add content hash for AWS4
 		$body = isset( $request['body'] ) ? $request['body'] : '';
@@ -488,10 +488,10 @@ class WPDatabaseBackupGenericS3Client {
 	 * @return string
 	 */
 	private function getRegionFromEndpoint() {
-		$host = parse_url( $this->endpoint, PHP_URL_HOST );
+		$host = wp_parse_url( $this->endpoint, PHP_URL_HOST );
 
 		// For AWS S3 endpoints
-		if ( strpos( $host, 's3.' ) === 0 && strpos( $host, '.amazonaws.com' ) !== false ) {
+		if ( strpos( $host, 's3.' ) === 0 && strpos( $host, '.amazonaws.com' ) !== false ) { // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- User-configured S3 API host, not an offloaded asset.
 			$parts = explode( '.', $host );
 			if ( count( $parts ) >= 3 ) {
 				return $parts[1];
@@ -533,7 +533,7 @@ class WPDatabaseBackupGenericS3Client {
 			return '/';
 		}
 
-		if ( strpos( $this->endpoint, 'amazonaws.com' ) !== false ) {
+		if ( strpos( $this->endpoint, 'amazonaws.com' ) !== false ) { // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- User-configured S3 API host, not an offloaded asset.
 			// For AWS S3, bucket is in domain, so canonical URI doesn't include bucket
 			return $resource;
 		} else {

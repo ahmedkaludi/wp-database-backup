@@ -821,11 +821,11 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 					for ( $i = 0; $i <= $diff; $i++ ) {
 						$index = $i;
 						if ( file_exists( $options[ $index ]['dir'] ) ) {
-							unlink( $options[ $index ]['dir'] );
+							wp_delete_file( $options[ $index ]['dir'] );
 						}
 						$file_sql = explode( '.', $options[ $index ]['dir'] );
 						if ( file_exists( $file_sql[0] . '.sql' ) ) {
-							unlink( $file_sql[0] . '.sql' );
+							wp_delete_file( $file_sql[0] . '.sql' );
 						}
 					}
 					for ( $i = ( $diff + 1 ); $i < $number_of_existing_backups; $i++ ) {

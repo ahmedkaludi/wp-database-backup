@@ -129,9 +129,9 @@ if($wpdbbkp_destination_generics3==1 && !empty($wpdb_dest_generics3_endpoint) &&
 				<div class="row form-group">
 					<label class="col-sm-2" for="wpdb_dest_generics3_endpoint"><?php echo esc_html__('Endpoint URL', 'wpdbbkp') ?></label>
 					<div class="col-sm-6">
-						<input type="text" id="wpdb_dest_generics3_endpoint" class="form-control" name="wpdb_dest_generics3_endpoint" value="<?php echo esc_html( get_option( 'wpdb_dest_generics3_endpoint' ) ); ?>" size="25" placeholder="<?php esc_attr_e('https://s3.region.amazonaws.com or https://region.digitaloceanspaces.com','wpdbbkp');?>">
+						<input type="text" id="wpdb_dest_generics3_endpoint" class="form-control" name="wpdb_dest_generics3_endpoint" value="<?php echo esc_html( get_option( 'wpdb_dest_generics3_endpoint' ) ); ?>" size="25" placeholder="<?php esc_attr_e('https://s3.region.amazonaws.com or https://region.digitaloceanspaces.com','wpdbbkp'); // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- Example S3 endpoint for a user-configured backup destination, not an offloaded asset. ?>">
 						<a href="https://docs.aws.amazon.com/general/latest/gr/s3.html" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="true"></span></a>
-						<p class="description"><?php echo esc_html__('Enter the endpoint URL for your S3-compatible storage. For AWS S3: https://s3.region.amazonaws.com', 'wpdbbkp') ?></p>
+						<p class="description"><?php echo esc_html__('Enter the endpoint URL for your S3-compatible storage. For AWS S3: https://s3.region.amazonaws.com', 'wpdbbkp'); // phpcs:ignore PluginCheck.CodeAnalysis.Offloading.OffloadedContent -- Example S3 endpoint for a user-configured backup destination, not an offloaded asset. ?></p>
 					</div>
 				</div>
 

@@ -3,7 +3,7 @@ Contributors: databasebackup
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: Database backup, backup, cloud backup, files backup, wordpress backup.
-Requires at least: 3.1+
+Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 5.6.20
 Stable tag: 7.13

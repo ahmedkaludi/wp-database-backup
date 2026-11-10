@@ -19,6 +19,10 @@ function wpdbbkp_log( $message ) {
 add_filter('wpdbbkp_process_db_fields', 'bkpforwp_anonimize_database', 10, 3);
 add_action('wp_ajax_wpdbbkp_check_extract_status', 'wpdbbkp_check_extract_status');
 function wpdbbkp_check_extract_status(){
+  if ( ! current_user_can( 'manage_options' ) ) {
+    wp_send_json_error( esc_html__( 'Permission denied.', 'wpdbbkp' ) );
+    return;
+  }
   if ( ! isset( $_POST['wpdbbkp_admin_security_nonce'] ) || ! wp_verify_nonce( wp_unslash( $_POST['wpdbbkp_admin_security_nonce'] ), 'wpdbbkp_ajax_check_nonce' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce.
     wp_send_json_success( esc_html__( 'Invalid nonce check.', 'wpdbbkp' ) );
     return;
@@ -36,6 +40,10 @@ function wpdbbkp_check_extract_status(){
 
 add_action('wp_ajax_wpdbbkp_upload_site_chunk', 'wpdbbkp_upload_site_chunk');
 function wpdbbkp_upload_site_chunk() {
+    if ( ! current_user_can( 'manage_options' ) ) {
+      wp_send_json_error( esc_html__( 'Permission denied.', 'wpdbbkp' ) );
+      return;
+    }
     if ( ! isset( $_POST['wpdbbkp_admin_security_nonce'] ) || ! wp_verify_nonce( wp_unslash( $_POST['wpdbbkp_admin_security_nonce'] ), 'wpdbbkp_ajax_check_nonce' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce.
       wp_send_json_success( esc_html__( 'Invalid nonce check.', 'wpdbbkp' ) );
       return;
@@ -46,6 +54,8 @@ function wpdbbkp_upload_site_chunk() {
 
     $upload_dir = WP_CONTENT_DIR . '/uploads/wpdbbkp/temp';
     wp_mkdir_p( $upload_dir );
+
+    wpdbbkp_protect_temp_directory( $upload_dir );
 
     $file_name = sanitize_file_name( wp_unslash( $_POST['fileName'] ) );
     $file_path = $upload_dir . '/' . $file_name;
@@ -65,6 +75,11 @@ add_action('wp_ajax_wpdbbkp_extract_uploaded_site', 'wpdbbkp_extract_uploaded_si
 function wpdbbkp_extract_uploaded_site() {
 
   try {
+
+      if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( esc_html__( 'Permission denied.', 'wpdbbkp' ) );
+        return;
+      }
 
       if ( ! isset( $_POST['wpdbbkp_admin_security_nonce'] ) || ! wp_verify_nonce( wp_unslash( $_POST['wpdbbkp_admin_security_nonce'] ), 'wpdbbkp_ajax_check_nonce' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce.
 
@@ -1100,6 +1115,42 @@ function bkpforwp_dbback_cron_frequency($value)
     }
   }
   return $value;
+}
+
+/**
+ * Protect temp directory from PHP execution.
+ *
+ * @param string $temp_dir Path to temp directory.
+ */
+function wpdbbkp_protect_temp_directory( $temp_dir ) {
+	$htaccess_file = trailingslashit( $temp_dir ) . '.htaccess';
+
+	if ( file_exists( $htaccess_file ) ) {
+		return;
+	}
+
+	$htaccess_content = "# Disable PHP execution and public access\n";
+	$htaccess_content .= "<IfModule mod_php5.c>\n";
+	$htaccess_content .= "    php_flag engine off\n";
+	$htaccess_content .= "</IfModule>\n";
+	$htaccess_content .= "<IfModule mod_php7.c>\n";
+	$htaccess_content .= "    php_flag engine off\n";
+	$htaccess_content .= "</IfModule>\n";
+	$htaccess_content .= "<IfModule mod_php8.c>\n";
+	$htaccess_content .= "    php_flag engine off\n";
+	$htaccess_content .= "</IfModule>\n";
+	$htaccess_content .= "<FilesMatch \"\\.(?i:php|phtml|php3|php4|php5|php7|phps|cgi|pl|exe)$\">\n";
+	$htaccess_content .= "    <IfModule mod_authz_core.c>\n";
+	$htaccess_content .= "        Require all denied\n";
+	$htaccess_content .= "    </IfModule>\n";
+	$htaccess_content .= "    <IfModule !mod_authz_core.c>\n";
+	$htaccess_content .= "        Order allow,deny\n";
+	$htaccess_content .= "        Deny from all\n";
+	$htaccess_content .= "    </IfModule>\n";
+	$htaccess_content .= "</FilesMatch>\n";
+
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents -- Creating .htaccess for security.
+	file_put_contents( $htaccess_file, $htaccess_content );
 }
 
 /**

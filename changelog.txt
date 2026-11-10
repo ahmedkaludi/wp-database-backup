@@ -1,3 +1,8 @@
+= 7.14 =
+* 10-11-2026
+* Improvement: Improved FTP uploads and local backup cleanup #149
+* Improvement: PCP improvements #152
+
 = 7.13 =
 * 24-08-2026
 * Fix: Authenticated arbitrary file upload disclosed by Wordfence

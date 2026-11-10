@@ -1,5 +1,8 @@
 <?php
 //phpcs:ignoreFile -- Thirdparty code.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
 /**
  * Class for communicating with Dropbox API V2.
  *

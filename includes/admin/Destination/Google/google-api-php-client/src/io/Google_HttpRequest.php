@@ -288,7 +288,7 @@ class Google_HttpRequest {
     $str .= "Content-ID: $id\n";
     $str .= "\n";
 
-    $path = parse_url($this->getUrl(), PHP_URL_PATH);
+    $path = wp_parse_url($this->getUrl(), PHP_URL_PATH);
     $str .= $this->getRequestMethod() . ' ' . $path . " HTTP/1.1\n";
     foreach($this->getRequestHeaders() as $key => $val) {
       $str .= $key . ': ' . $val . "\n";

@@ -918,6 +918,15 @@ if(!function_exists('wpdbbkp_cron_backup_event_process')){
 			WPDatabaseBackupCD::wp_db_backup_completed($args2);
 			wpdbbkp_fullbackup_log($args2);
 			wpdbbkp_backup_completed_notification($args2);
+
+			// Remove local file only after remote destinations have finished.
+			if ( 1 === (int) get_option( 'wp_db_remove_local_backup' ) ) {
+				$wpdbbkp_dest = isset( $args2[4] ) ? (string) $args2[4] : '';
+				if ( preg_match( '/FTP|SFTP|S3|Dropbox|Google|Email|Backblaze|GenericS3|CloudDrive|Local Path/i', $wpdbbkp_dest )
+					&& ! empty( $args2[1] ) && file_exists( $args2[1] ) ) {
+					wp_delete_file( $args2[1] );
+				}
+			}
 			update_option('wpdbbkp_dashboard_notify','create', false);
 			update_option('wpdbbkp_export_notify','create', false);
 			update_option('wpdbbkp_backupcron_status','inactive', false);

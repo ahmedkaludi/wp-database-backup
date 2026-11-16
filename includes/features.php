@@ -1154,54 +1154,184 @@ function wpdbbkp_protect_temp_directory( $temp_dir ) {
 }
 
 /**
+ * Apache deny rules for the backup folder. The folder path stays under uploads.
+ *
+ * @return string
+ */
+function wpdbbkp_backup_htaccess_rules() {
+	return "# Disable public access to this folder\n<IfModule mod_authz_core.c>\n    Require all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\n    Deny from all\n</IfModule>\n";
+}
+
+/**
+ * IIS deny rules for the same backup folder.
+ *
+ * @return string
+ */
+function wpdbbkp_backup_web_config_rules() {
+	return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<configuration>\n\t<system.webServer>\n\t\t<security>\n\t\t\t<authorization>\n\t\t\t\t<remove users=\"*\" roles=\"\" verbs=\"\" />\n\t\t\t\t<add accessType=\"Deny\" users=\"*\" />\n\t\t\t</authorization>\n\t\t</security>\n\t</system.webServer>\n</configuration>\n";
+}
+
+/**
+ * Deny direct web access inside the existing backup directory.
+ *
+ * Writes Apache and IIS deny files and removes the fixed-name FTP debug log.
+ * Backup archives stay in this directory.
+ *
+ * @param string $dir Backup directory.
+ */
+function wpdbbkp_deny_public_backup_access( $dir ) {
+	if ( ! is_string( $dir ) || '' === $dir ) {
+		return;
+	}
+	if ( ! wp_mkdir_p( $dir ) ) {
+		return;
+	}
+
+	$dir        = trailingslashit( $dir );
+	$htaccess   = $dir . '.htaccess';
+	$web_config = $dir . 'web.config';
+	$debug_log  = $dir . 'ftp-debug.log';
+	$htaccess_body = '';
+
+	if ( file_exists( $htaccess ) ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$htaccess_body = (string) file_get_contents( $htaccess );
+	}
+
+	if ( false === strpos( $htaccess_body, 'Require all denied' ) ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $htaccess, wpdbbkp_backup_htaccess_rules() );
+	}
+	if ( ! file_exists( $web_config ) ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $web_config, wpdbbkp_backup_web_config_rules() );
+	}
+	if ( file_exists( $debug_log ) ) {
+		wp_delete_file( $debug_log );
+	}
+}
+
+/**
  * Function to force the new .htaccess file to fix the backup folder protection
  */
-function wpdbbkp_fix_htaccess_on_update()
-{
-  static $wpdbbkp_htaccess_fix = false;
+function wpdbbkp_fix_htaccess_on_update() {
+	static $wpdbbkp_htaccess_fix = false;
 
-  if (!$wpdbbkp_htaccess_fix && version_compare(WPDB_VERSION, '7.4', '>=')) {
-    $wpdbbkp_htaccess_fix = true;
-    $option_name = 'wpdbbkp_htaccess_fix';
-    if (get_option($option_name, false)) {
-      return; // Exit if already fixed
-    }
+	if ( $wpdbbkp_htaccess_fix || ! version_compare( WPDB_VERSION, '7.4', '>=' ) ) {
+		return;
+	}
+	$wpdbbkp_htaccess_fix = true;
 
-    // Initialize WP Filesystem
-    global $wp_filesystem;
+	$path_info     = wp_upload_dir();
+	$backup_folder = $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR;
+	wpdbbkp_deny_public_backup_access( $backup_folder );
+	wpdbbkp_deny_public_backup_access( $backup_folder . '/log' );
 
-    if (!function_exists('WP_Filesystem')) {
-      require_once ABSPATH . 'wp-admin/includes/file.php';
-    }
-
-    if (!WP_Filesystem()) {
-      return;
-    }
-    // Define the .htaccess content
-    $htaccess_content = "
-# Disable public access to this folder
-<IfModule mod_authz_core.c>
-    Require all denied
-</IfModule>
-
-<IfModule !mod_authz_core.c>
-    Deny from all
-</IfModule>
-";
-
-    $path_info = wp_upload_dir();
-    $backup_folder = $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/';
-    $htaccess_file = trailingslashit($backup_folder) . '.htaccess';
-
-    if ($wp_filesystem->exists($htaccess_file)) {
-      $wp_filesystem->delete($htaccess_file);
-    }
-
-    if (!$wp_filesystem->put_contents($htaccess_file, $htaccess_content, FS_CHMOD_FILE)) {
-      return;
-    }
-    update_option($option_name, time(), false);
-  }
+	if ( ! get_option( 'wpdbbkp_htaccess_fix', false ) ) {
+		update_option( 'wpdbbkp_htaccess_fix', time(), false );
+	}
 }
 
 add_action('admin_init', 'wpdbbkp_fix_htaccess_on_update');
+
+/**
+ * Map one stored backup value back to wp-content/uploads.
+ *
+ * @param mixed  $value      Stored value.
+ * @param string $key        Field name.
+ * @param string $public_dir Filesystem backup directory.
+ * @param string $public_url Public URL of that directory.
+ * @param bool   $repair_names Restore filename-only URL fields.
+ * @return mixed
+ */
+function wpdbbkp_restore_backup_value( $value, $key, $public_dir, $public_url, $repair_names ) {
+	if ( ! is_string( $value ) || '' === $value ) {
+		return $value;
+	}
+
+	$norm    = str_replace( '\\', '/', $value );
+	$url_key = ( 'url' === $key || 'log_url' === $key );
+
+	if ( preg_match( '#^(?:[A-Za-z]:)?/.*/wpdbbkp-backups(/.*)?$#i', $norm, $match ) ) {
+		$rest = isset( $match[1] ) ? $match[1] : '';
+		$base = $url_key ? $public_url : $public_dir;
+		return rtrim( str_replace( '\\', '/', $base ), '/' ) . $rest;
+	}
+
+	if ( $repair_names && $url_key && false === strpos( $norm, '://' ) && false === strpos( $norm, '/' ) ) {
+		$prefix = ( 'log_url' === $key ) ? '/log/' : '/';
+		return rtrim( str_replace( '\\', '/', $public_url ), '/' ) . $prefix . $norm;
+	}
+
+	return $value;
+}
+
+/**
+ * @param mixed  $data         Backup record tree.
+ * @param string $public_dir   Filesystem backup directory.
+ * @param string $public_url   Public URL of that directory.
+ * @param bool   $repair_names Restore filename-only URL fields.
+ * @return mixed
+ */
+function wpdbbkp_restore_backup_tree( $data, $public_dir, $public_url, $repair_names ) {
+	if ( ! is_array( $data ) ) {
+		return $data;
+	}
+	foreach ( $data as $key => $value ) {
+		if ( is_array( $value ) ) {
+			$data[ $key ] = wpdbbkp_restore_backup_tree( $value, $public_dir, $public_url, $repair_names );
+		} else {
+			$data[ $key ] = wpdbbkp_restore_backup_value( $value, (string) $key, $public_dir, $public_url, $repair_names );
+		}
+	}
+	return $data;
+}
+
+/**
+ * Whether a stored value still points at the temporary wpdbbkp-backups directory.
+ *
+ * @param mixed $data Option value.
+ * @return bool
+ */
+function wpdbbkp_record_uses_private_dir( $data ) {
+	if ( is_string( $data ) ) {
+		return false !== stripos( str_replace( '\\', '/', $data ), '/wpdbbkp-backups' );
+	}
+	if ( ! is_array( $data ) ) {
+		return false;
+	}
+	foreach ( $data as $value ) {
+		if ( wpdbbkp_record_uses_private_dir( $value ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Put backup records back on the uploads backup directory after the rejected move.
+ */
+function wpdbbkp_restore_moved_backup_records() {
+	if ( get_option( 'wpdbbkp_backup_dir_checked', false ) ) {
+		return;
+	}
+
+	$private_option = get_option( 'wpdbbkp_private_backup_dir', '' );
+	$backups        = get_option( 'wp_db_backup_backups', array() );
+	$dirty          = ( is_string( $private_option ) && '' !== $private_option ) || wpdbbkp_record_uses_private_dir( $backups );
+
+	if ( $dirty && is_array( $backups ) ) {
+		$path_info  = wp_upload_dir();
+		$folder     = defined( 'WPDB_BACKUPS_DIR' ) ? WPDB_BACKUPS_DIR : 'db-backup';
+		$public_dir = rtrim( str_replace( '\\', '/', $path_info['basedir'] ), '/' ) . '/' . $folder;
+		$public_url = rtrim( str_replace( '\\', '/', $path_info['baseurl'] ), '/' ) . '/' . $folder;
+		$restored   = wpdbbkp_restore_backup_tree( $backups, $public_dir, $public_url, true );
+		update_option( 'wp_db_backup_backups', $restored, false );
+	}
+
+	delete_option( 'wpdbbkp_private_backup_dir' );
+	delete_option( 'wpdbbkp_private_storage_ready' );
+	update_option( 'wpdbbkp_backup_dir_checked', time(), false );
+}
+
+add_action( 'plugins_loaded', 'wpdbbkp_restore_moved_backup_records', 20 );

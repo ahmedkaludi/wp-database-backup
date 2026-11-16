@@ -286,17 +286,9 @@ if(!function_exists('wpdbbkp_wp_cron_config_path')){
 	        wp_mkdir_p($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log');
 			wpdbbkp_write_file_contents($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/index.php','');
 			wpdbbkp_write_file_contents($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/index.php','');
-	        //added htaccess file 08-05-2015 for prevent directory listing
-	        //Fixed Vulnerability 22-06-2016 for prevent direct download
-	        $htaccess_content = "# Disable public access to this folder
-<IfModule mod_authz_core.c>
-    Require all denied
-</IfModule>
-
-<IfModule !mod_authz_core.c>
-    Deny from all
-</IfModule>";
-			wpdbbkp_write_file_contents($path_info['basedir']  . '/' . WPDB_BACKUPS_DIR . '/.htaccess',$htaccess_content);
+	        // Deny direct access in this same folder. 08-05-2015, 22-06-2016.
+			wpdbbkp_deny_public_backup_access($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR);
+			wpdbbkp_deny_public_backup_access($path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log');
 
 	        $siteName = preg_replace('/[^\p{L}\p{M}]+/u', '_', get_bloginfo('name')); //added in v2.1 for Backup zip labeled with the site name(Help when backing up multiple sites).
 	        $FileName = $siteName . '_' . gmdate("Y_m_d") . '_' . Time() .'_'. substr(md5(wp_rand(100,9999999)), 0, 9).'_wpall';

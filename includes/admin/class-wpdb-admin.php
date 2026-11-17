@@ -2780,18 +2780,9 @@ text-align: center;">
 			$wp_filesystem->put_contents( $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log/index.php', $file_contents, FS_CHMOD_FILE );
 		
 
-		// Added htaccess file 08-05-2015 for prevent directory listing.
-		// Fixed Vulnerability 22-06-2016 for prevent direct download.
-		
-				$htaccess_content = '# Disable public access to this folder
-<IfModule mod_authz_core.c>
-    Require all denied
-</IfModule>
-
-<IfModule !mod_authz_core.c>
-    Deny from all
-</IfModule>';
-				$wp_filesystem->put_contents( $path_info['basedir'] . '/db-backup/.htaccess', $htaccess_content, FS_CHMOD_FILE );
+		// Deny direct access in this same folder. 08-05-2015, 22-06-2016.
+		wpdbbkp_deny_public_backup_access( $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR );
+		wpdbbkp_deny_public_backup_access( $path_info['basedir'] . '/' . WPDB_BACKUPS_DIR . '/log' );
 			
 		// Begin : Generate SQL DUMP and save to file database.sql.
 		$wp_site_name = preg_replace('/[^\p{L}\p{M}]+/u', '_', get_bloginfo('name'));

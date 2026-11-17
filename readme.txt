@@ -6,7 +6,7 @@ Tags: Database backup, backup, cloud backup, files backup, wordpress backup.
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 5.6.20
-Stable tag: 7.14
+Stable tag: 7.15
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 
@@ -77,6 +77,11 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 4. Backup for WP plugin settings screen showing backup and log configuration options.
 
 == Changelog ==
+= 7.15 =
+* 12-11-2026
+* Fix: Direct access to the backup folder is denied on Apache and IIS.
+* Fix: The FTP debug log is no longer written into backup folder.
+
 = 7.14 =
 * 10-11-2026
 * Improvement: Improved FTP uploads and local backup cleanup #149

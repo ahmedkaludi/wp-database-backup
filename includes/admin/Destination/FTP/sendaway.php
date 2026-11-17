@@ -16,7 +16,7 @@ $wpdbbkp_subdir     = get_option( 'backupbreeze_ftp_subdir' );
 $wpdbbkp_upload_dir = wp_upload_dir();
 $wpdbbkp_upload_dir['basedir'] = str_replace( '\\', '/', $wpdbbkp_upload_dir['basedir'] );
 $wpdbbkp_backup_dir = trailingslashit( $wpdbbkp_upload_dir['basedir'] . '/db-backup' );
-$wpdbbkp_ftp_log    = $wpdbbkp_backup_dir . 'ftp-debug.log';
+$wpdbbkp_ftp_log    = '';
 
 // Prefer absolute path from the backup process when available.
 if ( ! empty( $wpdbbkp_args[1] ) ) {
@@ -34,19 +34,17 @@ $wpdbbkp_remotefile = ( '' !== $wpdbbkp_subdir )
 $wpdbbkp_conn = false;
 
 /**
- * Append a line to uploads/db-backup/ftp-debug.log
+ * Record an FTP diagnostic without writing a file into the backup folder.
  *
- * @param string $log_file Log path.
+ * @param string $log_file Unused. Kept so existing calls stay valid.
  * @param string $message  Message.
  */
 $wpdbbkp_ftp_write_log = static function ( $log_file, $message ) {
-	$dir = dirname( $log_file );
-	if ( ! is_dir( $dir ) ) {
-		wp_mkdir_p( $dir );
+	unset( $log_file );
+	if ( ! defined( 'WP_DEBUG' ) || ! WP_DEBUG ) {
+		return;
 	}
-	$line = '[' . gmdate( 'Y-m-d H:i:s' ) . ' UTC] ' . $message . PHP_EOL;
-	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-	file_put_contents( $log_file, $line, FILE_APPEND | LOCK_EX );
+	error_log( '[wpdbbkp] ' . $message );
 };
 
 $wpdbbkp_ftp_write_log( $wpdbbkp_ftp_log, '===== FTP upload start =====' );

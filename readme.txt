@@ -6,7 +6,7 @@ Tags: Database backup, backup, cloud backup, files backup, wordpress backup.
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 5.6.20
-Stable tag: 7.15
+Stable tag: 7.16
 
 Create & Restore Database Backup easily on single click. Manual or automated backups (backup to Dropbox, Google drive, Amazon s3,FTP,Email).
 

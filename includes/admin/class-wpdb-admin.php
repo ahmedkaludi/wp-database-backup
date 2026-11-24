@@ -41,6 +41,7 @@ class Wpdb_Admin {
 		add_action( 'admin_notices', array($this, 'check_ziparchive_avalable_admin_notice' ));
 		add_action( 'admin_notices', array($this, 'wpdbbkp_cloudbackup_notice' ) );
 		add_action( 'wp_ajax_wpdbbkp_cloudbackup_dismiss_notice', array($this, 'wpdbbkp_cloudbackup_dismiss_notice' ) );
+		add_action( 'wp_ajax_wpdbbkp_bfcm_dismiss_banner', array( $this, 'wpdbbkp_bfcm_dismiss_banner' ) );
 		add_action( 'admin_init', array($this, 'admin_backup_file_download' ));
 		
 	}
@@ -672,6 +673,10 @@ class Wpdb_Admin {
 		$incremental_backup =  get_option( 'wp_db_incremental_backup' ,false);  ?>
 		<div class="bootstrap-wrapper">
 		<?php
+		if ( $this->wpdbbkp_bfcm_banner_is_visible() ) {
+			$wpdbbkp_bfcm_end = $this->wpdbbkp_bfcm_banner_end_timestamp();
+			include WPDB_PATH . 'includes/admin/bfcm-banner.php';
+		}
 		$wp_db_local_backup_path = get_option( 'wp_db_local_backup_path' );
 		if ( false === empty( $wp_db_local_backup_path ) && false === file_exists( $wp_db_local_backup_path ) ) {
 			echo '<div class="alert alert-warning alert-dismissible fade in" role="alert">
@@ -3224,6 +3229,21 @@ text-align: center;">
 			wp_register_script('wpdbbkp-admin-export', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-admin-cron-export.js', array(), WPDB_VERSION , true );  
 	        wp_enqueue_script('wpdbbkp-admin-export');
 	        // Custom Js ends
+
+			if ( $this->wpdbbkp_bfcm_banner_is_visible() ) {
+				wp_register_script( 'wpdbbkp-bfcm-banner', WPDB_PLUGIN_URL . '/assets/js/wpdbbkp-bfcm-banner.js', array( 'jquery' ), WPDB_VERSION, true );
+				wp_localize_script(
+					'wpdbbkp-bfcm-banner',
+					'wpdbbkpBfcm',
+					array(
+						'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+						'nonce'   => wp_create_nonce( 'wpdbbkp_bfcm_dismiss_banner' ),
+						'end'     => $this->wpdbbkp_bfcm_banner_end_timestamp(),
+						'code'    => 'BFCM2026',
+					)
+				);
+				wp_enqueue_script( 'wpdbbkp-bfcm-banner' );
+			}
 		}
 	}
 
@@ -3701,6 +3721,54 @@ text-align: center;">
 			}
 		
 			return false;
+		}
+
+		/**
+		 * Unix timestamp for the end of the BFCM offer, in the site timezone.
+		 *
+		 * @return int
+		 */
+		public function wpdbbkp_bfcm_banner_end_timestamp() {
+			$end = new DateTimeImmutable( '2026-12-31 23:59:59', wp_timezone() );
+			return $end->getTimestamp();
+		}
+
+		/**
+		 * Whether the BFCM banner should render for the current user.
+		 *
+		 * @return bool
+		 */
+		public function wpdbbkp_bfcm_banner_is_visible() {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return false;
+			}
+
+			if ( time() > $this->wpdbbkp_bfcm_banner_end_timestamp() ) {
+				return false;
+			}
+
+			$dismissed_until = (int) get_user_meta( get_current_user_id(), 'wpdbbkp_bfcm_dismissed_until', true );
+			if ( $dismissed_until > time() ) {
+				return false;
+			}
+
+			return true;
+		}
+
+		/**
+		 * Hide the BFCM banner for 7 days for the current user.
+		 */
+		public function wpdbbkp_bfcm_dismiss_banner() {
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( esc_html__( 'Permission denied', 'wpdbbkp' ), '', array( 'response' => 403 ) );
+			}
+
+			if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( wp_unslash( $_POST['nonce'] ), 'wpdbbkp_bfcm_dismiss_banner' ) ) { //phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- using as nonce
+				wp_die( esc_html__( 'Invalid nonce', 'wpdbbkp' ), '', array( 'response' => 403 ) );
+			}
+
+			update_user_meta( get_current_user_id(), 'wpdbbkp_bfcm_dismissed_until', time() + ( 7 * DAY_IN_SECONDS ) );
+			wp_die();
 		}
 
 		public function wpdbbkp_cloudbackup_notice(){

@@ -77,6 +77,11 @@ Bug reports for WP Database Backup  are [welcomed on GitHub](https://github.com/
 4. Backup for WP plugin settings screen showing backup and log configuration options.
 
 == Changelog ==
+= 7.16 =
+* 24-11-2026
+* New: BFCM 2026 promo banner
+* Improvement: Feedback form improvements
+
 = 7.15 =
 * 12-11-2026
 * Fix: Direct access to the backup folder is denied on Apache and IIS.

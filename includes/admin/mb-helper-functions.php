@@ -78,44 +78,47 @@ function wpdbbkp_send_feedback()
     if (!current_user_can('manage_options')) {
         return;
     }
+    $form = array();
     $data = isset($_POST['data']) ? sanitize_text_field(wp_unslash($_POST['data'])) : false;
     if ( $data ) {
         parse_str($data, $form);
     }
 
+    $reason = isset( $form['wpdbbkp_disable_reason'] ) ? sanitize_key( $form['wpdbbkp_disable_reason'] ) : '';
+    $email_reasons = array( 'missing', 'technical', 'other' );
+
     $text = '';
-    if (isset($form['wpdbbkp_disable_text'])) {
-        $text = implode("\n\r", $form['wpdbbkp_disable_text']);
+    if ( isset( $form['wpdbbkp_disable_text'] ) && is_array( $form['wpdbbkp_disable_text'] ) ) {
+        $parts = array();
+        foreach ( $form['wpdbbkp_disable_text'] as $part ) {
+            $part = trim( sanitize_textarea_field( $part ) );
+            if ( '' !== $part ) {
+                $parts[] = $part;
+            }
+        }
+        $text = implode( "\n", $parts );
     }
 
-    $headers = array();
+    $words = preg_split( '/\s+/u', $text, -1, PREG_SPLIT_NO_EMPTY );
+    $word_count = is_array( $words ) ? count( $words ) : 0;
 
-    $from = isset($form['wpdbbkp_disable_from']) ? $form['wpdbbkp_disable_from'] : '';
-    if ($from) {
-        $headers[] = "From: $from";
-        $headers[] = "Reply-To: $from";
-    }
+    if ( in_array( $reason, $email_reasons, true ) && $word_count >= 1 ) {
+        $headers = array();
 
-    $subject = isset($form['wpdbbkp_disable_reason']) ? $form['wpdbbkp_disable_reason'] : '(no reason given)';
-
-    $subject = $subject . ' - Backup for WP Publisher';
-
-    if ($subject == 'technical - Backup for WP Publisher') {
-
-        $text = trim($text);
-
-        if (!empty($text)) {
-
-            $text = 'technical issue description: ' . $text;
-
-        } else {
-
-            $text = 'no description: ' . $text;
+        $from = isset( $form['wpdbbkp_disable_from'] ) ? $form['wpdbbkp_disable_from'] : '';
+        if ( $from ) {
+            $headers[] = "From: $from";
+            $headers[] = "Reply-To: $from";
         }
 
-    }
+        $subject = $reason . ' - Backup for WP Publisher';
 
-    $success = wp_mail('team@magazine3.in', $subject, $text, $headers);
+        if ( 'technical' === $reason ) {
+            $text = 'technical issue description: ' . $text;
+        }
+
+        wp_mail( 'team@magazine3.in', $subject, $text, $headers );
+    }
 
     wp_die();
 }
@@ -133,7 +136,7 @@ function wpdbbkp_enqueue_makebetter_email_js()
     }
 
 
-    wp_register_script('wpdbbkp-make-better-js', WPDB_PLUGIN_URL . '/assets/js/make-better-admin.js', array('jquery'), WPDB_VERSION, true);
+    wp_register_script('wpdbbkp-make-better-js', WPDB_PLUGIN_URL . '/assets/js/make-better-admin.js', array('jquery'), filemtime( WPDB_PATH . 'assets/js/make-better-admin.js' ), true);
     wp_localize_script(
         'wpdbbkp-make-better-js',
         'wpdbbkp_pub_script_vars',

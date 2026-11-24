@@ -47,7 +47,7 @@ jQuery(document).ready(function ($) {
                 data: {
                     action: 'wpdbbkp_send_feedback',
                     data: $('#wpdbbkp-feedback-content form').serialize(),
-                    gn_security_nonce:gn_pub_script_vars.nonce
+                    wpdbbkp_security_nonce: (typeof wpdbbkp_pub_script_vars !== 'undefined') ? wpdbbkp_pub_script_vars.nonce : ''
                 },
                 complete: function (MLHttpRequest, textStatus, errorThrown) {
                     // deactivate the plugin and close the popup
